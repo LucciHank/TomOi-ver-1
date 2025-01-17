@@ -4,7 +4,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 app_name = 'store'
-
 urlpatterns = [
     path('', views.home, name='home'),  # Trang chủ
     path('list/', views.product_list, name='product_list'),

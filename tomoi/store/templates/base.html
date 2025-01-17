@@ -210,8 +210,8 @@
                         <a href="{% url 'store:order_history' %}">Lịch sử mua hàng</a>
                         <a href="{% url 'logout' %}">Đăng xuất</a>
                     {% else %}
-                        <a href="{% url 'login' %}">Đăng nhập</a>
-                        <a href="{% url 'signup' %}">Đăng ký</a>
+                        <!-- Kích hoạt Modal -->
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#authModal">Đăng nhập / Đăng ký</a>
                     {% endif %}
                 </div>
             </li>
@@ -235,6 +235,162 @@
         </ul>
     </div>
 </nav>
+
+<!-- Modal Đăng Nhập -->
+<div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <!-- Logo trên cùng -->
+        <img src="https://placehold.co/50x50" alt="Logo Shop" class="me-auto">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <h5 class="text-center">Đăng Nhập</h5>
+        <form id="loginForm" method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="loginUsername" class="form-label">Tên đăng nhập</label>
+            <input type="text" class="form-control" id="loginUsername" name="username" required>
+          </div>
+          <div class="mb-3">
+            <label for="loginPassword" class="form-label">Mật khẩu</label>
+            <input type="password" class="form-control" id="loginPassword" name="password" required>
+          </div>
+          <div class="mb-3 text-end">
+            <a href="#" id="forgotPasswordLink" class="text-decoration-none" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#forgotPasswordModal">Bạn quên mật khẩu?</a>
+          </div>
+          <a href="#" data-bs-toggle="modal" data-bs-target="#authModal">Đăng nhập</a>
+        </form>
+        <div class="text-center my-3">
+          <span>HOẶC</span>
+        </div>
+        <div class="d-grid gap-2">
+          <button type="button" class="btn btn-danger">Đăng nhập với Google</button>
+          <button type="button" class="btn btn-primary">Đăng nhập với Facebook</button>
+        </div>
+        <div class="text-center mt-3">
+          <span>Bạn chưa có tài khoản? <a href="#" id="registerLink" class="text-decoration-none" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#registerModal">Đăng ký ngay</a></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Quên Mật Khẩu -->
+<div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-hidden="true" >
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <img src="https://placehold.co/50x50" alt="Logo Shop" class="me-auto">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <h5 class="text-center">Quên Mật Khẩu</h5>
+        <form id="forgotPasswordForm" method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="forgotEmail" class="form-label">Email</label>
+            <input type="email" class="form-control" id="forgotEmail" name="email" required>
+          </div>
+          <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-dismiss="modal" id="sendOtpBtn">Gửi mã xác nhận</button>
+        </form>
+        <div class="text-center mt-3">
+          <a href="#" class="text-decoration-none" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#authModal">Quay lại đăng nhập</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Verify OTP -->
+<div class="modal fade" id="verifyOtpModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <img src="https://placehold.co/50x50" alt="Logo Shop" class="me-auto">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <h5 class="text-center">Xác minh OTP</h5>
+        <div class="mb-3">
+          <label class="form-label">Nhập mã xác nhận</label>
+          <div id="otpInputs" class="d-flex gap-2">
+            <input type="text" maxlength="1" class="form-control otp-input" required>
+            <input type="text" maxlength="1" class="form-control otp-input" required>
+            <input type="text" maxlength="1" class="form-control otp-input" required>
+            <input type="text" maxlength="1" class="form-control otp-input" required>
+            <input type="text" maxlength="1" class="form-control otp-input" required>
+            <input type="text" maxlength="1" class="form-control otp-input" required>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary w-100 mt-3" data-bs-toggle="modal" data-bs-dismiss="modal" id="verifyOtpBtn">Xác minh</button>
+        <div class="text-center mt-3">
+          <span>Bạn chưa nhận được mã? <a href="#" id="resendOtp" class="text-decoration-none">Gửi lại</a></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Đặt Password mới -->
+<div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <img src="https://placehold.co/50x50" alt="Logo Shop" class="me-auto">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <h5 class="text-center">Đặt Lại Mật Khẩu</h5>
+        <form id="resetPasswordForm" method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="newPassword" class="form-label">Mật khẩu mới</label>
+            <input type="password" class="form-control" id="newPassword" name="new_password" required>
+          </div>
+          <div class="mb-3">
+            <label for="confirmPassword" class="form-label">Xác nhận mật khẩu</label>
+            <input type="password" class="form-control" id="confirmPassword" name="confirm_password" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Đặt lại mật khẩu</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Đăng Ký -->
+<div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <img src="https://placehold.co/50x50" alt="Logo Shop" class="me-auto">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <h5 class="text-center">Đăng Ký</h5>
+        <form id="registerForm" method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="registerUsername" class="form-label">Tên đăng nhập</label>
+            <input type="text" class="form-control" id="registerUsername" name="username" required>
+          </div>
+          <div class="mb-3">
+            <label for="registerEmail" class="form-label">Email</label>
+            <input type="email" class="form-control" id="registerEmail" name="email" required>
+          </div>
+          <div class="mb-3">
+            <label for="registerPassword" class="form-label">Mật khẩu</label>
+            <input type="password" class="form-control" id="registerPassword" name="password" required>
+          </div>
+          <a href="#" data-bs-toggle="modal" class="btn btn-primary w-100" data-bs-target="#registerModal">Đăng ký</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 
   <div class="container mt-4 content">
     {% block content %}
@@ -317,6 +473,6 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="{% static 'js/cart.js' %}"></script>
+  <script src="{% static 'js/cart.js' %}" defer></script>
 </body>
 </html>

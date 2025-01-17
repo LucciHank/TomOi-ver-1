@@ -11,11 +11,12 @@ from django.utils.timezone import now, timedelta
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from .forms import ProductImageForm
+import random
 # from paypalrestsdk import Payment
 # import paypalrestsdk
 
 def dashboard(request):
-    return render(request, 'index.html')
+    return render(request, 'store/index.html')
 
 def home(request):
     return render(request, 'store/home.html')
@@ -29,18 +30,40 @@ def add_images_to_product(request, product_id):
             is_primary = 'is_primary' in request.POST and image_file.name == request.POST.get('primary_image')
             ProductImage.objects.create(product=product, image=image_file, is_primary=is_primary)
 
-        return redirect('product_detail', product_id=product.id)
+        return redirect('store:product_detail', product_id=product.id)
 
     else:
         # Nếu không phải POST, chỉ render form
         form = ProductImageForm()
 
-    return render(request, 'add_images.html', {'form': form, 'product': product})
+    return render(request, 'store/add_images', {'form': form, 'product': product})
 
 def product_detail(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     variants = product.variants.all()
-    return render(request, 'product_detail.html', {'product': product, 'variants': variants})
+    return render(request, 'store/product_detail', {'product': product, 'variants': variants})
+
+def send_otp(request):
+    email = request.POST.get('email')
+    # Tạo OTP ngẫu nhiên
+    otp = random.randint(100000, 999999)
+    # Lưu OTP vào database hoặc cache (tùy ý bạn)
+    # Gửi email (giả lập ở đây)
+    print(f"Send OTP {otp} to {email}")
+    return JsonResponse({'success': True, 'message': 'OTP đã được gửi!'})
+
+def verify_otp(request):
+    otp = request.POST.get('otp')
+    # Kiểm tra OTP từ database hoặc cache
+    if otp == "123456":  # Thay bằng kiểm tra thực tế
+        return JsonResponse({'success': True, 'message': 'OTP hợp lệ!'})
+    return JsonResponse({'success': False, 'message': 'OTP không chính xác!'})
+
+def resend_otp(request):
+    email = request.POST.get('email')
+    otp = random.randint(100000, 999999)
+    print(f"Resend OTP {otp} to {email}")
+    return JsonResponse({'success': True, 'message': 'OTP đã được gửi lại!'})
 
 @login_required
 def add_balance(request, amount):
@@ -51,15 +74,15 @@ def add_balance(request, amount):
 
 @login_required
 def user_profile(request):
-    return render(request, 'profile.html', {
+    return render(request, 'store/profile.html', {
         'user': request.user
     })
 
 def user_info(request):
-    return render(request, 'user_info.html')
+    return render(request, 'store/user_info.html')
 
 def recharge(request):
-    return render(request, 'recharge.html')
+    return render(request, 'store/recharge.html')
 
 @login_required
 def buy_premium_account(request, account_type, price, duration_days):
@@ -83,7 +106,7 @@ def purchased_accounts(request):
 
 def product_list(request):
     categories = Category.objects.all()
-    return render(request, 'product_list.html', {'categories': categories})
+    return render(request, 'store/product_list.html', {'categories': categories})
 
 @login_required
 def order_history(request):

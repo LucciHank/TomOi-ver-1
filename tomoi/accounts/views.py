@@ -6,7 +6,82 @@ from django.core.mail import send_mail
 from django.conf import settings
 from social_django.utils import psa
 from social_django.models import UserSocialAuth
+from django.contrib.auth.models import User
+from django.core.mail import send_mail
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.crypto import get_random_string
 from .forms import CustomUserCreationForm, CustomUserChangeForm, CustomPasswordResetForm, CustomSetPasswordForm
+
+@csrf_exempt
+def auth(request):
+    action = request.POST.get('action')  # 'login', 'register', 'forgot_password', or 'reset_password'
+    response = {}
+
+    if action == 'login':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user:
+            login(request, user)
+            response['success'] = True
+            response['message'] = 'Đăng nhập thành công!'
+        else:
+            response['success'] = False
+            response['message'] = 'Tên đăng nhập hoặc mật khẩu không chính xác.'
+
+    elif action == 'register':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        if User.objects.filter(username=username).exists():
+            response['success'] = False
+            response['message'] = 'Tên đăng nhập đã tồn tại.'
+        elif User.objects.filter(email=email).exists():
+            response['success'] = False
+            response['message'] = 'Email đã được sử dụng.'
+        else:
+            user = User.objects.create_user(username=username, email=email, password=password)
+            user.save()
+            response['success'] = True
+            response['message'] = 'Tạo tài khoản thành công.'
+
+    elif action == 'forgot_password':
+        email = request.POST.get('email')
+        try:
+            user = User.objects.get(email=email)
+            token = get_random_string(32)
+            # Bạn cần lưu token trong một model hoặc cache để xác thực trong phần reset_password
+            send_mail(
+                'Quên mật khẩu',
+                f'Dùng token này để đặt lại mật khẩu: {token}',
+                'noreply@yourdomain.com',
+                [email],
+            )
+            response['success'] = True
+            response['message'] = 'Đã gửi token đặt lại mật khẩu qua email.'
+        except User.DoesNotExist:
+            response['success'] = False
+            response['message'] = 'Không tìm thấy email.'
+
+    elif action == 'reset_password':
+        username = request.POST.get('username')
+        new_password = request.POST.get('new_password')
+        try:
+            user = User.objects.get(username=username)
+            user.set_password(new_password)
+            user.save()
+            response['success'] = True
+            response['message'] = 'Đặt lại mật khẩu thành công.'
+        except User.DoesNotExist:
+            response['success'] = False
+            response['message'] = 'Tên người dùng không hợp lệ.'
+
+    else:
+        response['success'] = False
+        response['message'] = 'Yêu cầu không hợp lệ.'
+
+    return JsonResponse(response)
 
 # Register view
 def register(request):

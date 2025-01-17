@@ -25,6 +25,7 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
+AUTH_USER_MODEL = 'accounts.CustomUser'
 # Add your Google and Facebook credentials
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = 'your-google-client-id'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'your-google-client-secret'
@@ -46,6 +47,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'accounts',
+    'store',
     'colorfield',
     'admin_interface',
     'django.contrib.admin',
@@ -54,8 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'accounts',
-    'store',
+    'social_django',
 ]
 
 MIDDLEWARE = [

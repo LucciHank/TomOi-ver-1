@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.timezone import now
 from django import forms
 from django.conf import settings
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Group, Permission
 from datetime import timedelta
 
 def default_expiry_date():
@@ -81,9 +81,18 @@ class ProductImageForm(forms.ModelForm):
         return cleaned_data
 
 
-# Mô hình người dùng (CustomUser)
-class CustomUser(AbstractUser):
-    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+# # Mô hình người dùng (CustomUser)
+# class CustomUser(AbstractUser):
+#     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
+#     phone_number = models.CharField(max_length=15, null=True, blank=True)
+#     birth_date = models.DateField(null=True, blank=True)
+#     customer_type = models.CharField(max_length=50, choices=[('retail', 'Khách lẻ'), ('wholesale', 'Khách sỉ'), ('supplier', 'Nhà cung cấp')], default='retail')
+#     balance = models.DecimalField(max_digits=10, decimal_places=0, default=0)
+#     join_date = models.DateField(auto_now_add=True)
+#     groups = models.ManyToManyField(Group, related_name="accounts_customuser_set", blank=True)
+#     user_permissions = models.ManyToManyField(Permission, related_name="accounts_customuser_permissions_set", blank=True)
+#     groups = models.ManyToManyField(Group, related_name="accounts_customuser_set", blank=True,help_text="The groups this user belongs to.",related_query_name="user")
+#     user_permissions = models.ManyToManyField(Permission, related_name="accounts_customuser_permissions_set", blank=True,help_text="Specific permissions for this user.",related_query_name="user")
 
 
 # Mô hình giỏ hàng (CartItem)
