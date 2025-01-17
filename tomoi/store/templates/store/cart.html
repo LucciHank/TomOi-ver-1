@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Giỏ hàng{% endblock %}
+{% block content %}
+<section class="vh-100" style="background-color: #fdccbc;">
+    <div class="container h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col">
+          <p>
+            <span class="h2">Giỏ hàng </span>
+            <span class="h4">(Có {{ cart_items|length }} sản phẩm trong giỏ của bạn)</span>
+          </p>
+  
+          {% if cart_items %}
+            {% for item in cart_items %}
+              <div class="card mb-4">
+                <div class="card-body p-4">
+                  <div class="row align-items-center">
+                    <div class="col-md-2">
+                      <img src="{{ item.product.image.url }}" class="img-fluid" alt="{{ item.product.name }}">
+                    </div>
+                    <div class="col-md-2 d-flex justify-content-center">
+                      <div>
+                        <p class="small text-muted mb-4 pb-2">Sản phẩm</p>
+                        <p class="lead fw-normal mb-0">{{ item.name }}</p>
+                      </div>
+                    </div>
+                    <div class="col-md-2 d-flex justify-content-center">
+                        <div>
+                          <p class="small text-muted mb-4 pb-2">Đơn giá</p>
+                          <p class="lead fw-normal mb-0">{{ item.price|floatformat:0 }} VNĐ</p>
+                        </div>
+                      </div>
+                    <div class="col-md-2 d-flex justify-content-center">
+                      <div>
+                        <p class="small text-muted mb-4 pb-2">Số lượng</p>
+                        <p class="lead fw-normal mb-0">{{ item.quantity }}</p>
+                      </div>
+                    </div>
+                    <div class="col-md-2 d-flex justify-content-center">
+                      <div>
+                        <p class="small text-muted mb-4 pb-2">Thành tiền</p>
+                        <p class="lead fw-normal mb-0">{{ item.total_price|floatformat:0 }} VNĐ</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="d-flex justify-content-end mt-3">
+                    <a href="{% url 'store:remove_from_cart' item.product_id %}" class="btn btn-danger btn-sm">Xóa</a>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+  
+            <div class="card mb-5">
+              <div class="card-body p-4">
+                <div class="float-end">
+                  <p class="mb-0 me-5 d-flex align-items-center">
+                    <span class="small text-muted me-2">Tổng cộng:</span> 
+                    <span class="lead fw-normal">{{ total_price|floatformat:0 }} VNĐ</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+  
+            <div class="d-flex justify-content-end">
+              <a href="{% url 'store:clear_cart' %}" class="btn btn-warning btn-lg me-2">Xóa toàn bộ</a>
+              <a href="{% url 'store:checkout' %}" class="btn btn-primary btn-lg">Thanh toán</a>
+            </div>
+  
+          {% else %}
+            <p>Bạn không có bất kỳ sản phẩm nào!</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+</section>
+{% endblock %}

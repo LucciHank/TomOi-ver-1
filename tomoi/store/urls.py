@@ -1,0 +1,35 @@
+from django.urls import path
+from . import views
+from django.conf import settings
+from django.conf.urls.static import static
+
+app_name = 'store'
+
+urlpatterns = [
+    path('', views.home, name='home'),  # Trang chủ
+    path('list/', views.product_list, name='product_list'),
+    path('product/<int:product_id>/', views.product_detail, name='product_detail'),
+    path('info/', views.user_info, name='user_info'),
+    path('orders/', views.order_history, name='order_history'),
+    path('recharge/', views.recharge, name='recharge'),
+    path('order-history/', views.order_history, name='purchase_history'),
+    path("payment-success/", views.payment_success, name="payment_success"),
+    path('paypal/webhook/', views.paypal_webhook, name='paypal_webhook'),
+    path('add_balance/<int:amount>/', views.add_balance, name='add_balance'),
+    path('buy_premium/<str:account_type>/<int:price>/<int:duration_days>/', views.buy_premium_account, name='buy_premium'),
+    path('purchased_accounts/', views.purchased_accounts, name='purchased_accounts'),
+    # cart
+    path('cart/', views.cart_view, name='cart'),
+    path('cart/remove/<int:item_id>/', views.remove_from_cart, name='remove_from_cart'),
+    path('cart/clear/', views.clear_cart, name='clear_cart'),
+    path('add-to-cart/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
+    path('cart/api/', views.get_cart_api, name='cart_api'),
+    path('cart/checkout/', views.checkout, name='checkout'),
+
+
+    # path('payment/paypal/', views.paypal_payment, name='paypal_payment'),
+    # path('payment/execute/', views.payment_execute, name='payment_execute'),
+] 
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

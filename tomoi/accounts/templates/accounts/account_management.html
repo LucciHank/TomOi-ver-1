@@ -1,0 +1,6 @@
+<h2>Tài khoản đã mua</h2>
+<ul>
+    {% for account in accounts %}
+        <li>{{ account.account_type }} - Expired: {{ account.expiration_date }}</li>
+    {% endfor %}
+</ul>

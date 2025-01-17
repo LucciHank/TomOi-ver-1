@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+<h1>{{ product.name }}</h1>
+<img src="{{ product.get_primary_image.image.url }}" alt="{{ product.name }}">
+<p>{{ product.description }}</p>
+<p>Giá cơ bản: {{ product.price }}</p>
+
+<h2>Biến thể</h2>
+{% for variant in variants %}
+    <h3>{{ variant.name }}</h3>
+    <ul>
+        {% for option in variant.options.all %}
+            <li>
+                Thời gian: {{ option.duration }} tháng - Giá: {{ option.price }}
+            </li>
+        {% endfor %}
+    </ul>
+{% endfor %}

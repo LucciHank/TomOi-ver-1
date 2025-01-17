@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Tài khoản Premium của bạn</h2>
+<ul>
+    {% for account in accounts %}
+        <li>
+            <strong>{{ account.account_type }}</strong> - Hạn sử dụng đến: {{ account.expiry_date }}
+            <div style="background-color: #ddd; width: 100%; height: 20px; border-radius: 5px;">
+                <div style="background-color: #4CAF50; width: {{ account.days_remaining|floatformat:2 }}%; height: 100%;"></div>
+            </div>
+            <p>Còn lại: {{ account.days_remaining }} ngày</p>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

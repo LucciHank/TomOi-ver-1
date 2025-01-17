@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Lịch sử Giao Dịch</h2>
+<ul>
+    {% for order in orders %}
+        <li>{{ order.created_at }} - {{ order.total_amount }} VNĐ - {{ order.status }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
