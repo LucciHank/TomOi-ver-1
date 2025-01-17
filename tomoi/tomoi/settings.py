@@ -16,9 +16,23 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',
+    'social_core.backends.facebook.FacebookOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+# Add your Google and Facebook credentials
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = 'your-google-client-id'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'your-google-client-secret'
+
+SOCIAL_AUTH_FACEBOOK_KEY = 'your-facebook-app-id'
+SOCIAL_AUTH_FACEBOOK_SECRET = 'your-facebook-app-secret'
+
+LOGIN_REDIRECT_URL = '/'
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-07d6%7f4=mg5e+g89&b(ke1-oklw=^2m(9ub&4f352i9kl8$pf'

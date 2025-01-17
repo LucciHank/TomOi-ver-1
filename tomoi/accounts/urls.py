@@ -1,12 +1,12 @@
 from django.urls import path
 from . import views
-from django.contrib.auth import views as auth_views
-from .views import account_management
 
 urlpatterns = [
-    path('', views.index, name='accounts_home'),
     path('register/', views.register, name='register'),
-    path('login/', auth_views.LoginView.as_view(), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('account_management/', account_management, name='account_management'),
+    path('login/', views.user_login, name='login'),
+    path('logout/', views.user_logout, name='logout'),
+    path('profile/update/', views.update_profile, name='update_profile'),
+    path('password_reset/', views.CustomPasswordResetView.as_view(), name='password_reset'),
+    path('reset/<uidb64>/<token>/', views.CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('social-login/', views.social_login, name='social_login'),
 ]
