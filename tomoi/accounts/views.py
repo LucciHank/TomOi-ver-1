@@ -55,7 +55,7 @@ def auth(request):
             send_mail(
                 'Quên mật khẩu',
                 f'Dùng token này để đặt lại mật khẩu: {token}',
-                'noreply@yourdomain.com',
+                'tomoivn2024@gmail.com',
                 [email],
             )
             response['success'] = True
@@ -136,7 +136,7 @@ class CustomPasswordResetView(PasswordResetView):
         send_mail(
             'Password Reset Request',
             'Click the link to reset your password.',
-            'admin@example.com',
+            'tomoi20204@gmail.com',
             [email],
         )
         return super().form_valid(form)

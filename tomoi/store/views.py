@@ -7,11 +7,14 @@ from .utils import send_payment_confirmation_email
 from django.contrib import messages
 import json
 from django.http import JsonResponse
-from django.utils.timezone import now, timedelta
+from django.utils.timezone import now, timedelta, datetime
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from .forms import ProductImageForm
 import random
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+
 # from paypalrestsdk import Payment
 # import paypalrestsdk
 
@@ -44,26 +47,64 @@ def product_detail(request, product_id):
     return render(request, 'store/product_detail', {'product': product, 'variants': variants})
 
 def send_otp(request):
-    email = request.POST.get('email')
-    # Tạo OTP ngẫu nhiên
-    otp = random.randint(100000, 999999)
-    # Lưu OTP vào database hoặc cache (tùy ý bạn)
-    # Gửi email (giả lập ở đây)
-    print(f"Send OTP {otp} to {email}")
-    return JsonResponse({'success': True, 'message': 'OTP đã được gửi!'})
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        try:
+            validate_email(email)  # Xác thực email hợp lệ
+            user = CustomUser.objects.get(email=email)
+            otp = random.randint(100000, 999999)
+            send_mail(
+                'Your OTP Code',
+                f'Your OTP code is {otp}',
+                'tomoivn2024@gmail.com',
+                [email],
+            )
+            request.session['otp'] = otp
+            request.session['otp_created_at'] = datetime.now().isoformat()
+            return JsonResponse({'success': True, 'message': 'OTP sent to your email'})
+        except ValidationError:
+            return JsonResponse({'success': False, 'message': 'Invalid email format'})
+        except CustomUser.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Email does not exist'})
+
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
 
 def verify_otp(request):
-    otp = request.POST.get('otp')
-    # Kiểm tra OTP từ database hoặc cache
-    if otp == "123456":  # Thay bằng kiểm tra thực tế
-        return JsonResponse({'success': True, 'message': 'OTP hợp lệ!'})
-    return JsonResponse({'success': False, 'message': 'OTP không chính xác!'})
+    if request.method == 'POST':
+        otp = request.POST.get('otp')
+        stored_otp = request.session.get('otp')
+        created_at = request.session.get('otp_created_at')
+
+        # Kiểm tra thời gian hết hạn (5 phút)
+        if not created_at or datetime.fromisoformat(created_at) + timedelta(minutes=5) < datetime.now():
+            return JsonResponse({'success': False, 'message': 'OTP has expired'})
+
+        if otp == stored_otp:
+            del request.session['otp']
+            del request.session['otp_created_at']
+            return JsonResponse({'success': True, 'message': 'Mã OTP hợp lệ!'})
+        return JsonResponse({'success': False, 'message': 'Mã OTP không hợp lệ, vui lòng thử lại!'})
 
 def resend_otp(request):
-    email = request.POST.get('email')
-    otp = random.randint(100000, 999999)
-    print(f"Resend OTP {otp} to {email}")
-    return JsonResponse({'success': True, 'message': 'OTP đã được gửi lại!'})
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        try:
+            user = CustomUser.objects.get(email=email)
+            otp = random.randint(100000, 999999)  # Generate a new 6-digit OTP
+            # Send the new OTP via email
+            send_mail(
+                'Your OTP Code',
+                f'Your new OTP code is {otp}',
+                'tomoivn2024@gmail.com',  # Replace with your email sender address
+                [email],
+            )
+            # Store the new OTP in the session
+            request.session['otp'] = otp
+            return JsonResponse({'success': True, 'message': 'OTP has been resent to your email'})
+        except CustomUser.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Email does not exist'})
+
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
 
 @login_required
 def add_balance(request, amount):
@@ -142,7 +183,7 @@ def payment_success(request):
 def send_payment_confirmation_email(user, order):
     subject = "Xác nhận thanh toán thành công"
     message = f"Chào {user.username},\n\nĐơn hàng #{order.id} của bạn đã được thanh toán thành công."
-    send_mail(subject, message, 'your-email@gmail.com', [user.email])
+    send_mail(subject, message, 'hoanganhdo181@gmail.com', [user.email])
 
 #cart
 @login_required

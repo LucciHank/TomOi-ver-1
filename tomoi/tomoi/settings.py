@@ -166,8 +166,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'hoanganhdo181@gmail.com'
-EMAIL_HOST_PASSWORD = 'Hoanganh2004@'
+EMAIL_HOST_USER = 'tomoivn2024@gmail.com'  # Your email address
+EMAIL_HOST_PASSWORD = 'Hanh2004@'
 
 # PAYPAL_MODE = 'sandbox'  # Hoặc 'live' nếu sử dụng trong môi trường thực tế
 # PAYPAL_CLIENT_ID = 'your-client-id'

@@ -25,6 +25,8 @@ urlpatterns = [
     path('cart/api/', views.get_cart_api, name='cart_api'),
     path('cart/checkout/', views.checkout, name='checkout'),
 
+    # send otp forgot password
+    path('send-otp/', views.send_otp, name='send_otp'),
 
     # path('payment/paypal/', views.paypal_payment, name='paypal_payment'),
     # path('payment/execute/', views.payment_execute, name='payment_execute'),
