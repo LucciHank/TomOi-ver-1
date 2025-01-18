@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container text-center py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h2>Xác thực email của bạn</h2>
+            <div class="alert alert-info">
+                <p>Chúng tôi đã gửi một email xác thực tới địa chỉ email của bạn.</p>
+                <p>Vui lòng kiểm tra hộp thư đến và Spam để tìm email xác thực.</p>
+            </div>
+            <p>Nếu bạn chưa nhận được email, bạn có thể:</p>
+            <form id="resendForm" method="post" action="{% url 'store:resend_verification' %}">
+                {% csrf_token %}
+                <input type="hidden" name="email" value="{{ email }}">
+                <button type="submit" class="btn btn-primary">Gửi lại email xác thực</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

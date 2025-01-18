@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container text-center py-5">
+    <div class="success-icon mb-4">
+        <i class="fas fa-check-circle text-success" style="font-size: 80px;"></i>
+    </div>
+    <h2>Chúc mừng!</h2>
+    <p>Bạn đã xác minh tài khoản thành công</p>
+    <a href="{% url 'store:home' %}" class="btn btn-primary mt-3">Về trang chủ</a>
+</div>
+{% endblock %}

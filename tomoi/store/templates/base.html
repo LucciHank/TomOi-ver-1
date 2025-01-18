@@ -73,12 +73,16 @@
     .nav-item .btn i, .nav-item .nav-link i {
       margin-right: 10px;
     }
-    .nav-item .nav-link i {
-      background-color: transparent;
-      color: inherit;
+    .nav-item .nav-link {
+      width: 40px;
+      height: 40px;
       padding: 0;
-      border-radius: 0;
-    }
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background-color: #7d161c;
+  }
     .footer {
       background-color: #000;
       color: white;
@@ -109,14 +113,15 @@
     .nav-item .dropdown-content {
       display: none;
       position: absolute;
-      background-color: #fff;
-      color: #333;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-      border-radius: 8px;
-      padding: 10px;
+      right: 0;
+      top: 100%;
+      background-color: white;
       min-width: 200px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      border-radius: 8px;
+      padding: 1rem;
       z-index: 1000;
-    }
+  }
     .nav-item:hover .dropdown-content {
       display: block;
     }
@@ -127,9 +132,22 @@
       text-decoration: none;
       border-radius: 4px;
     }
-    .dropdown-content a:hover {
-      background-color: #f2f2f2;
+    .dropdown-content .dropdown-item:hover {
+      background-color: #f5f5f5;
+      border-radius: 4px;
     }
+    .dropdown-content .dropdown-item {
+      padding: 8px 16px;
+      display: block;
+      color: #333;
+      text-decoration: none;
+      transition: background-color 0.2s;
+  }
+  .dropdown-content p {
+    margin: 0;
+    padding: 8px 16px;
+    color: #333;
+}
 
     /* Khi hover vào nút giỏ hàng, menu sẽ hiện */
   .nav-item.dropdown:hover .dropdown-menu {
@@ -179,6 +197,15 @@
   </style>
 </head>
 <body>
+  {% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
   <nav class="navbar navbar-expand-lg">
     <a class="navbar-brand" href="#">
         <img alt="Logo" src="https://placehold.co/40x40"/>
@@ -198,24 +225,24 @@
             </button>
         </div>
         <ul class="navbar-nav ms-auto">
-            <li class="nav-item position-relative">
-                <a class="nav-link" href="#">
-                    <i class="fa fa-user"></i>
-                </a>
-                <div class="dropdown-content">
-                    {% if user.is_authenticated %}
-                        <p>{{ user.username }}</p>
-                        <p>Số dư: {{ user.profile.balance }} VND</p>
-                        <button onclick="window.location.href='{% url 'store:recharge' %}'">+</button>
-                        <a href="{% url 'store:user_info' %}">Thông tin tài khoản</a>
-                        <a href="{% url 'store:order_history' %}">Lịch sử mua hàng</a>
-                        <a href="{% url 'logout' %}">Đăng xuất</a>
-                    {% else %}
-                        <!-- Kích hoạt Modal -->
-                        <a href="#" data-bs-toggle="modal" data-bs-target="#authModal">Đăng nhập / Đăng ký</a>
-                    {% endif %}
-                </div>
-            </li>
+        <!-- Replace the user nav item section -->
+        <li class="nav-item position-relative">
+          <a class="nav-link d-flex align-items-center justify-content-center" href="#">
+              <i class="fa fa-user"></i>
+          </a>
+          <div class="dropdown-content">
+              {% if user.is_authenticated %}
+              <p>{{ user.username }}</p>
+              <p>Số dư: {{ user.profile.balance }} VND</p>
+              <button onclick="window.location.href='/store/recharge/'" class="btn btn-sm btn-success w-100 mb-2">Nạp tiền</button>
+              <a href="/store/user-info/" class="dropdown-item">Thông tin tài khoản</a>
+              <a href="/store/order-history/" class="dropdown-item">Lịch sử mua hàng</a>
+              <a href="{% url 'store:logout' %}" class="dropdown-item">Đăng xuất</a>
+              {% else %}
+              <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#authModal">Đăng nhập / Đăng ký</a>
+              {% endif %}
+          </div>
+        </li>
             <!-- Giỏ hàng dropdown -->
             <li class="nav-item dropdown">
               <form method="post" id="cartForm">
@@ -248,7 +275,7 @@
       </div>
       <div class="modal-body">
         <h5 class="text-center">Đăng Nhập</h5>
-        <form id="loginForm" method="post">
+        <form id="loginForm" method="post" action="{% url 'store:login' %}">
           {% csrf_token %}
           <div class="mb-3">
             <label for="loginUsername" class="form-label">Tên đăng nhập</label>
@@ -261,14 +288,15 @@
           <div class="mb-3 text-end">
             <a href="#" id="forgotPasswordLink" class="text-decoration-none" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#forgotPasswordModal">Bạn quên mật khẩu?</a>
           </div>
-          <a href="#" data-bs-toggle="modal" data-bs-target="#authModal">Đăng nhập</a>
+          <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
         </form>
         <div class="text-center my-3">
           <span>HOẶC</span>
         </div>
         <div class="d-grid gap-2">
-          <button type="button" class="btn btn-danger">Đăng nhập với Google</button>
-          <button type="button" class="btn btn-primary">Đăng nhập với Facebook</button>
+          <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-danger">
+            <i class="fab fa-google me-2"></i>Đăng nhập với Google
+        </a>
         </div>
         <div class="text-center mt-3">
           <span>Bạn chưa có tài khoản? <a href="#" id="registerLink" class="text-decoration-none" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#registerModal">Đăng ký ngay</a></span>
@@ -294,7 +322,7 @@
             <label for="forgotEmail" class="form-label">Email</label>
             <input type="email" class="form-control" id="forgotEmail" name="email" required>
           </div>
-          <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-dismiss="modal" id="sendOtpBtn">Gửi mã xác nhận</button>
+          <button type="button" class="btn btn-primary w-100" id="sendOtpBtn" data-bs-target="#verifyOtpModal">Gửi mã xác nhận</button>
         </form>
         <div class="text-center mt-3">
           <a href="#" class="text-decoration-none" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#authModal">Quay lại đăng nhập</a>
@@ -371,7 +399,7 @@
       </div>
       <div class="modal-body">
         <h5 class="text-center">Đăng Ký</h5>
-        <form id="registerForm" method="post">
+        <form id="registerForm" method="post" action="{% url 'store:register' %}">
           {% csrf_token %}
           <div class="mb-3">
             <label for="registerUsername" class="form-label">Tên đăng nhập</label>
@@ -385,7 +413,7 @@
             <label for="registerPassword" class="form-label">Mật khẩu</label>
             <input type="password" class="form-control" id="registerPassword" name="password" required>
           </div>
-          <a href="#" data-bs-toggle="modal" class="btn btn-primary w-100" data-bs-target="#registerModal">Đăng ký</a>
+          <button type="submit" class="btn btn-primary w-100">Đăng ký</button>
         </form>
       </div>
     </div>

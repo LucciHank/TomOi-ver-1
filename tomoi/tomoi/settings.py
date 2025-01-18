@@ -21,17 +21,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',
-    'social_core.backends.facebook.FacebookOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 )
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
-# Add your Google and Facebook credentials
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = 'your-google-client-id'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'your-google-client-secret'
 
-SOCIAL_AUTH_FACEBOOK_KEY = 'your-facebook-app-id'
-SOCIAL_AUTH_FACEBOOK_SECRET = 'your-facebook-app-secret'
+#Login with Google
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '849220056035-q1d9h4ce1uhq4312q3hvjmf45ea66jna.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = 'http://localhost:8000/social-auth/complete/google-oauth2/'
+SOCIAL_AUTH_URL_NAMESPACE = 'social'
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'store:home'
+SOCIAL_AUTH_LOGIN_ERROR_URL = 'store:home'
 
 LOGIN_REDIRECT_URL = '/'
 
@@ -40,7 +41,21 @@ SECRET_KEY = 'django-insecure-07d6%7f4=mg5e+g89&b(ke1-oklw=^2m(9ub&4f352i9kl8$pf
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['console'],
+#             'level': 'DEBUG',
+#         },
+#     },
+# }
 ALLOWED_HOSTS = []
 
 
@@ -84,6 +99,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -157,9 +174,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'accounts.CustomUser'  # hoặc 'store.CustomUser' nếu dùng trong store
 
-LOGIN_REDIRECT_URL = '/'  # Địa chỉ sau khi đăng nhập thành công
-
-LOGOUT_REDIRECT_URL = '/'  # Địa chỉ sau khi đăng xuất
+LOGIN_URL = 'store:login'
+LOGIN_REDIRECT_URL = 'store:home'
+LOGOUT_REDIRECT_URL = 'store:home'
 
 # Email tự động
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -167,7 +184,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'tomoivn2024@gmail.com'  # Your email address
-EMAIL_HOST_PASSWORD = 'Hanh2004@'
+EMAIL_HOST_PASSWORD = 'czpq mrup wwks rkix'
 
 # PAYPAL_MODE = 'sandbox'  # Hoặc 'live' nếu sử dụng trong môi trường thực tế
 # PAYPAL_CLIENT_ID = 'your-client-id'

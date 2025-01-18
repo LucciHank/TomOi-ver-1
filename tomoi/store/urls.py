@@ -26,7 +26,13 @@ urlpatterns = [
     path('cart/checkout/', views.checkout, name='checkout'),
 
     # send otp forgot password
+    path('login/', views.login_view, name='login'),
     path('send-otp/', views.send_otp, name='send_otp'),
+    path('logout/', views.logout_view, name='logout'),
+    path('register_verify/', views.register_verify, name='register_verify'),
+    path('verify-email/<str:token>/', views.verify_email, name='verify_email'),
+    path('resend-verification/', views.resend_verification, name='resend_verification'),
+    path('register/', views.register, name='register'),
 
     # path('payment/paypal/', views.paypal_payment, name='paypal_payment'),
     # path('payment/execute/', views.payment_execute, name='payment_execute'),

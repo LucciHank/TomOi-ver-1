@@ -154,7 +154,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const forgotPasswordLink = document.getElementById('forgotPasswordLink');
   const registerLink = document.getElementById('registerLink');
   const sendOtpButton = document.getElementById('sendOtpBtn');
-  const verifyOtpButton = document.getElementById('verifyOtpBtn');
   const resendOtpButton = document.getElementById('resendOtp');
   const otpInputs = document.querySelectorAll('.otp-input');
 
@@ -209,26 +208,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // Xác minh OTP
-  if (verifyOtpButton) {
-    verifyOtpButton.addEventListener('click', function () {
-      const otp = Array.from(otpInputs).map((input) => input.value).join('');
-      fetch('/accounts/verify-otp/', {
-        method: 'POST',
-        body: JSON.stringify({ otp }),
-        headers: { 'Content-Type': 'application/json' },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          alert(data.message);
-          if (data.success) {
-            modals.verifyOtpModal.hide();
-            modals.resetPasswordModal.show();
-          }
-        })
-        .catch((error) => console.error('Error:', error));
-    });
-  }
 
   // Gửi lại mã OTP
   if (resendOtpButton) {
@@ -267,21 +246,26 @@ document.addEventListener('DOMContentLoaded', function () {
     authForm.addEventListener('submit', function (event) {
       event.preventDefault();
       const formData = new FormData(this);
-
+  
       fetch('/accounts/auth/', {
         method: 'POST',
         body: formData,
       })
         .then((response) => response.json())
         .then((data) => {
-          alert(data.message);
           if (data.success) {
-            location.reload();
+            showAlert('Đăng nhập thành công! Bạn sẽ được chuyển hướng trong 5 giây.', 'success');
+            setTimeout(() => location.reload(), 5000);
+          } else {
+            showAlert(data.message, 'error');
           }
         })
-        .catch((error) => console.error('Error:', error));
+        .catch((error) => {
+          console.error('Error:', error);
+          showAlert('Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại.', 'error');
+        });
     });
-  }
+  }  
 });
 // Lấy CSRF Token từ thẻ meta
 function getCsrfToken() {
@@ -314,32 +298,41 @@ async function sendApiRequest(url, method, data = {}) {
 }
 
 // Gửi OTP
-const sendOtpButton = document.getElementById('sendOtpButton');
-if (sendOtpButton) {
-  sendOtpButton.addEventListener('click', async function () {
-    const email = document.getElementById('forgotEmail').value;
-
-    if (!email) {
-      showAlert('Please enter your email.', 'warning');
-      return;
-    }
-
-    const response = await sendApiRequest('/accounts/send-otp/', 'POST', { email });
-    if (response && response.success) {
-      showAlert(response.message, 'success');
-
-      // Hiển thị modal xác minh OTP
-      const forgotPasswordModal = bootstrap.Modal.getOrCreateInstance(
-        document.getElementById('forgotPasswordModal')
-      );
-      const verifyOtpModal = bootstrap.Modal.getOrCreateInstance(
-        document.getElementById('verifyOtpModal')
-      );
-      forgotPasswordModal.hide();
-      verifyOtpModal.show();
-    }
+document.addEventListener('DOMContentLoaded', function() {
+  const sendOtpBtn = document.getElementById('sendOtpBtn');
+  const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+  const verifyOtpModal = new bootstrap.Modal(document.getElementById('verifyOtpModal'));
+  
+  sendOtpBtn.addEventListener('click', async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('forgotEmail').value;
+      
+      try {
+          const response = await fetch('/send-otp/', {  // Adjust URL to match your Django URL
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+                  'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+              },
+              body: `email=${email}`
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+              // Hide forgot password modal
+              bootstrap.Modal.getInstance(document.getElementById('forgotPasswordModal')).hide();
+              // Show OTP verification modal
+              verifyOtpModal.show();
+          } else {
+              alert(data.message);
+          }
+      } catch (error) {
+          console.error('Error:', error);
+          alert('Có lỗi xảy ra khi gửi OTP');
+      }
   });
-}
+});
 
 // Xác minh OTP
 const verifyOtpButton = document.getElementById('verifyOtpButton');
@@ -393,3 +386,123 @@ if (resetPasswordButton) {
     }
   });
 }
+
+function updateUserInfo(userData) {
+  document.getElementById('userInfo').classList.remove('d-none');
+  document.getElementById('balanceInfo').classList.remove('d-none');
+  document.getElementById('rechargeBtn').classList.remove('d-none');
+  document.getElementById('userAccountLink').classList.remove('d-none');
+  document.getElementById('orderHistoryLink').classList.remove('d-none');
+  document.getElementById('logoutLink').classList.remove('d-none');
+}
+
+// Giả sử bạn nhận được userData từ backend khi đăng nhập
+fetch('/accounts/user-info/')
+  .then((response) => response.json())
+  .then((userData) => {
+    if (userData.authenticated) {
+      updateUserInfo(userData);
+    }
+  })
+
+  // đăng nhập
+  document.addEventListener('DOMContentLoaded', function() {
+    // Login form handler
+    const loginForm = document.getElementById('loginForm');
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const response = await fetch(loginForm.action, {
+            method: 'POST',
+            body: new FormData(loginForm)
+        });
+        const data = await response.json();
+        if (data.success) {
+            location.reload();
+        }
+    });
+
+        // OTP verification handler
+        const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+        verifyOtpBtn.addEventListener('click', async () => {
+            const otp = Array.from(document.querySelectorAll('.otp-input'))
+                .map(input => input.value)
+                .join('');
+                
+            const response = await fetch('/verify-otp/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({ otp })
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                bootstrap.Modal.getInstance(document.getElementById('verifyOtpModal')).hide();
+                bootstrap.Modal.getOrCreateInstance(document.querySelector(data.next_modal)).show();
+            }
+        });
+    });
+
+    // Đăng ký
+    document.addEventListener('DOMContentLoaded', function() {
+      const registerForm = document.getElementById('registerForm');
+      
+      registerForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          console.log("Form submitted");
+          
+          const formData = new FormData(this);
+          
+          fetch('/store/register/', {
+              method: 'POST',
+              body: formData,
+              headers: {
+                  'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+              }
+          })
+          .then(res => res.json())
+          .then(data => {
+              console.log("Response:", data);
+              if (data.success) {
+                  window.location.href = data.redirect;
+              } else {
+                  if (data.error === 'Email đã tồn tại!') {
+                      if (confirm(data.error + '\nĐăng nhập ngay?')) {
+                          bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
+                          bootstrap.Modal.getOrCreateInstance(document.getElementById('authModal')).show();
+                      }
+                  } else {
+                      alert(data.error);
+                  }
+              }
+          })
+          .catch(error => {
+              console.error("Error:", error);
+              alert('Có lỗi xảy ra khi đăng ký');
+          });
+      });
+  });
+
+  document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('/store/register/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = data.redirect;
+        } else {
+            alert(data.error);
+        }
+    });
+});

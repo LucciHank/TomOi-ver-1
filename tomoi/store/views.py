@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from .models import Order, PurchasedAccount, Product, ProductImage,  Category
+from accounts.models import CustomUser
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from .utils import send_payment_confirmation_email
@@ -11,12 +12,163 @@ from django.utils.timezone import now, timedelta, datetime
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from .forms import ProductImageForm
+from django.contrib.auth import logout, login, authenticate
 import random
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
-
+from django.template.loader import render_to_string
+from django.utils.crypto import get_random_string
+from django.urls import reverse
+from django.views.decorators.csrf import ensure_csrf_cookie
 # from paypalrestsdk import Payment
 # import paypalrestsdk
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            messages.success(request, 'Đăng nhập thành công!')
+            return JsonResponse({'success': True})
+        return JsonResponse({'success': False, 'error': 'Invalid credentials'})
+    return JsonResponse({'success': False, 'error': 'Invalid method'})
+
+@login_required
+def logout_view(request):
+    logout(request)
+    messages.success(request, 'Đăng xuất thành công!')
+    return redirect('store:home')
+
+@ensure_csrf_cookie
+def register(request):
+    if request.method == 'POST':
+        try:
+            email = request.POST.get('email')
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+
+            # Check existing email and username
+            if CustomUser.objects.filter(email=email).exists():
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Email đã tồn tại!',
+                    'action': 'login'
+                })
+            
+            if CustomUser.objects.filter(username=username).exists():
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Tên đăng nhập đã tồn tại!',
+                })
+
+            # Create user
+            user = CustomUser.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                is_active=False
+            )
+
+            token = get_random_string(64)
+            user.verification_token = token
+            user.save()
+
+            verification_url = request.build_absolute_uri(
+                reverse('store:verify_email', args=[token])
+            )
+
+            print(f"Generated token: {token}")  # Debug
+            print(f"Verification URL: {verification_url}")
+
+            try:
+                html_message = render_to_string('store/email_verify.html', {
+                    'user': user,
+                    'verification_url': verification_url
+                })
+
+                send_mail(
+                    'Xác thực tài khoản TomOi.vn',
+                    '',
+                    'tomoivn2024@gmail.com',
+                    [email],
+                    html_message=html_message,
+                    fail_silently=False
+                )
+                print("Email sent successfully") # Debug
+            except Exception as e:
+                print(f"Email sending failed: {str(e)}") # Debug
+                user.delete()
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Có lỗi xảy ra khi gửi email xác thực.'
+                })
+
+            return JsonResponse({
+                'success': True,
+            })
+
+        except Exception as e:
+            print(f"Registration failed: {str(e)}") # Debug
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+
+def verify_email(request, token):
+    try:
+        user = CustomUser.objects.get(verification_token=token, is_active=False)
+        user.is_active = True
+        user.verification_token = None
+        user.save()
+        return render(request, 'store/verify_success.html')
+    except CustomUser.DoesNotExist:
+        return render(request, 'store/verify_failed.html')
+
+@login_required
+def register_verify(request):
+    return render(request, 'store/register_verify.html')
+
+def resend_verification(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        try:
+            user = CustomUser.objects.get(email=email, is_active=False)
+            
+            # Generate new verification token
+            token = get_random_string(64)
+            user.verification_token = token
+            user.save()
+            
+            # Build verification URL
+            verification_url = request.build_absolute_uri(
+                reverse('store:verify_email', args=[token])
+            )
+            
+            # Send verification email
+            html_message = render_to_string('store/email/verify_email.html', {
+                'user': user,
+                'verification_url': verification_url
+            })
+            
+            send_mail(
+                'Xác thực tài khoản TomOi.vn',
+                '',
+                'tomoivn2024@gmail.com',
+                [email],
+                html_message=html_message,
+                fail_silently=False
+            )
+            
+            messages.success(request, 'Email xác thực đã được gửi lại.')
+            return JsonResponse({'success': True})
+            
+        except CustomUser.DoesNotExist:
+            messages.error(request, 'Không tìm thấy tài khoản chưa xác thực với email này.')
+            return JsonResponse({'success': False})
+    
+    return render(request, 'store/register_verify.html')
 
 def dashboard(request):
     return render(request, 'store/index.html')
@@ -46,44 +198,51 @@ def product_detail(request, product_id):
     variants = product.variants.all()
     return render(request, 'store/product_detail', {'product': product, 'variants': variants})
 
+@csrf_exempt
 def send_otp(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         try:
-            validate_email(email)  # Xác thực email hợp lệ
-            user = CustomUser.objects.get(email=email)
+            validate_email(email)
             otp = random.randint(100000, 999999)
+            # Store OTP in session
+            request.session['otp'] = str(otp)
+            request.session['otp_email'] = email
+            
+            # Send email
             send_mail(
                 'Your OTP Code',
-                f'Your OTP code is {otp}',
+                f'Your OTP code is: {otp}',
                 'tomoivn2024@gmail.com',
                 [email],
+                fail_silently=False,
             )
-            request.session['otp'] = otp
-            request.session['otp_created_at'] = datetime.now().isoformat()
-            return JsonResponse({'success': True, 'message': 'OTP sent to your email'})
-        except ValidationError:
-            return JsonResponse({'success': False, 'message': 'Invalid email format'})
-        except CustomUser.DoesNotExist:
-            return JsonResponse({'success': False, 'message': 'Email does not exist'})
-
-    return JsonResponse({'success': False, 'message': 'Invalid request method'})
-
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'OTP sent successfully'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            })
+            
+    return JsonResponse({
+        'success': False,
+        'message': 'Invalid request method'
+    })
 def verify_otp(request):
     if request.method == 'POST':
         otp = request.POST.get('otp')
         stored_otp = request.session.get('otp')
-        created_at = request.session.get('otp_created_at')
-
-        # Kiểm tra thời gian hết hạn (5 phút)
-        if not created_at or datetime.fromisoformat(created_at) + timedelta(minutes=5) < datetime.now():
-            return JsonResponse({'success': False, 'message': 'OTP has expired'})
-
         if otp == stored_otp:
-            del request.session['otp']
-            del request.session['otp_created_at']
-            return JsonResponse({'success': True, 'message': 'Mã OTP hợp lệ!'})
-        return JsonResponse({'success': False, 'message': 'Mã OTP không hợp lệ, vui lòng thử lại!'})
+            return JsonResponse({
+                'success': True,
+                'next_modal': '#resetPasswordModal'
+            })
+        return JsonResponse({'success': False})
 
 def resend_otp(request):
     if request.method == 'POST':
