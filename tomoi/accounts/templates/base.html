@@ -11,7 +11,7 @@
   <style>
     /* CSS gốc */
     body {
-      background-color: #c0392b;
+      background-color: white;
       display: flex;
       flex-direction: column;
       height: 100%;
@@ -84,7 +84,7 @@
       background-color: #7d161c;
   }
     .footer {
-      background-color: #000;
+      background-color: #090d14;
       color: white;
       padding: 40px 0;
       margin-top: auto;
@@ -93,9 +93,50 @@
     .footer .menu, .footer .links, .footer .contact, .footer .certification {
       margin-bottom: 20px;
     }
+
+    .footer .list-unstyled {
+      line-height: 1; /* Increase line height */
+  }
+
+  .footer h5 {
+    margin-bottom: 20px; /* Add space after headings */
+}
+.social-icons a {
+  margin: 0 5px; /* Reduced margin from 15px to 8px */
+  font-size: 24px;
+}
+
+.social-icons {
+  display: flex;
+  align-items: center;
+  gap: 5px; /* Alternative spacing method */
+}
+
+.social-icons .fa-facebook {
+  color: #1877f2; /* Facebook blue */
+}
+
+.social-icons .fa-instagram {
+  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%,#d6249f 60%,#285AEB 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.social-icons .fa-youtube {
+  color: #ff0000; /* YouTube red */
+}
+
+.social-icons a:hover i {
+  transform: scale(1.2);
+  transition: transform 0.3s ease;
+}
+
     .footer a {
       color: white;
       text-decoration: none;
+      padding: 8px 0; /* Add vertical padding */
+      display: inline-block;
     }
     .footer a:hover {
       text-decoration: underline;
@@ -109,7 +150,23 @@
       padding: 10px 0;
       text-align: center;
     }
-    /* Hover dropdown */
+      .footer-bottom {
+        text-align: center;
+    }
+    
+    .footer-bottom hr {
+        margin: 0;
+        border: none;
+        border-top: 1px solid #ccc; /* Màu sắc của gạch ngang */
+    }
+    
+    .footer-bottom p {
+        margin: 10px 0 0 0; /* Khoảng cách phía trên dòng chữ */
+        font-size: 14px; /* Kích thước chữ */
+        color: #ccc; /* Màu sắc chữ */
+    }
+    
+    {% comment %} Hover dropdown {% endcomment %}
     .nav-item .dropdown-content {
       display: none;
       position: absolute;
@@ -237,7 +294,7 @@
               <button onclick="window.location.href='/store/recharge/'" class="btn btn-sm btn-success w-100 mb-2">Nạp tiền</button>
               <a href="/store/user-info/" class="dropdown-item">Thông tin tài khoản</a>
               <a href="/store/order-history/" class="dropdown-item">Lịch sử mua hàng</a>
-              <a href="{% url 'store:logout' %}" class="dropdown-item">Đăng xuất</a>
+              <a href="{% url 'accounts:logout' %}" class="dropdown-item">Đăng xuất</a>
               {% else %}
               <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#authModal">Đăng nhập / Đăng ký</a>
               {% endif %}
@@ -275,7 +332,7 @@
       </div>
       <div class="modal-body">
         <h5 class="text-center">Đăng Nhập</h5>
-        <form id="loginForm" method="post" action="{% url 'store:login' %}">
+        <form id="loginForm" method="post" action="{% url 'accounts:login' %}">
           {% csrf_token %}
           <div class="mb-3">
             <label for="loginUsername" class="form-label">Tên đăng nhập</label>
@@ -399,7 +456,7 @@
       </div>
       <div class="modal-body">
         <h5 class="text-center">Đăng Ký</h5>
-        <form id="registerForm" method="post" action="{% url 'store:register' %}">
+        <form id="registerForm" method="post" action="{% url 'accounts:register' %}">
           {% csrf_token %}
           <div class="mb-3">
             <label for="registerUsername" class="form-label">Tên đăng nhập</label>
@@ -434,45 +491,49 @@
           <h2>TomOi.vn</h2>
           <div class="social-icons">
             <a href="#"><i class="fab fa-facebook"></i></a>
-            <a href="#"><i class="fab fa-zalo"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
             <a href="#"><i class="fab fa-tiktok"></i></a>
             <a href="#"><i class="fab fa-youtube"></i></a>
           </div>
-          <h5 class="mt-3">TỔNG ĐÀI MIỄN PHÍ</h5>
-          <p>Tư vấn mua hàng (Miễn phí)<br/>1800.6601 (Nhánh 1)</p>
-          <p>Góp ý, khiếu nại<br/>1800.6616 (8h00 - 22h00)</p>
+          <br>
+          <h5 class="mt-3">LIÊN HỆ</h5>
+          <ul class="list-unstyled">
+            <li><a href="#">Zalo</a></li>
+            <li><a href="#">Fanpage</a></li>
+            <li><a href="#">Email</a></li>
+            <li><a href="#">Hotline</a></li>
+          </ul>
         </div>
+
         <div class="col-md-3">
           <h5>GIỚI THIỆU</h5>
+          <br>
           <ul class="list-unstyled">
-            <li><a href="#">Giới thiệu về công ty</a></li>
-            <li><a href="#">Quy chế hoạt động</a></li>
-            <li><a href="#">F.Friends - Bạn đồng hành</a></li>
+            <li><a href="#">Quy định mua hàng</a></li>
+            <li><a href="#">Hướng dẫn mua hàng</a></li>
             <li><a href="#">Tin tức khuyến mại</a></li>
-            <li><a href="#">Giới thiệu máy đổi trả</a></li>
-            <li><a href="#">Hướng dẫn mua hàng &amp; thanh toán online</a></li>
-            <li><a href="#">Đại lý ủy quyền &amp; TTBH ủy quyền của Apple</a></li>
-            <li><a href="#">Tra cứu hóa đơn điện tử</a></li>
+            <li><a href="#">Thủ thuật &amp; Tin tức </a></li>
             <li><a href="#">Tra cứu bảo hành</a></li>
             <li><a href="#">Câu hỏi thường gặp</a></li>
+            <li><a href="#">Chính sách bảo hành</a></li>
+            <li><a href="#">Hình thức thanh toán</a></li>
           </ul>
         </div>
         <div class="col-md-3">
-          <h5>CHÍNH SÁCH</h5>
-          <ul class="list-unstyled">
-            <li><a href="#">Chính sách bảo hành</a></li>
-            <li><a href="#">Chính sách đổi trả</a></li>
-            <li><a href="#">Chính sách bảo mật</a></li>
-            <li><a href="#">Chính sách trả góp</a></li>
-            <li><a href="#">Chính sách khui hộp sản phẩm</a></li>
-            <li><a href="#">Chính sách giao hàng &amp; lắp đặt</a></li>
-            <li><a href="#">Chính sách mạng di động FPT</a></li>
-            <li><a href="#">Chính sách thu thập &amp; xử lý dữ liệu cá nhân</a></li>
-            <li><a href="#">Quy định về hỗ trợ kỹ thuật &amp; sao lưu dữ liệu</a></li>
+          <h5>CHƯƠNG TRÌNH</h5>
+          <br>
+          <ul class="list-unstyled"> 
+            <li><a href="#">Đăng ký làm Cộng Tác Viên</a></li>
+            <li><a href="#">Đăng ký làm Đối Tác</a></li>
+            <li><a href="#">Giới thiệu bạn bè</a></li>
+            <li><a href="#">Đổi Mail nhận tiền</a></li>
+            <li><a href="#">Nhận tài khoản miễn phí</a></li>
+            <li><a href="#">Tuyển dụng</a></li>
           </ul>
         </div>
         <div class="col-md-3">
           <h5>HỖ TRỢ THANH TOÁN</h5>
+          <br>
           <div class="payment-icons">
             <img alt="Visa" src="https://placehold.co/50x30"/>
             <img alt="Mastercard" src="https://placehold.co/50x30"/>
@@ -499,9 +560,14 @@
         </div>
       </div>
     </div>
+    <div class="footer-bottom">
+      <hr>
+      <p>© Copyright 2024 TomOi.vn – All rights reserved.</p>
+  </div>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="{% static 'js/cart.js' %}" defer></script>
+  <script src="{% static 'js/auth.js' %}" defer></script>
 </body>
 </html>
