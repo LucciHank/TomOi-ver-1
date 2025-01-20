@@ -191,6 +191,11 @@ def add_to_cart(request, product_id):
     else:
         return JsonResponse({'success': False, 'message': 'Chỉ hỗ trợ phương thức POST'})
 
+# Update context in view
+def get_context_data(self, **kwargs):
+    context = super().get_context_data(**kwargs)
+    context['cart_items'] = self.request.session.get('cart_items', [])
+    return context
 
 @login_required
 def get_cart_api(request):

@@ -25,6 +25,19 @@
     .navbar-brand img {
       height: 40px;
     }
+    .navbar-brand {
+      margin-left: 100px;
+  }
+  /* Navbar wrapper */
+.navbar-wrapper {
+    display: flex;
+    align-items: center;
+    height: 48px; /* Match cart button height */
+    width: 100%;
+    max-width: 1200px;
+    padding: 0 15px;
+    margin: 0 auto;
+}
     .content {
       flex: 1; /* Đẩy footer xuống dưới cùng */
     }
@@ -42,175 +55,276 @@
     }
     .search-bar button {
       position: absolute;
-      right: 20px;
+      right: 10px;
       top: 50%;
       transform: translateY(-50%);
-      background: none;
+      background-color: #fee2e2;
       border: none;
+      border-radius: 50%;
+      width: 35px;
+      height: 35px;
+      align-items: center;
+      justify-content: center;
     }
+    .search-bar input:focus {
+      outline: none;
+      border: none;
+      box-shadow: none;
+  }  
     .search-bar button i {
       color: #c0392b;
     }
+    /* Căn chỉnh phần logo, danh mục và fa-user gần giữa hơn */
+.navbar-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px; /* Adjust the gap for even spacing */
+}
+    
+    /* Tăng kích thước cho các btn và giữ cho văn bản không bị cắt */
     .nav-item a, .nav-item .btn {
-      padding: 10px 15px;
+      padding: 10px 20px; /* Đảm bảo không bị lòi chữ */
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #7d161c;
+      background-color: white;
       color: white;
       border-radius: 50px;
     }
+    
     .nav-item a:hover, .nav-item .btn:hover {
       background-color: #701319;
       color: white;
     }
+    
     .nav-item {
-      margin-left: 20px;
+      margin-left: 10px; /* Giảm khoảng cách giữa các mục */
+      margin-right: 10px; /* Đảm bảo không quá xa giữa các mục */
     }
+    
+    /* Tăng kích thước button "Danh mục" */
     .nav-item .btn {
       background-color: black;
+      padding: 12px 20px; /* Tăng kích thước và padding để chữ không lòi ra */
     }
-    .nav-item .btn i, .nav-item .nav-link i {
-      margin-right: 10px;
+    
+    /* Tách giỏ hàng ra khỏi chữ "Sản phẩm" */
+    .nav-item .btn i {
+      margin-right: 8px; /* Thêm khoảng cách giữa icon giỏ hàng và chữ sản phẩm */
     }
-    .nav-item .nav-link {
+    
+    /* Menu button specific styles */
+.menu-link {
+    background-color: black;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.menu-link:hover {
+  background-color: #333;
+  color: white;
+}
+    /* Separate menu button styles */
+  .nav-link.menu-button {
+    background-color: black;
+    color: white;
+    border-radius: 8px;
+    padding: 8px 16px;
+} 
+.nav-link.user-icon .nav-link. {
       width: 40px;
       height: 40px;
-      padding: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       border-radius: 50%;
+      border: none;
       background-color: #7d161c;
-  }
-    .footer {
-      background-color: #090d14;
-      color: white;
-      padding: 40px 0;
-      margin-top: auto;
-      {% comment %} text-align: center; {% endcomment %}
-    }
-    .footer .menu, .footer .links, .footer .contact, .footer .certification {
-      margin-bottom: 20px;
-    }
+      margin-right: 8px; /* Thêm khoảng cách cho icon user */
+    } 
 
-    .footer .list-unstyled {
-      line-height: 1; /* Increase line height */
-  }
-
-  .footer h5 {
-    margin-bottom: 20px; /* Add space after headings */
+    /* User auth state styles */
+.nav-link.user-icon {
+    background-color: transparent;
+    transition: background-color 0.3s;
 }
+
+.nav-link.user-icon.authenticated {
+  background-color: #fee2e2;
+}
+    
+/* Fix dropdown hover */
+.dropdown-hover {
+    position: relative;
+}
+
+.dropdown-hover .dropdown-content,
+.dropdown-hover .dropdown-menu {
+    display: none;
+    margin-top: 10px;
+}
+
+.dropdown-hover:hover .dropdown-content,
+.dropdown-hover:hover .dropdown-menu,
+.dropdown-content:hover,
+.dropdown-menu:hover {
+    display: block;
+}
+    /* Giữ icon trái tim và icon người dùng giống nhau */
+    .nav-item .nav-link .fa-heart {
+    }
+    /* Main container */
+    .navbar-container {
+        display: flex;
+        align-items: center;
+        height: 60px;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+        {% comment %} Hover dropdown {% endcomment %}
+        .nav-item .dropdown-content {
+          display: none;
+          position: absolute;
+          right: 0;
+          top: 100%;
+          background-color: white;
+          min-width: 200px;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+          border-radius: 8px;
+          padding: 0.7rem;
+          z-index: 1000;
+      }
+      /* Dropdown spacing */
+.dropdown-content {
+    margin-top: 10px;
+}
+        .nav-item:hover .dropdown-content {
+          display: block;
+        }
+        .dropdown-content a {
+          color: #333;
+          padding: 5px 10px;
+          display: block;
+          text-decoration: none;
+          border-radius: 8px;
+        }
+/* Hover animation for dropdown items */
+.dropdown-content .dropdown-item {
+    padding: 8px 16px;
+    transition: all 0.3s ease;
+    
+}
+
+.dropdown-content .dropdown-item:hover {
+    transform: translateX(3px);
+    background-color: #df2626;
+    color: white;
+}
+      .dropdown-content p {
+        margin: 0;
+        padding: 8px 16px;
+        color: #333;
+    }
+
+    .dropdown-item i {
+      margin-right: 8px;
+      width: 20px;
+  }
+    .cart-buttons .btn {
+      padding: 8px 16px;
+      font-size: 14px;
+  }
+  .cart-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Space between buttons */
+}
+{% comment %} List sản phẩm trong btn giỏ hàng {% endcomment %}
+#cart-items-list {
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+#cart-dropdown {
+  min-width: 350px; /* Increased width */
+  margin-top: 10px; /* Space between button and dropdown */
+}
+.cart-item-card {
+  padding: 10px;
+  margin-bottom: 8px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+}
+
+/* Username styles */
+.username {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background-color: #f3f4f6;
+    border-radius: 8px;
+}
+    
+    /* Khi hover vào nút giỏ hàng, menu sẽ hiện */
+.nav-item.dropdown {
+    position: relative;
+}
+.nav-item.dropdown:hover .dropdown-menu {
+  display: block;
+  position: absolute;
+  right: 0; /* Align to right */
+  left: auto; /* Override default left alignment */
+  top: 100%;
+  min-width: 250px;
+  max-width: 300px;
+}
+
+.dropdown-menu {
+  margin-top: 0;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+
+{% comment %} social icon {% endcomment %}
 .social-icons a {
   margin: 0 5px; /* Reduced margin from 15px to 8px */
   font-size: 24px;
 }
-
 .social-icons {
   display: flex;
   align-items: center;
   gap: 5px; /* Alternative spacing method */
 }
-
 .social-icons .fa-facebook {
   color: #1877f2; /* Facebook blue */
 }
-
+.social-icons .fa-tiktok {
+  color:white; 
+}
 .social-icons .fa-instagram {
   background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%,#d6249f 60%,#285AEB 90%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-
 .social-icons .fa-youtube {
   color: #ff0000; /* YouTube red */
 }
-
 .social-icons a:hover i {
   transform: scale(1.2);
   transition: transform 0.3s ease;
 }
-
-    .footer a {
-      color: white;
-      text-decoration: none;
-      padding: 8px 0; /* Add vertical padding */
-      display: inline-block;
-    }
-    .footer a:hover {
-      text-decoration: underline;
-    }
-    .footer .certification img {
-      max-width: 100px;
-    }
-    .footer .copyright {
-      background-color: #000;
-      color: white;
-      padding: 10px 0;
-      text-align: center;
-    }
-      .footer-bottom {
-        text-align: center;
-    }
-    
-    .footer-bottom hr {
-        margin: 0;
-        border: none;
-        border-top: 1px solid #ccc; /* Màu sắc của gạch ngang */
-    }
-    
-    .footer-bottom p {
-        margin: 10px 0 0 0; /* Khoảng cách phía trên dòng chữ */
-        font-size: 14px; /* Kích thước chữ */
-        color: #ccc; /* Màu sắc chữ */
-    }
-    
-    {% comment %} Hover dropdown {% endcomment %}
-    .nav-item .dropdown-content {
-      display: none;
-      position: absolute;
-      right: 0;
-      top: 100%;
-      background-color: white;
-      min-width: 200px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      border-radius: 8px;
-      padding: 1rem;
-      z-index: 1000;
-  }
-    .nav-item:hover .dropdown-content {
-      display: block;
-    }
-    .dropdown-content a {
-      color: #333;
-      padding: 5px 10px;
-      display: block;
-      text-decoration: none;
-      border-radius: 4px;
-    }
-    .dropdown-content .dropdown-item:hover {
-      background-color: #f5f5f5;
-      border-radius: 4px;
-    }
-    .dropdown-content .dropdown-item {
-      padding: 8px 16px;
-      display: block;
-      color: #333;
-      text-decoration: none;
-      transition: background-color 0.2s;
-  }
-  .dropdown-content p {
-    margin: 0;
-    padding: 8px 16px;
-    color: #333;
-}
-
-    /* Khi hover vào nút giỏ hàng, menu sẽ hiện */
-  .nav-item.dropdown:hover .dropdown-menu {
-    display: block;
-    top: 100%;
-  }
 
   /* Điều chỉnh vị trí menu */
   .cart-dropdown {
@@ -250,6 +364,59 @@
     color: #555;
 }
 
+{% comment %} Footer {% endcomment %}
+.footer {
+  background-color: #090d14;
+  color: white;
+  padding: 40px 0;
+  margin-top: auto;
+  {% comment %} text-align: center; {% endcomment %}
+}
+.footer .menu, .footer .links, .footer .contact, .footer .certification {
+  margin-bottom: 20px;
+}
+
+.footer .list-unstyled {
+  line-height: 1; /* Increase line height */
+}
+
+.footer h5 {
+margin-bottom: 20px; /* Add space after headings */
+}
+.footer a {
+color: white;
+text-decoration: none;
+padding: 8px 0; /* Add vertical padding */
+display: inline-block;
+}
+.footer a:hover {
+text-decoration: none;
+color: #df2626;
+}
+.footer .certification img {
+max-width: 100px;
+}
+.footer .copyright {
+background-color: #000;
+color: white;
+padding: 10px 0;
+text-align: center;
+}
+.footer-bottom {
+text-align: center;
+}
+
+.footer-bottom hr {
+margin: 0;
+border: none;
+border-top: 1px solid #ccc; /* Màu sắc của gạch ngang */
+}
+
+.footer-bottom p {
+margin: 10px 0 0 0; /* Khoảng cách phía trên dòng chữ */
+font-size: 14px; /* Kích thước chữ */
+color: #ccc; /* Màu sắc chữ */
+}
   
   </style>
 </head>
@@ -263,18 +430,21 @@
     {% endfor %}
 </div>
 {% endif %}
-  <nav class="navbar navbar-expand-lg">
-    <a class="navbar-brand" href="#">
-        <img alt="Logo" src="https://placehold.co/40x40"/>
-    </a>
-    <div class="collapse navbar-collapse">
-        <ul class="navbar-nav me-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="fas fa-bars"></i> Danh mục
-                </a>
-            </li>
-        </ul>
+<nav class="navbar navbar-expand-lg">
+  <div class="navbar-wrapper">
+      <!-- Logo -->
+      <a class="navbar-brand" href="#">
+          <img alt="Logo" src="https://placehold.co/40x40"/>
+      </a>
+      
+        <!-- Menu button -->
+        <div class="nav-item">
+          <a class="menu-link" href="#">
+              <i class="fas fa-bars"></i> Danh mục
+          </a>
+      </div>
+
+        <!-- Search bar -->
         <div class="search-bar">
             <input placeholder="Tìm kiếm sản phẩm..." type="text"/>
             <button type="button">
@@ -283,42 +453,72 @@
         </div>
         <ul class="navbar-nav ms-auto">
         <!-- Replace the user nav item section -->
-        <li class="nav-item position-relative">
-          <a class="nav-link d-flex align-items-center justify-content-center" href="#">
-              <i class="fa fa-user"></i>
-          </a>
-          <div class="dropdown-content">
-              {% if user.is_authenticated %}
-              <p>{{ user.username }}</p>
-              <p>Số dư: {{ user.profile.balance }} VND</p>
-              <button onclick="window.location.href='/store/recharge/'" class="btn btn-sm btn-success w-100 mb-2">Nạp tiền</button>
-              <a href="/store/user-info/" class="dropdown-item">Thông tin tài khoản</a>
-              <a href="/store/order-history/" class="dropdown-item">Lịch sử mua hàng</a>
-              <a href="{% url 'accounts:logout' %}" class="dropdown-item">Đăng xuất</a>
-              {% else %}
-              <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#authModal">Đăng nhập / Đăng ký</a>
-              {% endif %}
+        <li class="nav-item">
+          <a class="nav-link" href="#"><i class="fas fa-heart"></i></a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link user-icon" href="#"><i class="fa fa-user"></i></a>
+        <div class="dropdown-content">
+            {% if user.is_authenticated %}
+            <p class="username">
+                <i class="fas fa-user"></i>
+                <span>{{ user.username }}</span>
+            </p>
+            <a href="#" class="dropdown-item">
+              <i class="fas fa-wallet"></i> Số dư: <b>{{ user.balance|default:"0" }}</b> VND
+            <a href="/accounts/profile/" class="dropdown-item">
+              <i class="fas fa-user-cog"></i> Thông tin tài khoản
+            </a>
+            <a href="/store/order-history/" class="dropdown-item">
+              <i class="fas fa-history"></i> Lịch sử mua hàng
+            </a>
+            <a href="{% url 'accounts:logout' %}" class="dropdown-item">
+              <i class="fas fa-sign-out-alt"></i> Đăng xuất
+            </a>
+            {% else %}
+            <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#authModal">
+              <i class="fas fa-sign-in-alt"></i> Đăng nhập / Đăng ký
+            </a>
+            {% endif %}
           </div>
         </li>
-            <!-- Giỏ hàng dropdown -->
-            <li class="nav-item dropdown">
-              <form method="post" id="cartForm">
-                  {% csrf_token %}
-                  <button type="button" class="btn btn-dark dropdown-toggle" id="cartDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                      <i class="fas fa-shopping-cart"></i> Sản phẩm
-                  </button>
-                  <ul class="dropdown-menu p-3" id="cart-dropdown">
-                      <li><strong>Giỏ hàng</strong></li>
-                      <!-- Danh sách sản phẩm sẽ được render tại đây -->
-                      <li id="cart-items-list">Chưa có sản phẩm</li>
-                      <li><hr class="dropdown-divider"></li>
-                      <li><button type="submit" formaction="{% url 'store:cart' %}" class="btn btn-dark w-100">Đi tới giỏ hàng</button></li>
-                  </ul>
-              </form>
-            </li>
+<!-- Giỏ hàng dropdown -->
+<li class="nav-item dropdown">
+  <form method="post" id="cartForm">
+      {% csrf_token %}
+      <button type="button" class="btn btn-dark dropdown-toggle" id="cartDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="fas fa-shopping-cart"></i> Giỏ hàng
+      </button>
+<!-- Update cart dropdown -->
+<ul class="dropdown-menu p-3" id="cart-dropdown">
+  <li><strong>Giỏ hàng ({{ cart_items|length|default:"0" }})</strong></li>
+  <li id="cart-items-list">
+    {% if cart_items %}
+        {% for item in cart_items %}
+        <div class="cart-item-card">
+            <!-- Card content -->
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="text-center text-muted py-4">
+            <i class="fas fa-shopping-cart fa-2x mb-3"></i>
+            <p>Bạn chưa chọn sản phẩm nào cả</p>
+        </div>
+    {% endif %}
+</li>
+  <li><hr class="dropdown-divider"></li>
+  <div class="cart-buttons">
+      <button type="submit" formaction="{% url 'store:cart' %}" class="btn btn-dark">Xem giỏ hàng</button>
+      <button type="submit" formaction="{% url 'store:cart' %}" class="btn btn-dark">Thanh toán</button>
+  </div>
+</ul>
+  </form>
+</li>
 
         </ul>
     </div>
+  </div>
 </nav>
 
 <!-- Modal Đăng Nhập -->
@@ -511,7 +711,6 @@
           <ul class="list-unstyled">
             <li><a href="#">Quy định mua hàng</a></li>
             <li><a href="#">Hướng dẫn mua hàng</a></li>
-            <li><a href="#">Tin tức khuyến mại</a></li>
             <li><a href="#">Thủ thuật &amp; Tin tức </a></li>
             <li><a href="#">Tra cứu bảo hành</a></li>
             <li><a href="#">Câu hỏi thường gặp</a></li>
@@ -526,7 +725,7 @@
             <li><a href="#">Đăng ký làm Cộng Tác Viên</a></li>
             <li><a href="#">Đăng ký làm Đối Tác</a></li>
             <li><a href="#">Giới thiệu bạn bè</a></li>
-            <li><a href="#">Đổi Mail nhận tiền</a></li>
+            <li><a href="#">Đổi Mail - Nhận tiền</a></li>
             <li><a href="#">Nhận tài khoản miễn phí</a></li>
             <li><a href="#">Tuyển dụng</a></li>
           </ul>

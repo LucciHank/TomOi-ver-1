@@ -1,0 +1,1 @@
+<p>Thanh toán</p>

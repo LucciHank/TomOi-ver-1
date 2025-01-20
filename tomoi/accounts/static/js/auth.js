@@ -429,3 +429,11 @@ document.addEventListener('DOMContentLoaded', function () {
           }
       });
   });
+
+  // Update auth state indicator
+document.addEventListener('DOMContentLoaded', function() {
+  const userIcon = document.querySelector('.nav-link.user-icon');
+  if (document.querySelector('[data-user-authenticated="true"]')) {
+      userIcon.classList.add('authenticated');
+  }
+});
