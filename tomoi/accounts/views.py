@@ -380,3 +380,6 @@ def resend_otp(request):
             return JsonResponse({'success': False, 'message': 'Email does not exist'})
 
     return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+def unauthorized_view(request):
+    return JsonResponse({'error': 'Login required'}, status=401)

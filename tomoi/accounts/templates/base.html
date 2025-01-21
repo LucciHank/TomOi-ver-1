@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="{{ csrf_token }}">
-  <title>Website</title>
+  <title>TomOi.vn - Phần mềm bản quyền</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous"/>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
   <style>
@@ -26,30 +26,21 @@
       height: 40px;
     }
     .navbar-brand {
-      margin-left: 100px;
+      margin-left: 50px;
+      margin-right: 40px;
   }
-  /* Navbar wrapper */
-.navbar-wrapper {
-    display: flex;
-    align-items: center;
-    height: 48px; /* Match cart button height */
-    width: 100%;
-    max-width: 1200px;
-    padding: 0 15px;
-    margin: 0 auto;
-}
     .content {
       flex: 1; /* Đẩy footer xuống dưới cùng */
     }
     .search-bar {
       flex-grow: 1;
       max-width: 500px;
-      margin: 0 20px;
+      margin-left: auto;
       position: relative;
     }
     .search-bar input {
       width: 100%;
-      padding: 10px 15px;
+      padding: 10px 20px;
       border-radius: 50px;
       border: none;
     }
@@ -74,6 +65,10 @@
     .search-bar button i {
       color: #c0392b;
     }
+    .search-bar button i:hover {
+      transform: scale(1.15);
+      transition: transform 0.1s ease;
+    }
     /* Căn chỉnh phần logo, danh mục và fa-user gần giữa hơn */
 .navbar-nav {
     display: flex;
@@ -82,33 +77,44 @@
     gap: 10px; /* Adjust the gap for even spacing */
 }
     
-    /* Tăng kích thước cho các btn và giữ cho văn bản không bị cắt */
-    .nav-item a, .nav-item .btn {
-      padding: 10px 20px; /* Đảm bảo không bị lòi chữ */
+    /* Thay đổi fa-user */
+    .nav-link {
+      width: 45px;
+      height: 45px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: white;
+      background-color: rgba(0, 0, 0, 0.2);
       color: white;
+      text-decoration: none;
+      border-radius: 50px;
+      transition: background-color 0.3s;
+    }
+   .nav-link:hover {
+      background-color: rgba(0, 0, 0, 0.4);
+      color: white;
+      box-shadow: none;
+    }
+
+    /* Tăng kích thước button "Danh mục" */
+    .nav-item .btn {
+      background-color: #090d14;
+      padding: 10px 15px; 
+      color: white;
+      border: none;
       border-radius: 50px;
     }
     
-    .nav-item a:hover, .nav-item .btn:hover {
-      background-color: #701319;
-      color: white;
-    }
-    
-    .nav-item {
-      margin-left: 10px; /* Giảm khoảng cách giữa các mục */
-      margin-right: 10px; /* Đảm bảo không quá xa giữa các mục */
-    }
-    
-    /* Tăng kích thước button "Danh mục" */
-    .nav-item .btn {
-      background-color: black;
-      padding: 12px 20px; /* Tăng kích thước và padding để chữ không lòi ra */
-    }
-    
+    {% comment %}  {% endcomment %}
+    .btn-common {
+  padding: 10px 20px;
+  border-radius: 8px;
+  height: 1
+  border: none;
+  display: inline-block;
+  text-align: center;
+    box-sizing: border-box;
+}
     /* Tách giỏ hàng ra khỏi chữ "Sản phẩm" */
     .nav-item .btn i {
       margin-right: 8px; /* Thêm khoảng cách giữa icon giỏ hàng và chữ sản phẩm */
@@ -116,26 +122,23 @@
     
     /* Menu button specific styles */
 .menu-link {
-    background-color: black;
     color: white;
-    padding: 12px 24px;
+    padding: 10px 20px;
     border-radius: 8px;
     display: flex;
     align-items: center;
     gap: 8px;
+      justify-content: center;
+      background-color: rgba(0, 0, 0, 0.2);
+      text-decoration: none;
+      border-radius: 50px;
+      transition: background-color 0.3s;
 }
 
 .menu-link:hover {
-  background-color: #333;
+  background-color: rgba(0, 0, 0, 0.3);
   color: white;
 }
-    /* Separate menu button styles */
-  .nav-link.menu-button {
-    background-color: black;
-    color: white;
-    border-radius: 8px;
-    padding: 8px 16px;
-} 
 .nav-link.user-icon .nav-link. {
       width: 40px;
       height: 40px;
@@ -144,77 +147,101 @@
       justify-content: center;
       border-radius: 50%;
       border: none;
-      background-color: #7d161c;
-      margin-right: 8px; /* Thêm khoảng cách cho icon user */
+      background-color: rgba(0, 0, 0, 0.2);
     } 
 
     /* User auth state styles */
 .nav-link.user-icon {
-    background-color: transparent;
+    transition: background-color 0.3s;
+}
+
+.nav-link.user-icon:hover {
+    background-color: rgba(0, 0, 0, 0.4);;
     transition: background-color 0.3s;
 }
 
 .nav-link.user-icon.authenticated {
-  background-color: #fee2e2;
-}
-    
-/* Fix dropdown hover */
-.dropdown-hover {
-    position: relative;
+  background-color: #fecab5;
+  color: #1d0d25;
 }
 
-.dropdown-hover .dropdown-content,
-.dropdown-hover .dropdown-menu {
-    display: none;
-    margin-top: 10px;
+/* Tăng kích thước vùng hoạt động giữa nút và menu */
+.dropdown-menu::before {
+  content: none;
+  display: block;
+  position: absolute;
+  top: -10px; /* Vùng mở rộng 10px phía trên menu */
+  left: 0;
+  right: 0;
+  height: 10px;
 }
 
-.dropdown-hover:hover .dropdown-content,
-.dropdown-hover:hover .dropdown-menu,
-.dropdown-content:hover,
-.dropdown-menu:hover {
-    display: block;
+.fa-user, .fa-heart {
+    background-clip: padding-box;
 }
-    /* Giữ icon trái tim và icon người dùng giống nhau */
-    .nav-item .nav-link .fa-heart {
-    }
+
+{% comment %} di chuyển icon fav-product {% endcomment %}
+.nav-item:nth-child(1) {
+    margin-right: 10px; 
+}
+
+{% comment %} di chuyển btn danh mục + fa-user {% endcomment %}
+.nav-item:nth-child(2) {
+    margin-left: 100px; 
+}
+
+{% comment %} di chuyển btn giỏ hàng {% endcomment %}
+.nav-item:nth-child(3) {
+    margin-left: 55px;
+    justify-content: left;
+    right: 50px;
+}
+
     /* Main container */
     .navbar-container {
         display: flex;
         align-items: center;
         height: 60px;
         width: 100%;
-        max-width: 1200px;
+        max-width: 1500px;
         margin: 0 auto;
         padding: 0 15px;
     }
-        {% comment %} Hover dropdown {% endcomment %}
-        .nav-item .dropdown-content {
-          display: none;
-          position: absolute;
-          right: 0;
-          top: 100%;
-          background-color: white;
-          min-width: 200px;
-          box-shadow: 0 2px 5px rgba(0,0,0,0.4);
-          border-radius: 8px;
-          padding: 0.7rem;
-          z-index: 1000;
-      }
-      /* Dropdown spacing */
+        {% comment %} dropdown fa-user {% endcomment %}
+.nav-item .dropdown-content {
+    display: none;
+    position: absolute;
+    left: 83%; /* Đặt nó ở vị trí giữa phần tử cha */
+    transform: translateX(-90%); /* Canh giữa hoàn hảo */
+    top: 78%; /* Đặt dropdown xuống dưới */
+    background-color: white;
+    min-width: 200px;
+    border-radius: 8px;
+    padding: 0.7rem;
+    z-index: 1000;
+    box-shadow: 0 2px 5px 1px rgba(0,0,0,0.2);
+}
+      /* Các phần tử trong dropdown của fa-user */
 .dropdown-content {
-    margin-top: 10px;
+    margin-top: 5px;
 }
         .nav-item:hover .dropdown-content {
           display: block;
         }
         .dropdown-content a {
-          color: #333;
+          color: #090d14;
           padding: 5px 10px;
           display: block;
           text-decoration: none;
-          border-radius: 8px;
+          border-radius: 10px;
         }
+
+    .nav-item:hover {
+    background-color: rgba(0, 0, 0, 0.1); /* Đổi màu nền khi hover (tuỳ chọn) */
+    border-radius: 50%; /* Nếu bạn muốn làm bo tròn cho phạm vi hover */
+    cursor: pointer; /* Chỉ báo con trỏ sẽ thay đổi khi hover vào */
+}
+
 /* Hover animation for dropdown items */
 .dropdown-content .dropdown-item {
     padding: 8px 16px;
@@ -227,6 +254,9 @@
     background-color: #df2626;
     color: white;
 }
+.dropdown-item:hover {
+  background-color: #f0f0f0; /* Màu nền khi hover */
+}
       .dropdown-content p {
         margin: 0;
         padding: 8px 16px;
@@ -237,15 +267,52 @@
       margin-right: 8px;
       width: 20px;
   }
-    .cart-buttons .btn {
-      padding: 8px 16px;
-      font-size: 14px;
-  }
-  .cart-buttons {
+  .dropdown-item {
+  padding: 8px 16px; /* Điều chỉnh padding của item */
+  color: #333; /* Màu chữ */
+  text-decoration: none; /* Bỏ gạch chân */
+}
+
+.cart-buttons {
+    gap: 10px; /* Khoảng cách giữa các nút */
     display: flex;
     flex-direction: column;
-    gap: 8px; /* Space between buttons */
 }
+
+.cart-buttons .btn {
+    height: 50px; /* Đảm bảo chiều cao đồng nhất */
+    padding: 10px 20px;
+    font-size: 16px;
+    text-align: center;
+    border-radius: 50px;
+    flex: 1;
+}
+
+.cart-buttons .btn-dark {
+    background-color: #ffe6e7; /* Màu chủ đạo cho nút "Xem giỏ hàng" */
+    color: #d3031c;
+}
+
+.cart-buttons .btn-dark:hover {
+    background-color: #FF8C8A; /* Màu khi hover */
+    color: white;
+    transition: background-color 0.3s ease;
+}
+
+.cart-buttons .btn-light {
+    background-color: #d3031c; /* Màu khác cho nút "Thanh toán" */
+    color: white;
+}
+
+.cart-buttons .btn-light:hover {
+    background-color: #FF3F47; /* Màu khi hover */
+    transition: background-color 0.3s ease;
+}
+
+.cart-buttons .btn i {
+    margin-right: 8px; /* Khoảng cách giữa icon và text */
+}
+
 {% comment %} List sản phẩm trong btn giỏ hàng {% endcomment %}
 #cart-items-list {
   min-height: 120px;
@@ -278,20 +345,42 @@
 .nav-item.dropdown {
     position: relative;
 }
+
+.nav-item .nav-link {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.nav-link:focus, .nav-link:hover {
+    outline: none; /* Loại bỏ outline */
+}
 .nav-item.dropdown:hover .dropdown-menu {
   display: block;
   position: absolute;
   right: 0; /* Align to right */
   left: auto; /* Override default left alignment */
-  top: 100%;
   min-width: 250px;
   max-width: 300px;
+  top: 80%; /* Position below the button */
+  left: 70%; /* Đặt nó ở vị trí giữa phần tử cha */
+  transform: translateX(-90%); /* Canh giữa hoàn hảo */
+
 }
 
 .dropdown-menu {
+  position: absolute; /* Đặt menu ở dưới button */
+  left: 0; /* Căn trái */
+  margin: 0; /* Loại bỏ khoảng cách */
+  display: none; /* Mặc định ẩn */
   margin-top: 0;
   padding: 10px;
-  border-radius: 8px;
+  border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
@@ -421,7 +510,7 @@ color: #ccc; /* Màu sắc chữ */
   </style>
 </head>
 <body>
-  {% if messages %}
+  {% comment %} {% if messages %}
 <div class="messages">
     {% for message in messages %}
     <div class="alert alert-{{ message.tags }}">
@@ -429,9 +518,8 @@ color: #ccc; /* Màu sắc chữ */
     </div>
     {% endfor %}
 </div>
-{% endif %}
+{% endif %} {% endcomment %}
 <nav class="navbar navbar-expand-lg">
-  <div class="navbar-wrapper">
       <!-- Logo -->
       <a class="navbar-brand" href="#">
           <img alt="Logo" src="https://placehold.co/40x40"/>
@@ -458,7 +546,7 @@ color: #ccc; /* Màu sắc chữ */
       </li>
 
       <li class="nav-item">
-        <a class="nav-link user-icon" href="#"><i class="fa fa-user"></i></a>
+        <a class="nav-link user-icon {% if user.is_authenticated %}authenticated{% endif %}" href="#"><i class="fa fa-user"></i></a>
         <div class="dropdown-content">
             {% if user.is_authenticated %}
             <p class="username">
@@ -466,7 +554,7 @@ color: #ccc; /* Màu sắc chữ */
                 <span>{{ user.username }}</span>
             </p>
             <a href="#" class="dropdown-item">
-              <i class="fas fa-wallet"></i> Số dư: <b>{{ user.balance|default:"0" }}</b> VND
+              <i class="fas fa-wallet"></i> Số dư: <b>{{ user.balance|default:"0" }}</b>đ
             <a href="/accounts/profile/" class="dropdown-item">
               <i class="fas fa-user-cog"></i> Thông tin tài khoản
             </a>
@@ -508,17 +596,20 @@ color: #ccc; /* Màu sắc chữ */
     {% endif %}
 </li>
   <li><hr class="dropdown-divider"></li>
-  <div class="cart-buttons">
-      <button type="submit" formaction="{% url 'store:cart' %}" class="btn btn-dark">Xem giỏ hàng</button>
-      <button type="submit" formaction="{% url 'store:cart' %}" class="btn btn-dark">Thanh toán</button>
-  </div>
+<div class="cart-buttons">
+    <button type="submit" formaction="{% url 'store:cart' %}" class="btn btn-dark">
+        <i class="fa fa-shopping-cart"></i> Xem giỏ hàng
+    </button>
+    <button type="submit" formaction="{% url 'store:cart' %}" class="btn btn-light">
+        <i class="fa fa-credit-card"></i> Thanh toán
+    </button>
+</div>
 </ul>
   </form>
 </li>
 
         </ul>
     </div>
-  </div>
 </nav>
 
 <!-- Modal Đăng Nhập -->
@@ -688,7 +779,7 @@ color: #ccc; /* Màu sắc chữ */
     <div class="container">
       <div class="row">
         <div class="col-md-3">
-          <h2>TomOi.vn</h2>
+          <h2><b>TomOi.vn</b></h2>
           <div class="social-icons">
             <a href="#"><i class="fab fa-facebook"></i></a>
             <a href="#"><i class="fab fa-instagram"></i></a>
@@ -696,17 +787,16 @@ color: #ccc; /* Màu sắc chữ */
             <a href="#"><i class="fab fa-youtube"></i></a>
           </div>
           <br>
-          <h5 class="mt-3">LIÊN HỆ</h5>
+          <h5 class="mt-3"><b>LIÊN HỆ</b></h5>
           <ul class="list-unstyled">
             <li><a href="#">Zalo</a></li>
-            <li><a href="#">Fanpage</a></li>
             <li><a href="#">Email</a></li>
             <li><a href="#">Hotline</a></li>
           </ul>
         </div>
 
         <div class="col-md-3">
-          <h5>GIỚI THIỆU</h5>
+          <h5><b>GIỚI THIỆU</b></h5>
           <br>
           <ul class="list-unstyled">
             <li><a href="#">Quy định mua hàng</a></li>
@@ -719,7 +809,7 @@ color: #ccc; /* Màu sắc chữ */
           </ul>
         </div>
         <div class="col-md-3">
-          <h5>CHƯƠNG TRÌNH</h5>
+          <h5><b>CHƯƠNG TRÌNH</b></h5>
           <br>
           <ul class="list-unstyled"> 
             <li><a href="#">Đăng ký làm Cộng Tác Viên</a></li>
@@ -731,7 +821,7 @@ color: #ccc; /* Màu sắc chữ */
           </ul>
         </div>
         <div class="col-md-3">
-          <h5>HỖ TRỢ THANH TOÁN</h5>
+          <h5><b>HỖ TRỢ THANH TOÁN</b></h5>
           <br>
           <div class="payment-icons">
             <img alt="Visa" src="https://placehold.co/50x30"/>
@@ -750,7 +840,7 @@ color: #ccc; /* Màu sắc chữ */
             <img alt="SamsungPay" src="https://placehold.co/50x30"/>
             <img alt="GooglePay" src="https://placehold.co/50x30"/>
           </div>
-          <h5 class="mt-3">CHỨNG NHẬN</h5>
+          <h5 class="mt-3"><b>CHỨNG NHẬN</b></h5>
           <div class="certification-icons">
             <img alt="DMCA" src="https://placehold.co/100x30"/>
             <img alt="Bộ Công Thương" src="https://placehold.co/100x30"/>
@@ -761,7 +851,7 @@ color: #ccc; /* Màu sắc chữ */
     </div>
     <div class="footer-bottom">
       <hr>
-      <p>© Copyright 2024 TomOi.vn – All rights reserved.</p>
+      <p>© Copyright 2024 <b>TomOi.vn</b> – All rights reserved.</p>
   </div>
   </footer>
 

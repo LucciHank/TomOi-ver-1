@@ -174,7 +174,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'accounts.CustomUser'  # hoặc 'store.CustomUser' nếu dùng trong store
 
-LOGIN_URL = 'store:login'
+LOGIN_URL = '/'
 LOGIN_REDIRECT_URL = 'store:home'
 LOGOUT_REDIRECT_URL = 'store:home'
 

@@ -19,4 +19,5 @@ urlpatterns = [
     path('resend-verification/', views.resend_verification, name='resend_verification'),
 
     path('profile/update/', views.update_profile, name='update_profile'),
+     path('unauthorized/', views.unauthorized_view, name='unauthorized'),
 ]
