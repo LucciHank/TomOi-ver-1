@@ -34,10 +34,13 @@ document.addEventListener('DOMContentLoaded', function () {
   if (sendOtpButton) {
     sendOtpButton.addEventListener('click', function () {
       const email = document.getElementById('forgotEmail').value;
-      fetch('/store/send-otp/', {
+      fetch('/accounts/send-otp/', {
         method: 'POST',
-        body: JSON.stringify({ email }),
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        body: `email=${email}`
       })
         .then(response => response.json())
         .then(data => {
@@ -70,10 +73,13 @@ document.addEventListener('DOMContentLoaded', function () {
   if (resendOtpButton) {
     resendOtpButton.addEventListener('click', function () {
       const email = document.getElementById('forgotEmail').value;
-      fetch('/store/resend-otp/', {
+      fetch('/accounts/resend-otp/', {
         method: 'POST',
-        body: JSON.stringify({ email }),
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        body: `email=${email}`
       })
         .then((response) => response.json())
         .then((data) => {
@@ -124,6 +130,54 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 });
+
+// Thêm hàm để lấy CSRF token
+function getCSRFToken() {
+    const csrfCookie = document.cookie
+        .split(';')
+        .find(cookie => cookie.trim().startsWith('csrftoken='));
+    return csrfCookie ? csrfCookie.split('=')[1] : null;
+}
+
+// Sửa phần xử lý verify OTP
+document.addEventListener('DOMContentLoaded', function() {
+    const otpInputs = document.querySelectorAll('.otp-input');
+    const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+
+    // Gom OTP và verify
+    if (verifyOtpBtn) {
+        verifyOtpBtn.addEventListener('click', function() {
+            const otp = Array.from(otpInputs)
+                .map(input => input.value)
+                .join('');
+
+            fetch('/accounts/verify-otp/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken(),
+                },
+                body: JSON.stringify({ otp: otp })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Nếu verify thành công
+                    modals.verifyOtpModal.hide();
+                    modals.resetPasswordModal.show();
+                } else {
+                    // Nếu verify thất bại
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra khi xác thực OTP');
+            });
+        });
+    }
+});
+
 // Lấy CSRF Token từ thẻ meta
 function getCsrfToken() {
   const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
@@ -165,7 +219,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const email = document.getElementById('forgotEmail').value;
 
     try {
-      const response = await fetch('/send-otp/', {  // Adjust URL to match your Django URL
+      const response = await fetch('/accounts/send-otp/', {  // Adjust URL to match your Django URL
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -190,31 +244,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 });
-
-// Xác minh OTP
-const verifyOtpButton = document.getElementById('verifyOtpButton');
-if (verifyOtpButton) {
-  verifyOtpButton.addEventListener('click', async function () {
-    const otp = document.getElementById('otpInput').value;
-
-    if (!otp) {
-      showAlert('Please enter the OTP sent to your email.', 'warning');
-      return;
-    }
-
-    const response = await sendApiRequest('/accounts/verify-otp/', 'POST', { otp });
-    if (response && response.success) {
-      showAlert(response.message, 'success');
-
-      // Đóng modal OTP và chuyển sang trang đặt lại mật khẩu
-      const verifyOtpModal = bootstrap.Modal.getOrCreateInstance(
-        document.getElementById('verifyOtpModal')
-      );
-      verifyOtpModal.hide();
-      window.location.href = '/store/reset-password/';
-    }
-  });
-}
 
 // Đặt lại mật khẩu
 const resetPasswordButton = document.getElementById('resetPasswordButton');
@@ -286,30 +315,6 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
-// Verify OTP button click
-document.getElementById('verifyOtpBtn').addEventListener('click', function () {
-  const otp = Array.from(otpInputs).map(input => input.value).join('');
-
-  fetch('/accounts/verify-otp/', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-    },
-    body: JSON.stringify({ otp: otp })
-  })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        // Hide OTP modal and show reset password modal
-        bootstrap.Modal.getInstance(document.getElementById('verifyOtpModal')).hide();
-        bootstrap.Modal.getOrCreateInstance(document.getElementById('resetPasswordModal')).show();
-      } else {
-        alert('Mã OTP không hợp lệ. Vui lòng thử lại.');
-      }
-    });
-});
-
 function updateUserInfo(userData) {
   document.getElementById('userInfo').classList.remove('d-none');
   document.getElementById('balanceInfo').classList.remove('d-none');
@@ -320,7 +325,7 @@ function updateUserInfo(userData) {
 }
 
 // Giả sử bạn nhận được userData từ backend khi đăng nhập
-fetch('/accounts/user_info/')
+fetch('/accounts/user-info/')
   .then((response) => response.json())
   .then((userData) => {
     if (userData.authenticated) {
@@ -374,37 +379,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
   registerForm.addEventListener('submit', function (e) {
     e.preventDefault();
-    console.log("Form submitted");
-
+    
     const formData = new FormData(this);
-
-    fetch('/store/register/', {
-      method: 'POST',
-      body: formData,
-      headers: {
-        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-      }
-    })
-      .then(res => res.json())
-      .then(data => {
-        console.log("Response:", data);
-        if (data.success) {
-          window.location.href = data.redirect;
-        } else {
-          if (data.error === 'Email đã tồn tại!') {
-            if (confirm(data.error + '\nĐăng nhập ngay?')) {
-              bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
-              bootstrap.Modal.getOrCreateInstance(document.getElementById('authModal')).show();
-            }
-          } else {
-            alert(data.error);
-          }
+    
+    fetch(this.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
         }
-      })
-      .catch(error => {
-        console.error("Error:", error);
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            // Chuyển hướng đến trang xác thực
+            window.location.href = data.redirect;
+        } else {
+            alert(data.error);
+            if (data.action === 'login') {
+                // Chuyển sang modal đăng nhập nếu email đã tồn tại
+                bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
+                bootstrap.Modal.getInstance(document.getElementById('authModal')).show();
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
         alert('Có lỗi xảy ra khi đăng ký');
-      });
+    });
   });
 });
 
@@ -413,7 +416,7 @@ document.getElementById('registerForm').addEventListener('submit', function (e) 
 
   const formData = new FormData(this);
 
-  fetch('/store/register/', {
+  fetch('/accounts/register/', {
     method: 'POST',
     body: formData,
     headers: {
@@ -423,10 +426,21 @@ document.getElementById('registerForm').addEventListener('submit', function (e) 
     .then(res => res.json())
     .then(data => {
       if (data.success) {
-        window.location.href = data.redirect;
+        alert(data.message);
+        // Đóng modal đăng ký
+        bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
       } else {
         alert(data.error);
+        if (data.action === 'login') {
+          // Chuyển sang modal đăng nhập nếu email đã tồn tại
+          bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
+          bootstrap.Modal.getInstance(document.getElementById('authModal')).show();
+        }
       }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Có lỗi xảy ra khi đăng ký');
     });
 });
 
@@ -455,4 +469,68 @@ document.addEventListener('DOMContentLoaded', function () {
     .catch(error => {
       console.error('Error:', error); // Xử lý lỗi khác
     });
+});
+
+// Thêm script để đếm ngược
+document.addEventListener('DOMContentLoaded', function() {
+  let canSendOtp = true;
+  const resendBtn = document.getElementById('resendOtpBtn');
+  let countdown = 30;
+  let interval;
+
+  function startCountdown() {
+    canSendOtp = false;
+    resendBtn.disabled = true;
+    countdown = 30;
+    
+    clearInterval(interval); // Clear any existing interval
+    
+    interval = setInterval(function() {
+      if (countdown > 0) {
+        resendBtn.textContent = `Gửi lại (${countdown} giây)`;
+        countdown--;
+      } else {
+        clearInterval(interval);
+        resendBtn.disabled = false;
+        resendBtn.textContent = 'Gửi lại';
+        canSendOtp = true;
+      }
+    }, 1000);
+  }
+
+  resendBtn.addEventListener('click', function() {
+    if (!canSendOtp) return;
+    
+    const email = document.getElementById('forgotEmail').value;
+
+    fetch('/accounts/resend-otp/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+      },
+      body: `email=${email}`
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert(data.message);
+      if(data.success) {
+        startCountdown();
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Đã xảy ra lỗi khi gửi lại OTP.');
+    });
+  });
+
+  // Cleanup interval when modal is hidden
+  const verifyOtpModal = document.getElementById('verifyOtpModal');
+  verifyOtpModal.addEventListener('hidden.bs.modal', function () {
+    clearInterval(interval);
+  });
+
+  verifyOtpModal.addEventListener('shown.bs.modal', function () {
+    startCountdown();
+  });
 });

@@ -1,12 +1,27 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="container text-center py-5">
-    <div class="success-icon mb-4">
-        <i class="fas fa-check-circle text-success" style="font-size: 80px;"></i>
+<div class="verify-container text-center">
+    <div class="verify-box">
+        <i class="fas fa-check-circle fa-4x mb-4" style="color: #28a745;"></i>
+        <h2>Xác thực thành công!</h2>
+        <p>Tài khoản của bạn đã được xác thực thành công.</p>
+        <p>Bạn sẽ được chuyển đến trang chủ trong <span id="countdown">5</span> giây...</p>
     </div>
-    <h2>Chúc mừng!</h2>
-    <p>Bạn đã xác minh tài khoản thành công</p>
-    <a href="{% url 'store:home' %}" class="btn btn-primary mt-3">Về trang chủ</a>
 </div>
+
+<script>
+    let seconds = 5;
+    const countdownElement = document.getElementById('countdown');
+    
+    const interval = setInterval(() => {
+        seconds--;
+        countdownElement.textContent = seconds;
+        if (seconds <= 0) {
+            clearInterval(interval);
+            window.location.href = "{% url 'store:home' %}";
+        }
+    }, 1000);
+</script>
 {% endblock %}

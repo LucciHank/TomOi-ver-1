@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #df2626;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Xác thực tài khoản TomOi.vn</h2>
+        <p>Xin chào {{ user.username }},</p>
+        <p>Cảm ơn bạn đã đăng ký tài khoản tại TomOi.vn. Để hoàn tất quá trình đăng ký, vui lòng nhấn vào nút bên dưới để xác thực email của bạn:</p>
+        
+        <a href="{{ verification_url }}" class="button">Xác thực email</a>
+        
+        <p>Hoặc copy đường link sau vào trình duyệt:</p>
+        <p>{{ verification_url }}</p>
+        
+        <p>Link xác thực này sẽ hết hạn sau 24 giờ.</p>
+        
+        <p>Nếu bạn không thực hiện đăng ký tài khoản này, vui lòng bỏ qua email này.</p>
+        
+        <p>Trân trọng,<br>TomOi.vn</p>
+    </div>
+</body>
+</html> 

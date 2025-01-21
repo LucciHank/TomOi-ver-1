@@ -10,6 +10,7 @@ class CustomUser(AbstractUser):
     join_date = models.DateField(auto_now_add=True)
     groups = models.ManyToManyField(Group, related_name="accounts_customuser_set", blank=True,help_text="The groups this user belongs to.",related_query_name="user")
     user_permissions = models.ManyToManyField(Permission, related_name="accounts_customuser_permissions_set", blank=True,help_text="Specific permissions for this user.",related_query_name="user",)
+    verification_token = models.CharField(max_length=100, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.pk:  # Ensure customer_type cannot be changed after creation

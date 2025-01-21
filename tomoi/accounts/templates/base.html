@@ -6,519 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="{{ csrf_token }}">
   <title>TomOi.vn - Phần mềm bản quyền</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
-  <style>
-    /* CSS gốc */
-    body {
-      background-color: white;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      min-height: 100vh;
-      margin: 0; /* Xóa khoảng trống mặc định */
-    }
-    .navbar {
-      background-color: #df2626;
-      padding: 10px 20px;
-    }
-    .navbar-brand img {
-      height: 40px;
-    }
-    .navbar-brand {
-      margin-left: 50px;
-      margin-right: 40px;
-  }
-    .content {
-      flex: 1; /* Đẩy footer xuống dưới cùng */
-    }
-    .search-bar {
-      flex-grow: 1;
-      max-width: 500px;
-      margin-left: auto;
-      position: relative;
-    }
-    .search-bar input {
-      width: 100%;
-      padding: 10px 20px;
-      border-radius: 50px;
-      border: none;
-    }
-    .search-bar button {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      background-color: #fee2e2;
-      border: none;
-      border-radius: 50%;
-      width: 35px;
-      height: 35px;
-      align-items: center;
-      justify-content: center;
-    }
-    .search-bar input:focus {
-      outline: none;
-      border: none;
-      box-shadow: none;
-  }  
-    .search-bar button i {
-      color: #c0392b;
-    }
-    .search-bar button i:hover {
-      transform: scale(1.15);
-      transition: transform 0.1s ease;
-    }
-    /* Căn chỉnh phần logo, danh mục và fa-user gần giữa hơn */
-.navbar-nav {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px; /* Adjust the gap for even spacing */
-}
-    
-    /* Thay đổi fa-user */
-    .nav-link {
-      width: 45px;
-      height: 45px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: rgba(0, 0, 0, 0.2);
-      color: white;
-      text-decoration: none;
-      border-radius: 50px;
-      transition: background-color 0.3s;
-    }
-   .nav-link:hover {
-      background-color: rgba(0, 0, 0, 0.4);
-      color: white;
-      box-shadow: none;
-    }
-
-    /* Tăng kích thước button "Danh mục" */
-    .nav-item .btn {
-      background-color: #090d14;
-      padding: 10px 15px; 
-      color: white;
-      border: none;
-      border-radius: 50px;
-    }
-    
-    {% comment %}  {% endcomment %}
-    .btn-common {
-  padding: 10px 20px;
-  border-radius: 8px;
-  height: 1
-  border: none;
-  display: inline-block;
-  text-align: center;
-    box-sizing: border-box;
-}
-    /* Tách giỏ hàng ra khỏi chữ "Sản phẩm" */
-    .nav-item .btn i {
-      margin-right: 8px; /* Thêm khoảng cách giữa icon giỏ hàng và chữ sản phẩm */
-    }
-    
-    /* Menu button specific styles */
-.menu-link {
-    color: white;
-    padding: 10px 20px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-      justify-content: center;
-      background-color: rgba(0, 0, 0, 0.2);
-      text-decoration: none;
-      border-radius: 50px;
-      transition: background-color 0.3s;
-}
-
-.menu-link:hover {
-  background-color: rgba(0, 0, 0, 0.3);
-  color: white;
-}
-.nav-link.user-icon .nav-link. {
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      border: none;
-      background-color: rgba(0, 0, 0, 0.2);
-    } 
-
-    /* User auth state styles */
-.nav-link.user-icon {
-    transition: background-color 0.3s;
-}
-
-.nav-link.user-icon:hover {
-    background-color: rgba(0, 0, 0, 0.4);;
-    transition: background-color 0.3s;
-}
-
-.nav-link.user-icon.authenticated {
-  background-color: #fecab5;
-  color: #1d0d25;
-}
-
-/* Tăng kích thước vùng hoạt động giữa nút và menu */
-.dropdown-menu::before {
-  content: none;
-  display: block;
-  position: absolute;
-  top: -10px; /* Vùng mở rộng 10px phía trên menu */
-  left: 0;
-  right: 0;
-  height: 10px;
-}
-
-.fa-user, .fa-heart {
-    background-clip: padding-box;
-}
-
-{% comment %} di chuyển icon fav-product {% endcomment %}
-.nav-item:nth-child(1) {
-    margin-right: 10px; 
-}
-
-{% comment %} di chuyển btn danh mục + fa-user {% endcomment %}
-.nav-item:nth-child(2) {
-    margin-left: 100px; 
-}
-
-{% comment %} di chuyển btn giỏ hàng {% endcomment %}
-.nav-item:nth-child(3) {
-    margin-left: 55px;
-    justify-content: left;
-    right: 50px;
-}
-
-    /* Main container */
-    .navbar-container {
-        display: flex;
-        align-items: center;
-        height: 60px;
-        width: 100%;
-        max-width: 1500px;
-        margin: 0 auto;
-        padding: 0 15px;
-    }
-        {% comment %} dropdown fa-user {% endcomment %}
-.nav-item .dropdown-content {
-    display: none;
-    position: absolute;
-    left: 83%; /* Đặt nó ở vị trí giữa phần tử cha */
-    transform: translateX(-90%); /* Canh giữa hoàn hảo */
-    top: 78%; /* Đặt dropdown xuống dưới */
-    background-color: white;
-    min-width: 200px;
-    border-radius: 8px;
-    padding: 0.7rem;
-    z-index: 1000;
-    box-shadow: 0 2px 5px 1px rgba(0,0,0,0.2);
-}
-      /* Các phần tử trong dropdown của fa-user */
-.dropdown-content {
-    margin-top: 5px;
-}
-        .nav-item:hover .dropdown-content {
-          display: block;
-        }
-        .dropdown-content a {
-          color: #090d14;
-          padding: 5px 10px;
-          display: block;
-          text-decoration: none;
-          border-radius: 10px;
-        }
-
-    .nav-item:hover {
-    background-color: rgba(0, 0, 0, 0.1); /* Đổi màu nền khi hover (tuỳ chọn) */
-    border-radius: 50%; /* Nếu bạn muốn làm bo tròn cho phạm vi hover */
-    cursor: pointer; /* Chỉ báo con trỏ sẽ thay đổi khi hover vào */
-}
-
-/* Hover animation for dropdown items */
-.dropdown-content .dropdown-item {
-    padding: 8px 16px;
-    transition: all 0.3s ease;
-    
-}
-
-.dropdown-content .dropdown-item:hover {
-    transform: translateX(3px);
-    background-color: #df2626;
-    color: white;
-}
-.dropdown-item:hover {
-  background-color: #f0f0f0; /* Màu nền khi hover */
-}
-      .dropdown-content p {
-        margin: 0;
-        padding: 8px 16px;
-        color: #333;
-    }
-
-    .dropdown-item i {
-      margin-right: 8px;
-      width: 20px;
-  }
-  .dropdown-item {
-  padding: 8px 16px; /* Điều chỉnh padding của item */
-  color: #333; /* Màu chữ */
-  text-decoration: none; /* Bỏ gạch chân */
-}
-
-.cart-buttons {
-    gap: 10px; /* Khoảng cách giữa các nút */
-    display: flex;
-    flex-direction: column;
-}
-
-.cart-buttons .btn {
-    height: 50px; /* Đảm bảo chiều cao đồng nhất */
-    padding: 10px 20px;
-    font-size: 16px;
-    text-align: center;
-    border-radius: 50px;
-    flex: 1;
-}
-
-.cart-buttons .btn-dark {
-    background-color: #ffe6e7; /* Màu chủ đạo cho nút "Xem giỏ hàng" */
-    color: #d3031c;
-}
-
-.cart-buttons .btn-dark:hover {
-    background-color: #FF8C8A; /* Màu khi hover */
-    color: white;
-    transition: background-color 0.3s ease;
-}
-
-.cart-buttons .btn-light {
-    background-color: #d3031c; /* Màu khác cho nút "Thanh toán" */
-    color: white;
-}
-
-.cart-buttons .btn-light:hover {
-    background-color: #FF3F47; /* Màu khi hover */
-    transition: background-color 0.3s ease;
-}
-
-.cart-buttons .btn i {
-    margin-right: 8px; /* Khoảng cách giữa icon và text */
-}
-
-{% comment %} List sản phẩm trong btn giỏ hàng {% endcomment %}
-#cart-items-list {
-  min-height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-#cart-dropdown {
-  min-width: 350px; /* Increased width */
-  margin-top: 10px; /* Space between button and dropdown */
-}
-.cart-item-card {
-  padding: 10px;
-  margin-bottom: 8px;
-  border: 1px solid #eee;
-  border-radius: 8px;
-}
-
-/* Username styles */
-.username {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    background-color: #f3f4f6;
-    border-radius: 8px;
-}
-    
-    /* Khi hover vào nút giỏ hàng, menu sẽ hiện */
-.nav-item.dropdown {
-    position: relative;
-}
-
-.nav-item .nav-link {
-    width: 45px;
-    height: 45px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 50%;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.nav-link:focus, .nav-link:hover {
-    outline: none; /* Loại bỏ outline */
-}
-.nav-item.dropdown:hover .dropdown-menu {
-  display: block;
-  position: absolute;
-  right: 0; /* Align to right */
-  left: auto; /* Override default left alignment */
-  min-width: 250px;
-  max-width: 300px;
-  top: 80%; /* Position below the button */
-  left: 70%; /* Đặt nó ở vị trí giữa phần tử cha */
-  transform: translateX(-90%); /* Canh giữa hoàn hảo */
-
-}
-
-.dropdown-menu {
-  position: absolute; /* Đặt menu ở dưới button */
-  left: 0; /* Căn trái */
-  margin: 0; /* Loại bỏ khoảng cách */
-  display: none; /* Mặc định ẩn */
-  margin-top: 0;
-  padding: 10px;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-
-
-{% comment %} social icon {% endcomment %}
-.social-icons a {
-  margin: 0 5px; /* Reduced margin from 15px to 8px */
-  font-size: 24px;
-}
-.social-icons {
-  display: flex;
-  align-items: center;
-  gap: 5px; /* Alternative spacing method */
-}
-.social-icons .fa-facebook {
-  color: #1877f2; /* Facebook blue */
-}
-.social-icons .fa-tiktok {
-  color:white; 
-}
-.social-icons .fa-instagram {
-  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%,#d6249f 60%,#285AEB 90%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-.social-icons .fa-youtube {
-  color: #ff0000; /* YouTube red */
-}
-.social-icons a:hover i {
-  transform: scale(1.2);
-  transition: transform 0.3s ease;
-}
-
-  /* Điều chỉnh vị trí menu */
-  .cart-dropdown {
-    min-width: 300px;
-  }
-
-  .cart-card {
-    margin-bottom: 10px;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    background-color: #fff;
-}
-
-.cart-card .card {
-    width: 100%;
-    border-radius: 8px;
-}
-
-.cart-card .card-img-top {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-}
-
-.cart-card .card-body {
-    padding: 15px;
-}
-
-.cart-card .card-title {
-    font-size: 16px;
-    font-weight: bold;
-}
-
-.cart-card .card-text {
-    font-size: 14px;
-    color: #555;
-}
-
-{% comment %} Footer {% endcomment %}
-.footer {
-  background-color: #090d14;
-  color: white;
-  padding: 40px 0;
-  margin-top: auto;
-  {% comment %} text-align: center; {% endcomment %}
-}
-.footer .menu, .footer .links, .footer .contact, .footer .certification {
-  margin-bottom: 20px;
-}
-
-.footer .list-unstyled {
-  line-height: 1; /* Increase line height */
-}
-
-.footer h5 {
-margin-bottom: 20px; /* Add space after headings */
-}
-.footer a {
-color: white;
-text-decoration: none;
-padding: 8px 0; /* Add vertical padding */
-display: inline-block;
-}
-.footer a:hover {
-text-decoration: none;
-color: #df2626;
-}
-.footer .certification img {
-max-width: 100px;
-}
-.footer .copyright {
-background-color: #000;
-color: white;
-padding: 10px 0;
-text-align: center;
-}
-.footer-bottom {
-text-align: center;
-}
-
-.footer-bottom hr {
-margin: 0;
-border: none;
-border-top: 1px solid #ccc; /* Màu sắc của gạch ngang */
-}
-
-.footer-bottom p {
-margin: 10px 0 0 0; /* Khoảng cách phía trên dòng chữ */
-font-size: 14px; /* Kích thước chữ */
-color: #ccc; /* Màu sắc chữ */
-}
-  
-  </style>
+  <link href="{% static 'css/style.css' %}" rel="stylesheet"/>
 </head>
 <body>
-  {% comment %} {% if messages %}
-<div class="messages">
-    {% for message in messages %}
-    <div class="alert alert-{{ message.tags }}">
-        {{ message }}
-    </div>
-    {% endfor %}
-</div>
-{% endif %} {% endcomment %}
 <nav class="navbar navbar-expand-lg">
       <!-- Logo -->
       <a class="navbar-brand" href="#">
@@ -555,7 +47,7 @@ color: #ccc; /* Màu sắc chữ */
             </p>
             <a href="#" class="dropdown-item">
               <i class="fas fa-wallet"></i> Số dư: <b>{{ user.balance|default:"0" }}</b>đ
-            <a href="/accounts/profile/" class="dropdown-item">
+            <a href="{% url 'accounts:user_info' %}" class="dropdown-item">
               <i class="fas fa-user-cog"></i> Thông tin tài khoản
             </a>
             <a href="/store/order-history/" class="dropdown-item">
@@ -633,8 +125,14 @@ color: #ccc; /* Màu sắc chữ */
             <label for="loginPassword" class="form-label">Mật khẩu</label>
             <input type="password" class="form-control" id="loginPassword" name="password" required>
           </div>
-          <div class="mb-3 text-end">
-            <a href="#" id="forgotPasswordLink" class="text-decoration-none" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#forgotPasswordModal">Bạn quên mật khẩu?</a>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="rememberMe" name="remember_me">
+              <label class="form-check-label" for="rememberMe">Ghi nhớ đăng nhập</label>
+            </div>
+            <a href="#" id="forgotPasswordLink" class="text-decoration-none" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#forgotPasswordModal">
+              Quên mật khẩu?
+            </a>
           </div>
           <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
         </form>
@@ -682,33 +180,75 @@ color: #ccc; /* Màu sắc chữ */
 
 <!-- Modal Verify OTP -->
 <div class="modal fade" id="verifyOtpModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <img src="https://placehold.co/50x50" alt="Logo Shop" class="me-auto">
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <h5 class="text-center">Xác minh OTP</h5>
-        <div class="mb-3">
-          <label class="form-label">Nhập mã xác nhận</label>
-          <div id="otpInputs" class="d-flex gap-2">
-            <input type="text" maxlength="1" class="form-control otp-input" required>
-            <input type="text" maxlength="1" class="form-control otp-input" required>
-            <input type="text" maxlength="1" class="form-control otp-input" required>
-            <input type="text" maxlength="1" class="form-control otp-input" required>
-            <input type="text" maxlength="1" class="form-control otp-input" required>
-            <input type="text" maxlength="1" class="form-control otp-input" required>
-          </div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="https://placehold.co/50x50" alt="Logo Shop" class="me-auto">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h5 class="text-center">Xác minh OTP</h5>
+                <form id="verifyOtpForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Nhập mã xác nhận</label>
+                        <div id="otpInputs" class="d-flex gap-2">
+                            <input type="text" maxlength="1" class="form-control otp-input" style="border-radius: 10px;" required>
+                            <input type="text" maxlength="1" class="form-control otp-input" style="border-radius: 10px;" required>
+                            <input type="text" maxlength="1" class="form-control otp-input" style="border-radius: 10px;" required>
+                            <input type="text" maxlength="1" class="form-control otp-input" style="border-radius: 10px;" required>
+                            <input type="text" maxlength="1" class="form-control otp-input" style="border-radius: 10px;" required>
+                            <input type="text" maxlength="1" class="form-control otp-input" style="border-radius: 10px;" required>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary w-100 mt-3" id="verifyOtpBtn">Xác minh</button>
+                </form>
+                <div class="text-center mt-3">
+                    <span>Bạn chưa nhận được mã? <button type="button" id="resendOtpBtn" class="btn btn-link p-0" disabled>Gửi lại (30 giây)</button></span>
+                </div>
+            </div>
         </div>
-        <button type="button" class="btn btn-primary w-100 mt-3" data-bs-toggle="modal" data-bs-dismiss="modal" id="verifyOtpBtn">Xác minh</button>
-        <div class="text-center mt-3">
-          <span>Bạn chưa nhận được mã? <a href="#" id="resendOtp" class="text-decoration-none">Gửi lại</a></span>
-        </div>
-      </div>
     </div>
-  </div>
 </div>
+
+<!-- Thêm script để đếm ngược -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var resendBtn = document.getElementById('resendOtpBtn');
+    var countdown = 30;
+    var interval;
+
+    function startCountdown() {
+      resendBtn.disabled = true;
+      resendBtn.textContent = `Gửi lại (${countdown} giây)`;
+      interval = setInterval(function() {
+        countdown--;
+        if (countdown > 0) {
+          resendBtn.textContent = `Gửi lại (${countdown} giây)`;
+        } else {
+          clearInterval(interval);
+          resendBtn.disabled = false;
+          resendBtn.textContent = 'Gửi lại';
+          countdown = 30;  // Reset lại 30 giây cho lần sau
+        }
+      }, 1000);
+    }
+
+    resendBtn.addEventListener('click', function() {
+      // Gọi hàm gửi lại OTP tại đây (ví dụ: AJAX request)
+      // ...
+
+      // Khởi động lại đếm ngược
+      startCountdown();
+    });
+
+    // Khởi động đếm ngược khi modal mở
+    var verifyOtpModal = document.getElementById('verifyOtpModal');
+    verifyOtpModal.addEventListener('shown.bs.modal', function () {
+      startCountdown();
+    });
+  });
+</script>
 
 <!-- Modal Đặt Password mới -->
 <div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-hidden="true">
@@ -750,12 +290,12 @@ color: #ccc; /* Màu sắc chữ */
         <form id="registerForm" method="post" action="{% url 'accounts:register' %}">
           {% csrf_token %}
           <div class="mb-3">
-            <label for="registerUsername" class="form-label">Tên đăng nhập</label>
-            <input type="text" class="form-control" id="registerUsername" name="username" required>
-          </div>
-          <div class="mb-3">
             <label for="registerEmail" class="form-label">Email</label>
             <input type="email" class="form-control" id="registerEmail" name="email" required>
+          </div>
+          <div class="mb-3">
+            <label for="registerUsername" class="form-label">Tên đăng nhập</label>
+            <input type="text" class="form-control" id="registerUsername" name="username" required>
           </div>
           <div class="mb-3">
             <label for="registerPassword" class="form-label">Mật khẩu</label>
