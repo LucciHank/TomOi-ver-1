@@ -5,48 +5,257 @@
 <link href="{% static 'css/user_info.css' %}" rel="stylesheet"/>
 {% endblock %}
 
+{% block extra_js %}
+<script>
+    // Định nghĩa biến URL cho JavaScript
+    const updateProfileUrl = "{% url 'accounts:update_profile' %}";
+</script>
+<script src="{% static 'js/user_info.js' %}"></script>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'store:home' %}">Trang chủ</a></li>
+            <li class="breadcrumb-item active">Tài khoản</li>
+        </ol>
+    </nav>
+
+    <h1 class="mb-4">Thông tin cá nhân</h1>
+
     <div class="row">
+        <!-- Sidebar -->
         <div class="col-md-3">
-            <div class="profile-card text-center">
-                <img src="{{ user_profile.profile_picture.url|default:'/static/images/default-avatar.png' }}" alt="User profile picture" class="img-fluid mb-3" width="100" height="100"/>
-                <h5>{{ user_profile.full_name }}</h5>
-                <p>{{ user_profile.phone_number }}</p>
-                <a class="text-primary" href="#">Xem hồ sơ</a>
-            </div>
-            <div class="sidebar">
-                <nav class="nav flex-column">
-                    <a class="nav-link" href="#"><i class="fas fa-box"></i> Đơn hàng của tôi</a>
-                    <a class="nav-link" href="#"><i class="fas fa-heart"></i> Khách hàng thân thiết</a>
-                    <a class="nav-link" href="#"><i class="fas fa-map-marker-alt"></i> Số địa chỉ nhận hàng</a>
-                    <a class="nav-link" href="{% url 'accounts:logout' %}">
-                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                    </a>
-                </nav>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="user-profile text-center mb-4">
+                        <div class="avatar-wrapper mb-3">
+                            {% if user.avatar %}
+                                <img src="{{ user.avatar.url }}" alt="Avatar" class="rounded-circle" style="width: 100px; height: 100px;">
+                            {% else %}
+                                <img src="{% static 'images/default-avatar.png' %}" alt="Avatar" class="rounded-circle" style="width: 100px; height: 100px;">
+                            {% endif %}
+                        </div>
+                        <h5 class="mb-1">{{ user.username }}</h5>
+                        <p class="text-muted mb-0">{{ user.phone_number }}</p>
+                    </div>
+                    <hr>
+                    <div class="list-group">
+                        <a href="{% url 'accounts:user_info' %}" class="list-group-item list-group-item-action active">
+                            <i class="fas fa-user me-2"></i> Tài khoản
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="fas fa-shopping-bag me-2"></i> Sản phẩm đã mua
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="fas fa-money-bill-wave me-2"></i> Lịch sử nạp tiền
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="fas fa-shield-alt me-2"></i> Bảo mật
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="fas fa-heart me-2"></i> Sản phẩm yêu thích
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="fas fa-cog me-2"></i> Cài đặt
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="fas fa-user-plus me-2"></i> Giới thiệu bạn bè
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <!-- Main Content -->
         <div class="col-md-9">
-            <div class="info-card text-center">
-                <img src="{{ user_profile.profile_picture.url|default:'/static/images/default-avatar.png' }}" alt="User profile picture" class="img-fluid mb-3" width="100" height="100"/>
-                <h4>Thông tin cá nhân</h4>
-                <table class="table table-borderless">
-                    <tbody>
-                        <tr>
-                            <td class="text-end">Họ và tên</td>
-                            <td class="text-start">{{ user_profile.full_name }}</td>
-                        </tr>
-                        <tr>
-                            <td class="text-end">Số điện thoại</td>
-                            <td class="text-start">{{ user_profile.phone_number }}</td>
-                        </tr>
-                        <tr>
-                            <td class="text-end">Giới tính</td>
-                            <td class="text-start">{{ user_profile.gender }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <a class="btn btn-danger" href="#">Chỉnh sửa thông tin</a>
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="card-title mb-0">Thông tin cá nhân</h4>
+                        <button class="btn btn-danger">Chỉnh sửa thông tin</button>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="profile-image text-center">
+                                {% if user.avatar %}
+                                    <img src="{{ user.avatar.url }}" alt="Profile" class="rounded-circle img-fluid" style="width: 150px; height: 150px;">
+                                {% else %}
+                                    <img src="{% static 'images/default-avatar.png' %}" alt="Profile" class="rounded-circle img-fluid" style="width: 150px; height: 150px;">
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Họ và tên</label>
+                                    <p class="form-control-plaintext">{{ user.get_full_name|default:user.username }}</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Số điện thoại</label>
+                                    <p class="form-control-plaintext">{{ user.phone_number|default:"0562147786" }}</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Giới tính</label>
+                                    <p class="form-control-plaintext">{{ user.gender|default:"" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Form chỉnh sửa thông tin -->
+<div class="modal fade" id="editProfileModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chỉnh sửa thông tin</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editProfileForm" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                        <!-- Avatar upload -->
+                        <div class="col-md-12 mb-4 text-center">
+                            <div class="avatar-upload">
+                                {% if user.avatar %}
+                                    <img src="{{ user.avatar.url }}" class="rounded-circle preview-avatar" style="width: 150px; height: 150px;">
+                                {% else %}
+                                    <img src="{% static 'images/default-avatar.png' %}" class="rounded-circle preview-avatar" style="width: 150px; height: 150px;">
+                                {% endif %}
+                                <div class="mt-2">
+                                    <label class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-camera"></i> Đổi ảnh đại diện
+                                        <input type="file" name="avatar" hidden accept="image/*" onchange="previewAvatar(this)" data-max-size="5">
+                                    </label>
+                                    <div class="text-muted small">Tối đa 5MB</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Thông tin có thể chỉnh sửa -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Họ và tên</label>
+                            <input type="text" class="form-control" name="full_name" 
+                                   value="{{ user.get_full_name }}">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Số điện thoại</label>
+                            <input type="tel" class="form-control" name="phone_number" 
+                                   value="{{ user.phone_number }}">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Giới tính</label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="gender" 
+                                           value="M" id="male" {% if user.gender == 'M' %}checked{% endif %}>
+                                    <label class="form-check-label" for="male">Nam</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="gender" 
+                                           value="F" id="female" {% if user.gender == 'F' %}checked{% endif %}>
+                                    <label class="form-check-label" for="female">Nữ</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="gender" 
+                                           value="O" id="other" {% if user.gender == 'O' %}checked{% endif %}>
+                                    <label class="form-check-label" for="other">Khác</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Ngày sinh</label>
+                            <div class="row">
+                                <div class="col">
+                                    <select class="form-select" name="birth_day">
+                                        <option value="">Ngày</option>
+                                        {% for i in ""|rjust:"31" %}
+                                        <option value="{{ forloop.counter }}" 
+                                                {% if user.birth_day == forloop.counter %}selected{% endif %}>
+                                            {{ forloop.counter }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col">
+                                    <select class="form-select" name="birth_month">
+                                        <option value="">Tháng</option>
+                                        {% for i in ""|rjust:"12" %}
+                                        <option value="{{ forloop.counter }}"
+                                                {% if user.birth_month == forloop.counter %}selected{% endif %}>
+                                            {{ forloop.counter }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col">
+                                    <select class="form-select" name="birth_year">
+                                        <option value="">Năm</option>
+                                        {% for year in birth_years %}
+                                        <option value="{{ year }}"
+                                                {% if user.birth_year == year %}selected{% endif %}>
+                                            {{ year }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" 
+                                   value="{{ user.email }}">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tên đăng nhập</label>
+                            <input type="text" class="form-control" name="username" 
+                                   value="{{ user.username }}">
+                        </div>
+
+                        <!-- Thông tin chỉ đọc -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nhóm khách hàng</label>
+                            <input type="text" class="form-control-plaintext" readonly 
+                                   value="{{ user.account_type_display }}">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Số dư</label>
+                            <input type="text" class="form-control-plaintext" readonly 
+                                   value="{{ user.balance|default:'0' }} đ">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tích lũy</label>
+                            <input type="text" class="form-control-plaintext" readonly 
+                                   value="{{ user.total_deposit|default:'0' }} đ">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Ngày tham gia</label>
+                            <input type="text" class="form-control-plaintext" readonly 
+                                   value="{{ user.date_joined|date:'d/m/Y' }}">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="submit" form="editProfileForm" class="btn btn-primary">Lưu thay đổi</button>
             </div>
         </div>
     </div>

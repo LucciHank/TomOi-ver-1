@@ -8,7 +8,7 @@
   <title>TomOi.vn - Phần mềm bản quyền</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
-  <link href="{% static 'css/style.css' %}" rel="stylesheet"/>
+  <link href="{% static 'css/style.css' %}?v=1.1" rel="stylesheet"/>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg">
@@ -38,31 +38,34 @@
       </li>
 
       <li class="nav-item">
-        <a class="nav-link user-icon {% if user.is_authenticated %}authenticated{% endif %}" href="#"><i class="fa fa-user"></i></a>
+        <a class="nav-link user-icon {% if user.is_authenticated %}authenticated{% endif %}" href="#">
+            <i class="fa fa-user"></i>
+        </a>
         <div class="dropdown-content">
             {% if user.is_authenticated %}
-            <p class="username">
-                <i class="fas fa-user"></i>
-                <span>{{ user.username }}</span>
-            </p>
-            <a href="#" class="dropdown-item">
-              <i class="fas fa-wallet"></i> Số dư: <b>{{ user.balance|default:"0" }}</b>đ
-            <a href="{% url 'accounts:user_info' %}" class="dropdown-item">
-              <i class="fas fa-user-cog"></i> Thông tin tài khoản
-            </a>
-            <a href="/store/order-history/" class="dropdown-item">
-              <i class="fas fa-history"></i> Lịch sử mua hàng
-            </a>
-            <a href="{% url 'accounts:logout' %}" class="dropdown-item">
-              <i class="fas fa-sign-out-alt"></i> Đăng xuất
-            </a>
+                <p class="username">
+                    <i class="fas fa-user"></i>
+                    <span>{{ user.username }}</span>
+                </p>
+                <a href="#" class="dropdown-item">
+                    <i class="fas fa-wallet"></i> Số dư: <b> {{ user.balance|default:"0" }}</b>đ
+                </a>
+                <a href="{% url 'accounts:user_info' %}" class="dropdown-item">
+                    <i class="fas fa-user-cog"></i> Thông tin tài khoản
+                </a>
+                <a href="/store/order-history/" class="dropdown-item">
+                    <i class="fas fa-history"></i> Lịch sử mua hàng
+                </a>
+                <a href="{% url 'accounts:logout' %}" class="dropdown-item">
+                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                </a>
             {% else %}
-            <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#authModal">
-              <i class="fas fa-sign-in-alt"></i> Đăng nhập / Đăng ký
-            </a>
+                <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#authModal">
+                    <i class="fas fa-sign-in-alt"></i> Đăng nhập / Đăng ký
+                </a>
             {% endif %}
-          </div>
-        </li>
+        </div>
+    </li>
 <!-- Giỏ hàng dropdown -->
 <li class="nav-item dropdown">
   <form method="post" id="cartForm">
@@ -166,12 +169,19 @@
           {% csrf_token %}
           <div class="mb-3">
             <label for="forgotEmail" class="form-label">Email</label>
-            <input type="email" class="form-control" id="forgotEmail" name="email" required>
+            <div class="input-group">
+              <input type="email" class="form-control" id="forgotEmail" name="email" required>
+              <button class="btn btn-outline-secondary" type="button" id="editEmailBtn">
+                <i class="fas fa-pencil-alt"></i>
+              </button>
+            </div>
           </div>
-          <button type="button" class="btn btn-primary w-100" id="sendOtpBtn" data-bs-target="#verifyOtpModal">Gửi mã xác nhận</button>
+          <button type="button" class="btn btn-primary w-100" id="sendOtpBtn">Gửi mã xác nhận</button>
         </form>
         <div class="text-center mt-3">
-          <a href="#" class="text-decoration-none" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#authModal">Quay lại đăng nhập</a>
+          <a href="#" class="text-decoration-none" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#authModal">
+            Quay lại đăng nhập
+          </a>
         </div>
       </div>
     </div>
@@ -188,23 +198,32 @@
             </div>
             <div class="modal-body">
                 <h5 class="text-center">Xác minh OTP</h5>
+                <p class="text-center mb-3">
+                    Mã xác nhận đã được gửi đến email: 
+                    <span id="displayEmail" class="fw-bold"></span>
+                    <a href="#" id="editEmailLink" class="ms-2 text-decoration-none">
+                        <i class="fas fa-pencil-alt"></i> Chỉnh sửa
+                    </a>
+                </p>
                 <form id="verifyOtpForm">
                     {% csrf_token %}
                     <div class="mb-3">
                         <label class="form-label">Nhập mã xác nhận</label>
                         <div id="otpInputs" class="d-flex gap-2">
-                            <input type="text" maxlength="1" class="form-control otp-input" style="border-radius: 10px;" required>
-                            <input type="text" maxlength="1" class="form-control otp-input" style="border-radius: 10px;" required>
-                            <input type="text" maxlength="1" class="form-control otp-input" style="border-radius: 10px;" required>
-                            <input type="text" maxlength="1" class="form-control otp-input" style="border-radius: 10px;" required>
-                            <input type="text" maxlength="1" class="form-control otp-input" style="border-radius: 10px;" required>
-                            <input type="text" maxlength="1" class="form-control otp-input" style="border-radius: 10px;" required>
+                            <input type="text" maxlength="1" class="form-control otp-input" required>
+                            <input type="text" maxlength="1" class="form-control otp-input" required>
+                            <input type="text" maxlength="1" class="form-control otp-input" required>
+                            <input type="text" maxlength="1" class="form-control otp-input" required>
+                            <input type="text" maxlength="1" class="form-control otp-input" required>
+                            <input type="text" maxlength="1" class="form-control otp-input" required>
                         </div>
                     </div>
-                    <button type="button" class="btn btn-primary w-100 mt-3" id="verifyOtpBtn">Xác minh</button>
+                    <button type="button" class="btn btn-primary w-100" id="verifyOtpBtn">Xác minh</button>
                 </form>
                 <div class="text-center mt-3">
-                    <span>Bạn chưa nhận được mã? <button type="button" id="resendOtpBtn" class="btn btn-link p-0" disabled>Gửi lại (30 giây)</button></span>
+                    <span>Bạn chưa nhận được mã? 
+                        <button type="button" id="resendOtpBtn" class="btn btn-link p-0">Gửi lại</button>
+                    </span>
                 </div>
             </div>
         </div>
@@ -396,7 +415,10 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="{% static 'js/cart.js' %}" defer></script>
+  {% if request.resolver_match.app_name == 'store' %}
+    <script src="{% static 'js/cart.js' %}" defer></script>
+  {% endif %}
   <script src="{% static 'js/auth.js' %}" defer></script>
+  {% block extra_js %}{% endblock %}
 </body>
 </html>

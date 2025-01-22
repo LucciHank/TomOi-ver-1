@@ -146,21 +146,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Gom OTP và verify
     if (verifyOtpBtn) {
-        verifyOtpBtn.addEventListener('click', function() {
+        verifyOtpBtn.addEventListener('click', async function() {
             const otp = Array.from(otpInputs)
                 .map(input => input.value)
                 .join('');
 
-            fetch('/accounts/verify-otp/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCSRFToken(),
-                },
-                body: JSON.stringify({ otp: otp })
-            })
-            .then(response => response.json())
-            .then(data => {
+            try {
+                const response = await fetch('/accounts/verify-otp/', {  // Sửa đường dẫn
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken(),
+                    },
+                    body: JSON.stringify({ otp: otp })
+                });
+
+                const data = await response.json();
                 if (data.success) {
                     // Nếu verify thành công
                     modals.verifyOtpModal.hide();
@@ -169,13 +170,38 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Nếu verify thất bại
                     alert(data.message);
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Error:', error);
                 alert('Có lỗi xảy ra khi xác thực OTP');
-            });
+            }
         });
     }
+
+    // Xử lý hiển thị email trong modal verify OTP
+    const displayEmail = document.getElementById('displayEmail');
+    const editEmailLink = document.getElementById('editEmailLink');
+    
+    // Khi mở modal verify OTP, hiển thị email
+    document.getElementById('verifyOtpModal').addEventListener('show.bs.modal', function () {
+        const email = document.getElementById('forgotEmail').value;
+        displayEmail.textContent = email;
+    });
+
+    // Xử lý khi click vào nút chỉnh sửa email
+    editEmailLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Đóng modal verify OTP
+        bootstrap.Modal.getInstance(document.getElementById('verifyOtpModal')).hide();
+        
+        // Mở lại modal quên mật khẩu
+        bootstrap.Modal.getInstance(document.getElementById('forgotPasswordModal')).show();
+        
+        // Focus vào input email
+        setTimeout(() => {
+            document.getElementById('forgotEmail').focus();
+        }, 500);
+    });
 });
 
 // Lấy CSRF Token từ thẻ meta
@@ -291,27 +317,30 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // Verify OTP button click
-  document.getElementById('verifyOtpBtn').addEventListener('click', function () {
+  document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
     const otp = Array.from(otpInputs).map(input => input.value).join('');
 
-    fetch('/accounts/verify-otp/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-      },
-      body: JSON.stringify({ otp: otp })
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          // Hide OTP modal and show reset password modal
-          bootstrap.Modal.getInstance(document.getElementById('verifyOtpModal')).hide();
-          bootstrap.Modal.getOrCreateInstance(document.getElementById('resetPasswordModal')).show();
-        } else {
-          alert('Mã OTP không hợp lệ. Vui lòng thử lại.');
-        }
+    try {
+      const response = await fetch('/accounts/verify-otp/', {  // Sửa đường dẫn
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({ otp })
       });
+
+      const data = await response.json();
+      if (data.success) {
+        bootstrap.Modal.getInstance(document.getElementById('verifyOtpModal')).hide();
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('resetPasswordModal')).show();
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Có lỗi xảy ra khi xác thực OTP');
+    }
   });
 });
 
@@ -473,64 +502,163 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Thêm script để đếm ngược
 document.addEventListener('DOMContentLoaded', function() {
-  let canSendOtp = true;
-  const resendBtn = document.getElementById('resendOtpBtn');
-  let countdown = 30;
-  let interval;
+    const resendBtn = document.getElementById('resendOtpBtn');
+    let countdown = 30;
+    let interval;
+    let isCountingDown = false;  // Thêm biến để theo dõi trạng thái đếm ngược
 
-  function startCountdown() {
-    canSendOtp = false;
-    resendBtn.disabled = true;
-    countdown = 30;
-    
-    clearInterval(interval); // Clear any existing interval
-    
-    interval = setInterval(function() {
-      if (countdown > 0) {
-        resendBtn.textContent = `Gửi lại (${countdown} giây)`;
-        countdown--;
-      } else {
+    function updateButtonState() {
+        if (isCountingDown) {
+            resendBtn.disabled = true;
+            resendBtn.style.color = '#6c757d';  // Màu xám
+            resendBtn.style.cursor = 'not-allowed';
+            resendBtn.textContent = `Gửi lại (${countdown} giây)`;
+        } else {
+            resendBtn.disabled = false;
+            resendBtn.style.color = '#0d6efd';  // Màu xanh
+            resendBtn.style.cursor = 'pointer';
+            resendBtn.textContent = 'Gửi lại';
+        }
+    }
+
+    function startCountdown() {
+        isCountingDown = true;
+        countdown = 30;
+        updateButtonState();
+        
         clearInterval(interval);
-        resendBtn.disabled = false;
-        resendBtn.textContent = 'Gửi lại';
-        canSendOtp = true;
-      }
-    }, 1000);
-  }
+        interval = setInterval(function() {
+            countdown--;
+            if (countdown > 0) {
+                updateButtonState();
+            } else {
+                clearInterval(interval);
+                isCountingDown = false;
+                updateButtonState();
+            }
+        }, 1000);
+    }
 
-  resendBtn.addEventListener('click', function() {
-    if (!canSendOtp) return;
-    
-    const email = document.getElementById('forgotEmail').value;
-
-    fetch('/accounts/resend-otp/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-      },
-      body: `email=${email}`
-    })
-    .then(response => response.json())
-    .then(data => {
-      alert(data.message);
-      if(data.success) {
-        startCountdown();
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('Đã xảy ra lỗi khi gửi lại OTP.');
+    resendBtn.addEventListener('click', function() {
+        if (isCountingDown) return;  // Không cho phép click khi đang đếm ngược
+        
+        const email = document.getElementById('forgotEmail').value;
+        fetch('/accounts/resend-otp/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: `email=${email}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                startCountdown();
+                alert(data.message);
+            } else {
+                alert(data.error || 'Có lỗi xảy ra khi gửi lại OTP');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Có lỗi xảy ra khi gửi lại OTP');
+        });
     });
-  });
 
-  // Cleanup interval when modal is hidden
-  const verifyOtpModal = document.getElementById('verifyOtpModal');
-  verifyOtpModal.addEventListener('hidden.bs.modal', function () {
-    clearInterval(interval);
-  });
+    // Khởi động đếm ngược khi modal mở
+    const verifyOtpModal = document.getElementById('verifyOtpModal');
+    verifyOtpModal.addEventListener('shown.bs.modal', function () {
+        startCountdown();
+    });
 
-  verifyOtpModal.addEventListener('shown.bs.modal', function () {
-    startCountdown();
-  });
+    // Dọn dẹp interval khi modal đóng
+    verifyOtpModal.addEventListener('hidden.bs.modal', function () {
+        clearInterval(interval);
+        isCountingDown = false;
+        updateButtonState();
+    });
+
+    // Khởi tạo trạng thái ban đầu
+    updateButtonState();
+});
+
+// Thêm hàm xử lý reset password thành công
+function handleResetPasswordSuccess() {
+    // Tạo và hiển thị popup
+    const popup = document.createElement('div');
+    popup.className = 'success-popup';
+    popup.innerHTML = `
+        <div class="popup-content">
+            <i class="fas fa-check-circle"></i>
+            <h4>Chúc mừng!</h4>
+            <p>Bạn đã đổi mật khẩu thành công.</p>
+        </div>
+    `;
+    document.body.appendChild(popup);
+
+    // Thêm style cho popup
+    const style = document.createElement('style');
+    style.textContent = `
+        .success-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1100;
+            text-align: center;
+        }
+        .popup-content i {
+            color: #28a745;
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        .popup-content h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .popup-content p {
+            color: #666;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Đóng modal reset password
+    bootstrap.Modal.getInstance(document.getElementById('resetPasswordModal')).hide();
+
+    // Sau 5 giây, xóa popup và chuyển hướng
+    setTimeout(() => {
+        document.body.removeChild(popup);
+        window.location.href = '/';  // Chuyển về trang chủ
+    }, 5000);
+}
+
+// Cập nhật xử lý form reset password
+document.getElementById('resetPasswordForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    try {
+        const formData = new FormData(this);
+        const response = await fetch('/accounts/reset-password/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: formData
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            handleResetPasswordSuccess();
+        } else {
+            alert(data.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra khi đặt lại mật khẩu');
+    }
 });

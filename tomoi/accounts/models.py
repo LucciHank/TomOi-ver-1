@@ -1,18 +1,178 @@
-from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.contrib.auth.models import AbstractUser, Group, Permission, BaseUserManager
 from django.db import models
+from django.utils.html import format_html
+
+class CustomUserManager(BaseUserManager):
+    def create_user(self, username, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('Email là bắt buộc')
+        email = self.normalize_email(email)
+        user = self.model(username=username, email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, username, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+        extra_fields.setdefault('user_type', 'admin')
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser phải có is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser phải có is_superuser=True.')
+
+        return self.create_user(username, email, password, **extra_fields)
+
+class AccountType(models.Model):
+    code = models.CharField(
+        max_length=50, 
+        unique=True,
+        verbose_name='Mã loại tài khoản'
+    )
+    name = models.CharField(
+        max_length=100,
+        verbose_name='Tên loại tài khoản'
+    )
+    color_code = models.CharField(
+        max_length=7, 
+        default='#666666',
+        verbose_name='Mã màu hiển thị'
+    )
+    description = models.TextField(
+        blank=True, 
+        null=True,
+        verbose_name='Mô tả'
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Ngày tạo'
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name='Đang sử dụng'
+    )
+
+    class Meta:
+        verbose_name = 'Loại tài khoản'
+        verbose_name_plural = 'Quản lý loại tài khoản'
+        ordering = ['code']
+
+    def __str__(self):
+        return self.name
 
 class CustomUser(AbstractUser):
-    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
-    phone_number = models.CharField(max_length=15, null=True, blank=True)
-    birth_date = models.DateField(null=True, blank=True)
-    customer_type = models.CharField(max_length=50, choices=[('retail', 'Khách lẻ'), ('wholesale', 'Khách sỉ'), ('supplier', 'Nhà cung cấp')], default='retail')
-    balance = models.DecimalField(max_digits=10, decimal_places=0, default=0)
-    join_date = models.DateField(auto_now_add=True)
-    groups = models.ManyToManyField(Group, related_name="accounts_customuser_set", blank=True,help_text="The groups this user belongs to.",related_query_name="user")
-    user_permissions = models.ManyToManyField(Permission, related_name="accounts_customuser_permissions_set", blank=True,help_text="Specific permissions for this user.",related_query_name="user",)
-    verification_token = models.CharField(max_length=100, null=True, blank=True)
+    USER_TYPE_CHOICES = (
+        ('admin', 'Quản trị viên'),
+        ('staff', 'Nhân viên'),
+        ('customer', 'Khách hàng'),
+    )
+    
+    user_type = models.CharField(
+        max_length=20, 
+        choices=USER_TYPE_CHOICES, 
+        default='customer',
+        verbose_name='Chức vụ'
+    )
+    
+    account_label = models.ForeignKey(
+        AccountType,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name='Loại tài khoản'
+    )
+    avatar = models.ImageField(
+        upload_to='avatars/', 
+        null=True, 
+        blank=True,
+        verbose_name='Ảnh đại diện'
+    )
+    phone_number = models.CharField(
+        max_length=15, 
+        null=True, 
+        blank=True,
+        verbose_name='Số điện thoại'
+    )
+    birth_date = models.DateField(
+        null=True, 
+        blank=True,
+        verbose_name='Ngày sinh'
+    )
+    balance = models.DecimalField(
+        max_digits=10, 
+        decimal_places=0, 
+        default=0,
+        verbose_name='Số dư'
+    )
+    join_date = models.DateField(
+        auto_now_add=True,
+        verbose_name='Ngày tham gia'
+    )
+    verification_token = models.CharField(
+        max_length=100, 
+        null=True, 
+        blank=True
+    )
+    last_login_ip = models.GenericIPAddressField(
+        null=True, 
+        blank=True,
+        verbose_name='IP đăng nhập cuối'
+    )
+    failed_login_attempts = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Số lần đăng nhập thất bại'
+    )
+
+    objects = CustomUserManager()
+
+    class Meta:
+        verbose_name = 'Tài khoản'
+        verbose_name_plural = 'Quản lý tài khoản'
+        permissions = [
+            ("can_view_dashboard", "Có thể xem dashboard"),
+            ("can_manage_users", "Có thể quản lý người dùng"),
+            ("can_manage_products", "Có thể quản lý sản phẩm"),
+            ("can_manage_orders", "Có thể quản lý đơn hàng"),
+            ("can_view_reports", "Có thể xem báo cáo"),
+            ("can_manage_user_status", "Có thể quản lý trạng thái người dùng"),
+            ("can_change_account_label", "Có thể thay đổi loại tài khoản"),
+            ("can_manage_balance", "Có thể quản lý số dư tài khoản"),
+        ]
 
     def save(self, *args, **kwargs):
-        if not self.pk:  # Ensure customer_type cannot be changed after creation
-            self.customer_type = 'retail'
+        is_new = self.pk is None
+        if is_new and not self.account_label:
+            # Lấy hoặc tạo loại tài khoản mặc định
+            default_type, _ = AccountType.objects.get_or_create(
+                code='retail',
+                defaults={
+                    'name': 'Khách bán lẻ',
+                    'color_code': '#666666'
+                }
+            )
+            self.account_label = default_type
         super().save(*args, **kwargs)
+        
+        if is_new:
+            self.assign_default_group()
+
+    def assign_default_group(self):
+        if self.user_type == 'admin':
+            group, _ = Group.objects.get_or_create(name='Admin')
+        elif self.user_type == 'staff':
+            group, _ = Group.objects.get_or_create(name='Staff')
+        else:
+            group, _ = Group.objects.get_or_create(name='Customer')
+        self.groups.add(group)
+
+    def get_status_display(self):
+        if self.is_active:
+            return format_html('<span style="color: green;">Hoạt động</span>')
+        return format_html('<span style="color: red;">Ngừng hoạt động</span>')
+
+    get_status_display.short_description = 'Trạng thái'
+
+    def __str__(self):
+        return f"{self.username} ({self.get_full_name() or self.email})"

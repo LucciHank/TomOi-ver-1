@@ -28,6 +28,8 @@ from django.template.loader import render_to_string
 from django.utils.crypto import get_random_string
 from django.urls import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
+from .decorators import admin_required, staff_required
+from django.views.decorators.http import require_POST
 
 @csrf_exempt
 def auth(request):
@@ -201,15 +203,48 @@ def user_logout(request):
     return redirect('login')
 
 # Profile update view
+@login_required
+@require_POST
 def update_profile(request):
-    if request.method == 'POST':
-        form = CustomUserChangeForm(request.POST, request.FILES, instance=request.user)
-        if form.is_valid():
-            form.save()
-            return redirect('profile')
-    else:
-        form = CustomUserChangeForm(instance=request.user)
-    return render(request, 'accounts/update_profile.html', {'form': form})
+    try:
+        user = request.user
+        
+        # Cập nhật avatar nếu có
+        if 'avatar' in request.FILES:
+            user.avatar = request.FILES['avatar']
+            
+        # Cập nhật các thông tin khác
+        full_name = request.POST.get('full_name', '')
+        name_parts = full_name.split(maxsplit=1)
+        user.first_name = name_parts[0] if name_parts else ''
+        user.last_name = name_parts[1] if len(name_parts) > 1 else ''
+        
+        user.phone_number = request.POST.get('phone_number', '')
+        user.email = request.POST.get('email', '')
+        user.username = request.POST.get('username', '')
+        
+        # Xử lý ngày sinh
+        try:
+            day = int(request.POST.get('birth_day', 0))
+            month = int(request.POST.get('birth_month', 0))
+            year = int(request.POST.get('birth_year', 0))
+            if all([day, month, year]):
+                from datetime import date
+                user.birth_date = date(year, month, day)
+        except (ValueError, TypeError):
+            pass
+            
+        user.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Cập nhật thông tin thành công'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=400)
 
 # Forgot Password view
 class CustomPasswordResetView(PasswordResetView):
@@ -455,24 +490,18 @@ def verify_otp(request):
             otp_stored = request.session.get('otp')
             email = request.session.get('otp_email')
 
-            print(f"OTP entered: {otp_entered}")  # Debug
-            print(f"OTP stored: {otp_stored}")    # Debug
-            print(f"Email: {email}")              # Debug
-
             if not otp_stored or not email:
                 return JsonResponse({
                     'success': False,
                     'message': 'Phiên làm việc đã hết hạn. Vui lòng yêu cầu OTP mới.'
                 })
 
-            # So sánh OTP dưới dạng string
             if str(otp_entered) == str(otp_stored):
                 # Xóa OTP đã sử dụng
                 del request.session['otp']
                 return JsonResponse({
                     'success': True,
-                    'message': 'Xác thực OTP thành công.',
-                    'next_modal': 'resetPassword'  # Thêm thông tin modal tiếp theo
+                    'message': 'Xác thực OTP thành công.'
                 })
             else:
                 return JsonResponse({
@@ -486,7 +515,7 @@ def verify_otp(request):
                 'message': 'Dữ liệu không hợp lệ.'
             })
         except Exception as e:
-            print(f"Error in verify_otp: {str(e)}")  # Debug
+            print(f"Error in verify_otp: {str(e)}")  # Debug log
             return JsonResponse({
                 'success': False,
                 'message': f'Có lỗi xảy ra: {str(e)}'
@@ -514,3 +543,49 @@ def user_info(request):
         }
     }
     return render(request, 'accounts/user_info.html', context)
+
+@admin_required
+def admin_dashboard(request):
+    return render(request, 'accounts/admin/dashboard.html')
+
+@staff_required
+def staff_dashboard(request):
+    return render(request, 'accounts/staff/dashboard.html')
+
+@admin_required
+def manage_users(request):
+    users = CustomUser.objects.all().order_by('-date_joined')
+    return render(request, 'accounts/admin/manage_users.html', {
+        'users': users
+    })
+
+@staff_required
+def manage_orders(request):
+    orders = Order.objects.all()
+    return render(request, 'accounts/staff/manage_orders.html', {'orders': orders})
+
+@admin_required
+def toggle_user_status(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        try:
+            user = CustomUser.objects.get(id=user_id)
+            user.is_active = not user.is_active
+            user.save()
+            
+            status_text = "hoạt động" if user.is_active else "không hoạt động"
+            return JsonResponse({
+                'success': True,
+                'message': f'Đã chuyển trạng thái tài khoản sang {status_text}',
+                'is_active': user.is_active
+            })
+        except CustomUser.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'Không tìm thấy người dùng'
+            })
+    
+    return JsonResponse({
+        'success': False,
+        'message': 'Phương thức không hợp lệ'
+    })

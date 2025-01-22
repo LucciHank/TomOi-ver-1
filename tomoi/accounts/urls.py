@@ -23,4 +23,5 @@ urlpatterns = [
     path('profile/update/', views.update_profile, name='update_profile'),
     path('unauthorized/', views.unauthorized_view, name='unauthorized'),
     path('user-info/', views.user_info, name='user_info'),
+    path('update-profile/', views.update_profile, name='update_profile'),
 ]

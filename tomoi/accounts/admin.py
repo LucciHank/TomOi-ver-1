@@ -1,12 +1,234 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser
-from .forms import CustomUserCreationForm, CustomUserChangeForm
+from django.utils.html import format_html
+from .models import CustomUser, AccountType
+
+@admin.register(AccountType)
+class AccountTypeAdmin(admin.ModelAdmin):
+    list_display = ('code', 'name', 'color_preview', 'is_active', 'created_at')
+    list_filter = ('is_active',)
+    search_fields = ('code', 'name', 'description')
+    ordering = ('code',)
+    
+    fieldsets = (
+        (None, {
+            'fields': ('code', 'name', 'color_code', 'description', 'is_active')
+        }),
+    )
+
+    def color_preview(self, obj):
+        return format_html(
+            '<span style="color: {}; font-weight: bold;">{}</span>',
+            obj.color_code,
+            obj.name
+        )
+    color_preview.short_description = 'Xem trước'
+
+    def has_delete_permission(self, request, obj=None):
+        # Chỉ admin mới có quyền xóa
+        return request.user.user_type == 'admin'
+
+    def has_change_permission(self, request, obj=None):
+        # Chỉ admin mới có quyền sửa
+        return request.user.user_type == 'admin'
+
+    def has_add_permission(self, request):
+        # Chỉ admin mới có quyền thêm
+        return request.user.user_type == 'admin'
 
 class CustomUserAdmin(UserAdmin):
-    add_form = CustomUserCreationForm
-    form = CustomUserChangeForm
     model = CustomUser
-    list_display = ['username', 'email', 'customer_type', 'balance', 'join_date']
+    list_display = (
+        'username', 
+        'email', 
+        'full_name',
+        'balance_display',        # Thêm cột số dư vào đây
+        'account_label_display',  # Loại tài khoản
+        'get_status_display',     # Trạng thái
+        'phone_display',          # Số điện thoại
+        'date_joined',            # Ngày tham gia
+        'user_type_display',      # Chức vụ (chuyển xuống cuối)
+    )
+    list_filter = ('is_active', 'account_label', 'user_type', 'groups')
+    search_fields = ('username', 'email', 'first_name', 'last_name', 'phone_number')
+    ordering = ('-date_joined',)
+    
+    fieldsets = (
+        ('Thông tin đăng nhập', {
+            'fields': ('username', 'password', 'email')
+        }),
+        ('Thông tin cá nhân', {
+            'fields': ('first_name', 'last_name', 'avatar', 'phone_number', 'birth_date')
+        }),
+        ('Quản lý tài khoản', {
+            'fields': (
+                'is_active',
+                'account_label',
+                'user_type',
+                'balance',
+            ),
+            'description': 'Quản lý trạng thái và phân loại tài khoản',
+        }),
+        ('Phân quyền nâng cao', {
+            'fields': ('is_staff', 'is_superuser', 'groups', 'user_permissions'),
+            'classes': ('collapse',),
+        }),
+        ('Thông tin hệ thống', {
+            'fields': ('join_date', 'last_login', 'last_login_ip', 'failed_login_attempts'),
+            'classes': ('collapse',),
+        }),
+    )
+    
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': (
+                'username', 
+                'email', 
+                'password1', 
+                'password2',
+                'user_type',
+                'is_active',
+                'account_label',
+            ),
+        }),
+    )
+
+    readonly_fields = ('join_date', 'last_login', 'last_login_ip', 'failed_login_attempts')
+    actions = ['activate_users', 'deactivate_users', 'add_balance', 'subtract_balance']
+
+    def full_name(self, obj):
+        return obj.get_full_name() or '-'
+    full_name.short_description = 'Họ và tên'
+
+    def user_type_display(self, obj):
+        colors = {
+            'admin': 'purple',
+            'staff': 'blue',
+            'customer': 'green'
+        }
+        return format_html(
+            '<span style="color: {};">{}</span>',
+            colors.get(obj.user_type, 'black'),
+            obj.get_user_type_display()
+        )
+    user_type_display.short_description = 'Chức vụ'
+
+    def account_label_display(self, obj):
+        if obj.account_label:
+            return format_html(
+                '<span style="color: {}; font-weight: bold;">{}</span>',
+                obj.account_label.color_code,
+                obj.account_label.name
+            )
+        return '-'
+    account_label_display.short_description = 'Loại tài khoản'
+
+    def phone_display(self, obj):
+        return obj.phone_number or '-'
+    phone_display.short_description = 'Số điện thoại'
+
+    def activate_users(self, request, queryset):
+        updated = queryset.update(is_active=True)
+        self.message_user(request, f'Đã kích hoạt {updated} tài khoản.')
+    activate_users.short_description = 'Kích hoạt tài khoản đã chọn'
+
+    def deactivate_users(self, request, queryset):
+        updated = queryset.update(is_active=False)
+        self.message_user(request, f'Đã vô hiệu hóa {updated} tài khoản.')
+    deactivate_users.short_description = 'Vô hiệu hóa tài khoản đã chọn'
+
+    def add_balance(self, request, queryset):
+        # Thêm logic xử lý thêm tiền vào đây
+        amount = request.POST.get('amount', 0)
+        try:
+            amount = int(amount)
+            updated = 0
+            for user in queryset:
+                user.balance += amount
+                user.save()
+                updated += 1
+            self.message_user(request, f'Đã cộng {amount:,}đ vào {updated} tài khoản.')
+        except ValueError:
+            self.message_user(request, 'Số tiền không hợp lệ', level='ERROR')
+    add_balance.short_description = 'Cộng tiền vào tài khoản đã chọn'
+
+    def subtract_balance(self, request, queryset):
+        # Thêm logic xử lý trừ tiền vào đây
+        amount = request.POST.get('amount', 0)
+        try:
+            amount = int(amount)
+            updated = 0
+            for user in queryset:
+                if user.balance >= amount:
+                    user.balance -= amount
+                    user.save()
+                    updated += 1
+            self.message_user(request, f'Đã trừ {amount:,}đ từ {updated} tài khoản.')
+        except ValueError:
+            self.message_user(request, 'Số tiền không hợp lệ', level='ERROR')
+    subtract_balance.short_description = 'Trừ tiền từ tài khoản đã chọn'
+
+    def has_view_permission(self, request, obj=None):
+        # Admin và staff luôn có quyền xem
+        return request.user.is_staff
+
+    def has_add_permission(self, request):
+        # Admin luôn có quyền thêm mới
+        return request.user.user_type == 'admin'
+
+    def has_change_permission(self, request, obj=None):
+        # Admin luôn có quyền sửa
+        if request.user.user_type == 'admin':
+            return True
+        # Staff chỉ có quyền sửa nếu được cấp quyền cụ thể
+        if request.user.user_type == 'staff':
+            return any([
+                request.user.has_perm('accounts.can_change_account_label'),
+                request.user.has_perm('accounts.can_manage_user_status'),
+                request.user.has_perm('accounts.can_manage_balance')
+            ])
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        # Chỉ admin mới có quyền xóa
+        return request.user.user_type == 'admin'
+
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.user_type == 'admin':
+            return self.readonly_fields  # Admin không bị giới hạn trường nào
+        return super().get_readonly_fields(request, obj)
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super().get_fieldsets(request, obj)
+        if request.user.user_type == 'admin':
+            return fieldsets  # Admin thấy tất cả các trường
+        # Staff không thấy phần phân quyền nâng cao
+        return [fs for fs in fieldsets if fs[0] != 'Phân quyền nâng cao']
+
+    def save_model(self, request, obj, form, change):
+        if not change:  # Nếu là tạo mới
+            # Lấy hoặc tạo loại tài khoản mặc định
+            default_type, _ = AccountType.objects.get_or_create(
+                code='retail',
+                defaults={
+                    'name': 'Khách bán lẻ',
+                    'color_code': '#666666'
+                }
+            )
+            obj.account_label = default_type
+            
+        super().save_model(request, obj, form, change)
+
+    # Format hiển thị số dư
+    def balance_display(self, obj):
+        # Format số dư với dấu phẩy ngăn cách hàng nghìn
+        formatted_balance = "{:,.0f}".format(obj.balance)
+        return format_html(
+            '<span style="color: #28a745; font-weight: bold;">{}</span>',
+            f"{formatted_balance}đ"
+        )
+    balance_display.short_description = 'Số dư'
+    balance_display.admin_order_field = 'balance'
 
 admin.site.register(CustomUser, CustomUserAdmin)
