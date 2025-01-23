@@ -125,6 +125,27 @@ class CustomUser(AbstractUser):
         verbose_name='Số lần đăng nhập thất bại'
     )
 
+    # 2FA fields
+    has_2fa = models.BooleanField(default=False)
+    two_factor_method = models.CharField(
+        max_length=20,
+        choices=[
+            ('password', 'Password'),
+            ('email', 'Email OTP'),
+            ('google', 'Google Authenticator')
+        ],
+        null=True,
+        blank=True
+    )
+    two_factor_secret = models.CharField(max_length=100, null=True, blank=True)  # For Google Auth
+    two_factor_password = models.CharField(max_length=128, null=True, blank=True)  # For password 2FA
+    
+    # 2FA settings
+    require_2fa_purchase = models.BooleanField(default=False)
+    require_2fa_deposit = models.BooleanField(default=False)
+    require_2fa_password = models.BooleanField(default=False)
+    require_2fa_profile = models.BooleanField(default=False)
+
     objects = CustomUserManager()
 
     class Meta:
@@ -176,3 +197,33 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return f"{self.username} ({self.get_full_name() or self.email})"
+
+    def get_user_type_display(self):
+        USER_TYPE_CHOICES = {
+            'admin': 'Quản trị viên',
+            'staff': 'Nhân viên',
+            'customer': 'Khách hàng'
+        }
+        return USER_TYPE_CHOICES.get(self.user_type, 'Khách hàng')
+
+class Order(models.Model):
+    user = models.ForeignKey('CustomUser', on_delete=models.CASCADE, related_name='account_orders')
+    code = models.CharField(max_length=50)
+    product_name = models.CharField(max_length=255)
+    date = models.DateTimeField(auto_now_add=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, default='Thành công')
+
+    class Meta:
+        ordering = ['-date']
+
+class Transaction(models.Model):
+    user = models.ForeignKey('CustomUser', on_delete=models.CASCADE, related_name='account_transactions')
+    code = models.CharField(max_length=50)
+    date = models.DateTimeField(auto_now_add=True)
+    method = models.CharField(max_length=50)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, default='Thành công')
+
+    class Meta:
+        ordering = ['-date']

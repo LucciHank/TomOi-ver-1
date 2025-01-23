@@ -1,6 +1,6 @@
 body {
 
-  background-color: white;
+  background-color: #f3f4f6;
 
   display: flex;
 
@@ -256,9 +256,11 @@ color: white;
 
 .nav-link.user-icon {
 
-  width: 40px;
+  padding: 0 !important;
 
-  height: 40px;
+  width: 45px;
+
+  height: 45px;
 
   display: flex;
 
@@ -266,22 +268,91 @@ color: white;
 
   justify-content: center;
 
-  border-radius: 50%;
-
-  border: none;
-
   background-color: rgba(0, 0, 0, 0.2);
+
+  transition: all 0.3s ease;
+
+  position: relative;
 
 }
 
+/* Style cho icon khi chưa login */
+.nav-link.user-icon i {
+  font-size: 20px;
+  color: white;
+}
 
+/* Style cho avatar image */
+.nav-link.user-icon img {
+  width: 45px !important;
+  height: 45px !important;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* Hover effect */
+.nav-link.user-icon:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Style cho dropdown */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  min-width: 220px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  z-index: 1000;
+  margin-top: 8px;
+  padding: 8px 0;
+}
+
+/* Style cho username trong dropdown */
+.dropdown-content .username {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.dropdown-content .username i {
+  width: 20px;
+  margin-right: 10px;
+  color: #666;
+}
+
+.dropdown-content .username span {
+  font-weight: 500;
+  color: #333;
+}
+
+/* Responsive styles */
+@media (max-768px) {
+  .nav-link.user-icon {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .nav-link.user-icon i {
+    font-size: 18px;
+  }
+}
+
+/* Style cho avatar trong dropdown */
+.dropdown-content .username img {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-right: 12px;
+}
 
 /* User auth state styles */
-
 .nav-link.user-icon {
-
 transition: background-color 0.3s;
-
 }
 
 
@@ -398,11 +469,11 @@ display: none;
 
 position: absolute;
 
-left: 83%; /* Đặt nó ở vị trí giữa phần tử cha */
+left: 50%; /* Đặt nó ở vị trí giữa phần tử cha */
 
 transform: translateX(-90%); /* Canh giữa hoàn hảo */
 
-top: 78%; /* Đặt dropdown xuống dưới */
+top: 90%; /* Đặt dropdown xuống dưới */
 
 background-color: white;
 
@@ -464,11 +535,13 @@ cursor: pointer; /* Chỉ báo con trỏ sẽ thay đổi khi hover vào */
 
 .dropdown-content .dropdown-item {
 
-padding: 8px 16px;
+padding: 10px 16px;
 
-transition: all 0.3s ease;
+transition: all 0.2s ease;
 
+display: flex;
 
+align-items: center;
 
 }
 
@@ -476,11 +549,11 @@ transition: all 0.3s ease;
 
 .dropdown-content .dropdown-item:hover {
 
-transform: translateX(3px);
-
 background-color: #df2626;
 
 color: white;
+
+transform: translateX(5px);
 
 }
 
@@ -892,7 +965,7 @@ color: white;
 
 padding: 40px 0;
 
-margin-top: auto;
+margin-top: 40px;
 
 /* text-align: center;  */
 
@@ -952,7 +1025,7 @@ background-color: #000;
 
 color: white;
 
-padding: 10px 0;
+padding-top: 10px;
 
 text-align: center;
 
@@ -961,6 +1034,7 @@ text-align: center;
 .footer-bottom {
 
 text-align: center;
+
 
 }
 
@@ -980,7 +1054,9 @@ border-top: 1px solid #ccc; /* Màu sắc của gạch ngang */
 
 .footer-bottom p {
 
-margin: 10px 0 0 0; /* Khoảng cách phía trên dòng chữ */
+margin-top: 10px; /* Khoảng cách phía trên dòng chữ */
+
+margin-bottom: 0;
 
 font-size: 14px; /* Kích thước chữ */
 
@@ -1048,7 +1124,12 @@ color: #ccc; /* Màu sắc chữ */
 
   }
 
-  
+     /* Đảm bảo các card và section có nền trắng */
+     .card,
+     .filter-section,
+     .modal-content {
+       background-color: white !important;
+     } 
 
   .search-bar {
 
@@ -1334,7 +1415,7 @@ color: #ccc; /* Màu sắc chữ */
 
       margin: 0;
 
-      border-radius: 15px 15px 0 0;
+      border-radius: 15px;
 
       padding: 15px;
 
@@ -1555,7 +1636,6 @@ color: #ccc; /* Màu sắc chữ */
 }
 
 /* Style cho các item trong dropdown */
-
 .dropdown-content .dropdown-item {
 
   padding: 8px 16px;
@@ -1594,32 +1674,21 @@ color: #ccc; /* Màu sắc chữ */
 
 
 
-/* Username style trong dropdown */
-
+/* Dropdown username styles */
 .dropdown-content .username {
-
-  padding: 8px 16px;
-
-  margin: 0;
-
-  border-bottom: 1px solid #eee;
-
-  font-weight: 500;
-
-  display: flex;
-
-  align-items: center;
-
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-bottom: 1px solid #eee;
 }
 
-
-
 .dropdown-content .username i {
+    margin-right: 10px;
+    color: #666;
+}
 
-  margin-right: 10px;
-
-  color: #666;
-
+.dropdown-content .username span {
+    font-weight: 500;
 }
 
 
@@ -1727,3 +1796,11 @@ color: #ccc; /* Màu sắc chữ */
 .dropdown .fa-user::after {
     display: none !important;
 }
+
+.nav-link.user-icon img {
+    width: 24px;
+    height: 24px;
+    object-fit: fill;
+    border-radius: 50%;
+}
+

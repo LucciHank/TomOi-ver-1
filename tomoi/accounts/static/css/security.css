@@ -1,0 +1,325 @@
+/* Security page styles */
+.security-page .card {
+    background: white;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.section {
+    padding: 2rem 0;
+}
+
+.section:not(:last-child) {
+    border-bottom: 1px solid #eee;
+}
+
+.section-title {
+    color: #333;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+/* Password input container */
+.security-page .password-input {
+    position: relative;
+    width: 70%;
+    margin: 0 auto 1rem;
+}
+
+.security-page .form-control {
+    width: 100% !important;
+    height: 45px;
+    padding-right: 40px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    transition: all 0.3s ease;
+}
+
+/* Password requirements */
+.password-requirements {
+    position: absolute;
+    top: -40px; /* Dịch lên trên */
+    right: -50px; /* Dịch sang phải */
+    width: calc(100% + 50px); /* Đảm bảo chiều rộng */
+    background: white;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 1.5rem !important;
+    z-index: 1;
+}
+
+.password-requirements h6 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 1.2rem;
+}
+
+.password-requirements ul {
+    margin: 0;
+    padding: 0;
+}
+
+.password-requirements li {
+    font-size: 0.9rem;
+    line-height: 1.8;
+    margin-bottom: 0.8rem;
+    color: #7f8c8d;
+    display: flex;
+    align-items: center;
+}
+
+/* Validation icons */
+.fa-check-circle {
+    color: #27ae60;
+    margin-right: 0.8rem;
+    font-size: 1.1rem;
+}
+
+.fa-times-circle {
+    color: #e74c3c;
+    margin-right: 0.8rem;
+    font-size: 1.1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .security-page .password-input {
+        width: 100% !important;
+    }
+    
+    .password-requirements {
+        position: static;
+        width: 100%;
+        margin-top: 2rem;
+        box-shadow: none;
+    }
+}
+
+/* Button styles */
+.btn-danger {
+    background-color: #df2626;
+    border-color: #df2626;
+    transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+    background-color: #b71d1d;
+    border-color: #b71d1d;
+}
+
+/* List group styles */
+.list-group-item {
+    border: none !important;
+    padding: 1rem 1.5rem !important;
+    font-size: 16px !important;
+    transition: all 0.3s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    min-height: 60px !important;
+    color: #333 !important;
+    background-color: transparent !important;
+}
+
+.list-group-item.active {
+    background-color: #df2626 !important;
+    color: white !important;
+}
+
+.list-group-item:hover {
+    background-color: #df2626 !important;
+    color: white !important;
+}
+
+.list-group-item i {
+    width: 24px !important;
+    font-size: 18px !important;
+    margin-right: 12px !important;
+    text-align: center !important;
+    color: inherit !important;
+}
+
+.no-2fa-message {
+    font-size: 1.1rem;
+    color: #1d0d25;
+    margin-bottom: 1.5rem;
+}
+
+/* 2FA modal */
+.two-factor-options {
+    padding: 0.5rem 0;
+    margin: 1rem 0;
+    border-radius: 4px;
+}
+
+.two-factor-option {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+    margin-bottom: 0.5rem;
+}
+
+.two-factor-option:last-child {
+    margin-bottom: 0;
+}
+
+.two-factor-option__icon {
+    margin-right: 1rem;
+    width: 24px;
+    height: 24px;
+}
+
+.two-factor-option__content {
+    flex: 1;
+}
+
+.two-factor-option__title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.two-factor-option__description {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+/* QR code */
+.qr-code {
+    width: 200px;
+    height: 200px;
+    margin: 1rem 0;
+}
+
+/* Modal styles */
+.modal-content {
+    border: none;
+    border-radius: 8px;
+}
+
+.modal-header {
+    border-bottom: 1px solid #eee;
+    padding: 1.5rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    border-top: 1px solid #eee;
+    padding: 1.5rem;
+}
+
+/* Form validation styles */
+.form-control.is-invalid {
+    border-color: #dc3545;
+    background-image: none;
+}
+
+.form-control.is-valid {
+    border-color: #198754;
+    background-image: none;
+}
+
+.invalid-feedback {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.validation-list {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.validation-item {
+    transition: all 0.3s ease;
+    list-style-type: none;
+}
+
+.fas {
+    transition: color 0.3s ease;
+}
+
+/* OTP Input styles */
+.otp-input-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.otp-input {
+    width: 45px !important;
+    height: 45px !important;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 600;
+    border-radius: 8px !important;
+}
+
+.otp-input:focus {
+    border-color: #df2626;
+    box-shadow: 0 0 0 0.2rem rgba(223, 38, 38, 0.25);
+}
+
+#resendOTPBtn {
+    color: #df2626;
+    text-decoration: none;
+}
+
+#resendOTPBtn:hover {
+    text-decoration: underline;
+}
+
+#resendOTPBtn:disabled {
+    color: #6c757d;
+    cursor: not-allowed;
+    text-decoration: none;
+}
+
+.forgot-2fa {
+    color: #df2626;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.forgot-2fa:hover {
+    text-decoration: underline;
+}
+
+/* Google Authenticator styles */
+.qr-code-container {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 8px;
+    display: inline-block;
+}
+
+.qr-code {
+    width: 200px;
+    height: 200px;
+}
+
+.verify-ga-guide {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+.verify-ga-guide ol {
+    margin-bottom: 0;
+}
+
+#gaSecretKey {
+    font-family: monospace;
+    letter-spacing: 2px;
+}
+
+.ga-otp,
+.ga-verify-otp {
+    background-color: #fff;
+}

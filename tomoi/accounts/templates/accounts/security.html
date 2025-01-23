@@ -1,0 +1,526 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'css/security.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4 security-page">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'store:home' %}">Trang chủ</a></li>
+            <li class="breadcrumb-item active">Bảo mật</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="list-group">
+                    <a href="{% url 'accounts:user_info' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user me-2"></i> Tài khoản
+                    </a>
+                    <a href="{% url 'accounts:order_history' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-shopping-bag me-2"></i> Sản phẩm đã mua
+                    </a>
+                    <a href="{% url 'accounts:payment_history' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-money-bill-wave me-2"></i> Lịch sử nạp tiền
+                    </a>
+                    <a href="{% url 'accounts:security' %}" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-shield-alt me-2"></i> Bảo mật
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="fas fa-heart me-2"></i> Sản phẩm yêu thích
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="fas fa-cog me-2"></i> Cài đặt
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user-plus me-2"></i> Giới thiệu bạn bè
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-body">
+                    <!-- Đổi mật khẩu section -->
+                    <div class="section mb-5">
+                        <h4 class="section-title">Đổi mật khẩu</h4>
+                        <div class="row">
+                            <!-- Phần form bên trái -->
+                            <div class="col-md-5 pe-4">
+                                <div class="password-form pb-4">
+                                    <form id="changePasswordForm">
+                                        {% csrf_token %}
+                                        <input type="hidden" 
+                                               name="username" 
+                                               autocomplete="username" 
+                                               value="{{ user.username }}">
+                                        <div class="mb-3">
+                                            <label class="form-label">Mật khẩu hiện tại</label>
+                                            <div class="password-input">
+                                                <input type="password" class="form-control" name="current_password" autocomplete="current-password">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Mật khẩu mới</label>
+                                            <div class="password-input">
+                                                <input type="password" class="form-control" name="new_password" autocomplete="new-password">
+                                            </div>
+                                        </div>
+                                        <div class="mb-4">
+                                            <label class="form-label">Xác nhận mật khẩu mới</label>
+                                            <div class="password-input">
+                                                <input type="password" class="form-control" name="confirm_password" autocomplete="new-password">
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <button type="submit" form="changePasswordForm" class="btn btn-danger mt-3">
+                                        <i class="fas fa-save me-2"></i>Lưu thay đổi
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Phần lưu ý bên phải -->
+                            <div class="col-md-6 ps-4 d-flex align-items-center">
+                                <div class="password-requirements">
+                                    <h6 class="mb-3">Mật khẩu mới của bạn nên:</h6>
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2">
+                                            <i class="fas fa-check-circle text-success me-2"></i>
+                                            Có từ 8 ký tự trở lên
+                                        </li>
+                                        <li class="mb-2" >
+                                            <i class="fas fa-check-circle text-success me-2"></i>
+                                            Có ít nhất 1 số hoặc 1 chữ viết hoa
+                                        </li>
+                                        <li class="mb-2" >
+                                            <i class="fas fa-check-circle text-success me-2"></i>
+                                            Có ít nhất 1  ký tự đặc biệt
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fas fa-check-circle text-success me-2"></i>
+                                            Mật khẩu mới phải khác mật khẩu hiện tại
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mật khẩu cấp 2 section -->
+                    <div class="section">
+                        <h4 class="section-title">Mật khẩu cấp 2</h4>
+                        {% if not user.has_2fa %}
+                            <p class="no-2fa-message">
+                                Bạn chưa thiết lập mật khẩu cấp 2. Bấm vào nút bên dưới để tạo mật khẩu cấp 2.
+                            </p>
+                            <button type="button" class="btn btn-danger" id="setup2FABtn">
+                                <i class="fas fa-lock me-2"></i>Tạo mật khẩu cấp 2
+                            </button>
+                        {% else %}
+                            <div class="2fa-info mb-4">
+                                <p class="mb-3">Bạn đã thiết lập mật khẩu cấp 2 với phương thức: 
+                                    <strong>
+                                        {% if user.2fa_method == 'password' %}
+                                            Tự tạo mật khẩu
+                                        {% elif user.2fa_method == 'email' %}
+                                            Nhận mã OTP qua email
+                                        {% else %}
+                                            Google Authenticator
+                                        {% endif %}
+                                    </strong>
+                                </p>
+                                
+                                <p class="mb-3">Các trường hợp áp dụng:</p>
+                                <ul class="list-unstyled mb-4">
+                                    {% if user.2fa_settings.purchase %}
+                                        <li><i class="fas fa-check me-2 text-success"></i>Thanh toán mua hàng</li>
+                                    {% endif %}
+                                    {% if user.2fa_settings.deposit %}
+                                        <li><i class="fas fa-check me-2 text-success"></i>Nạp tiền</li>
+                                    {% endif %}
+                                    {% if user.2fa_settings.password %}
+                                        <li><i class="fas fa-check me-2 text-success"></i>Đổi mật khẩu</li>
+                                    {% endif %}
+                                    {% if user.2fa_settings.profile %}
+                                        <li><i class="fas fa-check me-2 text-success"></i>Đổi thông tin cá nhân</li>
+                                    {% endif %}
+                                </ul>
+
+                                <div class="d-flex gap-2 mb-3">
+                                    <button type="button" class="btn btn-primary" id="change2FAMethodBtn">
+                                        <i class="fas fa-exchange-alt me-2"></i>Đổi phương thức xác thực
+                                    </button>
+                                    <button type="button" class="btn btn-info" id="edit2FASettingsBtn">
+                                        <i class="fas fa-cog me-2"></i>Cài đặt trường hợp áp dụng
+                                    </button>
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    {% if user.2fa_method == 'password' %}
+                                        <button type="button" class="btn btn-warning" id="change2FABtn">
+                                            <i class="fas fa-key me-2"></i>Đổi mật khẩu cấp 2
+                                        </button>
+                                    {% endif %}
+                                    <button type="button" class="btn btn-danger" id="delete2FABtn">
+                                        <i class="fas fa-trash me-2"></i>Xóa mật khẩu cấp 2
+                                    </button>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal thiết lập mật khẩu cấp 2 -->
+<div class="modal fade" id="setup2FAModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thiết lập mật khẩu cấp 2</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="setup2FAForm">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <h6 class="mb-3">Chọn trường hợp yêu cầu xác thực:</h6>
+                        <div class="two-factor-options">
+                            <div class="form-check mb-2">
+                                <input type="checkbox" class="form-check-input" id="2fa_purchase">
+                                <label class="form-check-label" for="2fa_purchase">Thanh toán mua hàng</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input type="checkbox" class="form-check-input" id="2fa_deposit">
+                                <label class="form-check-label" for="2fa_deposit">Nạp tiền</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input type="checkbox" class="form-check-input" id="2fa_password">
+                                <label class="form-check-label" for="2fa_password">Đổi mật khẩu</label>
+                            </div>
+                            <div class="form-check mb-4">
+                                <input type="checkbox" class="form-check-input" id="2fa_profile">
+                                <label class="form-check-label" for="2fa_profile">Đổi thông tin cá nhân</label>
+                            </div>
+                        </div>
+            
+                        <h6 class="mb-3">Chọn phương thức xác thực:</h6>
+                        <!-- Phương thức xác thực dưới dạng combobox -->
+                        <select class="form-select mb-4" id="2fa_method" onchange="handle2FAMethodChange()">
+                            <option value="">-- Chọn phương thức xác thực --</option>
+                            <option value="password">Tự tạo mật khẩu cấp 2</option>
+                            <option value="email">Gửi mã OTP qua email</option>
+                            <option value="google_authenticator">Quét mã QR bằng Google Authenticator</option>
+                            <option value="none">Không sử dụng mật khẩu cấp 2</option>
+                        </select>
+            
+                        <!-- Trường hiển thị cho phương thức tự tạo mật khẩu -->
+                        <div id="2fa_password_fields" class="2fa-method-fields d-none">
+                            <div class="mb-3">
+                                <label class="form-label">Tạo mật khẩu cấp 2</label>
+                                <div class="password-input">
+                                    <input type="password" 
+                                           class="form-control" 
+                                           name="2fa_password" 
+                                           id="2fa_password">
+                                    <i class="fas fa-eye toggle-password" onclick="togglePassword(this)"></i>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Xác nhận mật khẩu cấp 2</label>
+                                <div class="password-input">
+                                    <input type="password" 
+                                           class="form-control" 
+                                           name="2fa_password_confirm" 
+                                           id="2fa_password_confirm">
+                                    <i class="fas fa-eye toggle-password" onclick="togglePassword(this)"></i>
+                                </div>
+                            </div>
+                            <!-- Hiển thị yêu cầu mật khẩu -->
+                            <div class="password-requirements mt-3">
+                                <h6 class="mb-2">Mật khẩu cấp 2 phải:</h6>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        Có từ 6 ký tự trở lên
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        Có ít nhất 1 số
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+            
+                        <div id="2fa_email_fields" class="2fa-method-fields d-none">
+                            <p class="text-muted">OTP sẽ được gửi tới email đăng ký của bạn.</p>
+                        </div>
+            
+                        <!-- Trường hiển thị cho Google Authenticator -->
+                        <div id="2fa_google_fields" class="2fa-method-fields d-none">
+                            <div class="text-center mb-4">
+                                <h6 class="mb-3">Thiết lập Google Authenticator</h6>
+                                <p class="text-muted mb-4">Quét mã QR bên dưới bằng ứng dụng Google Authenticator</p>
+                                <div class="qr-code-container mb-4">
+                                    <img src="{% static 'images/qr-placeholder.png' %}" alt="QR Code" class="qr-code" id="gaQrCode">
+                                </div>
+                                <div class="alert alert-info">
+                                    <p class="mb-2"><strong>Không thể quét mã QR?</strong></p>
+                                    <p class="mb-0">Nhập mã này vào ứng dụng: <strong id="gaSecretKey">ABCD EFGH IJKL MNOP</strong></p>
+                                </div>
+                            </div>
+                            
+                            <!-- Form xác nhận mã -->
+                            <div class="verify-ga-section">
+                                <h6 class="mb-3">Xác nhận thiết lập</h6>
+                                <p class="text-muted mb-3">Nhập mã từ Google Authenticator để hoàn tất thiết lập</p>
+                                <div class="otp-input-group mb-4">
+                                    <input type="text" maxlength="1" class="otp-input form-control ga-otp" required>
+                                    <input type="text" maxlength="1" class="otp-input form-control ga-otp" required>
+                                    <input type="text" maxlength="1" class="otp-input form-control ga-otp" required>
+                                    <input type="text" maxlength="1" class="otp-input form-control ga-otp" required>
+                                    <input type="text" maxlength="1" class="otp-input form-control ga-otp" required>
+                                    <input type="text" maxlength="1" class="otp-input form-control ga-otp" required>
+                                </div>
+                                <div class="verify-ga-guide">
+                                    <h6 class="mb-2">Hướng dẫn:</h6>
+                                    <ol class="ps-3">
+                                        <li class="mb-2">Mở app Google Authenticator trên thiết bị bạn đã quét QR</li>
+                                        <li>Tìm mã OTP gồm 6 số của TomOi.vn và nhập vào để xác nhận</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="submit" form="setup2FAForm" class="btn btn-danger">
+                    <i class="fas fa-save me-2"></i>Lưu cài đặt
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xác nhận mật khẩu cấp 2 -->
+<div class="modal fade" id="verify2FAModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận mật khẩu cấp 2</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="verify2FAForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Nhập mật khẩu cấp 2</label>
+                        <div class="password-input">
+                            <input type="password" class="form-control" name="2fa_password" id="verify2FAPassword">
+                            <i class="fas fa-eye toggle-password" onclick="togglePassword(this)"></i>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="submit" form="verify2FAForm" class="btn btn-danger">
+                    <i class="fas fa-check me-2"></i>Xác nhận
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xác thực OTP -->
+<div class="modal fade" id="verifyOTPModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác thực mã OTP</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="verifyOTPForm">
+                    {% csrf_token %}
+                    <div class="text-center mb-4">
+                        <p>Chúng tôi đã gửi mã OTP đến email của bạn</p>
+                        <p class="text-muted">Vui lòng kiểm tra và nhập mã xác thực</p>
+                    </div>
+                    <div class="otp-input-group mb-4">
+                        <input type="text" maxlength="1" class="otp-input form-control" required>
+                        <input type="text" maxlength="1" class="otp-input form-control" required>
+                        <input type="text" maxlength="1" class="otp-input form-control" required>
+                        <input type="text" maxlength="1" class="otp-input form-control" required>
+                        <input type="text" maxlength="1" class="otp-input form-control" required>
+                        <input type="text" maxlength="1" class="otp-input form-control" required>
+                    </div>
+                    <div class="text-center mb-3">
+                        <button type="button" id="resendOTPBtn" class="btn btn-link">
+                            Gửi lại mã OTP (<span id="countdownTimer">60</span>s)
+                        </button>
+                    </div>
+                    <div class="text-center">
+                        <a href="#" class="text-danger forgot-2fa">Bạn quên mật khẩu cấp 2?</a>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-secondary" id="backToVerifyBtn">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại
+                </button>
+                <button type="submit" form="verifyOTPForm" class="btn btn-danger">
+                    <i class="fas fa-check me-2"></i>Xác nhận
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xác thực Google Authenticator -->
+<div class="modal fade" id="verifyGAModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác thực Google Authenticator</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="verifyGAForm">
+                    {% csrf_token %}
+                    <div class="text-center mb-4">
+                        <p>Vui lòng nhập mã xác thực từ Google Authenticator</p>
+                    </div>
+                    <div class="otp-input-group mb-4">
+                        <input type="text" maxlength="1" class="otp-input form-control ga-verify-otp" required>
+                        <input type="text" maxlength="1" class="otp-input form-control ga-verify-otp" required>
+                        <input type="text" maxlength="1" class="otp-input form-control ga-verify-otp" required>
+                        <input type="text" maxlength="1" class="otp-input form-control ga-verify-otp" required>
+                        <input type="text" maxlength="1" class="otp-input form-control ga-verify-otp" required>
+                        <input type="text" maxlength="1" class="otp-input form-control ga-verify-otp" required>
+                    </div>
+                    <div class="verify-ga-guide">
+                        <h6 class="mb-2">Hướng dẫn:</h6>
+                        <ol class="ps-3">
+                            <li class="mb-2">Mở app Google Authenticator trên thiết bị bạn đã quét QR</li>
+                            <li>Tìm mã OTP gồm 6 số của TomOi.vn và nhập vào để xác nhận</li>
+                        </ol>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-secondary" id="backToVerifyGABtn">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại
+                </button>
+                <button type="submit" form="verifyGAForm" class="btn btn-danger">
+                    <i class="fas fa-check me-2"></i>Xác nhận
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal đổi mật khẩu cấp 2 -->
+<div class="modal fade" id="change2FAPasswordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Đổi mật khẩu cấp 2</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="change2FAPasswordForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu cấp 2 hiện tại</label>
+                        <div class="password-input">
+                            <input type="password" class="form-control" name="current_2fa_password" id="current2FAPassword">
+                            <i class="fas fa-eye toggle-password" onclick="togglePassword(this)"></i>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu cấp 2 mới</label>
+                        <div class="password-input">
+                            <input type="password" class="form-control" name="new_2fa_password" id="new2FAPassword">
+                            <i class="fas fa-eye toggle-password" onclick="togglePassword(this)"></i>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Xác nhận mật khẩu cấp 2 mới</label>
+                        <div class="password-input">
+                            <input type="password" class="form-control" name="confirm_2fa_password" id="confirm2FAPassword">
+                            <i class="fas fa-eye toggle-password" onclick="togglePassword(this)"></i>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="submit" form="change2FAPasswordForm" class="btn btn-danger">
+                    <i class="fas fa-save me-2"></i>Lưu thay đổi
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal cài đặt trường hợp áp dụng -->
+<div class="modal fade" id="edit2FASettingsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cài đặt</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="edit2FASettingsForm">
+                    {% csrf_token %}
+                    <div class="two-factor-options">
+                        <div class="form-check mb-2">
+                            <input type="checkbox" class="form-check-input" id="edit_2fa_purchase" 
+                                   {% if user.2fa_settings.purchase %}checked{% endif %}>
+                            <label class="form-check-label" for="edit_2fa_purchase">Thanh toán mua hàng</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input type="checkbox" class="form-check-input" id="edit_2fa_deposit"
+                                   {% if user.2fa_settings.deposit %}checked{% endif %}>
+                            <label class="form-check-label" for="edit_2fa_deposit">Nạp tiền</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input type="checkbox" class="form-check-input" id="edit_2fa_password"
+                                   {% if user.2fa_settings.password %}checked{% endif %}>
+                            <label class="form-check-label" for="edit_2fa_password">Đổi mật khẩu</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input type="checkbox" class="form-check-input" id="edit_2fa_profile"
+                                   {% if user.2fa_settings.profile %}checked{% endif %}>
+                            <label class="form-check-label" for="edit_2fa_profile">Đổi thông tin cá nhân</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="submit" form="edit2FASettingsForm" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Lưu thay đổi
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/security.js' %}"></script>
+{% endblock %} 

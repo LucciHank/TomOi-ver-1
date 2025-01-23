@@ -110,7 +110,7 @@ class CartItem(models.Model):
 
 # Mô hình đơn hàng (Order)
 class Order(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE, related_name='store_orders')
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     status = models.CharField(max_length=50, choices=[("Pending", "Pending"), ("Completed", "Completed")])
     created_at = models.DateTimeField(auto_now_add=True)

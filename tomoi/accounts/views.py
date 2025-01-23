@@ -9,7 +9,7 @@ from social_django.models import UserSocialAuth
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.utils.crypto import get_random_string
 from .forms import CustomUserCreationForm, CustomUserChangeForm, CustomPasswordResetForm, CustomSetPasswordForm
 from django.conf import settings
@@ -29,7 +29,9 @@ from django.utils.crypto import get_random_string
 from django.urls import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from .decorators import admin_required, staff_required
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
+from .models import Order, Transaction  # Thêm import này ở đầu file
+import pyotp
 
 @csrf_exempt
 def auth(request):
@@ -204,15 +206,30 @@ def user_logout(request):
 
 # Profile update view
 @login_required
+@csrf_protect
 @require_POST
 def update_profile(request):
     try:
         user = request.user
         
+        # Validate dữ liệu trước khi cập nhật
+        if 'username' in request.POST and request.POST['username'] != user.username:
+            if CustomUser.objects.filter(username=request.POST['username']).exists():
+                raise ValidationError('Tên đăng nhập đã tồn tại')
+                
+        if 'email' in request.POST and request.POST['email'] != user.email:
+            if CustomUser.objects.filter(email=request.POST['email']).exists():
+                raise ValidationError('Email đã tồn tại')
+        
         # Cập nhật avatar nếu có
         if 'avatar' in request.FILES:
             user.avatar = request.FILES['avatar']
             
+        # Cập nhật giới tính
+        gender = request.POST.get('gender')
+        if gender:  # Chỉ cần kiểm tra có giá trị
+            user.gender = gender
+        
         # Cập nhật các thông tin khác
         full_name = request.POST.get('full_name', '')
         name_parts = full_name.split(maxsplit=1)
@@ -220,8 +237,10 @@ def update_profile(request):
         user.last_name = name_parts[1] if len(name_parts) > 1 else ''
         
         user.phone_number = request.POST.get('phone_number', '')
-        user.email = request.POST.get('email', '')
-        user.username = request.POST.get('username', '')
+        if request.POST.get('email'):
+            user.email = request.POST.get('email')
+        if request.POST.get('username'):
+            user.username = request.POST.get('username')
         
         # Xử lý ngày sinh
         try:
@@ -240,10 +259,15 @@ def update_profile(request):
             'success': True,
             'message': 'Cập nhật thông tin thành công'
         })
-    except Exception as e:
+    except ValidationError as e:
         return JsonResponse({
             'success': False,
             'message': str(e)
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': 'Có lỗi xảy ra: ' + str(e)
         }, status=400)
 
 # Forgot Password view
@@ -531,16 +555,13 @@ def unauthorized_view(request):
 
 @login_required
 def user_info(request):
-    user = request.user
+    # Tạo danh sách năm từ 1970-2020
+    current_year = 2020
+    birth_years = range(current_year, 1969, -1)
+    
     context = {
-        'user_profile': {
-            'profile_picture': {
-                'url': user.avatar.url if user.avatar else '/static/images/default-avatar.png'
-            },
-            'full_name': user.get_full_name() or user.username,
-            'phone_number': user.phone_number or 'Chưa cập nhật',
-            'gender': user.gender if hasattr(user, 'gender') else 'Chưa cập nhật',
-        }
+        'birth_years': birth_years,
+        'user': request.user
     }
     return render(request, 'accounts/user_info.html', context)
 
@@ -588,4 +609,98 @@ def toggle_user_status(request):
     return JsonResponse({
         'success': False,
         'message': 'Phương thức không hợp lệ'
+    })
+
+@login_required
+def payment_history(request):
+    transactions = Transaction.objects.filter(user=request.user).order_by('-date')
+    return render(request, 'accounts/payment_history.html', {
+        'transactions': transactions
+    })
+
+@login_required
+def order_history(request):
+    # Lấy cả đơn hàng từ accounts và store
+    account_orders = Order.objects.filter(user=request.user).order_by('-date')
+    store_orders = request.user.store_orders.all().order_by('-created_at')
+    
+    # Kết hợp và sắp xếp theo thời gian
+    orders = sorted(
+        list(account_orders) + list(store_orders),
+        key=lambda x: x.date if hasattr(x, 'date') else x.created_at,
+        reverse=True
+    )
+    
+    return render(request, 'accounts/order_history.html', {
+        'orders': orders
+    })
+
+@login_required
+def security_view(request):
+    context = {
+        'user': request.user,
+        'active_tab': 'security'  # Thêm để đánh dấu tab đang active
+    }
+    return render(request, 'accounts/security.html', context)
+
+@login_required
+@require_http_methods(["POST"])
+def change_password(request):
+    current_password = request.POST.get('current_password')
+    new_password = request.POST.get('new_password')
+    confirm_password = request.POST.get('confirm_password')
+    
+    # Validate current password
+    if not request.user.check_password(current_password):
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Mật khẩu hiện tại không đúng'
+        })
+    
+    # Validate new password
+    if new_password != confirm_password:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Mật khẩu mới không khớp'
+        })
+    
+    # Change password
+    request.user.set_password(new_password)
+    request.user.save()
+    
+    return JsonResponse({
+        'status': 'success',
+        'message': 'Đổi mật khẩu thành công'
+    })
+
+@login_required
+@require_http_methods(["POST"])
+def setup_2fa(request):
+    method = request.POST.get('2fa_method')
+    
+    if method == 'password':
+        password = request.POST.get('2fa_password')
+        request.user.two_factor_method = 'password'
+        request.user.two_factor_password = password
+    
+    elif method == 'email':
+        request.user.two_factor_method = 'email'
+    
+    elif method == 'google':
+        # Generate secret key for Google Authenticator
+        secret = pyotp.random_base32()
+        request.user.two_factor_method = 'google'
+        request.user.two_factor_secret = secret
+    
+    # Save 2FA settings
+    request.user.has_2fa = True
+    request.user.require_2fa_purchase = 'purchase' in request.POST
+    request.user.require_2fa_deposit = 'deposit' in request.POST
+    request.user.require_2fa_password = 'password' in request.POST
+    request.user.require_2fa_profile = 'profile' in request.POST
+    request.user.save()
+    
+    return JsonResponse({
+        'status': 'success',
+        'message': 'Thiết lập mật khẩu cấp 2 thành công'
     })

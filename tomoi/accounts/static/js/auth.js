@@ -117,15 +117,15 @@ document.addEventListener('DOMContentLoaded', function () {
         .then((response) => response.json())
         .then((data) => {
           if (data.success) {
-            showAlert('Đăng nhập thành công! Bạn sẽ được chuyển hướng trong 5 giây.', 'success');
+            showNotification('Đăng nhập thành công! Bạn sẽ được chuyển hướng trong 5 giây.');
             setTimeout(() => location.reload(), 5000);
           } else {
-            showAlert(data.message, 'error');
+            showNotification(data.message, 'error');
           }
         })
         .catch((error) => {
           console.error('Error:', error);
-          showAlert('Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại.', 'error');
+          showNotification('Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại.', 'error');
         });
     });
   }
@@ -211,8 +211,16 @@ function getCsrfToken() {
 }
 
 // Hàm hiển thị thông báo (dùng alert hoặc custom modal nếu cần)
-function showAlert(message, type = 'info') {
-  alert(`[${type.toUpperCase()}]: ${message}`);
+function showNotification(message, type = 'success') {
+  Swal.fire({
+    text: message,
+    icon: type,
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true
+  });
 }
 
 // Gửi yêu cầu API
@@ -229,7 +237,7 @@ async function sendApiRequest(url, method, data = {}) {
     return await response.json();
   } catch (error) {
     console.error(`Error when sending API request to ${url}:`, error);
-    showAlert('An error occurred. Please try again later.', 'error');
+    showNotification('An error occurred. Please try again later.', 'error');
     return null;
   }
 }
@@ -279,12 +287,12 @@ if (resetPasswordButton) {
     const confirmPassword = document.getElementById('confirmPassword').value;
 
     if (!password || !confirmPassword) {
-      showAlert('Please fill in both password fields.', 'warning');
+      showNotification('Please fill in both password fields.', 'warning');
       return;
     }
 
     if (password !== confirmPassword) {
-      showAlert('Passwords do not match.', 'error');
+      showNotification('Passwords do not match.', 'error');
       return;
     }
 
@@ -293,7 +301,7 @@ if (resetPasswordButton) {
       confirmPassword,
     });
     if (response && response.success) {
-      showAlert(response.message, 'success');
+      showNotification(response.message);
       window.location.href = '/store/login/';
     }
   });
@@ -421,11 +429,11 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert(data.message);
+            showNotification(data.message);
             // Chuyển hướng đến trang xác thực
             window.location.href = data.redirect;
         } else {
-            alert(data.error);
+            showNotification(data.error, 'error');
             if (data.action === 'login') {
                 // Chuyển sang modal đăng nhập nếu email đã tồn tại
                 bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
@@ -435,7 +443,7 @@ document.addEventListener('DOMContentLoaded', function () {
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Có lỗi xảy ra khi đăng ký');
+        showNotification('Có lỗi xảy ra khi đăng ký', 'error');
     });
   });
 });
@@ -455,11 +463,11 @@ document.getElementById('registerForm').addEventListener('submit', function (e) 
     .then(res => res.json())
     .then(data => {
       if (data.success) {
-        alert(data.message);
+        showNotification(data.message);
         // Đóng modal đăng ký
         bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
       } else {
-        alert(data.error);
+        showNotification(data.error, 'error');
         if (data.action === 'login') {
           // Chuyển sang modal đăng nhập nếu email đã tồn tại
           bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
@@ -469,7 +477,7 @@ document.getElementById('registerForm').addEventListener('submit', function (e) 
     })
     .catch(error => {
       console.error('Error:', error);
-      alert('Có lỗi xảy ra khi đăng ký');
+      showNotification('Có lỗi xảy ra khi đăng ký', 'error');
     });
 });
 
@@ -662,3 +670,14 @@ document.getElementById('resetPasswordForm').addEventListener('submit', async fu
         alert('Có lỗi xảy ra khi đặt lại mật khẩu');
     }
 });
+
+// Sử dụng trong các hàm callback
+function handleResponse(response) {
+    if (response.success) {
+        showNotification(response.message);
+        // Xử lý thành công...
+    } else {
+        showNotification(response.message, 'error');
+        // Xử lý thất bại...
+    }
+}
