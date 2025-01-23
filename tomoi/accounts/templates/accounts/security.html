@@ -127,9 +127,9 @@
                             <div class="2fa-info mb-4">
                                 <p class="mb-3">Bạn đã thiết lập mật khẩu cấp 2 với phương thức: 
                                     <strong>
-                                        {% if user.2fa_method == 'password' %}
+                                        {% if user.two_factor_method == 'password' %}
                                             Tự tạo mật khẩu
-                                        {% elif user.2fa_method == 'email' %}
+                                        {% elif user.two_factor_method == 'email' %}
                                             Nhận mã OTP qua email
                                         {% else %}
                                             Google Authenticator
@@ -137,41 +137,35 @@
                                     </strong>
                                 </p>
                                 
+                                <!-- Các nút chức năng -->
+                                <div class="d-flex gap-2 mb-4">
+                                    <button type="button" class="btn btn-outline-danger" id="change2FAMethodBtn">
+                                        <i class="fas fa-exchange-alt me-2"></i>Đổi phương thức
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger" id="edit2FASettingsBtn">
+                                        <i class="fas fa-cog me-2"></i>Cài đặt
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger" id="delete2FABtn">
+                                        <i class="fas fa-trash-alt me-2"></i>Xóa mật khẩu cấp 2
+                                    </button>
+                                </div>
+
+                                <!-- Hiển thị các trường hợp áp dụng -->
                                 <p class="mb-3">Các trường hợp áp dụng:</p>
-                                <ul class="list-unstyled mb-4">
-                                    {% if user.2fa_settings.purchase %}
-                                        <li><i class="fas fa-check me-2 text-success"></i>Thanh toán mua hàng</li>
+                                <ul class="list-unstyled">
+                                    {% if user.require_2fa_purchase %}
+                                        <li><i class="fas fa-check text-success me-2"></i>Thanh toán mua hàng</li>
                                     {% endif %}
-                                    {% if user.2fa_settings.deposit %}
-                                        <li><i class="fas fa-check me-2 text-success"></i>Nạp tiền</li>
+                                    {% if user.require_2fa_deposit %}
+                                        <li><i class="fas fa-check text-success me-2"></i>Nạp tiền</li>
                                     {% endif %}
-                                    {% if user.2fa_settings.password %}
-                                        <li><i class="fas fa-check me-2 text-success"></i>Đổi mật khẩu</li>
+                                    {% if user.require_2fa_password %}
+                                        <li><i class="fas fa-check text-success me-2"></i>Đổi mật khẩu</li>
                                     {% endif %}
-                                    {% if user.2fa_settings.profile %}
-                                        <li><i class="fas fa-check me-2 text-success"></i>Đổi thông tin cá nhân</li>
+                                    {% if user.require_2fa_profile %}
+                                        <li><i class="fas fa-check text-success me-2"></i>Đổi thông tin cá nhân</li>
                                     {% endif %}
                                 </ul>
-
-                                <div class="d-flex gap-2 mb-3">
-                                    <button type="button" class="btn btn-primary" id="change2FAMethodBtn">
-                                        <i class="fas fa-exchange-alt me-2"></i>Đổi phương thức xác thực
-                                    </button>
-                                    <button type="button" class="btn btn-info" id="edit2FASettingsBtn">
-                                        <i class="fas fa-cog me-2"></i>Cài đặt trường hợp áp dụng
-                                    </button>
-                                </div>
-
-                                <div class="d-flex gap-2">
-                                    {% if user.2fa_method == 'password' %}
-                                        <button type="button" class="btn btn-warning" id="change2FABtn">
-                                            <i class="fas fa-key me-2"></i>Đổi mật khẩu cấp 2
-                                        </button>
-                                    {% endif %}
-                                    <button type="button" class="btn btn-danger" id="delete2FABtn">
-                                        <i class="fas fa-trash me-2"></i>Xóa mật khẩu cấp 2
-                                    </button>
-                                </div>
                             </div>
                         {% endif %}
                     </div>
@@ -182,7 +176,7 @@
 </div>
 
 <!-- Modal thiết lập mật khẩu cấp 2 -->
-<div class="modal fade" id="setup2FAModal" tabindex="-1">
+<div class="modal fade" id="setup2FAModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -190,7 +184,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="setup2FAForm">
+                <form id="setup2FAForm" action="{% url 'accounts:setup_2fa' %}" method="POST">
                     {% csrf_token %}
                     <div class="mb-4">
                         <h6 class="mb-3">Chọn trường hợp yêu cầu xác thực:</h6>
@@ -204,8 +198,8 @@
                                 <label class="form-check-label" for="2fa_deposit">Nạp tiền</label>
                             </div>
                             <div class="form-check mb-2">
-                                <input type="checkbox" class="form-check-input" id="2fa_password">
-                                <label class="form-check-label" for="2fa_password">Đổi mật khẩu</label>
+                                <input type="checkbox" class="form-check-input" id="2fa_password_checkbox">
+                                <label class="form-check-label" for="2fa_password_checkbox">Đổi mật khẩu</label>
                             </div>
                             <div class="form-check mb-4">
                                 <input type="checkbox" class="form-check-input" id="2fa_profile">
@@ -220,7 +214,6 @@
                             <option value="password">Tự tạo mật khẩu cấp 2</option>
                             <option value="email">Gửi mã OTP qua email</option>
                             <option value="google_authenticator">Quét mã QR bằng Google Authenticator</option>
-                            <option value="none">Không sử dụng mật khẩu cấp 2</option>
                         </select>
             
                         <!-- Trường hiển thị cho phương thức tự tạo mật khẩu -->
@@ -267,36 +260,44 @@
             
                         <!-- Trường hiển thị cho Google Authenticator -->
                         <div id="2fa_google_fields" class="2fa-method-fields d-none">
-                            <div class="text-center mb-4">
-                                <h6 class="mb-3">Thiết lập Google Authenticator</h6>
-                                <p class="text-muted mb-4">Quét mã QR bên dưới bằng ứng dụng Google Authenticator</p>
-                                <div class="qr-code-container mb-4">
-                                    <img src="{% static 'images/qr-placeholder.png' %}" alt="QR Code" class="qr-code" id="gaQrCode">
+                            <div class="row">
+                                <!-- Phần bên trái - QR Code -->
+                                <div class="col-md-6 text-center">
+                                    <div class="qr-container mb-3">
+                                        <img id="gaQrCode" 
+                                            src="data:image/png;base64,..." 
+                                            alt="QR Code" 
+                                            class="img-fluid qr-code"
+                                            style="width: 150px; height: 150px; object-fit: contain;">
+                                    </div>
+                                    <div class="secret-key-container">
+                                        <p class="mb-2">Không thể quét mã QR?</p>
+                                        <p>Nhập mã này vào ứng dụng:</p>
+                                        <code id="gaSecretKey" class="user-select-all"></code>
+                                    </div>
                                 </div>
-                                <div class="alert alert-info">
-                                    <p class="mb-2"><strong>Không thể quét mã QR?</strong></p>
-                                    <p class="mb-0">Nhập mã này vào ứng dụng: <strong id="gaSecretKey">ABCD EFGH IJKL MNOP</strong></p>
-                                </div>
-                            </div>
-                            
-                            <!-- Form xác nhận mã -->
-                            <div class="verify-ga-section">
-                                <h6 class="mb-3">Xác nhận thiết lập</h6>
-                                <p class="text-muted mb-3">Nhập mã từ Google Authenticator để hoàn tất thiết lập</p>
-                                <div class="otp-input-group mb-4">
-                                    <input type="text" maxlength="1" class="otp-input form-control ga-otp" required>
-                                    <input type="text" maxlength="1" class="otp-input form-control ga-otp" required>
-                                    <input type="text" maxlength="1" class="otp-input form-control ga-otp" required>
-                                    <input type="text" maxlength="1" class="otp-input form-control ga-otp" required>
-                                    <input type="text" maxlength="1" class="otp-input form-control ga-otp" required>
-                                    <input type="text" maxlength="1" class="otp-input form-control ga-otp" required>
-                                </div>
-                                <div class="verify-ga-guide">
-                                    <h6 class="mb-2">Hướng dẫn:</h6>
-                                    <ol class="ps-3">
-                                        <li class="mb-2">Mở app Google Authenticator trên thiết bị bạn đã quét QR</li>
-                                        <li>Tìm mã OTP gồm 6 số của TomOi.vn và nhập vào để xác nhận</li>
-                                    </ol>
+                                
+                                <!-- Phần bên phải - Hướng dẫn và nhập mã -->
+                                <div class="col-md-6">
+                                    <div class="setup-guide mb-4">
+                                        <h6 class="mb-3">Xác nhận thiết lập</h6>
+                                        <div class="verify-ga-guide" >
+                                            <ol class="ps-3">
+                                                <li class="mb-2">Mở app Google Authenticator trên thiết bị bạn đã quét QR</li>
+                                                <li>Tìm mã OTP gồm 6 số của TomOi.vn và nhập vào để xác nhận</li>
+                                            </ol>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="gaOtpInput"
+                                               name="ga_otp"
+                                               maxlength="6" 
+                                               placeholder="Nhập mã 6 số"
+                                               required>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -397,18 +398,18 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="verifyGAForm">
+                <form id="setupGAVerifyForm" class="verify-form">
                     {% csrf_token %}
                     <div class="text-center mb-4">
                         <p>Vui lòng nhập mã xác thực từ Google Authenticator</p>
                     </div>
                     <div class="otp-input-group mb-4">
-                        <input type="text" maxlength="1" class="otp-input form-control ga-verify-otp" required>
-                        <input type="text" maxlength="1" class="otp-input form-control ga-verify-otp" required>
-                        <input type="text" maxlength="1" class="otp-input form-control ga-verify-otp" required>
-                        <input type="text" maxlength="1" class="otp-input form-control ga-verify-otp" required>
-                        <input type="text" maxlength="1" class="otp-input form-control ga-verify-otp" required>
-                        <input type="text" maxlength="1" class="otp-input form-control ga-verify-otp" required>
+                        <input type="text" maxlength="1" class="otp-input form-control ga-otp" required>
+                        <input type="text" maxlength="1" class="otp-input form-control ga-otp" required>
+                        <input type="text" maxlength="1" class="otp-input form-control ga-otp" required>
+                        <input type="text" maxlength="1" class="otp-input form-control ga-otp" required>
+                        <input type="text" maxlength="1" class="otp-input form-control ga-otp" required>
+                        <input type="text" maxlength="1" class="otp-input form-control ga-otp" required>
                     </div>
                     <div class="verify-ga-guide">
                         <h6 class="mb-2">Hướng dẫn:</h6>
@@ -423,7 +424,7 @@
                 <button type="button" class="btn btn-secondary" id="backToVerifyGABtn">
                     <i class="fas fa-arrow-left me-2"></i>Quay lại
                 </button>
-                <button type="submit" form="verifyGAForm" class="btn btn-danger">
+                <button type="submit" form="setupGAVerifyForm" class="btn btn-danger">
                     <i class="fas fa-check me-2"></i>Xác nhận
                 </button>
             </div>
@@ -489,22 +490,22 @@
                     <div class="two-factor-options">
                         <div class="form-check mb-2">
                             <input type="checkbox" class="form-check-input" id="edit_2fa_purchase" 
-                                   {% if user.2fa_settings.purchase %}checked{% endif %}>
+                                   {% if user.require_2fa_purchase %}checked{% endif %}>
                             <label class="form-check-label" for="edit_2fa_purchase">Thanh toán mua hàng</label>
                         </div>
                         <div class="form-check mb-2">
                             <input type="checkbox" class="form-check-input" id="edit_2fa_deposit"
-                                   {% if user.2fa_settings.deposit %}checked{% endif %}>
+                                   {% if user.require_2fa_deposit %}checked{% endif %}>
                             <label class="form-check-label" for="edit_2fa_deposit">Nạp tiền</label>
                         </div>
                         <div class="form-check mb-2">
                             <input type="checkbox" class="form-check-input" id="edit_2fa_password"
-                                   {% if user.2fa_settings.password %}checked{% endif %}>
+                                   {% if user.require_2fa_password %}checked{% endif %}>
                             <label class="form-check-label" for="edit_2fa_password">Đổi mật khẩu</label>
                         </div>
                         <div class="form-check mb-2">
                             <input type="checkbox" class="form-check-input" id="edit_2fa_profile"
-                                   {% if user.2fa_settings.profile %}checked{% endif %}>
+                                   {% if user.require_2fa_profile %}checked{% endif %}>
                             <label class="form-check-label" for="edit_2fa_profile">Đổi thông tin cá nhân</label>
                         </div>
                     </div>

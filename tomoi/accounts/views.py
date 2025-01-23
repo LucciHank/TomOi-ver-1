@@ -32,6 +32,9 @@ from .decorators import admin_required, staff_required
 from django.views.decorators.http import require_POST, require_http_methods
 from .models import Order, Transaction  # Thêm import này ở đầu file
 import pyotp
+import qrcode
+import base64
+from io import BytesIO
 
 @csrf_exempt
 def auth(request):
@@ -703,4 +706,100 @@ def setup_2fa(request):
     return JsonResponse({
         'status': 'success',
         'message': 'Thiết lập mật khẩu cấp 2 thành công'
+    })
+
+@login_required
+def setup_google_authenticator(request):
+    if request.method == 'POST':
+        # Tạo secret key
+        secret = pyotp.random_base32()
+        
+        # Tạo URL cho Google Authenticator
+        totp = pyotp.TOTP(secret)
+        provisioning_url = totp.provisioning_uri(
+            name=request.user.email,
+            issuer_name='TomOi.vn'
+        )
+        
+        # Tạo QR code
+        qr = qrcode.make(provisioning_url)
+        buffer = BytesIO()
+        qr.save(buffer, format='PNG')
+        qr_code_base64 = base64.b64encode(buffer.getvalue()).decode()
+        
+        # Lưu secret tạm thời vào session
+        request.session['temp_ga_secret'] = secret
+        
+        return JsonResponse({
+            'status': 'success',
+            'qr_code': f'data:image/png;base64,{qr_code_base64}',
+            'secret': secret
+        })
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+@login_required
+def verify_google_authenticator(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        otp = data.get('otp')
+        secret = request.session.get('temp_ga_secret')
+        
+        if not secret:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Secret key not found'
+            })
+        
+        # Verify OTP
+        totp = pyotp.TOTP(secret)
+        if totp.verify(otp):
+            # Lưu secret và kích hoạt 2FA
+            request.user.two_factor_method = 'google_authenticator'
+            request.user.two_factor_secret = secret
+            request.user.has_2fa = True
+            request.user.save()
+            
+            # Xóa secret tạm thời
+            del request.session['temp_ga_secret']
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Cài đặt Google Authenticator thành công'
+            })
+        
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Mã OTP không đúng'
+        })
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+@login_required
+def delete_2fa(request):
+    if request.method == 'POST':
+        try:
+            # Xóa các thông tin 2FA
+            request.user.has_2fa = False
+            request.user.two_factor_method = None
+            request.user.two_factor_secret = None
+            request.user.require_2fa_purchase = False
+            request.user.require_2fa_deposit = False
+            request.user.require_2fa_password = False
+            request.user.require_2fa_profile = False
+            request.user.save()
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Đã xóa mật khẩu cấp 2'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            })
+            
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Phương thức không được hỗ trợ'
     })

@@ -29,4 +29,7 @@ urlpatterns = [
     path('user-info/security/', views.security_view, name='security'),
     path('security/change-password/', views.change_password, name='change_password'),
     path('security/setup-2fa/', views.setup_2fa, name='setup_2fa'),
+    path('security/setup-ga/', views.setup_google_authenticator, name='setup_ga'),
+    path('security/verify-ga/', views.verify_google_authenticator, name='verify_ga'),
+    path('security/delete-2fa/', views.delete_2fa, name='delete_2fa'),
 ]
