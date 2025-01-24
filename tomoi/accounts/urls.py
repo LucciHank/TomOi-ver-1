@@ -26,10 +26,12 @@ urlpatterns = [
     path('update-profile/', views.update_profile, name='update_profile'),
     path('user-info/payment-history/', views.payment_history, name='payment_history'),
     path('user-info/order-history/', views.order_history, name='order_history'),
-    path('user-info/security/', views.security_view, name='security'),
+    path('security/', views.security_view, name='security'),
     path('security/change-password/', views.change_password, name='change_password'),
     path('security/setup-2fa/', views.setup_2fa, name='setup_2fa'),
     path('security/setup-ga/', views.setup_google_authenticator, name='setup_ga'),
     path('security/verify-ga/', views.verify_google_authenticator, name='verify_ga'),
     path('security/delete-2fa/', views.delete_2fa, name='delete_2fa'),
+    path('security/send-otp-email/', views.send_otp_email, name='send_otp_email'),
+    path('security/verify-otp/', views.verify_otp, name='verify_otp'),
 ]

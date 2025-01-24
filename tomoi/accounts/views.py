@@ -35,6 +35,9 @@ import pyotp
 import qrcode
 import base64
 from io import BytesIO
+from django.contrib.auth.hashers import check_password
+import time
+from django.utils import timezone
 
 @csrf_exempt
 def auth(request):
@@ -508,50 +511,55 @@ def resend_otp(request):
     # Hàm này có thể giống send_otp hoặc có logic khác nếu cần
     return send_otp(request)
 
-@csrf_exempt
+@login_required
+@require_http_methods(["POST"])
 def verify_otp(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            otp_entered = data.get('otp')
-            otp_stored = request.session.get('otp')
-            email = request.session.get('otp_email')
-
-            if not otp_stored or not email:
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Phiên làm việc đã hết hạn. Vui lòng yêu cầu OTP mới.'
-                })
-
-            if str(otp_entered) == str(otp_stored):
-                # Xóa OTP đã sử dụng
-                del request.session['otp']
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Xác thực OTP thành công.'
-                })
-            else:
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Mã OTP không chính xác. Vui lòng thử lại.'
-                })
-
-        except json.JSONDecodeError:
+    try:
+        data = json.loads(request.body)
+        otp = data.get('otp')
+        stored_otp = request.session.get('email_otp', {})
+        
+        # Kiểm tra OTP có tồn tại và còn hạn không
+        if not stored_otp:
             return JsonResponse({
-                'success': False,
-                'message': 'Dữ liệu không hợp lệ.'
-            })
-        except Exception as e:
-            print(f"Error in verify_otp: {str(e)}")  # Debug log
+                'status': 'error',
+                'message': 'OTP không tồn tại hoặc đã hết hạn'
+            }, status=400)
+            
+        if float(stored_otp['expires']) < timezone.now().timestamp():
+            del request.session['email_otp']
             return JsonResponse({
-                'success': False,
-                'message': f'Có lỗi xảy ra: {str(e)}'
-            })
-
-    return JsonResponse({
-        'success': False,
-        'message': 'Phương thức không được hỗ trợ.'
-    })
+                'status': 'error',
+                'message': 'OTP đã hết hạn'
+            }, status=400)
+            
+        if otp != stored_otp['code']:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Mã OTP không chính xác'
+            }, status=400)
+            
+        # OTP hợp lệ
+        del request.session['email_otp']
+        request.user.two_factor_method = 'email'
+        request.user.has_2fa = True
+        request.user.save()
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Xác thực thành công'
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Invalid JSON data'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
 
 def unauthorized_view(request):
     return JsonResponse({'error': 'Login required'}, status=401)
@@ -679,101 +687,149 @@ def change_password(request):
 @login_required
 @require_http_methods(["POST"])
 def setup_2fa(request):
-    method = request.POST.get('2fa_method')
-    
-    if method == 'password':
-        password = request.POST.get('2fa_password')
-        request.user.two_factor_method = 'password'
-        request.user.two_factor_password = password
-    
-    elif method == 'email':
-        request.user.two_factor_method = 'email'
-    
-    elif method == 'google':
-        # Generate secret key for Google Authenticator
-        secret = pyotp.random_base32()
-        request.user.two_factor_method = 'google'
-        request.user.two_factor_secret = secret
-    
-    # Save 2FA settings
-    request.user.has_2fa = True
-    request.user.require_2fa_purchase = 'purchase' in request.POST
-    request.user.require_2fa_deposit = 'deposit' in request.POST
-    request.user.require_2fa_password = 'password' in request.POST
-    request.user.require_2fa_profile = 'profile' in request.POST
-    request.user.save()
-    
-    return JsonResponse({
-        'status': 'success',
-        'message': 'Thiết lập mật khẩu cấp 2 thành công'
-    })
+    try:
+        data = json.loads(request.body)
+        method = data.get('method')
+        
+        if not method:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Vui lòng chọn phương thức xác thực'
+            }, status=400)
+
+        # Cập nhật thông tin user
+        request.user.has_2fa = True
+        request.user.two_factor_method = method
+        request.user.save()
+
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Thiết lập mật khẩu cấp 2 thành công'
+        })
+
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Invalid JSON data'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
 
 @login_required
+@require_http_methods(["POST"])
+def send_otp_email(request):
+    try:
+        # Tạo OTP 6 số
+        otp = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+        
+        # Lưu OTP vào session
+        request.session['email_otp'] = {
+            'code': otp,
+            'expires': (timezone.now() + timedelta(minutes=5)).timestamp()
+        }
+        
+        # Gửi email
+        sent = send_mail(
+            subject='Mã xác thực OTP - TomOi.vn',
+            message=f'Mã OTP của bạn là: {otp}\nMã này sẽ hết hạn sau 5 phút.',
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[request.user.email],
+            fail_silently=False,
+        )
+        
+        if not sent:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Không thể gửi email'
+            }, status=500)
+            
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Mã OTP đã được gửi đến email của bạn'
+        })
+            
+    except Exception as e:
+        print(f"Email error: {str(e)}")  # Log lỗi
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
+
+@login_required
+@require_http_methods(["GET"])
 def setup_google_authenticator(request):
-    if request.method == 'POST':
+    try:
         # Tạo secret key
         secret = pyotp.random_base32()
         
-        # Tạo URL cho Google Authenticator
+        # Tạo QR code
         totp = pyotp.TOTP(secret)
-        provisioning_url = totp.provisioning_uri(
+        provisioning_uri = totp.provisioning_uri(
             name=request.user.email,
-            issuer_name='TomOi.vn'
+            issuer_name="TomOi.vn"
         )
         
-        # Tạo QR code
-        qr = qrcode.make(provisioning_url)
+        # Tạo QR code và chuyển thành base64
+        img = qrcode.make(provisioning_uri)
         buffer = BytesIO()
-        qr.save(buffer, format='PNG')
+        img.save(buffer, format="PNG")
         qr_code_base64 = base64.b64encode(buffer.getvalue()).decode()
         
-        # Lưu secret tạm thời vào session
-        request.session['temp_ga_secret'] = secret
+        # Lưu secret vào session
+        request.session['ga_secret'] = secret
         
         return JsonResponse({
             'status': 'success',
             'qr_code': f'data:image/png;base64,{qr_code_base64}',
             'secret': secret
         })
-    
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+        
+    except Exception as e:
+        print(f"GA Error: {str(e)}")  # Log lỗi
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
 
 @login_required
+@require_http_methods(["POST"])
 def verify_google_authenticator(request):
-    if request.method == 'POST':
+    try:
         data = json.loads(request.body)
         otp = data.get('otp')
-        secret = request.session.get('temp_ga_secret')
+        secret = request.session.get('ga_secret')
         
         if not secret:
-            return JsonResponse({
-                'status': 'error',
-                'message': 'Secret key not found'
-            })
-        
-        # Verify OTP
+            raise Exception('Không tìm thấy secret key')
+            
         totp = pyotp.TOTP(secret)
         if totp.verify(otp):
-            # Lưu secret và kích hoạt 2FA
+            # Lưu method xác thực cho user
             request.user.two_factor_method = 'google_authenticator'
             request.user.two_factor_secret = secret
-            request.user.has_2fa = True
             request.user.save()
             
-            # Xóa secret tạm thời
-            del request.session['temp_ga_secret']
+            # Xóa secret khỏi session
+            del request.session['ga_secret']
             
             return JsonResponse({
                 'status': 'success',
-                'message': 'Cài đặt Google Authenticator thành công'
+                'message': 'Xác thực thành công'
             })
-        
+        else:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Mã OTP không chính xác'
+            }, status=400)
+            
+    except Exception as e:
         return JsonResponse({
             'status': 'error',
-            'message': 'Mã OTP không đúng'
-        })
-    
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+            'message': str(e)
+        }, status=500)
 
 @login_required
 def delete_2fa(request):

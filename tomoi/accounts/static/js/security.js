@@ -19,14 +19,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Kiểm tra toggle password
     const initPasswordToggles = () => {
-        document.querySelectorAll('.toggle-password').forEach(icon => {
-            icon.addEventListener('click', function() {
+        document.querySelectorAll('.toggle-password').forEach(button => {
+            const icon = button.querySelector('i');
+            button.addEventListener('click', function() {
                 const input = this.previousElementSibling;
                 if (!input) return;
                 
                 const type = input.type === 'password' ? 'text' : 'password';
                 input.type = type;
-                this.classList.toggle('fa-eye-slash');
+                
+                // Thay đổi icon
+                if (type === 'text') {
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
             });
         });
     };
@@ -85,6 +94,203 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
 
+    // Xử lý sự kiện cho nút Đổi và Xóa mật khẩu cấp 2
+    const changePasswordBtn = document.getElementById('change_password_btn');
+    const deletePasswordBtn = document.getElementById('delete_password_btn');
+
+    if (changePasswordBtn) {
+        changePasswordBtn.addEventListener('click', function () {
+            alert('Chức năng đổi mật khẩu cấp 2 đang được xử lý.');
+        });
+    }
+
+    if (deletePasswordBtn) {
+        deletePasswordBtn.addEventListener('click', function () {
+            alert('Chức năng xóa mật khẩu cấp 2 đang được xử lý.');
+        });
+    }
+
+    // Xử lý thay đổi phương thức xác thực
+    window.handle2FAMethodChange = function() {
+        const method = document.getElementById('fa_method')?.value;
+        console.log('Selected method:', method); // Debug log
+
+        // Ẩn tất cả các trường
+        const fields = document.querySelectorAll('[id$="_fields"]'); // Tìm tất cả element có id kết thúc bằng "_fields"
+        fields.forEach(field => {
+            field.classList.add('d-none');
+        });
+
+        // Hiển thị trường được chọn và xử lý logic tương ứng
+        if (method) {
+            const selectedField = document.getElementById(`fa_${method}_fields`);
+            if (selectedField) {
+                selectedField.classList.remove('d-none');
+                console.log('Showing field:', selectedField.id); // Debug log
+
+                switch(method) {
+                    case 'password':
+                        initPasswordValidation();
+                        break;
+                    case 'email':
+                        handleEmailOTP();
+                        break;
+                    case 'google':
+                        handleGoogleAuth();
+                        break;
+                }
+            } else {
+                console.log('Field not found:', `fa_${method}_fields`); // Debug log
+            }
+        }
+    };
+
+    // Xử lý validation mật khẩu
+    function initPasswordValidation() {
+        const password = document.getElementById('setup_2fa_password');
+        const confirm = document.getElementById('setup_2fa_password_confirm');
+        const saveBtn = document.querySelector('#setup2FAForm button[type="submit"]');
+
+        if (!password || !confirm || !saveBtn) {
+            console.log('Missing elements:', {password, confirm, saveBtn}); // Debug log
+            return;
+        }
+
+        const validate = () => {
+            const isValid = password.value.length >= 6 &&
+                          /\d/.test(password.value) &&
+                          password.value === confirm.value;
+            
+            saveBtn.disabled = !isValid;
+            console.log('Password validation:', isValid); // Debug log
+        };
+
+        password.addEventListener('input', validate);
+        confirm.addEventListener('input', validate);
+        validate(); // Kích hoạt validation ngay lập tức
+    }
+
+    // Xử lý OTP Email
+    function handleEmailOTP() {
+        sendOTPEmail();
+        startOTPCountdown();
+    }
+
+    // Gửi OTP qua email
+    async function sendOTPEmail() {
+        try {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            if (!csrfToken) {
+                throw new Error('CSRF token not found');
+            }
+
+            const response = await fetch('/accounts/security/send-otp-email/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({}) // Thêm body rỗng để tránh lỗi
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            if (data.status === 'success') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công',
+                    text: data.message
+                });
+                startOTPCountdown();
+                return true;
+            } else {
+                throw new Error(data.message || 'Không thể gửi mã OTP');
+            }
+        } catch (error) {
+            console.error('Lỗi gửi OTP:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: error.message || 'Không thể gửi mã OTP'
+            });
+            return false;
+        }
+    }
+
+    // Xử lý Google Authenticator
+    function handleGoogleAuth() {
+        setupGoogleAuthenticator();
+    }
+
+    // Thiết lập Google Authenticator
+    async function setupGoogleAuthenticator() {
+        try {
+            const response = await fetch('/accounts/security/setup-ga/');
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                const qrCode = document.getElementById('gaQrCode');
+                const secretKey = document.getElementById('gaSecretKey');
+                
+                if (qrCode) qrCode.src = data.qr_code;
+                if (secretKey) secretKey.textContent = data.secret;
+
+                // Xử lý input OTP
+                const otpInput = document.getElementById('gaOtpInput');
+                if (otpInput) {
+                    otpInput.value = ''; // Reset input
+                    otpInput.addEventListener('input', function() {
+                        if (this.value.length === 6) {
+                            verifyGoogleAuthenticator(this.value);
+                        }
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Lỗi Google Authenticator:', error);
+            Swal.fire('Lỗi!', 'Không thể thiết lập Google Authenticator', 'error');
+        }
+    }
+
+    // Xử lý đếm ngược OTP
+    function startOTPCountdown() {
+        let seconds = 60;
+        const timerElement = document.getElementById('setup_countdown_timer');
+        const resendBtn = document.getElementById('setup_resend_otp_btn');
+        
+        if (!timerElement || !resendBtn) {
+            console.error('Missing timer elements');
+            return;
+        }
+
+        // Disable nút gửi lại ngay lập tức
+        resendBtn.disabled = true;
+        
+        const interval = setInterval(() => {
+            seconds--;
+            timerElement.textContent = seconds;
+            
+            if (seconds <= 0) {
+                clearInterval(interval);
+                resendBtn.disabled = false;
+            }
+        }, 1000);
+
+        // Thêm sự kiện click cho nút gửi lại
+        resendBtn.onclick = async () => {
+            if (!resendBtn.disabled) {
+                const success = await sendOTPEmail();
+                if (success) {
+                    seconds = 60;
+                    resendBtn.disabled = true;
+                }
+            }
+        };
+    }
+
     // Xử lý form setup 2FA
     const init2FASetupForm = () => {
         const form = document.getElementById('setup2FAForm');
@@ -93,178 +299,160 @@ document.addEventListener('DOMContentLoaded', function() {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Validate client-side
-            const method = document.getElementById('2fa_method').value;
-            const password = document.getElementById('2fa_password')?.value;
-            const confirmPassword = document.getElementById('2fa_password_confirm')?.value;
-
-            if (method === 'password') {
-                if (!password || !confirmPassword) {
-                    Swal.fire('Lỗi!', 'Vui lòng điền đầy đủ mật khẩu', 'error');
-                    return;
-                }
-                
-                if (password !== confirmPassword) {
-                    Swal.fire('Lỗi!', 'Mật khẩu xác nhận không khớp', 'error');
-                    return;
-                }
-
-                if (password.length < 6) {
-                    Swal.fire('Lỗi!', 'Mật khẩu phải có ít nhất 6 ký tự', 'error');
-                    return;
-                }
-            }
-
-            const formData = new FormData(form);
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
-
             try {
+                const method = document.getElementById('fa_method').value;
+                const formData = new FormData(form);
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+
                 if (!csrfToken) throw new Error('Missing CSRF token');
-                
-                const response = await fetch(form.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRFToken': csrfToken.value
+
+                // Nếu là phương thức email, thêm OTP vào formData
+                if (method === 'email') {
+                    const otpInput = form.querySelector('input[name="otp"]');
+                    if (!otpInput?.value) {
+                        Swal.fire('Lỗi!', 'Vui lòng nhập mã OTP', 'error');
+                        return;
                     }
+                }
+                
+                const response = await fetch('/accounts/security/setup-2fa/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken.value,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(Object.fromEntries(formData))
                 });
 
-                const data = await response.json();
-                
-                if (!response.ok) throw new Error(data.message || `HTTP error! status: ${response.status}`);
+                if (!response.ok) {
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        const data = await response.json();
+                        throw new Error(data.message || `HTTP error! status: ${response.status}`);
+                    } else {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                }
 
+                const data = await response.json();
                 if (data.status === 'success') {
-                    Swal.fire('Thành công!', data.message, 'success').then(() => {
-                        window.location.reload();
+                    // Đóng modal trước
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('setup2FAModal'));
+                    if (modal) {
+                        modal.hide();
+                        // Xóa backdrop
+                        const backdrop = document.querySelector('.modal-backdrop');
+                        if (backdrop) backdrop.remove();
+                        document.body.classList.remove('modal-open');
+                    }
+
+                    // Sau đó hiển thị thông báo và cập nhật UI
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: data.message
                     });
+
+                    // Cập nhật UI
+                    updateUI2FAStatus(method);
                 } else {
-                    const errorMessage = data.errors 
-                        ? Object.values(data.errors).join('\n')
-                        : data.message || 'Lỗi không xác định';
-                        
-                    Swal.fire('Lỗi!', errorMessage, 'error');
+                    throw new Error(data.message || 'Có lỗi xảy ra');
                 }
             } catch (error) {
                 console.error('Submission error:', error);
-                Swal.fire('Lỗi!', error.message || 'Lỗi kết nối đến server', 'error');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: error.message || 'Có lỗi xảy ra khi thiết lập'
+                });
             }
         });
     };
 
-    // Xử lý thay đổi phương thức 2FA
-    window.handle2FAMethodChange = function() {
-        const method = document.getElementById('2fa_method')?.value;
-        const passwordFields = document.getElementById('2fa_password_fields');
-        const emailFields = document.getElementById('2fa_email_fields');
-        const googleFields = document.getElementById('2fa_google_fields');
+    // Hàm cập nhật UI sau khi setup 2FA
+    function updateUI2FAStatus(method) {
+        // Ẩn phần setup
+        const setupSection = document.querySelector('.no-2fa-message');
+        const setupButton = document.getElementById('setup2FABtn');
+        if (setupSection) setupSection.style.display = 'none';
+        if (setupButton) setupButton.style.display = 'none';
 
-        // Ẩn tất cả các trường
-        [passwordFields, emailFields, googleFields].forEach(field => {
-            if (field) field.classList.add('d-none');
-        });
+        // Hiển thị phần quản lý 2FA
+        const template = `
+            <div class="2fa-info mb-4">
+                <p class="mb-3">Bạn đã thiết lập mật khẩu cấp 2 với phương thức: 
+                    <strong>${getMethodName(method)}</strong>
+                </p>
+                
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-danger" id="change2FAMethodBtn">
+                        <i class="fas fa-exchange-alt me-2"></i>Đổi phương thức
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" id="delete2FABtn">
+                        <i class="fas fa-trash-alt me-2"></i>Xóa mật khẩu cấp 2
+                    </button>
+                </div>
+            </div>
+        `;
 
-        // Hiển thị trường tương ứng
-        if (method === 'password' && passwordFields) {
-            passwordFields.classList.remove('d-none');
-        } else if (method === 'email' && emailFields) {
-            emailFields.classList.remove('d-none');
-        } else if (method === 'google_authenticator' && googleFields) {
-            googleFields.classList.remove('d-none');
-            setupGoogleAuthenticator();
+        // Chèn template vào DOM
+        const container = document.querySelector('.section');
+        if (container) {
+            container.innerHTML = template;
+            // Khởi tạo lại các event listeners
+            initModalTriggers();
         }
-    };
+    }
 
-    // Xử lý Google Authenticator
-    async function setupGoogleAuthenticator() {
+    // Hàm helper để chuyển đổi tên phương thức
+    function getMethodName(method) {
+        const methods = {
+            'password': 'Tự tạo mật khẩu',
+            'email': 'Nhận mã OTP qua email',
+            'google': 'Google Authenticator'
+        };
+        return methods[method] || method;
+    }
+
+    // Thêm hàm verify Google Authenticator
+    async function verifyGoogleAuthenticator(otp) {
         try {
-            const response = await fetch('/accounts/security/setup-ga/', {
+            const response = await fetch('/accounts/security/verify-ga/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                }
+                },
+                body: JSON.stringify({ otp })
             });
 
             const data = await response.json();
             if (data.status === 'success') {
-                const qrCode = document.getElementById('gaQrCode');
-                const secretKey = document.getElementById('gaSecretKey');
-                if (qrCode) qrCode.src = data.qr_code;
-                if (secretKey) secretKey.textContent = data.secret;
-
-                // Xử lý input OTP
-                const otpInput = document.getElementById('gaOtpInput');
-                if (otpInput) {
-                    otpInput.addEventListener('input', async function() {
-                        if (this.value.length === 6) {
-                            try {
-                                const verifyResponse = await fetch('/accounts/security/verify-ga/', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                                    },
-                                    body: JSON.stringify({
-                                        otp: this.value
-                                    })
-                                });
-
-                                const verifyData = await verifyResponse.json();
-                                if (verifyData.status === 'success') {
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Thành công',
-                                        text: 'Cài đặt Google Authenticator thành công'
-                                    }).then(() => {
-                                        window.location.reload();
-                                    });
-                                } else {
-                                    this.value = '';
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Lỗi',
-                                        text: 'Mã xác thực không đúng, vui lòng thử lại'
-                                    });
-                                }
-                            } catch (error) {
-                                console.error('Error:', error);
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Lỗi',
-                                    text: 'Đã có lỗi xảy ra, vui lòng thử lại'
-                                });
-                            }
-                        }
-                    });
-                }
+                updateUI2FAStatus('google');
+                const modal = bootstrap.Modal.getInstance(document.getElementById('setup2FAModal'));
+                if (modal) modal.hide();
+            } else {
+                throw new Error(data.message || 'Mã OTP không chính xác');
             }
         } catch (error) {
-            console.error('Error:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Lỗi',
-                text: 'Đã có lỗi xảy ra khi thiết lập Google Authenticator'
-            });
+            Swal.fire('Lỗi!', error.message, 'error');
         }
     }
 
     // Khởi động tất cả chức năng
     const initializeAll = () => {
-        initPasswordToggles();
-        initModalTriggers();
-        init2FASetupForm();
-        initGoogleAuthenticator();
+        try {
+            initPasswordToggles();
+            initModalTriggers();
+            init2FASetupForm();
+            console.log('All functions initialized');
+        } catch (error) {
+            console.error('Error initializing functions:', error);
+        }
     };
 
     initializeAll();
 });
 
-// Xử lý sự kiện cho nút Đổi và Xóa mật khẩu cấp 2
-document.getElementById('change_password_btn').addEventListener('click', function () {
-    alert('Chức năng đổi mật khẩu cấp 2 đang được xử lý.');
-});
 
-document.getElementById('delete_password_btn').addEventListener('click', function () {
-    alert('Chức năng xóa mật khẩu cấp 2 đang được xử lý.');
-});
 

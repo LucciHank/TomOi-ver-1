@@ -1,0 +1,1 @@
+# File này để đánh dấu thư mục templatetags là một Python package 

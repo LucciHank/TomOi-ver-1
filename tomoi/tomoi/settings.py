@@ -184,7 +184,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'tomoivn2024@gmail.com'  # Your email address
-EMAIL_HOST_PASSWORD = 'czpq mrup wwks rkix'
+EMAIL_HOST_PASSWORD = 'vhnl yeww apjf jaar'
 
 # PAYPAL_MODE = 'sandbox'  # Hoặc 'live' nếu sử dụng trong môi trường thực tế
 # PAYPAL_CLIENT_ID = 'your-client-id'

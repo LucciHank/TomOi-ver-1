@@ -5,6 +5,13 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+.my-custom-active {
+    z-index: 2;
+    color: white !important;
+    background-color: #df2626 !important;
+    border-color: #df2626 !important;
+}
+
 .section {
     padding: 2rem 0;
 }
@@ -31,27 +38,28 @@
     width: 100% !important;
     height: 45px;
     padding-right: 40px;
-    border-radius: 6px;
+    border-radius: 8px;
     border: 1px solid #ced4da;
     transition: all 0.3s ease;
 }
 
 /* Password requirements */
 .password-requirements {
+    display: none; /* Ẩn mặc định */
     position: absolute;
-    top: -40px; /* Dịch lên trên */
-    right: -50px; /* Dịch sang phải */
-    width: calc(100% + 50px); /* Đảm bảo chiều rộng */
+    top: -40px;
+    right: -50px;
+    width: calc(100% + 50px);
     background: white;
     box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     padding: 1.5rem !important;
-    z-index: 1;
+    z-index: 1000;
 }
 
-.img-fluid {
-    max-width: 40% !important;
-    height: auto;
+/* Chỉ hiện khi input được focus */
+.password-input:focus-within .password-requirements {
+    display: block;
 }
 
 .password-requirements h6 {
@@ -107,42 +115,82 @@
     background-color: #df2626;
     border-color: #df2626;
     transition: all 0.3s ease;
+    border-radius: 6px !important;
 }
 
 .btn-danger:hover {
     background-color: #b71d1d;
     border-color: #b71d1d;
+    border-radius: 6px !important;
 }
 
 /* List group styles */
 .list-group-item {
     border: none !important;
-    padding: 1rem 1.5rem !important;
+    padding: 0.7rem 1rem !important;
     font-size: 16px !important;
-    transition: all 0.3s ease !important;
     display: flex !important;
     align-items: center !important;
-    min-height: 60px !important;
+    min-height: 45px !important;
     color: #333 !important;
     background-color: transparent !important;
+    transition: all 0.2s ease !important;
+    border-radius: 8px !important;
+    position: relative !important;
+    font-weight: 500 !important;
+    margin: 1px 0 !important;
 }
 
+.list-group {
+    border-radius: 8px !important;
+    padding: 10px !important;
+    background-color: white !important;
+}
+
+/* Hover effect giống dropdown */
+.list-group-item:not(.active):hover {
+    background-color: #df2626 !important;
+    color: white !important;
+    transform: translateX(2px);
+    padding-left: 2rem !important;
+    font-weight: 600 !important;
+}
+
+/* Active state */
 .list-group-item.active {
     background-color: #df2626 !important;
     color: white !important;
+    border-color: #df2626 !important;
+    transform: translateX(2px);
+    padding-left: 2rem !important;
+    font-weight: 600 !important;
 }
 
-.list-group-item:hover {
-    background-color: #df2626 !important;
+/* Icon styles */
+.list-group-item i {
+    width: 20px !important;
+    font-size: 16px !important;
+    margin-right: 10px !important;
+    text-align: center !important;
+    transition: all 0.2s ease !important;
+}
+
+/* Icon color on hover */
+.list-group-item:not(.active):hover i {
     color: white !important;
 }
 
-.list-group-item i {
-    width: 24px !important;
-    font-size: 18px !important;
-    margin-right: 12px !important;
-    text-align: center !important;
-    color: inherit !important;
+.list-group-item.active i {
+    color: white !important;
+}
+
+/* Card style cho list-group container */
+.card .list-group {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+.mb-4 {
+    border-radius: 8px !important;
 }
 
 .no-2fa-message {
@@ -155,7 +203,7 @@
 .two-factor-options {
     padding: 0.5rem 0;
     margin: 1rem 0;
-    border-radius: 4px;
+    border-radius: 0 0 8px 8px;
 }
 
 .two-factor-option {
@@ -339,4 +387,65 @@
 .ga-otp,
 .ga-verify-otp {
     background-color: #fff;
+}
+
+.password-guide {
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+}
+
+.password-guide ul li {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.password-guide ul li i {
+    width: 20px;
+}
+
+.border-end {
+    border-right: 1px solid #dee2e6;
+}
+
+.input-group .toggle-password {
+    border-left: 0;
+}
+
+.input-group .form-control {
+    border-right: 0;
+}
+
+.input-group .form-control:focus + .toggle-password {
+    border-color: #86b7fe;
+}
+
+.toggle-password {
+    background-color: #fff !important;
+    border: 1px solid #ced4da !important;
+    border-left: none !important;
+}
+
+.toggle-password:hover {
+    background-color: #f8f9fa !important;
+}
+
+.toggle-password:focus {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.toggle-password i {
+    color: #6c757d;
+    width: 16px;
+    text-align: center;
+}
+
+/* Đảm bảo icon luôn căn giữa */
+.toggle-password i.fa-eye,
+.toggle-password i.fa-eye-slash {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
 }
