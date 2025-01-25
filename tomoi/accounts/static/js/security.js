@@ -14,7 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
         verifyOTP: initializeModal('verifyOTPModal'),
         verifyGA: initializeModal('verifyGAModal'),
         edit2FASettings: initializeModal('edit2FASettingsModal'),
-        change2FAPassword: initializeModal('change2FAPasswordModal')
+        change2FAPassword: initializeModal('change2FAPasswordModal'),
+        verifyCurrentEmail: initializeModal('verifyCurrentEmailModal')
     };
 
     // Kiểm tra toggle password
@@ -173,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Xử lý OTP Email
     function handleEmailOTP() {
         sendOTPEmail();
-        startOTPCountdown();
+        startCountdown();
     }
 
     // Gửi OTP qua email
@@ -204,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     title: 'Thành công',
                     text: data.message
                 });
-                startOTPCountdown();
+                startCountdown();
                 return true;
             } else {
                 throw new Error(data.message || 'Không thể gửi mã OTP');
@@ -255,41 +256,79 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Xử lý đếm ngược OTP
-    function startOTPCountdown() {
-        let seconds = 60;
-        const timerElement = document.getElementById('setup_countdown_timer');
-        const resendBtn = document.getElementById('setup_resend_otp_btn');
+    let countdownInterval;
+    const COUNTDOWN_TIME = 60; // Thời gian đếm ngược (giây)
+
+    function startCountdown() {
+        let timeLeft = COUNTDOWN_TIME;
+        const resendButton = document.getElementById('resendOTPBtn');
+        const countdownSpan = document.getElementById('countdown');
         
-        if (!timerElement || !resendBtn) {
-            console.error('Missing timer elements');
-            return;
+        // Disable nút ngay lập tức
+        resendButton.disabled = true;
+        
+        // Cập nhật UI lần đầu
+        updateCountdownUI(timeLeft, resendButton, countdownSpan);
+        
+        // Clear interval cũ nếu có
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
         }
-
-        // Disable nút gửi lại ngay lập tức
-        resendBtn.disabled = true;
         
-        const interval = setInterval(() => {
-            seconds--;
-            timerElement.textContent = seconds;
+        // Bắt đầu interval mới
+        const startTime = Date.now();
+        countdownInterval = setInterval(() => {
+            const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+            timeLeft = COUNTDOWN_TIME - elapsedTime;
             
-            if (seconds <= 0) {
-                clearInterval(interval);
-                resendBtn.disabled = false;
+            if (timeLeft <= 0) {
+                clearInterval(countdownInterval);
+                resendButton.disabled = false;
+                countdownSpan.textContent = '';
+                return;
             }
+            
+            updateCountdownUI(timeLeft, resendButton, countdownSpan);
         }, 1000);
-
-        // Thêm sự kiện click cho nút gửi lại
-        resendBtn.onclick = async () => {
-            if (!resendBtn.disabled) {
-                const success = await sendOTPEmail();
-                if (success) {
-                    seconds = 60;
-                    resendBtn.disabled = true;
-                }
-            }
-        };
     }
+
+    function updateCountdownUI(timeLeft, resendButton, countdownSpan) {
+        countdownSpan.textContent = `(${timeLeft}s)`;
+    }
+
+    // Event listener cho nút gửi lại OTP
+    document.getElementById('resendOTPBtn')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (this.disabled) return;
+        
+        // Gọi API gửi lại OTP
+        fetch('/accounts/send-otp-email/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                startCountdown();
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    // Khởi động đếm ngược khi modal mở
+    document.getElementById('emailOTPModal')?.addEventListener('shown.bs.modal', function () {
+        startCountdown();
+    });
+
+    // Dọn dẹp interval khi modal đóng
+    document.getElementById('emailOTPModal')?.addEventListener('hidden.bs.modal', function () {
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+        }
+    });
 
     // Xử lý form setup 2FA
     const init2FASetupForm = () => {
@@ -437,6 +476,154 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             Swal.fire('Lỗi!', error.message, 'error');
         }
+    }
+
+    // Xử lý nút edit email
+    document.querySelector('.edit-email-btn')?.addEventListener('click', function() {
+        // Hiển thị modal xác thực email hiện tại
+        modals.verifyCurrentEmail?.show();
+    });
+
+    // Xử lý form xác thực email hiện tại
+    document.getElementById('verifyCurrentEmailForm')?.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const currentEmail = document.getElementById('currentEmailInput').value;
+        const submitBtn = this.querySelector('button[type="submit"]');
+        
+        try {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Đang gửi...';
+            
+            const response = await fetch('/accounts/send-email-change-otp/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: `current_email=${encodeURIComponent(currentEmail)}`
+            });
+
+            const data = await response.json();
+            if (data.status === 'success') {
+                // Hiển thị email đã được mask trong modal OTP
+                document.getElementById('maskedEmailOTP').textContent = data.masked_email;
+                
+                // Chuyển sang modal nhập OTP
+                modals.verifyCurrentEmail?.hide();
+                modals.verifyOTP?.show();
+                
+                // Reset form
+                this.reset();
+                
+                // Bắt đầu đếm ngược
+                startCountdown();
+            } else {
+                Swal.fire('Lỗi!', data.message, 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire('Lỗi!', 'Có lỗi xảy ra khi gửi OTP', 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Gửi mã OTP';
+        }
+    });
+
+    // Xử lý form xác thực OTP
+    document.getElementById('verifyOTPForm')?.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const otp = document.getElementById('otpInput').value;
+
+        try {
+            const response = await fetch('/accounts/verify-email-change-otp/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: `otp=${encodeURIComponent(otp)}`
+            });
+
+            const data = await response.json();
+            if (data.status === 'success') {
+                modals.verifyOTP?.hide();
+                
+                // Cho phép người dùng nhập email mới
+                Swal.fire({
+                    title: 'Nhập email mới',
+                    input: 'email',
+                    inputLabel: 'Email mới',
+                    inputPlaceholder: 'Nhập địa chỉ email mới',
+                    showCancelButton: true,
+                    confirmButtonText: 'Xác nhận',
+                    cancelButtonText: 'Hủy',
+                    inputValidator: (value) => {
+                        if (!value) {
+                            return 'Vui lòng nhập email!';
+                        }
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        updateEmail(result.value);
+                    }
+                });
+            } else {
+                Swal.fire('Lỗi!', data.message, 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire('Lỗi!', 'Có lỗi xảy ra khi xác thực OTP', 'error');
+        }
+    });
+
+    // Hàm cập nhật email mới
+    async function updateEmail(newEmail) {
+        try {
+            const response = await fetch('/accounts/update-email/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: `new_email=${encodeURIComponent(newEmail)}`
+            });
+
+            const data = await response.json();
+            if (data.status === 'success') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: 'Email đã được cập nhật thành công',
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                Swal.fire('Lỗi!', data.message, 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire('Lỗi!', 'Có lỗi xảy ra khi cập nhật email', 'error');
+        }
+    }
+
+    // Hiển thị email đã được mask khi mở modal xác thực email
+    document.getElementById('verifyCurrentEmailModal')?.addEventListener('show.bs.modal', function () {
+        const userEmail = document.querySelector('[name="email"]')?.value;
+        if (userEmail) {
+            document.getElementById('maskedCurrentEmail').textContent = maskEmail(userEmail);
+        }
+    });
+
+    // Hàm mask email ở client side (tương tự như Python)
+    function maskEmail(email) {
+        if (!email || !email.includes('@')) return email;
+        
+        const [localPart, domain] = email.split('@');
+        if (localPart.length <= 2) return email;
+        
+        return `${localPart[0]}${'*'.repeat(localPart.length - 2)}${localPart.slice(-1)}@${domain}`;
     }
 
     // Khởi động tất cả chức năng

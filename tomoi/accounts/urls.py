@@ -34,4 +34,9 @@ urlpatterns = [
     path('security/delete-2fa/', views.delete_2fa, name='delete_2fa'),
     path('security/send-otp-email/', views.send_otp_email, name='send_otp_email'),
     path('security/verify-otp/', views.verify_otp, name='verify_otp'),
+    path('update-email/', views.update_email, name='update_email'),
+    path('send-email-change-otp/', views.send_email_change_otp, name='send_email_change_otp'),
+    path('verify-email-change-otp/', views.verify_email_change_otp, name='verify_email_change_otp'),
+    path('settings/', views.settings_view, name='settings'),
+    path('update-language/', views.update_language, name='update_language'),
 ]

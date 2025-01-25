@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'css/security.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="list-group">
+                    <a href="{% url 'accounts:user_info' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user me-2"></i> Tài khoản
+                    </a>
+                    <a href="{% url 'accounts:order_history' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-shopping-bag me-2"></i> Sản phẩm đã mua
+                    </a>
+                    <a href="{% url 'accounts:payment_history' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-money-bill-wave me-2"></i> Lịch sử nạp tiền
+                    </a>
+                    <a href="{% url 'accounts:security' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-shield-alt me-2"></i> Bảo mật
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="fas fa-heart me-2"></i> Sản phẩm yêu thích
+                    </a>
+                    <a href="{% url 'accounts:settings' %}" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-cog me-2"></i> Cài đặt
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user-plus me-2"></i> Giới thiệu bạn bè
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">Cài đặt</h4>
+
+                    <!-- Ngôn ngữ -->
+                    <div class="security-section">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-language security-icon"></i>
+                            <h5 class="mb-0">Ngôn ngữ</h5>
+                        </div>
+                        <div class="ms-4 ps-2">
+                            <div class="language-toggle">
+                                <button class="btn btn-outline-danger" data-language="vi">
+                                    <img src="{% static 'images/flags/vi.png' %}" alt="Tiếng Việt" class="flag-icon">
+                                    Tiếng Việt
+                                </button>
+                                <button class="btn btn-outline-danger" data-language="en">
+                                    <img src="{% static 'images/flags/en.png' %}" alt="English" class="flag-icon">
+                                    English
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Giao diện -->
+                    <div class="security-section">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-palette security-icon"></i>
+                            <h5 class="mb-0">Giao diện</h5>
+                        </div>
+                        <div class="ms-4 ps-2">
+                            <div class="btn-group">
+                                <input type="radio" class="btn-check" name="theme" id="lightTheme" value="light">
+                                <label class="btn btn-outline-danger" for="lightTheme">
+                                    <i class="fas fa-sun me-2"></i>Sáng
+                                </label>
+
+                                <input type="radio" class="btn-check" name="theme" id="darkTheme" value="dark">
+                                <label class="btn btn-outline-danger" for="darkTheme">
+                                    <i class="fas fa-moon me-2"></i>Tối
+                                </label>
+
+                                <input type="radio" class="btn-check" name="theme" id="autoTheme" value="auto">
+                                <label class="btn btn-outline-danger" for="autoTheme">
+                                    <i class="fas fa-magic me-2"></i>Tự động
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hiệu ứng -->
+                    <div class="security-section">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-wand-magic-sparkles security-icon"></i>
+                            <h5 class="mb-0">Hiệu ứng</h5>
+                        </div>
+                        <div class="ms-4 ps-2">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="snowEffect">
+                                <label class="form-check-label" for="snowEffect">
+                                    <i class="fas fa-snowflake me-2"></i>Hiệu ứng tuyết rơi
+                                </label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="petEffect">
+                                <label class="form-check-label" for="petEffect">
+                                    <i class="fas fa-cat me-2"></i>Hiệu ứng pet mini
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cỡ chữ -->
+                    <div class="security-section">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-text-height security-icon"></i>
+                            <h5 class="mb-0">Cỡ chữ</h5>
+                        </div>
+                        <div class="ms-4 ps-2">
+                            <div class="btn-group">
+                                <input type="radio" class="btn-check" name="fontSize" id="smallFont" value="small">
+                                <label class="btn btn-outline-danger" for="smallFont">
+                                    <i class="fas fa-text-height me-2"></i>Nhỏ
+                                </label>
+
+                                <input type="radio" class="btn-check" name="fontSize" id="mediumFont" value="medium">
+                                <label class="btn btn-outline-danger" for="mediumFont">
+                                    <i class="fas fa-text-height me-2"></i>Vừa
+                                </label>
+
+                                <input type="radio" class="btn-check" name="fontSize" id="largeFont" value="large">
+                                <label class="btn btn-outline-danger" for="largeFont">
+                                    <i class="fas fa-text-height me-2"></i>Lớn
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/settings.js' %}"></script>
+{% endblock %} 

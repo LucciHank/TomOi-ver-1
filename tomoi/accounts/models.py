@@ -63,6 +63,17 @@ class AccountType(models.Model):
         return self.name
 
 class CustomUser(AbstractUser):
+    GENDER_CHOICES = [
+        ('M', 'Nam'),
+        ('F', 'Nữ'),
+        ('O', 'Khác')
+    ]
+    gender = models.CharField(
+        max_length=1, 
+        choices=GENDER_CHOICES,
+        null=True,
+        blank=True
+    )
     USER_TYPE_CHOICES = (
         ('admin', 'Quản trị viên'),
         ('staff', 'Nhân viên'),
@@ -227,3 +238,14 @@ class Transaction(models.Model):
 
     class Meta:
         ordering = ['-date']
+
+class EmailChangeOTP(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    otp_hash = models.CharField(max_length=128)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    attempts = models.IntegerField(default=0)
+    is_verified = models.BooleanField(default=False)
+    
+    class Meta:
+        ordering = ['-created_at']

@@ -1,0 +1,108 @@
+/* Card và List Group */
+.card .list-group {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.list-group {
+    border-radius: 8px !important;
+    padding: 10px !important;
+    background-color: white !important;
+}
+
+/* List Group Items */
+.list-group-item {
+    border: none;
+    padding: 12px 20px;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+    color: #df2626;
+}
+
+.list-group-item.active {
+    background-color: #df2626;
+    color: white;
+    border: none;
+}
+
+.list-group-item i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+/* Security Sections */
+.security-section {
+    padding: 20px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.security-section:last-child {
+    border-bottom: none;
+}
+
+.security-icon {
+    font-size: 24px;
+    color: #df2626;
+    margin-right: 15px;
+}
+
+/* Form Controls */
+.form-control {
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.form-control:focus {
+    border-color: #df2626;
+    box-shadow: 0 0 0 0.2rem rgba(223, 38, 38, 0.25);
+}
+
+/* Buttons */
+.btn-danger {
+    background-color: #df2626;
+    border-color: #df2626;
+}
+
+.btn-danger:hover {
+    background-color: #c41e1e;
+    border-color: #c41e1e;
+}
+
+.btn-outline-danger {
+    color: #df2626;
+    border-color: #df2626;
+}
+
+.btn-outline-danger:hover {
+    background-color: #df2626;
+    color: white;
+}
+
+/* Card Styles */
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-body {
+    padding: 25px;
+}
+
+.card-title {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 15px;
+    }
+} 

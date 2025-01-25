@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
-<link href="{% static 'css/user_info.css' %}" rel="stylesheet"/>
+<link href="{% static 'css/security.css' %}" rel="stylesheet"/>
 {% endblock %}
 
 {% block content %}
@@ -28,7 +28,7 @@
                     <a href="#" class="list-group-item list-group-item-action">
                         <i class="fas fa-heart me-2"></i> Sản phẩm yêu thích
                     </a>
-                    <a href="#" class="list-group-item list-group-item-action">
+                    <a href="{% url 'accounts:settings' %}" class="list-group-item list-group-item-action">
                         <i class="fas fa-cog me-2"></i> Cài đặt
                     </a>
                     <a href="#" class="list-group-item list-group-item-action">

@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'css/security.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="list-group">
+                    <a href="{% url 'accounts:user_info' %}" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-user me-2"></i> Tài khoản
+                    </a>
+                    <a href="{% url 'accounts:order_history' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-shopping-bag me-2"></i> Sản phẩm đã mua
+                    </a>
+                    <a href="{% url 'accounts:payment_history' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-money-bill-wave me-2"></i> Lịch sử nạp tiền
+                    </a>
+                    <a href="{% url 'accounts:security' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-shield-alt me-2"></i> Bảo mật
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="fas fa-heart me-2"></i> Sản phẩm yêu thích
+                    </a>
+                    <a href="{% url 'accounts:settings' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-cog me-2"></i> Cài đặt
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user-plus me-2"></i> Giới thiệu bạn bè
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">Thông tin tài khoản</h4>
+
+                    <!-- Thông tin cá nhân -->
+                    <div class="security-section">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-user security-icon"></i>
+                            <h5 class="mb-0">Thông tin cá nhân</h5>
+                        </div>
+                        <div class="ms-4 ps-2">
+                            <form>
+                                <div class="mb-3">
+                                    <label class="form-label">Họ và tên</label>
+                                    <input type="text" class="form-control" value="{{ user.get_full_name }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" value="{{ user.email }}">
+                                </div>
+                                <button type="submit" class="btn btn-danger">Cập nhật</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Avatar -->
+                    <div class="security-section">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-camera security-icon"></i>
+                            <h5 class="mb-0">Ảnh đại diện</h5>
+                        </div>
+                        <div class="ms-4 ps-2">
+                            <div class="text-center mb-3">
+                                <img src="{% static 'images/default-avatar.png' %}" alt="Avatar" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+                            </div>
+                            <div class="text-center">
+                                <button class="btn btn-outline-danger">
+                                    <i class="fas fa-upload me-2"></i>Thay đổi ảnh
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

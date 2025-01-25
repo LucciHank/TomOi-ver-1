@@ -1,0 +1,29 @@
+:root {
+    --primary: #df2626;
+    --primary-dark: #c41e1e;
+    --text-color: #333;
+    --border-color: #eee;
+}
+
+/* Common styles */
+body {
+    background-color: #f8f9fa;
+}
+
+.container {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+/* Card và List Group styles từ security.css */
+.card .list-group {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.list-group {
+    border-radius: 8px !important;
+    padding: 10px !important;
+    background-color: white !important;
+}
+
+/* Các styles chung khác từ security.css */ 

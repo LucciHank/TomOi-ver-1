@@ -38,6 +38,10 @@ from io import BytesIO
 from django.contrib.auth.hashers import check_password
 import time
 from django.utils import timezone
+import hashlib
+from .utils import mask_email
+from django.core.cache import cache
+from django.utils import translation
 
 @csrf_exempt
 def auth(request):
@@ -212,69 +216,51 @@ def user_logout(request):
 
 # Profile update view
 @login_required
-@csrf_protect
-@require_POST
+@require_http_methods(["POST"])
 def update_profile(request):
     try:
         user = request.user
         
-        # Validate dữ liệu trước khi cập nhật
-        if 'username' in request.POST and request.POST['username'] != user.username:
-            if CustomUser.objects.filter(username=request.POST['username']).exists():
-                raise ValidationError('Tên đăng nhập đã tồn tại')
-                
-        if 'email' in request.POST and request.POST['email'] != user.email:
-            if CustomUser.objects.filter(email=request.POST['email']).exists():
-                raise ValidationError('Email đã tồn tại')
+        # Cập nhật thông tin cơ bản
+        user.first_name = request.POST.get('full_name', '').strip()
+        user.phone_number = request.POST.get('phone_number', '').strip()
         
-        # Cập nhật avatar nếu có
-        if 'avatar' in request.FILES:
-            user.avatar = request.FILES['avatar']
-            
         # Cập nhật giới tính
         gender = request.POST.get('gender')
-        if gender:  # Chỉ cần kiểm tra có giá trị
+        if gender in ['M', 'F', 'O']:
             user.gender = gender
-        
-        # Cập nhật các thông tin khác
-        full_name = request.POST.get('full_name', '')
-        name_parts = full_name.split(maxsplit=1)
-        user.first_name = name_parts[0] if name_parts else ''
-        user.last_name = name_parts[1] if len(name_parts) > 1 else ''
-        
-        user.phone_number = request.POST.get('phone_number', '')
-        if request.POST.get('email'):
-            user.email = request.POST.get('email')
-        if request.POST.get('username'):
-            user.username = request.POST.get('username')
-        
-        # Xử lý ngày sinh
-        try:
-            day = int(request.POST.get('birth_day', 0))
-            month = int(request.POST.get('birth_month', 0))
-            year = int(request.POST.get('birth_year', 0))
-            if all([day, month, year]):
-                from datetime import date
-                user.birth_date = date(year, month, day)
-        except (ValueError, TypeError):
-            pass
             
+        # Cập nhật ngày sinh
+        birth_day = request.POST.get('birth_day')
+        birth_month = request.POST.get('birth_month')
+        birth_year = request.POST.get('birth_year')
+        
+        if birth_day and birth_month and birth_year:
+            try:
+                user.birth_date = datetime(
+                    int(birth_year),
+                    int(birth_month),
+                    int(birth_day)
+                ).date()
+            except ValueError:
+                pass
+        
+        # Xử lý avatar nếu có
+        if request.FILES.get('avatar'):
+            user.avatar = request.FILES['avatar']
+        
         user.save()
         
         return JsonResponse({
             'success': True,
             'message': 'Cập nhật thông tin thành công'
         })
-    except ValidationError as e:
-        return JsonResponse({
-            'success': False,
-            'message': str(e)
-        }, status=400)
+        
     except Exception as e:
         return JsonResponse({
             'success': False,
-            'message': 'Có lỗi xảy ra: ' + str(e)
-        }, status=400)
+            'message': str(e)
+        })
 
 # Forgot Password view
 class CustomPasswordResetView(PasswordResetView):
@@ -859,3 +845,171 @@ def delete_2fa(request):
         'status': 'error',
         'message': 'Phương thức không được hỗ trợ'
     })
+
+@login_required
+@require_http_methods(["POST"])
+def send_email_change_otp(request):
+    try:
+        current_email = request.POST.get('current_email')
+        is_resend = request.POST.get('resend') == 'true'
+        
+        # Nếu là resend, sử dụng email đã lưu trong cache
+        if is_resend:
+            cached_email = cache.get(f'email_change_{request.user.id}')
+            if not cached_email:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Phiên xác thực đã hết hạn'
+                })
+            current_email = cached_email
+        
+        # Kiểm tra email hiện tại
+        if not is_resend and current_email != request.user.email:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Email không khớp! Vui lòng nhập lại.'
+            })
+            
+        # Tạo OTP và lưu vào cache
+        otp = get_random_string(6, '0123456789')
+        cache.set(f'email_change_otp_{request.user.id}', otp, 300)  # 5 phút
+        cache.set(f'email_change_{request.user.id}', current_email, 300)
+        
+        # Gửi email OTP
+        send_mail(
+            'Mã OTP xác thực thay đổi email - TomOi.vn',
+            f'Mã OTP của bạn là: {otp}\nMã có hiệu lực trong 5 phút.',
+            settings.EMAIL_HOST_USER,
+            [current_email],
+            fail_silently=False
+        )
+        
+        return JsonResponse({
+            'status': 'success',
+            'masked_email': mask_email(current_email)
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        })
+
+@login_required
+@require_http_methods(["POST"])
+def verify_email_change_otp(request):
+    try:
+        otp = request.POST.get('otp')
+        
+        # Lấy OTP từ cache
+        cached_otp = cache.get(f'email_change_otp_{request.user.id}')
+        if not cached_otp:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'OTP đã hết hạn'
+            })
+            
+        # Kiểm tra OTP
+        if otp != cached_otp:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'OTP không chính xác'
+            })
+            
+        # Xóa OTP khỏi cache
+        cache.delete(f'email_change_otp_{request.user.id}')
+        cache.delete(f'email_change_{request.user.id}')
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Xác thực thành công'
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        })
+
+@login_required
+@require_http_methods(["POST"])
+def update_email(request):
+    try:
+        new_email = request.POST.get('new_email')
+        
+        # Validate email
+        try:
+            validate_email(new_email)
+        except ValidationError:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Email không hợp lệ'
+            })
+            
+        # Kiểm tra email đã tồn tại
+        if CustomUser.objects.filter(email=new_email).exists():
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Email đã được sử dụng'
+            })
+            
+        # Cập nhật email
+        request.user.email = new_email
+        request.user.save()
+        
+        # Gửi email thông báo
+        send_mail(
+            'Thông báo thay đổi email - TomOi.vn',
+            'Email của bạn đã được thay đổi thành công.',
+            settings.EMAIL_HOST_USER,
+            [new_email],
+            fail_silently=False
+        )
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Email đã được cập nhật thành công'
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        })
+
+@login_required
+def settings_view(request):
+    context = {
+        'current_theme': request.session.get('theme', 'light'),
+        'snow_effect': request.session.get('snow_effect', False),
+        'pet_effect': request.session.get('pet_effect', False),
+        'font_size': request.session.get('font_size', 'medium'),
+    }
+    return render(request, 'accounts/settings.html', context)
+
+@login_required
+@require_http_methods(["POST"])
+def update_language(request):
+    try:
+        data = json.loads(request.body)
+        language = data.get('language')
+        
+        if language in ['en', 'vi']:
+            # Lưu ngôn ngữ vào session
+            request.session['language'] = language
+            
+            # Tạo response
+            response = JsonResponse({'success': True})
+            response.set_cookie(
+                'googtrans', f'/vi/{language}',  # Từ tiếng Việt sang ngôn ngữ đích
+                max_age=365 * 24 * 60 * 60  # Cookie hết hạn sau 1 năm
+            )
+            return response
+            
+    except Exception as e:
+        print(f"Error updating language: {str(e)}")
+        
+    return JsonResponse({
+        'success': False,
+        'error': 'Invalid language selection'
+    }, status=400)

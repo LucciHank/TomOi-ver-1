@@ -1,0 +1,161 @@
+/* Settings page styles */
+.section {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.section:last-child {
+    border-bottom: none;
+}
+
+.section-title {
+    color: #333;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+/* Language toggle */
+.language-toggle {
+    display: flex;
+    gap: 1rem;
+}
+
+.language-toggle .btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+}
+
+.flag-icon {
+    width: 20px !important;
+    height: 15px !important;
+    object-fit: cover;
+}
+
+/* Theme options */
+.theme-options,
+.font-size-options {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-group .btn {
+    border-radius: 4px !important;
+}
+
+/* Effects options */
+.effects-options {
+    padding: 0.5rem 0;
+}
+
+.form-check {
+    margin-bottom: 0.5rem;
+}
+
+/* List group styles */
+.list-group-item {
+    border: none !important;
+    padding: 0.7rem 1rem !important;
+    font-size: 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    min-height: 45px !important;
+    color: #333 !important;
+    background-color: transparent !important;
+    transition: all 0.2s ease !important;
+    border-radius: 8px !important;
+    position: relative !important;
+    font-weight: 450 !important;
+    margin: 1px 0 !important;
+}
+
+.list-group {
+    border-radius: 8px !important;
+    padding: 10px !important;
+    background-color: white !important;
+}
+
+/* Hover effect giống dropdown */
+.list-group-item:not(.active):hover {
+    background-color: #df2626 !important;
+    color: white !important;
+    transform: translateX(1.5px);
+    padding-left: 2rem !important;
+    font-weight: 500 !important;
+}
+
+/* Active state */
+.list-group-item.active {
+    background-color: #df2626 !important;
+    color: white !important;
+    border-color: #df2626 !important;
+    transform: translateX(1.5px);
+    padding-left: 2rem !important;
+    font-weight: 500 !important;
+}
+
+/* Icon styles */
+.list-group-item i {
+    width: 20px !important;
+    font-size: 16px !important;
+    margin-right: 10px !important;
+    text-align: center !important;
+    transition: all 0.2s ease !important;
+}
+
+/* Icon color on hover */
+.list-group-item:not(.active):hover i {
+    color: white !important;
+}
+
+.list-group-item.active i {
+    color: white !important;
+}
+
+.form-switch .form-check-input {
+    width: 3em;
+    height: 1.5em;
+    margin-top: 0.25em;
+    margin-right: 1em;
+}
+
+/* Card style cho list-group container */
+.card .list-group {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+.form-switch .form-check-input:checked {
+    background-color: #df2626;
+    border-color: #df2626;
+}
+
+.form-check-label {
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    color: #333;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .language-toggle,
+    .theme-options,
+    .font-size-options {
+        flex-direction: column;
+    }
+
+    .btn-group {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-group .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+} 

@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block extra_css %}
+<link href="{% static 'css/security.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="list-group">
+                    <a href="{% url 'accounts:user_info' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user me-2"></i> Tài khoản
+                    </a>
+                    <a href="{% url 'accounts:order_history' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-shopping-bag me-2"></i> Sản phẩm đã mua
+                    </a>
+                    <a href="{% url 'accounts:payment_history' %}" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-money-bill-wave me-2"></i> Lịch sử nạp tiền
+                    </a>
+                    <a href="{% url 'accounts:security' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-shield-alt me-2"></i> Bảo mật
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="fas fa-heart me-2"></i> Sản phẩm yêu thích
+                    </a>
+                    <a href="{% url 'accounts:settings' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-cog me-2"></i> Cài đặt
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user-plus me-2"></i> Giới thiệu bạn bè
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">Lịch sử nạp tiền</h4>
+
+                    <!-- Số dư -->
+                    <div class="security-section">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-wallet security-icon"></i>
+                            <h5 class="mb-0">Số dư hiện tại</h5>
+                        </div>
+                        <div class="ms-4 ps-2">
+                            <h3 class="text-danger">{{ user.balance|format_balance }}đ</h3>
+                            <button class="btn btn-danger">
+                                <i class="fas fa-plus-circle me-2"></i>Nạp tiền
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Lịch sử giao dịch -->
+                    <div class="security-section">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-history security-icon"></i>
+                            <h5 class="mb-0">Lịch sử giao dịch</h5>
+                        </div>
+                        <div class="ms-4 ps-2">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Mã giao dịch</th>
+                                            <th>Số tiền</th>
+                                            <th>Thời gian</th>
+                                            <th>Phương thức</th>
+                                            <th>Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for transaction in transactions %}
+                                        <tr>
+                                            <td>#{{ transaction.id }}</td>
+                                            <td class="text-danger">+{{ transaction.amount|format_balance }}đ</td>
+                                            <td>{{ transaction.created_at|date:"d/m/Y H:i" }}</td>
+                                            <td>{{ transaction.payment_method }}</td>
+                                            <td>
+                                                <span class="badge bg-success">Thành công</span>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

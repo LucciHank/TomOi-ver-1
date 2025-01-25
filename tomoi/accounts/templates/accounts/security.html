@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block extra_css %}
 <link href="{% static 'css/security.css' %}" rel="stylesheet"/>
@@ -28,7 +29,7 @@
                     <a href="#" class="list-group-item list-group-item-action">
                         <i class="fas fa-heart me-2"></i> Sản phẩm yêu thích
                     </a>
-                    <a href="#" class="list-group-item list-group-item-action">
+                    <a href="{% url 'accounts:settings' %}" class="list-group-item list-group-item-action">
                         <i class="fas fa-cog me-2"></i> Cài đặt
                     </a>
                     <a href="#" class="list-group-item list-group-item-action">
@@ -51,30 +52,38 @@
                                 <div class="password-form pb-4">
                                     <form id="changePasswordForm">
                                         {% csrf_token %}
-                                        <input type="hidden" 
-                                               name="username" 
-                                               autocomplete="username" 
-                                               value="{{ user.username }}">
-                                        <div class="mb-3">
-                                            <label class="form-label">Mật khẩu hiện tại</label>
-                                            <div class="password-input">
-                                                <input type="password" class="form-control" name="current_password" autocomplete="current-password">
-                                            </div>
+                                        <input type="hidden" name="username" autocomplete="username" value="{{ user.username }}">
+                                        
+                                        <div class="form-floating mb-3">
+                                            <input type="password" 
+                                                   class="form-control" 
+                                                   id="currentPassword"
+                                                   name="current_password" 
+                                                   placeholder=" ">
+                                            <label for="currentPassword">Mật khẩu hiện tại</label>
                                         </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Mật khẩu mới</label>
-                                            <div class="password-input">
-                                                <input type="password" class="form-control" name="new_password" autocomplete="new-password">
-                                            </div>
+
+                                        <div class="form-floating mb-3">
+                                            <input type="password" 
+                                                   class="form-control" 
+                                                   id="newPassword"
+                                                   name="new_password" 
+                                                   placeholder=" "
+                                                   autocomplete="new-password">
+                                            <label for="newPassword">Mật khẩu mới</label>
                                         </div>
-                                        <div class="mb-4">
-                                            <label class="form-label">Xác nhận mật khẩu mới</label>
-                                            <div class="password-input">
-                                                <input type="password" class="form-control" name="confirm_password" autocomplete="new-password">
-                                            </div>
+
+                                        <div class="form-floating mb-4">
+                                            <input type="password" 
+                                                   class="form-control" 
+                                                   id="confirmPassword"
+                                                   name="confirm_password" 
+                                                   placeholder=" "
+                                                   autocomplete="new-password">
+                                            <label for="confirmPassword">Xác nhận mật khẩu mới</label>
                                         </div>
                                     </form>
-                                    <button type="submit" form="changePasswordForm" class="btn btn-danger mt-3">
+                                    <button type="submit" form="changePasswordForm" class="btn btn-danger">
                                         <i class="fas fa-save me-2"></i>Lưu thay đổi
                                     </button>
                                 </div>
@@ -231,7 +240,7 @@
                     <!-- Trường OTP Email -->
                     <div id="fa_email_fields" class="d-none">
                         <div class="alert alert-info">
-                            Mã OTP sẽ được gửi đến email: <strong>{{ user.email }}</strong>
+                            Mã OTP sẽ được gửi đến email: <strong>{{ user.email|mask_email }}</strong>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Nhập mã OTP</label>
@@ -300,46 +309,50 @@
     </div>
 </div>
 
-<!-- Modal xác thực OTP -->
+<!-- Modal Xác thực Email Hiện tại -->
+<div class="modal fade" id="verifyCurrentEmailModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác thực Email</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="verifyCurrentEmailForm">
+                    {% csrf_token %}
+                    <p>Vui lòng nhập chính xác email hiện tại của bạn để xác thực:</p>
+                    <div class="mb-3">
+                        <label class="form-label">Email hiện tại</label>
+                        <input type="email" class="form-control" id="currentEmailInput" required>
+                    </div>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-paper-plane me-2"></i>Gửi mã OTP
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nhập OTP -->
 <div class="modal fade" id="verifyOTPModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Xác thực mã OTP</h5>
+                <h5 class="modal-title">Xác thực OTP</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="verifyOTPForm">
-                    {% csrf_token %}
-                    <div class="text-center mb-4">
-                        <p>Chúng tôi đã gửi mã OTP đến email của bạn</p>
-                        <p class="text-muted">Vui lòng kiểm tra và nhập mã xác thực</p>
+                    <p>Mã OTP đã được gửi đến <span id="maskedEmailOTP"></span></p>
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="otpInput" maxlength="6" required>
                     </div>
-                    <div class="otp-input-group mb-4">
-                        <input type="text" maxlength="1" class="otp-input form-control" required>
-                        <input type="text" maxlength="1" class="otp-input form-control" required>
-                        <input type="text" maxlength="1" class="otp-input form-control" required>
-                        <input type="text" maxlength="1" class="otp-input form-control" required>
-                        <input type="text" maxlength="1" class="otp-input form-control" required>
-                        <input type="text" maxlength="1" class="otp-input form-control" required>
-                    </div>
-                    <div class="text-center mb-3">
-                        <button type="button" id="resendOTPBtn" class="btn btn-link">
-                            Gửi lại mã OTP (<span id="countdownTimer">60</span>s)
-                        </button>
-                    </div>
-                    <div class="text-center">
-                        <a href="#" class="text-danger forgot-2fa">Bạn quên mật khẩu cấp 2?</a>
-                    </div>
+                    <button type="submit" class="btn btn-danger">Xác thực</button>
+                    <button type="button" id="resendOTPBtn" class="btn btn-link">
+                        Gửi lại OTP <span id="countdown"></span>
+                    </button>
                 </form>
-            </div>
-            <div class="modal-footer justify-content-between">
-                <button type="button" class="btn btn-secondary" id="backToVerifyBtn">
-                    <i class="fas fa-arrow-left me-2"></i>Quay lại
-                </button>
-                <button type="submit" form="verifyOTPForm" class="btn btn-danger">
-                    <i class="fas fa-check me-2"></i>Xác nhận
-                </button>
             </div>
         </div>
     </div>

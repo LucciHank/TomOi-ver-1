@@ -1,0 +1,131 @@
+/* Sử dụng lại toàn bộ CSS từ security.css */
+@import 'security.css';
+
+/* Thêm styles đặc thù cho user_info */
+.avatar-upload {
+    text-align: center !important;
+    margin-bottom: 20px !important;
+}
+
+.avatar-preview {
+    width: 150px !important;
+    height: 150px !important;
+    border-radius: 50% !important;
+    overflow: hidden !important;
+    margin: 0 auto 15px !important;
+}
+
+.avatar-preview img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+/* Card và List Group */
+.card .list-group {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.list-group {
+    border-radius: 8px !important;
+    padding: 10px !important;
+    background-color: white !important;
+}
+
+/* List Group Items */
+.list-group-item {
+    border: none !important;
+    padding: 12px 20px !important;
+    color: #666 !important;
+    transition: all 0.3s ease !important;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa !important;
+    color: #df2626 !important;
+}
+
+.list-group-item.active {
+    background-color: #df2626 !important;
+    color: white !important;
+    border: none !important;
+}
+
+.list-group-item i {
+    margin-right: 10px !important;
+    width: 20px !important;
+    text-align: center !important;
+}
+
+/* Security Sections */
+.security-section {
+    padding: 20px 0 !important;
+    border-bottom: 1px solid #eee !important;
+}
+
+.security-section:last-child {
+    border-bottom: none !important;
+}
+
+.security-icon {
+    font-size: 24px !important;
+    color: #df2626 !important;
+    margin-right: 15px !important;
+}
+
+/* Form Controls */
+.form-control {
+    border-radius: 4px !important;
+    border: 1px solid #ddd !important;
+}
+
+.form-control:focus {
+    border-color: #df2626 !important;
+    box-shadow: 0 0 0 0.2rem rgba(223, 38, 38, 0.25) !important;
+}
+
+/* Buttons */
+.btn-danger {
+    background-color: #df2626 !important;
+    border-color: #df2626 !important;
+}
+
+.btn-danger:hover {
+    background-color: #c41e1e !important;
+    border-color: #c41e1e !important;
+}
+
+.btn-outline-danger {
+    color: #df2626 !important;
+    border-color: #df2626 !important;
+}
+
+.btn-outline-danger:hover {
+    background-color: #df2626 !important;
+    color: white !important;
+}
+
+/* Card Styles */
+.card {
+    border: none !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.card-body {
+    padding: 25px !important;
+}
+
+.card-title {
+    color: #333 !important;
+    font-weight: 600 !important;
+    margin-bottom: 25px !important;
+    padding-bottom: 15px !important;
+    border-bottom: 1px solid #eee !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 15px !important;
+    }
+}
