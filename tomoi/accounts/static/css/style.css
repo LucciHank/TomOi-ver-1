@@ -1,13 +1,13 @@
 /* Ghi đè màu Bootstrap */
 :root {
-  --bs-primary: #df2626;
+  --bs-primary: #e50914;
   --bs-primary-rgb: 223, 38, 38;
 }
 
 .btn-primary {
   --bs-btn-color: #fff;
-  --bs-btn-bg: #df2626;
-  --bs-btn-border-color: #df2626;
+  --bs-btn-bg: #e50914;
+  --bs-btn-border-color: #e50914;
   --bs-btn-hover-color: #fff;
   --bs-btn-hover-bg: #b71d1d;
   --bs-btn-hover-border-color: #b71d1d;
@@ -16,14 +16,14 @@
   --bs-btn-active-bg: #b71d1d;
   --bs-btn-active-border-color: #b71d1d;
   --bs-btn-disabled-color: #fff;
-  --bs-btn-disabled-bg: #df2626;
-  --bs-btn-disabled-border-color: #df2626;
+  --bs-btn-disabled-bg: #e50914;
+  --bs-btn-disabled-border-color: #e50914;
 }
 
 /* Ghi đè màu active cho list-group */
 .list-group-item.active {
-  background-color: #df2626 !important;
-  border-color: #df2626 !important;
+  background-color: #e50914 !important;
+  border-color: #e50914 !important;
   color: white !important;
 }
 
@@ -38,7 +38,7 @@
 }
 /* Ghi đè màu link */
 a {
-  color: #df2626;
+  color: #e50914;
   text-decoration: none;
   font-weight: 500;
 }
@@ -49,12 +49,12 @@ a:hover {
 
 /* Ghi đè màu text-primary */
 .text-primary {
-  color: #df2626 !important;
+  color: #e50914 !important;
 }
 
 /* Ghi đè màu bg-primary */
 .bg-primary {
-  background-color: #df2626 !important;
+  background-color: #e50914 !important;
 }
 body {
 background-color: #f3f4f6 !important;
@@ -66,7 +66,7 @@ margin: 0; /* Xóa khoảng trống mặc định */
 }
 
 .navbar {
-background-color: #df2626;
+background-color: #e50914;
 padding: 10px 20px;
 }
 
@@ -139,7 +139,7 @@ display: flex;
 align-items: center;
 justify-content: center;
 background-color: rgba(0, 0, 0, 0.2);
-color: white;
+color: white !important;
 text-decoration: none;
 border-radius: 50px;
 transition: background-color 0.3s;
@@ -310,6 +310,7 @@ height: 10px;
 
 .fa-user, .fa-heart {
 background-clip: padding-box;
+color: white !important;
 }
 
 /* di chuyển icon fav-product  */
@@ -380,7 +381,7 @@ cursor: pointer; /* Chỉ báo con trỏ sẽ thay đổi khi hover vào */
 
 
 .dropdown-content .dropdown-item:hover {
-background-color: #df2626;
+background-color: #e50914;
 color: white;
 transform: translateX(5px);
 }
@@ -624,7 +625,7 @@ display: inline-block;
 
 .footer a:hover {
 text-decoration: none;
-color: #df2626;
+color: #e50914;
 }
 
 .footer .certification img {
@@ -910,7 +911,7 @@ margin-bottom: 15px;
 }
 
 .verify-box a {
-color: #df2626;
+color: #e50914;
 text-decoration: none;
 }
 
@@ -944,7 +945,7 @@ display: block;
 }
 
 .dropdown-content .dropdown-item:hover {
-background-color: #df2626;
+background-color: #e50914;
 color: white;
 }
 
@@ -1004,7 +1005,7 @@ font-weight: 500;
 }
 
 #editEmailLink {
-color: #df2626;
+color: #e50914;
 font-size: 0.9em;
 }
 
@@ -1041,7 +1042,7 @@ border-radius: 8px;
 
 /* Hiệu ứng hover cho dropdown items */
 .dropdown-content .dropdown-item:hover {
-background-color: #df2626 !important;
+background-color: #e50914 !important;
 color: white !important;
 }
 

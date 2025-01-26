@@ -8,8 +8,8 @@
 .my-custom-active {
     z-index: 2;
     color: white !important;
-    background-color: #df2626 !important;
-    border-color: #df2626 !important;
+    background-color: #e50914 !important;
+    border-color: #e50914 !important;
 }
 
 .section {
@@ -133,7 +133,7 @@
 
 /* Hover effect giống dropdown */
 .list-group-item:not(.active):hover {
-    background-color: #df2626 !important;
+    background-color: #e50914 !important;
     color: white !important;
     transform: translateX(2px);
     padding-left: 2rem !important;
@@ -142,9 +142,9 @@
 
 /* Active state */
 .list-group-item.active {
-    background-color: #df2626 !important;
+    background-color: #e50914 !important;
     color: white !important;
-    border-color: #df2626 !important;
+    border-color: #e50914 !important;
     transform: translateX(2px);
     padding-left: 2rem !important;
     font-weight: 500 !important;
@@ -323,12 +323,12 @@
 }
 
 .otp-input:focus {
-    border-color: #df2626;
+    border-color: #e50914;
     box-shadow: 0 0 0 0.2rem rgba(223, 38, 38, 0.25);
 }
 
 #resendOTPBtn {
-    color: #df2626;
+    color: #e50914;
     text-decoration: none;
 }
 
@@ -343,7 +343,7 @@
 }
 
 .forgot-2fa {
-    color: #df2626;
+    color: #e50914;
     text-decoration: none;
     font-size: 0.9rem;
 }
@@ -479,11 +479,11 @@
 .form-floating > .form-control:not(:placeholder-shown) ~ label {
     opacity: .65;
     transform: scale(.75) translateY(-0.5rem) translateX(0.15rem);
-    color: #df2626;
+    color: #e50914;
 }
 
 .form-floating > .form-control:focus {
-    border-color: #df2626;
+    border-color: #e50914;
     box-shadow: 0 0 0 0.25rem rgba(223, 38, 38, 0.25);
 }
 

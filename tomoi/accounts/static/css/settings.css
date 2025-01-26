@@ -83,7 +83,7 @@
 
 /* Hover effect giống dropdown */
 .list-group-item:not(.active):hover {
-    background-color: #df2626 !important;
+    background-color: #e50914 !important;
     color: white !important;
     transform: translateX(1.5px);
     padding-left: 2rem !important;
@@ -92,9 +92,9 @@
 
 /* Active state */
 .list-group-item.active {
-    background-color: #df2626 !important;
+    background-color: #e50914 !important;
     color: white !important;
-    border-color: #df2626 !important;
+    border-color: #e50914 !important;
     transform: translateX(1.5px);
     padding-left: 2rem !important;
     font-weight: 500 !important;
@@ -130,8 +130,8 @@
     box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
 }
 .form-switch .form-check-input:checked {
-    background-color: #df2626;
-    border-color: #df2626;
+    background-color: #e50914;
+    border-color: #e50914;
 }
 
 .form-check-label {

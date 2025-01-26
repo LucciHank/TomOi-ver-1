@@ -8,7 +8,7 @@ from social_django.utils import psa
 from social_django.models import UserSocialAuth
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.utils.crypto import get_random_string
 from .forms import CustomUserCreationForm, CustomUserChangeForm, CustomPasswordResetForm, CustomSetPasswordForm
@@ -1013,3 +1013,11 @@ def update_language(request):
         'success': False,
         'error': 'Invalid language selection'
     }, status=400)
+
+def set_language(request):
+    if request.method == 'POST':
+        lang_code = request.POST.get('language', 'vi')
+        response = HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+        response.set_cookie('django_language', lang_code)
+        return response
+    return redirect('home')

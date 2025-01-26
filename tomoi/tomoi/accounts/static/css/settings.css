@@ -19,8 +19,8 @@
 }
 
 .form-check-input:checked {
-    background-color: #df2626;
-    border-color: #df2626;
+    background-color: #e50914;
+    border-color: #e50914;
 }
 
 /* Card và List Group */
@@ -44,11 +44,11 @@
 
 .list-group-item:hover {
     background-color: #f8f9fa;
-    color: #df2626;
+    color: #e50914;
 }
 
 .list-group-item.active {
-    background-color: #df2626;
+    background-color: #e50914;
     color: white;
     border: none;
 }
@@ -71,7 +71,7 @@
 
 .security-icon {
     font-size: 24px;
-    color: #df2626;
+    color: #e50914;
     margin-right: 15px;
 }
 
@@ -82,14 +82,14 @@
 }
 
 .form-control:focus {
-    border-color: #df2626;
+    border-color: #e50914;
     box-shadow: 0 0 0 0.2rem rgba(223, 38, 38, 0.25);
 }
 
 /* Buttons */
 .btn-danger {
-    background-color: #df2626;
-    border-color: #df2626;
+    background-color: #e50914;
+    border-color: #e50914;
 }
 
 .btn-danger:hover {
@@ -98,12 +98,12 @@
 }
 
 .btn-outline-danger {
-    color: #df2626;
-    border-color: #df2626;
+    color: #e50914;
+    border-color: #e50914;
 }
 
 .btn-outline-danger:hover {
-    background-color: #df2626;
+    background-color: #e50914;
     color: white;
 }
 

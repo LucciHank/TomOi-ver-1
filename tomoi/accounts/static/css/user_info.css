@@ -1,7 +1,7 @@
 /* Override Bootstrap variables */
 :root {
-    --bs-list-group-active-bg: #df2626 !important;
-    --bs-list-group-active-border-color: #df2626 !important;
+    --bs-list-group-active-bg: #e50914 !important;
+    --bs-list-group-active-border-color: #e50914 !important;
     --bs-list-group-active-color: #fff !important;
 }
 
@@ -43,7 +43,7 @@ body {
 }
 
 .profile-card .text-primary {
-    color: #df2626 !important;
+    color: #e50914 !important;
     text-decoration: none;
 }
 
@@ -81,7 +81,7 @@ body {
 }
 
 .btn-danger {
-    background-color: #df2626;
+    background-color: #e50914;
     border: none;
     padding: 8px 20px;
     transition: all 0.3s ease;
@@ -103,7 +103,7 @@ body {
 }
 
 .sidebar .nav-link:hover {
-    color: #df2626;
+    color: #e50914;
     background-color: #f8f9fa;
     transform: translateX(5px);
 }
@@ -154,16 +154,16 @@ body {
 
 /* Active state */
 .list-group-item.active {
-    background-color: #df2626 !important;
+    background-color: #e50914 !important;
     color: white !important;
-    border-color: #df2626 !important;
+    border-color: #e50914 !important;
 }
 
 /* Hover state */
 .list-group-item:hover {
-    background-color: #df2626 !important;
+    background-color: #e50914 !important;
     color: white !important;
-    border-color: #df2626 !important;
+    border-color: #e50914 !important;
 }
 
 /* Icon styles */
@@ -257,22 +257,22 @@ body {
 
 /* Button styles */
 .btn-outline-primary {
-    color: #df2626 !important;
-    border-color: #df2626 !important;
+    color: #e50914 !important;
+    border-color: #e50914 !important;
     background-color: transparent !important;
 }
 
 .btn-outline-primary:hover {
     color: white !important;
-    background-color: #df2626 !important;
-    border-color: #df2626 !important;
+    background-color: #e50914 !important;
+    border-color: #e50914 !important;
 }
 
 .btn-primary,
 .btn-primary:active,
 .btn-primary:focus {
-    background-color: #df2626 !important;
-    border-color: #df2626 !important;
+    background-color: #e50914 !important;
+    border-color: #e50914 !important;
     color: white !important;
 }
 
@@ -285,8 +285,8 @@ body {
 .modal .btn-primary,
 .modal .btn-primary:active,
 .modal .btn-primary:focus {
-    background-color: #df2626 !important;
-    border-color: #df2626 !important;
+    background-color: #e50914 !important;
+    border-color: #e50914 !important;
 }
 
 .modal .btn-primary:hover {
@@ -321,7 +321,7 @@ input[readonly].form-control-plaintext {
 
 /* Form styles */
 .form-control:focus {
-    border-color: #df2626;
+    border-color: #e50914;
     box-shadow: 0 0 0 0.2rem rgba(223, 38, 38, 0.25);
 }
 
@@ -394,8 +394,8 @@ input[readonly].form-control-plaintext {
 }
 
 .filter-section .btn-danger {
-    background-color: #df2626;
-    border-color: #df2626;
+    background-color: #e50914;
+    border-color: #e50914;
 }
 
 .filter-section .btn-danger:hover {
@@ -472,13 +472,13 @@ input[readonly].form-control-plaintext {
 }
 
 .list-group-item.active {
-    background-color: #df2626 !important;
+    background-color: #e50914 !important;
     color: white;
     border: none;
 }
 
 .list-group-item:hover {
-    background-color: #df2626;
+    background-color: #e50914;
     color: white;
 }
 
@@ -639,8 +639,8 @@ input[readonly].form-control-plaintext {
 }
 
 .btn-danger {
-    background-color: #df2626;
-    border-color: #df2626;
+    background-color: #e50914;
+    border-color: #e50914;
 }
 
 .btn-danger:hover {
@@ -660,21 +660,21 @@ input[readonly].form-control-plaintext {
 
 /* Button styles trong modal */
 .modal .btn-outline-danger {
-    color: #df2626;
-    border-color: #df2626;
+    color: #e50914;
+    border-color: #e50914;
     background-color: transparent;
     transition: all 0.3s ease;
 }
 
 .modal .btn-outline-danger:hover {
-    background-color: #df2626;
-    border-color: #df2626;
+    background-color: #e50914;
+    border-color: #e50914;
     color: white;
 }
 
 .modal .btn-danger {
-    background-color: #df2626;
-    border-color: #df2626;
+    background-color: #e50914;
+    border-color: #e50914;
     color: white;
 }
 

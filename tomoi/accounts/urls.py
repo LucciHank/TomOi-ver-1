@@ -39,4 +39,5 @@ urlpatterns = [
     path('verify-email-change-otp/', views.verify_email_change_otp, name='verify_email_change_otp'),
     path('settings/', views.settings_view, name='settings'),
     path('update-language/', views.update_language, name='update_language'),
+    path('set_language/', views.set_language, name='set_language'),
 ]

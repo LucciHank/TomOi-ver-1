@@ -42,11 +42,11 @@
 
 .list-group-item:hover {
     background-color: #f8f9fa !important;
-    color: #df2626 !important;
+    color: #e50914 !important;
 }
 
 .list-group-item.active {
-    background-color: #df2626 !important;
+    background-color: #e50914 !important;
     color: white !important;
     border: none !important;
 }
@@ -69,7 +69,7 @@
 
 .security-icon {
     font-size: 24px !important;
-    color: #df2626 !important;
+    color: #e50914 !important;
     margin-right: 15px !important;
 }
 
@@ -80,14 +80,14 @@
 }
 
 .form-control:focus {
-    border-color: #df2626 !important;
+    border-color: #e50914 !important;
     box-shadow: 0 0 0 0.2rem rgba(223, 38, 38, 0.25) !important;
 }
 
 /* Buttons */
 .btn-danger {
-    background-color: #df2626 !important;
-    border-color: #df2626 !important;
+    background-color: #e50914 !important;
+    border-color: #e50914 !important;
 }
 
 .btn-danger:hover {
@@ -96,12 +96,12 @@
 }
 
 .btn-outline-danger {
-    color: #df2626 !important;
-    border-color: #df2626 !important;
+    color: #e50914 !important;
+    border-color: #e50914 !important;
 }
 
 .btn-outline-danger:hover {
-    background-color: #df2626 !important;
+    background-color: #e50914 !important;
     color: white !important;
 }
 

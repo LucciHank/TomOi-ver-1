@@ -146,7 +146,7 @@ document.getElementById('verifyCurrentEmailForm')?.addEventListener('submit', as
                 icon: 'error',
                 title: 'Lỗi!',
                 text: data.message || 'Xác thực thất bại!',
-                confirmButtonColor: '#df2626'
+                confirmButtonColor: '#e50914'
             });
         }
     } catch (error) {
@@ -155,7 +155,7 @@ document.getElementById('verifyCurrentEmailForm')?.addEventListener('submit', as
             icon: 'error',
             title: 'Lỗi hệ thống!',
             text: 'Vui lòng thử lại sau',
-            confirmButtonColor: '#df2626'
+            confirmButtonColor: '#e50914'
         });
     } finally {
         submitBtn.disabled = false;
@@ -189,7 +189,7 @@ document.getElementById('verifyOTPForm')?.addEventListener('submit', async funct
                 icon: 'success',
                 title: 'Xác thực thành công!',
                 text: 'Bạn có thể thay đổi email mới.',
-                confirmButtonColor: '#df2626'
+                confirmButtonColor: '#e50914'
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Đóng modal OTP
@@ -212,7 +212,7 @@ document.getElementById('verifyOTPForm')?.addEventListener('submit', async funct
                 icon: 'error',
                 title: 'Lỗi!',
                 text: data.message || 'OTP không hợp lệ',
-                confirmButtonColor: '#df2626'
+                confirmButtonColor: '#e50914'
             });
         }
     } catch (error) {
@@ -221,7 +221,7 @@ document.getElementById('verifyOTPForm')?.addEventListener('submit', async funct
             icon: 'error',
             title: 'Lỗi hệ thống!',
             text: 'Vui lòng thử lại sau',
-            confirmButtonColor: '#df2626'
+            confirmButtonColor: '#e50914'
         });
     } finally {
         submitBtn.disabled = false;
@@ -269,7 +269,7 @@ document.getElementById('resendOTPBtn')?.addEventListener('click', async functio
             Swal.fire({
                 icon: 'success',
                 title: 'Đã gửi lại OTP!',
-                confirmButtonColor: '#df2626'
+                confirmButtonColor: '#e50914'
             });
         }
     } catch (error) {

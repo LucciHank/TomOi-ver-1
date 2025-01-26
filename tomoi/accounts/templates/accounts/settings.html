@@ -1,146 +1,520 @@
 {% extends 'base.html' %}
+
 {% load static %}
+
 {% load i18n %}
 
+
+
 {% block extra_css %}
+
 <link href="{% static 'css/settings.css' %}" rel="stylesheet"/>
+
+<style>
+
+.language-toggle {
+
+  display: flex;
+
+  gap: 10px;
+
+  margin-bottom: 20px;
+
+}
+
+
+
+.lang-btn {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 10px 20px;
+
+  border: 1px solid #ddd;
+
+  border-radius: 8px;
+
+  background: white;
+
+  cursor: pointer;
+
+  transition: all 0.3s ease;
+
+}
+
+
+
+.lang-btn:hover {
+
+  background: #f8f9fa;
+
+}
+
+
+
+.lang-btn.active {
+
+  background: #e50914;
+
+  color: white;
+
+  border-color: #e50914;
+
+}
+
+
+
+.flag-icon {
+
+  width: 24px;
+
+  height: 18px;
+
+  object-fit: cover;
+
+  border-radius: 4px;
+
+}
+
+</style>
+
 {% endblock %}
+
+
 
 {% block content %}
+
 <div class="container py-4">
+
     {% csrf_token %}
+
     <div class="row">
+
         <!-- Sidebar -->
+
         <div class="col-md-3">
+
             <div class="card mb-4">
+
                 <div class="list-group">
+
                     <a href="{% url 'accounts:user_info' %}" class="list-group-item list-group-item-action">
+
                         <i class="fas fa-user me-2"></i> {% trans "Tài khoản" %}
+
                     </a>
+
                     <a href="{% url 'accounts:order_history' %}" class="list-group-item list-group-item-action">
+
                         <i class="fas fa-shopping-bag me-2"></i> Sản phẩm đã mua
+
                     </a>
+
                     <a href="{% url 'accounts:payment_history' %}" class="list-group-item list-group-item-action">
+
                         <i class="fas fa-money-bill-wave me-2"></i> Lịch sử nạp tiền
+
                     </a>
+
                     <a href="{% url 'accounts:security' %}" class="list-group-item list-group-item-action">
+
                         <i class="fas fa-shield-alt me-2"></i> Bảo mật
+
                     </a>
+
                     <a href="#" class="list-group-item list-group-item-action">
+
                         <i class="fas fa-heart me-2"></i> Sản phẩm yêu thích
+
                     </a>
+
                     <a href="{% url 'accounts:settings' %}" class="list-group-item list-group-item-action active">
+
                         <i class="fas fa-cog me-2"></i> Cài đặt
+
                     </a>
+
                     <a href="#" class="list-group-item list-group-item-action">
+
                         <i class="fas fa-user-plus me-2"></i> Giới thiệu bạn bè
+
                     </a>
+
                 </div>
+
             </div>
+
         </div>
+
+
 
         <!-- Main Content -->
+
         <div class="col-md-9">
+
             <div class="card">
+
                 <div class="card-body">
+
                     <h4 class="card-title mb-4">Cài đặt</h4>
 
+
+
                     <!-- Ngôn ngữ -->
+
                     <div class="section">
+
                         <h5 class="section-title">Ngôn ngữ</h5>
+
                         <div class="language-toggle">
-                            <button class="btn btn-outline-danger {% if current_language == 'vi' %}active{% endif %}" 
-                                    data-language="vi">
-                                <img src="{% static 'images/flags/vi.png' %}" alt="Tiếng Việt" class="flag-icon">
+
+                            <button class="lang-btn active" data-lang="vi">
+
+                                <img src="{% static 'images/flags/vi.png' %}" alt="VN" class="flag-icon">
+
                                 Tiếng Việt
+
                             </button>
-                            <button class="btn btn-outline-danger {% if current_language == 'en' %}active{% endif %}" 
-                                    data-language="en">
-                                <img src="{% static 'images/flags/en.png' %}" alt="English" class="flag-icon">
+
+                            <button class="lang-btn" data-lang="en">
+
+                                <img src="{% static 'images/flags/en.png' %}" alt="EN" class="flag-icon">
+
                                 English
+
                             </button>
+
+                            <button class="lang-btn" data-lang="zh-CN">
+
+                                <img src="{% static 'images/flags/cn.png' %}" alt="CN" class="flag-icon">
+
+                                中文
+
+                            </button>
+
+                            <button class="lang-btn" data-lang="ko">
+
+                                <img src="{% static 'images/flags/kr.png' %}" alt="KR" class="flag-icon">
+
+                                한국어
+
+                            </button>
+
+                            <button class="lang-btn" data-lang="ja">
+
+                                <img src="{% static 'images/flags/jp.png' %}" alt="JP" class="flag-icon">
+
+                                日本語
+
+                            </button>
+
                         </div>
+
+                        <form id="language-form" action="{% url 'accounts:set_language' %}" method="post" style="display: none;">
+
+                            {% csrf_token %}
+
+                            <input name="language" type="hidden" id="selected-language">
+
+                        </form>
+
                     </div>
+
+
 
                     <!-- Giao diện -->
+
                     <div class="section">
+
                         <h5 class="section-title">Giao diện</h5>
+
                         <div class="theme-options">
+
                             <div class="btn-group" role="group">
+
                                 <input type="radio" class="btn-check" name="theme" id="lightTheme" value="light" 
+
                                        {% if current_theme == 'light' %}checked{% endif %}>
+
                                 <label class="btn btn-outline-danger" for="lightTheme">
+
                                     <i class="fas fa-sun me-2"></i>Sáng
+
                                 </label>
+
+
 
                                 <input type="radio" class="btn-check" name="theme" id="darkTheme" value="dark"
+
                                        {% if current_theme == 'dark' %}checked{% endif %}>
+
                                 <label class="btn btn-outline-danger" for="darkTheme">
+
                                     <i class="fas fa-moon me-2"></i>Tối
+
                                 </label>
+
+
 
                                 <input type="radio" class="btn-check" name="theme" id="autoTheme" value="auto"
+
                                        {% if current_theme == 'auto' %}checked{% endif %}>
+
                                 <label class="btn btn-outline-danger" for="autoTheme">
+
                                     <i class="fas fa-magic me-2"></i>Tự động
+
                                 </label>
+
                             </div>
+
                         </div>
+
                     </div>
+
+
 
                     {% comment %} Cỡ chữ {% endcomment %}
+
                     <div class="section">
+
                         <h5 class="section-title">Cỡ chữ</h5>
+
                         <div class="font-size-options">
+
                             <div class="btn-group" role="group">
+
                                 <input type="radio" class="btn-check" name="fontSize" id="smallFont" value="small"
+
                                        {% if font_size == 'small' %}checked{% endif %}>
+
                                 <label class="btn btn-outline-danger" for="smallFont">
+
                                     <i class="fas fa-text-height me-2"></i>Nhỏ
+
                                 </label>
+
+
 
                                 <input type="radio" class="btn-check" name="fontSize" id="mediumFont" value="medium"
+
                                        {% if font_size == 'medium' %}checked{% endif %}>
+
                                 <label class="btn btn-outline-danger" for="mediumFont">
+
                                     <i class="fas fa-text-height me-2"></i>Vừa
+
                                 </label>
+
+
 
                                 <input type="radio" class="btn-check" name="fontSize" id="largeFont" value="large"
+
                                        {% if font_size == 'large' %}checked{% endif %}>
+
                                 <label class="btn btn-outline-danger" for="largeFont">
+
                                     <i class="fas fa-text-height me-2"></i>Lớn
+
                                 </label>
+
                             </div>
+
                         </div>
+
                     </div>
+
                     <!-- Hiệu ứng -->
+
                     <div class="section">
+
                         <h5 class="section-title">Hiệu ứng</h5>
+
                         <div class="effects-options">
+
                             <div class="form-check form-switch mb-3">
+
                                 <input class="form-check-input" type="checkbox" id="snowEffect"
+
                                        {% if snow_effect %}checked{% endif %}>
+
                                 <label class="form-check-label" for="snowEffect">
+
                                     <i class="fas fa-snowflake me-2"></i>Hiệu ứng tuyết rơi
+
                                 </label>
+
                             </div>
+
                             <div class="form-check form-switch">
+
                                 <input class="form-check-input" type="checkbox" id="petEffect"
+
                                        {% if pet_effect %}checked{% endif %}>
+
                                 <label class="form-check-label" for="petEffect">
+
                                     <i class="fas fa-cat me-2"></i>Hiệu ứng pet mini
+
                                 </label>
+
                             </div>
+
                         </div>
+
                     </div>
+
+
 
                 </div>
+
             </div>
+
         </div>
+
     </div>
+
 </div>
+
+
+
+<!-- Thêm div cho Google Translate -->
+
+<div id="google_translate_element" style="display:none"></div>
+
 {% endblock %}
 
+
+
 {% block extra_js %}
+
 <script src="{% static 'js/settings.js' %}"></script>
+
+<script type="text/javascript">
+
+// Khởi tạo Google Translate
+function googleTranslateElementInit() {
+    new google.translate.TranslateElement({
+        pageLanguage: 'vi',
+        includedLanguages: 'en,vi,zh-CN,ko,ja',
+        autoDisplay: false,
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+    }, 'google_translate_element');
+    
+    // Ẩn các element không cần thiết
+    document.querySelector('.goog-te-combo').style.display = 'none';
+    document.querySelector('.goog-logo-link').style.display = 'none';
+    document.querySelector('.goog-te-gadget').style.fontSize = '0';
+}
+
+
+
+// Chuyển đổi ngôn ngữ
+function changeLanguage(lang) {
+    // 1. Gửi ngôn ngữ về server để xử lý cookie Django
+    document.getElementById('selected-language').value = lang;
+    document.getElementById('language-form').submit();
+
+    // 2. Xử lý Google Translate
+    const translateInterval = setInterval(() => {
+        const selectField = document.querySelector('.goog-te-combo');
+        if(selectField) {
+            clearInterval(translateInterval);
+            
+            // Kiểm tra ngôn ngữ có hợp lệ
+            if(!selectField.querySelector(`option[value="${lang}"]`)) {
+                console.error('Ngôn ngữ không hỗ trợ:', lang);
+                return;
+            }
+
+            // Cập nhật giá trị và kích hoạt thay đổi
+            selectField.value = lang;
+            selectField.dispatchEvent(new Event('change'));
+
+            // 3. Force reload sau 500ms để đảm bảo cập nhật
+            setTimeout(() => {
+                localStorage.setItem('selectedLanguage', lang);
+                window.location.reload();
+            }, 500);
+
+            // 4. Cập nhật UI ngay lập tức
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+        }
+    }, 100);
+}
+
+
+
+// Khôi phục ngôn ngữ đã chọn
+
+function restoreLanguage() {
+
+    const savedLang = localStorage.getItem('selectedLanguage');
+
+    if (savedLang) {
+
+        // Đợi Google Translate load xong
+
+        setTimeout(() => {
+
+            changeLanguage(savedLang);
+
+        }, 1000);
+
+    }
+
+}
+
+
+
+// Xử lý click nút ngôn ngữ
+
+document.querySelectorAll('.lang-btn').forEach(btn => {
+
+    btn.addEventListener('click', () => {
+
+        const lang = btn.dataset.lang;
+
+        changeLanguage(lang);
+
+    });
+
+});
+
+
+
+// Load Google Translate script
+
+function loadGoogleTranslate() {
+
+    var script = document.createElement('script');
+
+    script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+
+    document.body.appendChild(script);
+
+}
+
+
+
+// Load khi trang đã sẵn sàng
+
+document.addEventListener('DOMContentLoaded', function() {
+
+    loadGoogleTranslate();
+
+    // Khôi phục ngôn ngữ sau khi Google Translate đã load
+
+    setTimeout(restoreLanguage, 1500);
+
+});
+
+</script>
+
 {% endblock %} 
