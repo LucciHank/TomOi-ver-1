@@ -24,6 +24,7 @@ urlpatterns = [
     path('add-to-cart/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
     path('cart/api/', views.get_cart_api, name='cart_api'),
     path('cart/checkout/', views.checkout, name='checkout'),
+    path('category/<slug:slug>/', views.category_detail, name='category_detail'),
 
 
     # path('payment/paypal/', views.paypal_payment, name='paypal_payment'),

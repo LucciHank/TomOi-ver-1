@@ -63,15 +63,29 @@ flex-direction: column;
 height: 100%;
 min-height: 100vh;
 margin: 0; /* Xóa khoảng trống mặc định */
+letter-spacing: 0.03em;
 }
 
-.navbar {
-background-color: #e50914;
-padding: 10px 20px;
+body .navbar {
+    background-color: #e50914;
+    padding: 10px 20px;
 }
 
-.navbar-brand img {
-height: 40px;
+body .navbar-brand img {
+    height: 40px;
+}
+
+body .nav-link {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.2);
+    color: white !important;
+    text-decoration: none;
+    border-radius: 50px;
+    transition: background-color 0.3s;
 }
 
 .navbar-brand {
@@ -132,19 +146,6 @@ gap: 10px; /* Adjust the gap for even spacing */
 }
 
 /* Thay đổi fa-user */
-.nav-link {
-width: 45px;
-height: 45px;
-display: flex;
-align-items: center;
-justify-content: center;
-background-color: rgba(0, 0, 0, 0.2);
-color: white !important;
-text-decoration: none;
-border-radius: 50px;
-transition: background-color 0.3s;
-}
-
 .nav-link:hover,
 .nav-link:focus {
 background-color: rgba(0, 0, 0, 0.4);
@@ -310,7 +311,6 @@ height: 10px;
 
 .fa-user, .fa-heart {
 background-clip: padding-box;
-color: white !important;
 }
 
 /* di chuyển icon fav-product  */
@@ -1073,5 +1073,12 @@ background-color: transparent;
 .modal-content,
 .section {
 background-color: #fff;
+}
+
+/* Common styles used across the site */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--heading-font);
+    color: var(--dark-color);
+    font-weight: 700;
 }
 

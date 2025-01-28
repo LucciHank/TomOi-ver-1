@@ -1,12 +1,13 @@
 from django.contrib import admin
 from django import forms
 from django.db import models
-from .models import Category, Product, ProductImage, Variant, Option, Order
+from .models import Category, Product, ProductImage, Variant, Option, Order, Banner
+from django.utils.text import slugify
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug')
-    prepopulated_fields = {"slug": ("name",)}
+    prepopulated_fields = {'slug': ('name',)}
 
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
@@ -22,9 +23,10 @@ class OptionInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'price', 'stock')
-    list_filter = ('category',)
+    list_display = ('name', 'category', 'price', 'stock', 'is_featured')
+    list_filter = ('category', 'is_featured')
     search_fields = ('name',)
+    list_editable = ('is_featured',)
     inlines = [ProductImageInline, VariantInline]
 
 @admin.register(Variant)
@@ -42,3 +44,19 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ('user', 'total_amount', 'status', 'created_at')
     list_filter = ('status',)
     search_fields = ('user__username',)
+
+@admin.register(Banner)
+class BannerAdmin(admin.ModelAdmin):
+    list_display = ['title', 'location', 'order', 'is_active']
+    list_filter = ['location', 'is_active']
+    search_fields = ['title']
+    list_editable = ['order', 'is_active']
+    
+    fieldsets = (
+        ('Thông tin cơ bản', {
+            'fields': ('title', 'image', 'link', 'location')
+        }),
+        ('Cài đặt hiển thị', {
+            'fields': ('order', 'is_active')
+        })
+    )

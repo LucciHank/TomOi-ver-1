@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
-from .models import Order, PurchasedAccount, Product, ProductImage,  Category
+from .models import Order, PurchasedAccount, Product, ProductImage,  Category, Banner
 from accounts.models import CustomUser
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
@@ -28,7 +28,18 @@ def dashboard(request):
     return render(request, 'store/index.html')
 
 def home(request):
-    return render(request, 'store/home.html')
+    context = {
+        'main_banners': Banner.objects.filter(location='main', is_active=True),
+        'side1_banners': Banner.objects.filter(location='side1', is_active=True),
+        'side2_banners': Banner.objects.filter(location='side2', is_active=True),
+        'left_banners': Banner.objects.filter(location='left', is_active=True),
+        'right_banners': Banner.objects.filter(location='right', is_active=True),
+        'categories': Category.objects.all(),
+        'featured_products': Product.objects.filter(is_featured=True).order_by('-created_at')[:8],
+        'latest_products': Product.objects.order_by('-created_at')[:8]
+    }
+    print("Categories:", context['categories'])
+    return render(request, 'store/home.html', context)
 
 def add_images_to_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
@@ -311,3 +322,12 @@ def paypal_webhook(request):
 #     if payment.execute({"payer_id": request.GET["PayerID"]}):
 #         return render(request, 'payment_success.html')
 #     return render(request, 'payment_error.html')
+
+def category_detail(request, slug):
+    category = get_object_or_404(Category, slug=slug)
+    products = Product.objects.filter(category=category)
+    context = {
+        'category': category,
+        'products': products
+    }
+    return render(request, 'store/category_detail.html', context)

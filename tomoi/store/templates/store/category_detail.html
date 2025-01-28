@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="container py-4">
+    <h1>{{ category.name }}</h1>
+    <p>{{ category.description }}</p>
+
+    <div class="row">
+        {% for product in products %}
+        <div class="col-md-3 mb-4">
+            <div class="product-item">
+                <a href="{% url 'store:product_detail' product.id %}">
+                    <div class="image-holder">
+                        <img src="{{ product.get_primary_image.url }}" alt="{{ product.name }}">
+                        {% if product.discount %}
+                        <div class="sale-badge">-{{ product.discount }}%</div>
+                        {% endif %}
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">{{ product.name }}</h3>
+                        <div class="price-holder">
+                            <div class="price">{{ product.price|format_balance }}</div>
+                            {% if product.old_price %}
+                            <del class="old-price">{{ product.old_price|format_balance }}</del>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+                <button class="btn btn-primary add-to-cart" 
+                        data-product-id="{{ product.id }}">
+                    <i class="fas fa-shopping-cart"></i> Thêm vào giỏ
+                </button>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p>Không có sản phẩm nào trong danh mục này.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

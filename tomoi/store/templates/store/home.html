@@ -1,380 +1,164 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load static %}
 
-{% block page_css %}
-<!-- Chỉ load abc.css -->
-<link rel="stylesheet" type="text/css" href="{% static 'css/home.css' %}">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css">
+{% block extra_css %}
+<!-- Swiper CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css"/>
+
+<!-- Home CSS -->
+<link href="{% static 'store/css/home.css' %}" rel="stylesheet"/>   
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-  <div class="row">
-    <!-- Left sidebar for ads -->
-    <div class="col-md-2">
-      <!-- Future ads space -->
+<div class="page-container">
+    <!-- Vertical Banners Left -->
+    <div class="vertical-banners left" style="justify-content: right !important;">
+        {% for banner in left_banners %}
+        <a href="{{ banner.link }}" class="vertical-banner">
+            <img src="{{ banner.image.url }}" alt="{{ banner.title }}" loading="lazy">
+        </a>
+        {% endfor %}
     </div>
 
-    <!-- Main content -->
-    <div class="col-md-12">
-      <!-- Banner blocks -->
-      <div class="banner-blocks">
-        <!-- Main banner with carousel -->
-        <div class="banner-ad large bg-info block-1">
-          <div class="carousel slide" data-bs-ride="carousel" id="mainCarousel">
-            <div class="carousel-indicators">
-              <button aria-current="true" aria-label="Slide 1" class="active" data-bs-slide-to="0" data-bs-target="#mainCarousel" type="button"></button>
-              <button aria-label="Slide 2" data-bs-slide-to="1" data-bs-target="#mainCarousel" type="button"></button>
-              <button aria-label="Slide 3" data-bs-slide-to="2" data-bs-target="#mainCarousel" type="button"></button>
-            </div>
-            <div class="carousel-inner">
-              <div class="carousel-item active" style="background-color: #141414 !important; color: #fff !important;">
-                <div class="row banner-content p-5">
-                  <div class="content-wrapper col-md-7">
-                    <div class="categories my-3">Giảm giá đặc biệt</div>
-                    <h3 class="display-4">Netflix Premium 4K</h3>
-                    <p>Xem phim & TV Shows không giới hạn</p>
-                    <a href="#" class="btn btn-outline-dark btn-lg text-uppercase fs-6 rounded-1 px-4 py-2 mt-3">Mua Ngay</a>
-                  </div>
-                  <div class="img-wrapper col-md-5">
-                    <img src="https://storage.googleapis.com/a1aa/image/2X2MNyyM8Bo9Lhr4NDdh25WKShQvYMoI7OExM6aHgIrpzKCF.jpg" class="img-fluid">
-                  </div>
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="main-content-wrapper" style="width: 100%;">
+            <!-- Banner Section -->
+            <section class="banner-section">
+                <div class="banner-grid">
+                    <!-- Main Banner -->
+                    <div class="main-banner">
+                        <div id="mainCarousel" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                                {% for banner in main_banners %}
+                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                    <a href="{{ banner.link }}">
+                                        <img src="{{ banner.image.url }}" alt="{{ banner.title }}" class="d-block w-100">
+                                    </a>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <!-- Thêm phần indicators -->
+                            <div class="carousel-indicators">
+                                {% for banner in main_banners %}
+                                <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="{{ forloop.counter0 }}" 
+                                    {% if forloop.first %}class="active" aria-current="true"{% endif %}
+                                    aria-label="Slide {{ forloop.counter }}">
+                                </button>
+                                {% endfor %}
+                            </div>
+
+                            <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon"></span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#mainCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Side Banners -->
+                    <div class="side-banners">
+                        {% for banner in side1_banners %}
+                        <div class="side-banner">
+                            <a href="{{ banner.link }}">
+                                <img src="{{ banner.image.url }}" alt="{{ banner.title }}" loading="lazy">
+                            </a>
+                        </div>
+                        {% endfor %}
+                        
+                        {% for banner in side2_banners %}
+                        <div class="side-banner">
+                            <a href="{{ banner.link }}">
+                                <img src="{{ banner.image.url }}" alt="{{ banner.title }}" loading="lazy">
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
-              </div>
-              <!-- Thêm các slide khác tương tự -->
-            </div>
-            <button class="carousel-control-prev" data-bs-slide="prev" data-bs-target="#mainCarousel" type="button">
-              <span class="carousel-control-prev-icon"></span>
-              <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" data-bs-slide="next" data-bs-target="#mainCarousel" type="button">
-              <span class="carousel-control-next-icon"></span>
-              <span class="visually-hidden">Next</span>
-            </button>
-          </div>
-        </div>
+            </section>
 
-        <!-- Side banners -->
-        <div class="banner-ad bg-success-subtle block-2" style="background-color: #141414 !important; color: #fff !important;">
-          <div class="row banner-content p-5">
-            <div class="content-wrapper col-md-7">
-              <div class="categories sale mb-3 pb-3">Giảm 20%</div>
-              <h3 class="banner-title">Microsoft Office</h3>
-              <a href="#" class="d-flex align-items-center nav-link">Xem thêm <i class="fas fa-arrow-right ms-2"></i></a>
-            </div>
-          </div>
-        </div>
+            <!-- Categories Section -->
+            <section class="categories-section">
+                <div class="section-header">
+                    <h2>Danh mục </h2>
+                    <div class="header-right">
+                        <a href="#" class="btn-link">
+                            Xem tất cả<i class="fas fa-arrow-right"></i>
+                        </a>
+                        <div class="swiper-navigation">
+                            <button class="nav-btn prev">
+                                <i class="fas fa-arrow-left"></i>
+                            </button>
+                            <button class="nav-btn next">
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Thêm debug info -->
+                {% if categories %}
+                    <p style="display:none">Số lượng danh mục: {{ categories|length }}</p>
+                {% else %}
+                    <p style="display:none">Không có danh mục nào</p>
+                {% endif %}
+                
+                <div class="swiper categories-slider">
+                    <div class="swiper-wrapper">
+                        {% for category in categories %}
+                        <div class="swiper-slide">
+                            <div class="category-card">
+                                <a href="{% url 'store:category_detail' category.slug %}">
+                                    <div class="category-image">
+                                        {% if category.image %}
+                                        <img src="{{ category.image.url }}" alt="{{ category.name }}" loading="lazy">
+                                        {% else %}
+                                        <div class="category-placeholder">
+                                            <i class="fas fa-folder"></i>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <h3>{{ category.name }}</h3>
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
 
-        <div class="banner-ad bg-danger block-3">
-          <div class="row banner-content p-5">
-            <div class="content-wrapper col-md-7">
-              <div class="categories sale mb-3 pb-3">Giảm 15%</div>
-              <h3 class="item-title">Adobe Creative Cloud</h3>
-              <a href="#" class="d-flex align-items-center nav-link">Xem thêm <i class="fas fa-arrow-right ms-2"></i></a>
-            </div>
-          </div>
+            <!-- Featured Products -->
+            <section class="featured-products-section">
+                <h2>Sản phẩm nổi bật</h2>
+                <div class="featured-products">
+                    {% for product in featured_products %}
+                    <div class="product-card">
+                        {% if product.get_primary_image %}
+                        <img src="{{ product.get_primary_image.url }}" alt="{{ product.name }}" class="product-image" loading="lazy">
+                        {% endif %}
+                        <h3>{{ product.name }}</h3>
+                        <p class="price">{{ product.price }} VNĐ</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
         </div>
-      </div>
-
-      <!-- Existing carousel -->
-    <div class="carousel slide" data-bs-ride="carousel" id="carouselExampleIndicators">
-        <div class="carousel-indicators">
-         <button aria-current="true" aria-label="Slide 1" class="active" data-bs-slide-to="0" data-bs-target="#carouselExampleIndicators" type="button">
-         </button>
-         <button aria-label="Slide 2" data-bs-slide-to="1" data-bs-target="#carouselExampleIndicators" type="button">
-         </button>
-         <button aria-label="Slide 3" data-bs-slide-to="2" data-bs-target="#carouselExampleIndicators" type="button">
-         </button>
     </div>
-        <div class="carousel-inner">
-         <div class="carousel-item active">
-          <img alt="Gói cao cấp iQIYI" class="d-block w-100" height="400" src="https://storage.googleapis.com/a1aa/image/2X2MNyyM8Bo9Lhr4NDdh25WKShQvYMoI7OExM6aHgIrpzKCF.jpg" width="800"/>
-         </div>
-         <div class="carousel-item">
-          <img alt="Gói cao cấp iQIYI" class="d-block w-100" height="400" src="https://storage.googleapis.com/a1aa/image/2X2MNyyM8Bo9Lhr4NDdh25WKShQvYMoI7OExM6aHgIrpzKCF.jpg" width="800"/>
-         </div>
-         <div class="carousel-item">
-          <img alt="Gói cao cấp iQIYI" class="d-block w-100" height="400" src="https://storage.googleapis.com/a1aa/image/2X2MNyyM8Bo9Lhr4NDdh25WKShQvYMoI7OExM6aHgIrpzKCF.jpg" width="800"/>
-         </div>
-        </div>
-        <button class="carousel-control-prev" data-bs-slide="prev" data-bs-target="#carouselExampleIndicators" type="button">
-         <span aria-hidden="true" class="carousel-control-prev-icon">
-         </span>
-         <span class="visually-hidden">
-          Previous
-         </span>
-        </button>
-        <button class="carousel-control-next" data-bs-slide="next" data-bs-target="#carouselExampleIndicators" type="button">
-         <span aria-hidden="true" class="carousel-control-next-icon">
-         </span>
-         <span class="visually-hidden">
-          Next
-         </span>
-        </button>
-       </div>
-      </div>
 
-      <section class="py-5 overflow-hidden">
-        <div class="container-fluid" >
-          <div class="row">
-            <div class="col-md-12">
-  
-              <div class="section-header d-flex flex-wrap justify-content-between mb-4">
-                <h2 class="section-title mb-0">Category</h2>
-  
-                <div class="d-flex align-items-center">
-                  <a href="#" class="btn-link text-decoration-none">View All Categories →</a>
-                  <div class="swiper-buttons">
-                    <button class="swiper-prev category-carousel-prev btn btn-yellow">❮</button>
-                    <button class="swiper-next category-carousel-next btn btn-yellow">❯</button>
-                  </div>
-                </div>
-              </div>
-              
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-12">
-  
-              <div class="category-carousel swiper">
-                <div class="swiper-wrapper" style="
-                width: 230px;
-                height: auto;
-                margin-right: 30px;
-                gap: 20px;
-                ">
-                  <a href="index.html" class="nav-link category-item swiper-slide">
-                    <img src="{% static 'images/a/icon-vegetables-broccoli.png' %}" alt="Category Thumbnail">
-                    <h3 class="category-title">Fruits & Veges</h3>
-                  </a>
-                  <a href="index.html" class="nav-link category-item swiper-slide">
-                    <img src="{% static 'images/a/icon-bread-baguette.png' %}" alt="Category Thumbnail">
-                    <h3 class="category-title">Breads & Sweets</h3>
-                  </a>
-                  <a href="index.html" class="nav-link category-item swiper-slide">
-                    <img src="{% static 'images/a/icon-soft-drinks-bottle.png' %}" alt="Category Thumbnail">
-                    <h3 class="category-title">Fruits & Veges</h3>
-                  </a>
-                  <a href="index.html" class="nav-link category-item swiper-slide">
-                    <img src="{% static 'images/a/icon-wine-glass-bottle.png' %}" alt="Category Thumbnail">
-                    <h3 class="category-title">Fruits & Veges</h3>
-                  </a>
-                  <a href="index.html" class="nav-link category-item swiper-slide">
-                    <img src="{% static 'images/a/icon-animal-products-drumsticks.png' %}" alt="Category Thumbnail">
-                    <h3 class="category-title">Fruits & Veges</h3>
-                  </a>
-                  <a href="index.html" class="nav-link category-item swiper-slide">
-                    <img src="{% static 'images/a/icon-bread-herb-flour.png' %}" alt="Category Thumbnail">
-                    <h3 class="category-title">Fruits & Veges</h3>
-                  </a>
-                  <a href="index.html" class="nav-link category-item swiper-slide">
-                    <img src="{% static 'images/a/icon-vegetables-broccoli.png' %}" alt="Category Thumbnail">
-                    <h3 class="category-title">Fruits & Veges</h3>
-                  </a>
-                  <a href="index.html" class="nav-link category-item swiper-slide">
-                    <img src="{% static 'images/a/icon-vegetables-broccoli.png' %}" alt="Category Thumbnail">
-                    <h3 class="category-title">Fruits & Veges</h3>
-                  </a>
-                  <a href="index.html" class="nav-link category-item swiper-slide">
-                    <img src="{% static 'images/a/icon-vegetables-broccoli.png' %}" alt="Category Thumbnail">
-                    <h3 class="category-title">Fruits & Veges</h3>
-                  </a>
-                  <a href="index.html" class="nav-link category-item swiper-slide">
-                    <img src="{% static 'images/a/icon-vegetables-broccoli.png' %}" alt="Category Thumbnail">
-                    <h3 class="category-title">Fruits & Veges</h3>
-                  </a>
-                  <a href="index.html" class="nav-link category-item swiper-slide">
-                    <img src="{% static 'images/a/icon-vegetables-broccoli.png' %}" alt="Category Thumbnail">
-                    <h3 class="category-title">Fruits & Veges</h3>
-                  </a>
-                  <a href="index.html" class="nav-link category-item swiper-slide">
-                    <img src="{% static 'images/a/icon-vegetables-broccoli.png' %}" alt="Category Thumbnail">
-                    <h3 class="category-title">Fruits & Veges</h3>
-                  </a>
-                  
-                </div>
-              </div>
-  
-            </div>
-          </div>
-        </div>
-      </section>
-      <div class="row mt-3">
-       <div class="col-md-3">
-        <img alt="Netflix 19K Ngày" class="img-fluid mb-3" height="200" src="https://storage.googleapis.com/a1aa/image/u9ikoeMepGjuqkIo7LpOPDAXyBTi6J65fHyZ4iC1DmKAdWRoA.jpg" width="400"/>
-       </div>
-       <div class="col-md-3">
-        <img alt="Steam Nạp thẻ wallet" class="img-fluid mb-3" height="200" src="https://storage.googleapis.com/a1aa/image/952JRF5fNMxLDq8ZsQXJLgzAu12EXe9YTaE7E9XzQP1oOrIUA.jpg" width="400"/>
-       </div>
-       <div class="col-md-3">
-        <img alt="Phần mềm thiết kế đa dạng" class="img-fluid mb-3" height="200" src="https://storage.googleapis.com/a1aa/image/maMCX9nzP2KZJNgw1QffGZG17ZMT2pGfNdeEoUozbyC95siQB.jpg" width="400"/>
-       </div>
-       <div class="col-md-3">
-        <img alt="Phần mềm diệt Virus" class="img-fluid mb-3" height="200" src="https://storage.googleapis.com/a1aa/image/FnAcvyNIt6pbBJUVMmLyabOb9i64W1XB0Mi56M12q1NpzKCF.jpg" width="400"/>
-       </div>
-      </div>
-      <h3>
-       Sản phẩm nổi bật
-      </h3>
-      <p>
-       Danh sách những sản phẩm theo xu hướng mà có thể bạn sẽ thích
-      </p>
-      <div class="row">
-       <div class="col-md-3">
-        <div class="product-card">
-         <img alt="Zoom Pro 1 tháng (28 ngày) - Gói nâng cấp" height="1920" src="https://storage.googleapis.com/a1aa/image/57YNcPdbxSa2E9Dh2meWtYc2PiULVsuWahQlq8TfiAPuQrIUA.jpg" width="1080"/>
-         <p>
-          Zoom Pro 1 tháng (28 ngày) - Gói nâng cấp
-         </p>
-         <p class="price">
-          210.000đ
-          <span class="old-price">
-           350.000đ
-          </span>
-          <span class="discount">
-           -40%
-          </span>
-         </p>
-        </div>
-       </div>
-       <div class="col-md-3">
-        <div class="product-card">
-         <img alt="Windows 10 Professional - CD Key" height="1920" src="https://storage.googleapis.com/a1aa/image/1Mrkmv2Aw4aENtVAXc90mDEbjKHO6nbkzsWieFZ5uUSWoVEKA.jpg" width="1080"/>
-         <p>
-          Windows 10 Professional - CD Key
-         </p>
-         <p class="price">
-          290.000đ
-          <span class="old-price">
-           400.000đ
-          </span>
-          <span class="discount">
-           -28%
-          </span>
-         </p>
-        </div>
-       </div>
-       <div class="col-md-3">
-        <div class="product-card">
-         <img alt="YouTube Premium + YouTube Music 1 năm - Gia hạn chính chủ" height="1920" src="https://storage.googleapis.com/a1aa/image/94fIGqccuDzLbKuiomGc0ddwTRUlHBVJnfIZ552wdhllQrIUA.jpg" width="1080"/>
-         <p>
-          YouTube Premium + YouTube Music 1 năm - Gia hạn chính chủ
-         </p>
-         <p class="price">
-          599.000đ
-          <span class="old-price">
-           6.720.000đ
-          </span>
-          <span class="discount">
-           -91%
-          </span>
-         </p>
-        </div>
-       </div>
-       <div class="col-md-3">
-        <div class="product-card">
-         <img alt="Canva Pro 1 năm - Gia hạn chính chủ" height="1920" src="https://storage.googleapis.com/a1aa/image/dcKfY9zkCB1aACLhFhRPTWxagSnxoNfCTzxm627welfuCtiQB.jpg" width="1080"/>
-         <p>
-          Canva Pro 1 năm - Gia hạn chính chủ
-         </p>
-         <p class="price">
-          295.000đ
-          <span class="old-price">
-           1.500.000đ
-          </span>
-          <span class="discount">
-           -80%
-          </span>
-         </p>
-        </div>
-       </div>
-      </div>
-      <div class="row">
-       <div class="col-md-3">
-        <div class="product-card">
-         <img alt="ChatGPT (OpenAI) - Tài khoản" height="1920" src="https://storage.googleapis.com/a1aa/image/JmveGSnkF61UGaGAQZIGGNHsvDLUWlBLexH3rLzpYQdkQrIUA.jpg" width="1080"/>
-         <p>
-          ChatGPT (OpenAI) - Tài khoản
-         </p>
-         <p class="price">
-          29.000đ
-          <span class="old-price">
-           200.000đ
-          </span>
-          <span class="discount">
-           -85%
-          </span>
-         </p>
-        </div>
-       </div>
-       <div class="col-md-3">
-        <div class="product-card">
-         <img alt="Netflix Premium 1 tuần - Tài khoản" height="1920" src="https://storage.googleapis.com/a1aa/image/e8VJY1P86ZXTZiNICEvdwcOKCXZlAwD5XfotyCcvHKfQhWRoA.jpg" width="1080"/>
-         <p>
-          Netflix Premium 1 tuần - Tài khoản
-         </p>
-         <p class="price">
-          59.000đ
-          <span class="old-price">
-           99.000đ
-          </span>
-          <span class="discount">
-           -40%
-          </span>
-         </p>
-        </div>
-       </div>
-       <div class="col-md-3">
-        <div class="product-card">
-         <img alt="Quizlet Plus 1 năm - Nâng cấp chính chủ" height="1920" src="https://storage.googleapis.com/a1aa/image/UftIXVsyFCVeWUwqG8nb1kdrT4EU6DvugZ3eyrDVoL0UhWRoA.jpg" width="1080"/>
-         <p>
-          Quizlet Plus 1 năm - Nâng cấp chính chủ
-         </p>
-         <p class="price">
-          399.000đ
-          <span class="old-price">
-           1.000.000đ
-          </span>
-          <span class="discount">
-           -60%
-          </span>
-         </p>
-        </div>
-       </div>
-       <div class="col-md-3">
-        <div class="product-card">
-         <img alt="ExitLag 1 tháng - Code gia hạn" height="1920" src="https://storage.googleapis.com/a1aa/image/bfFlrbhNT40KGqFjgUEFDCPRXUiERmvQMh8g5KMYcwmToVEKA.jpg" width="1080"/>
-         <p>
-          ExitLag 1 tháng - Code gia hạn
-         </p>
-         <p class="price">
-          159.000đ
-          <span class="old-price">
-           160.000đ
-          </span>
-          <span class="discount">
-           -1%
-          </span>
-         </p>
-        </div>
-       </div>
-      </div>
-      <div class="text-center mt-3">
-       <a class="btn btn-link" href="#">
-        Xem thêm
-       </a>
-      </div>
-     </div>
-
-    <!-- Right sidebar for ads -->
-    <div class="col-md-2">
-      <!-- Future ads space -->
+    <!-- Vertical Banners Right -->
+    <div class="vertical-banners right">
+        {% for banner in right_banners %}
+        <a href="{{ banner.link }}" class="vertical-banner">
+            <img src="{{ banner.image.url }}" alt="{{ banner.title }}" loading="lazy">
+        </a>
+        {% endfor %}
     </div>
-  </div>
 </div>
-
 {% endblock %}
 
-{% block extra_css %}
-<link href="{% static 'css/home.css' %}" rel="stylesheet"/>
+{% block extra_js %}
+<!-- Swiper JS chỉ dành cho trang home -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+<script src="{% static 'store/js/home.js' %}"></script>
 {% endblock %}

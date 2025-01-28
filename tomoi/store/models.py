@@ -4,6 +4,8 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from datetime import timedelta
+from django.utils import timezone
+from django.utils.text import slugify
 
 def default_expiry_date():
     return now() + timedelta(days=30)
@@ -12,9 +14,16 @@ def default_expiry_date():
 class Category(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True)
+    description = models.TextField(blank=True)
+    image = models.ImageField(upload_to='categories/', null=True, blank=True)
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
 
 # Mô hình sản phẩm (Product)
@@ -24,17 +33,31 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=0, default=0)
     stock = models.PositiveIntegerField(default=0)
     description = models.TextField(null=True, blank=True)
+    is_featured = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
 
     def get_primary_image(self):
-        return self.images.filter(is_primary=True).first() or self.images.first()
+        primary_image = self.images.filter(is_primary=True).first()
+        if primary_image:
+            return primary_image.image
+        first_image = self.images.first()
+        if first_image:
+            return first_image.image
+        return None
 
 
 # Mô hình hình ảnh sản phẩm (ProductImage)
 class ProductImage(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True, default=1)  # Thêm default=1
+    product = models.ForeignKey(
+        Product, 
+        related_name='images',
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True
+    )
     image = models.ImageField(upload_to='products/')
     is_primary = models.BooleanField(default=False)
 
@@ -127,3 +150,40 @@ class PurchasedAccount(models.Model):
 
     def days_remaining(self):
         return max((self.expiry_date - now().date()).days, 0)
+
+
+class Banner(models.Model):
+    LOCATION_CHOICES = [
+        ('main', 'Banner Chính'),
+        ('side1', 'Banner Phụ 1'),
+        ('side2', 'Banner Phụ 2'),
+        ('left', 'Banner Trái'),
+        ('right', 'Banner Phải'),
+    ]
+    
+    title = models.CharField(max_length=200)
+    image = models.ImageField(upload_to='banners/')
+    link = models.URLField(blank=True)
+    location = models.CharField(
+        max_length=20,
+        choices=LOCATION_CHOICES,
+        default='main'
+    )
+    order = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    
+    class Meta:
+        ordering = ['location', 'order']
+
+    def __str__(self):
+        return f"{self.title} ({self.get_location_display()})"
+
+    @property
+    def is_valid(self):
+        """Kiểm tra xem banner có đang trong thời gian hiển thị không"""
+        now = timezone.now()
+        if self.start_date and now < self.start_date:
+            return False
+        if self.end_date and now > self.end_date:
+            return False
+        return True
