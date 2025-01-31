@@ -19,17 +19,17 @@ urlpatterns = [
     path('purchased_accounts/', views.purchased_accounts, name='purchased_accounts'),
     # cart
     path('cart/', views.cart_view, name='cart'),
-    path('cart/remove/<int:item_id>/', views.remove_from_cart, name='remove_from_cart'),
+    path('cart/add/', views.add_to_cart, name='add_to_cart'),
+    path('cart/update/', views.update_cart, name='update_cart'),
+    path('cart/remove/', views.remove_from_cart, name='remove_from_cart'),
     path('cart/clear/', views.clear_cart, name='clear_cart'),
-    path('add-to-cart/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
     path('cart/api/', views.get_cart_api, name='cart_api'),
     path('cart/checkout/', views.checkout, name='checkout'),
     path('category/<slug:slug>/', views.category_detail, name='category_detail'),
+    path('cart/check-stock/<int:product_id>/', views.check_stock, name='check_stock'),
+    path('cart/count/', views.get_cart_count, name='cart_count'),
 
 
     # path('payment/paypal/', views.paypal_payment, name='paypal_payment'),
     # path('payment/execute/', views.payment_execute, name='payment_execute'),
 ] 
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

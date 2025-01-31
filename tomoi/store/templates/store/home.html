@@ -1,16 +1,17 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block extra_css %}
+{% block page_css %}
 <!-- Swiper CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css"/>
 
 <!-- Home CSS -->
-<link href="{% static 'store/css/home.css' %}" rel="stylesheet"/>   
+<link rel="stylesheet" href="{% static 'store/css/home.css' %}" type="text/css">
 {% endblock %}
 
 {% block content %}
 <div class="page-container">
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <!-- Vertical Banners Left -->
     <div class="vertical-banners left" style="justify-content: right !important;">
         {% for banner in left_banners %}
@@ -132,15 +133,43 @@
             <section class="featured-products-section">
                 <h2>Sản phẩm nổi bật</h2>
                 <div class="featured-products">
-                    {% for product in featured_products %}
-                    <div class="product-card">
-                        {% if product.get_primary_image %}
-                        <img src="{{ product.get_primary_image.url }}" alt="{{ product.name }}" class="product-image" loading="lazy">
-                        {% endif %}
-                        <h3>{{ product.name }}</h3>
-                        <p class="price">{{ product.price }} VNĐ</p>
+                    <div class="products-grid">
+                        {% for product in products %}
+                        <div class="product-card" data-product-id="{{ product.id }}">
+                            <div class="product-image-wrapper">
+                                {% if product.get_primary_image %}
+                                    <img src="{{ product.get_primary_image.url }}" alt="{{ product.name }}" class="product-image">
+                                {% else %}
+                                    <div class="product-placeholder">
+                                        <i class="fas fa-image"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% if product.label %}
+                            <div class="product-label" style="--label-color: {{ product.label.color }}">
+                                {{ product.label.name }}
+                            </div>
+                            {% endif %}
+                            <h3 class="product-title">
+                                <a href="#" class="product-link">{{ product.name }}</a>
+                            </h3>
+                            <div class="price-wrapper">
+                                <div class="price-row">
+                                    {% if product.old_price %}
+                                    <span class="old-price">{{ product.format_old_price }}đ</span>
+                                    <span class="discount-badge">
+                                        -{{ product.get_discount_percentage }}%
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                <div class="current-price">{{ product.format_price }}đ</div>
+                            </div>
+                            <button class="add-to-cart-btn" data-product-id="{{ product.id }}" data-stock="{{ product.stock }}">
+                                <i class="fas fa-cart-plus"></i> Thêm vào giỏ
+                            </button>   
+                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
                 </div>
             </section>
         </div>

@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
-from .models import Order, PurchasedAccount, Product, ProductImage,  Category, Banner
+from .models import Order, PurchasedAccount, Product, ProductImage, Category, Banner, CartItem  # Tạm thời bỏ CartItem
 from accounts.models import CustomUser
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
@@ -20,6 +20,8 @@ from django.template.loader import render_to_string
 from django.utils.crypto import get_random_string
 from django.urls import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.http import require_http_methods
+from django.db.models import Q
 # from paypalrestsdk import Payment
 # import paypalrestsdk
 
@@ -35,10 +37,8 @@ def home(request):
         'left_banners': Banner.objects.filter(location='left', is_active=True),
         'right_banners': Banner.objects.filter(location='right', is_active=True),
         'categories': Category.objects.all(),
-        'featured_products': Product.objects.filter(is_featured=True).order_by('-created_at')[:8],
-        'latest_products': Product.objects.order_by('-created_at')[:8]
+        'products': Product.objects.filter(is_featured=True),
     }
-    print("Categories:", context['categories'])
     return render(request, 'store/home.html', context)
 
 def add_images_to_product(request, product_id):
@@ -149,58 +149,95 @@ def view_cart(request):
     return render(request, 'store/cart.html', {'cart': cart})
 
 @login_required
-# Lấy các sản phẩm trong giỏ
 def cart_view(request):
-    cart_items = request.session.get('cart_items', [])
-    total_price = sum(item['total_price'] for item in cart_items)
-    return render(request, 'store/cart.html', {
-        'cart_items': cart_items,
-        'total_price': total_price,
-    })
+    # Lấy user hoặc session key
+    user = request.user if request.user.is_authenticated else None
+    session_key = request.session.session_key if not user else None
 
-@login_required
-@csrf_exempt
-def add_to_cart(request, product_id):
-    if request.method == 'POST':
-        try:
-            product = Product.objects.get(id=product_id)
-            data = json.loads(request.body)  # Đọc dữ liệu JSON từ request body
+    # Lấy cart items từ database
+    cart_items = CartItem.objects.filter(
+        Q(user=user) | Q(session_key=session_key)
+    ).select_related('product')  # Tối ưu query bằng select_related
 
-            # Kiểm tra stock nếu cần
-            if int(data.get('stock')) <= 0:
-                return JsonResponse({'success': False, 'message': 'Sản phẩm hết hàng'})
+    # Tính tổng tiền
+    total_price = sum(item.total_price() for item in cart_items)
 
-            cart_items = request.session.get('cart_items', [])
+    context = {
+        'cart_items': [{
+            'id': item.id,
+            'product': item.product,
+            'name': item.product.name,
+            'price': item.product.price,
+            'quantity': item.quantity,
+            'total': item.total_price(),
+            'image': item.product.get_primary_image() if hasattr(item.product, 'get_primary_image') else None
+        } for item in cart_items],
+        'total_price': total_price
+    }
 
-            # Kiểm tra nếu sản phẩm đã có trong giỏ
-            for item in cart_items:
-                if item['product_id'] == product.id:
-                    item['quantity'] += 1
-                    item['total_price'] = item['quantity'] * float(product.price)  # Chuyển price sang float
-                    break
-            else:
-                cart_items.append({
-                    'product_id': product.id,
-                    'name': product.name,
-                    'price': float(product.price),  # Chuyển price sang float
-                    'quantity': 1,
-                    'total_price': float(product.price),  # Chuyển price sang float
-                })
+    return render(request, 'store/cart.html', context)
 
-            request.session['cart_items'] = cart_items
-
-            # Cập nhật stock
-            new_stock = product.stock - 1
-            product.stock = new_stock
-            product.save()
-
-            return JsonResponse({'success': True, 'cart': cart_items, 'new_stock': new_stock})
+@require_http_methods(["POST"])
+def add_to_cart(request):
+    try:
+        data = json.loads(request.body)
+        product_id = data.get('id')
+        quantity = data.get('quantity', 1)
         
-        except Product.DoesNotExist:
-            return JsonResponse({'success': False, 'message': 'Sản phẩm không tồn tại.'})
+        if not product_id:
+            return JsonResponse({
+                'success': False,
+                'error': 'Missing product ID'
+            })
 
-    else:
-        return JsonResponse({'success': False, 'message': 'Chỉ hỗ trợ phương thức POST'})
+        product = get_object_or_404(Product, id=product_id)
+        
+        user = request.user if request.user.is_authenticated else None
+        session_key = request.session.session_key
+
+        cart_item = CartItem.objects.filter(
+            Q(user=user) | Q(session_key=session_key),
+            product=product
+        ).first()
+
+        if cart_item:
+            cart_item.quantity += quantity
+            cart_item.save()
+        else:
+            cart_item = CartItem.objects.create(
+                user=user,
+                session_key=session_key,
+                product=product,
+                quantity=quantity
+            )
+
+        cart_items = CartItem.objects.filter(
+            Q(user=user) | Q(session_key=session_key)
+        ).select_related('product')
+        
+        items = [{
+            'id': item.product.id,
+            'name': item.product.name,
+            'price': str(item.product.price),
+            'old_price': str(item.product.old_price) if item.product.old_price else None,
+            'discount': item.product.get_discount_percentage(),
+            'quantity': item.quantity,
+            'total': str(item.total_price()),
+            'image': item.product.get_primary_image().url if item.product.get_primary_image() else None,
+            'stock': item.product.stock
+        } for item in cart_items]
+
+        return JsonResponse({
+            'success': True,
+            'cart_items': items
+        })
+        
+    except Exception as e:
+        print("Error:", str(e))
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
 
 # Update context in view
 def get_context_data(self, **kwargs):
@@ -210,20 +247,71 @@ def get_context_data(self, **kwargs):
 
 @login_required
 def get_cart_api(request):
-    cart_items = request.session.get('cart_items', [])
-    # Cập nhật tổng số lượng và tổng giá trị cho giỏ hàng
-    total_items = sum(item['quantity'] for item in cart_items)
+    user = request.user if request.user.is_authenticated else None
+    session_key = request.session.session_key
+
+    cart_items = CartItem.objects.filter(
+        Q(user=user) | Q(session_key=session_key)
+    ).select_related('product')
+
+    items = [{
+        'id': item.product.id,
+        'name': item.product.name,
+        'price': str(item.product.price),
+        'old_price': str(item.product.old_price) if item.product.old_price else None,
+        'discount': item.product.get_discount_percentage(),
+        'quantity': item.quantity,
+        'total': str(item.total_price()),
+        'image': item.product.get_primary_image().url if item.product.get_primary_image() else None,
+        'stock': item.product.stock
+    } for item in cart_items]
+
     return JsonResponse({
-        'cart': cart_items,
-        'total_items': total_items
+        'cart_items': items,
+        'total_items': sum(item.quantity for item in cart_items)
     })
 
 # Xóa sản phẩm khỏi giỏ
-def remove_from_cart(request, item_id):
-    cart_items = request.session.get('cart_items', [])
-    cart_items = [item for item in cart_items if item['product_id'] != int(item_id)]
-    request.session['cart_items'] = cart_items
-    return redirect('store:cart')
+@require_http_methods(["POST"])
+def remove_from_cart(request):
+    try:
+        data = json.loads(request.body)
+        product_id = data.get('id')
+        
+        user = request.user if request.user.is_authenticated else None
+        session_key = request.session.session_key
+
+        CartItem.objects.filter(
+            Q(user=user) | Q(session_key=session_key),
+            product_id=product_id
+        ).delete()
+
+        cart_items = CartItem.objects.filter(
+            Q(user=user) | Q(session_key=session_key)
+        ).select_related('product')
+
+        items = [{
+            'id': item.product.id,
+            'name': item.product.name,
+            'price': str(item.product.price),
+            'old_price': str(item.product.old_price) if item.product.old_price else None,
+            'discount': item.product.get_discount_percentage(),
+            'quantity': item.quantity,
+            'total': str(item.total_price()),
+            'image': item.product.get_primary_image().url if item.product.get_primary_image() else None,
+            'stock': item.product.stock
+        } for item in cart_items]
+
+        return JsonResponse({
+            'success': True,
+            'cart_items': items
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
 
 # Xóa toàn bộ giỏ hàng
 def clear_cart(request):
@@ -331,3 +419,79 @@ def category_detail(request, slug):
         'products': products
     }
     return render(request, 'store/category_detail.html', context)
+
+@require_http_methods(["POST"])
+def update_cart(request):
+    try:
+        data = json.loads(request.body)
+        product_id = data.get('id')
+        quantity = data.get('quantity', 1)
+        
+        user = request.user if request.user.is_authenticated else None
+        session_key = request.session.session_key
+
+        cart_item = CartItem.objects.filter(
+            Q(user=user) | Q(session_key=session_key),
+            product_id=product_id
+        ).first()
+
+        if cart_item:
+            if quantity > 0:
+                cart_item.quantity = quantity
+                cart_item.save()
+            else:
+                cart_item.delete()
+
+        cart_items = CartItem.objects.filter(
+            Q(user=user) | Q(session_key=session_key)
+        ).select_related('product')
+
+        items = [{
+            'id': item.product.id,
+            'name': item.product.name,
+            'price': str(item.product.price),
+            'old_price': str(item.product.old_price) if item.product.old_price else None,
+            'discount': item.product.get_discount_percentage(),
+            'quantity': item.quantity,
+            'total': str(item.total_price()),
+            'image': item.product.get_primary_image().url if item.product.get_primary_image() else None,
+            'stock': item.product.stock
+        } for item in cart_items]
+
+        return JsonResponse({
+            'success': True,
+            'cart_items': items
+        })
+
+    except Exception as e:
+        print("Error updating cart:", str(e))
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
+
+def get_cart_count(request):
+    user = request.user if request.user.is_authenticated else None
+    session_key = request.session.session_key
+
+    cart_items = CartItem.objects.filter(
+        Q(user=user) | Q(session_key=session_key)
+    )
+    
+    return JsonResponse({
+        'count': sum(item.quantity for item in cart_items)
+    })
+
+def check_stock(request, product_id):
+    try:
+        product = get_object_or_404(Product, id=product_id)
+        return JsonResponse({
+            'success': True,
+            'stock': product.stock,
+            'product_id': product.id
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=400)

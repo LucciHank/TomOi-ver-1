@@ -26,11 +26,22 @@ class Category(models.Model):
         super().save(*args, **kwargs)
 
 
+# Mô hình nhãn sản phẩm (ProductLabel)
+class ProductLabel(models.Model):
+    name = models.CharField(max_length=100)
+    color = models.CharField(max_length=7, default='#df2626')
+
+    def __str__(self):
+        return self.name
+
+
 # Mô hình sản phẩm (Product)
 class Product(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=200)
+    price = models.DecimalField(max_digits=10, decimal_places=0)
+    old_price = models.DecimalField(max_digits=10, decimal_places=0, null=True, blank=True)
+    label = models.ForeignKey(ProductLabel, on_delete=models.SET_NULL, null=True, blank=True)
     category = models.ForeignKey(Category, related_name="products", on_delete=models.CASCADE, null=True, blank=True)
-    price = models.DecimalField(max_digits=10, decimal_places=0, default=0)
     stock = models.PositiveIntegerField(default=0)
     description = models.TextField(null=True, blank=True)
     is_featured = models.BooleanField(default=False)
@@ -48,14 +59,28 @@ class Product(models.Model):
             return first_image.image
         return None
 
+    def get_discount_percentage(self):
+        if self.old_price and self.price:
+            discount = ((self.old_price - self.price) / self.old_price) * 100
+            return int(discount)
+        return 0
+
+    def format_price(self):
+        return "{:,}".format(self.price)
+
+    def format_old_price(self):
+        if self.old_price:
+            return "{:,}".format(self.old_price)
+        return None
+
 
 # Mô hình hình ảnh sản phẩm (ProductImage)
 class ProductImage(models.Model):
     product = models.ForeignKey(
         Product, 
         related_name='images',
-        on_delete=models.CASCADE, 
-        null=True, 
+        on_delete=models.CASCADE,
+        null=True,
         blank=True
     )
     image = models.ImageField(upload_to='products/')
@@ -118,19 +143,6 @@ class ProductImageForm(forms.ModelForm):
 #     user_permissions = models.ManyToManyField(Permission, related_name="accounts_customuser_permissions_set", blank=True,help_text="Specific permissions for this user.",related_query_name="user")
 
 
-# Mô hình giỏ hàng (CartItem)
-class CartItem(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
-    option = models.ForeignKey(Option, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=1)
-
-    def total_price(self):
-        return self.option.price * self.quantity
-
-    def __str__(self):
-        return f"{self.quantity} x {self.option}"
-
-
 # Mô hình đơn hàng (Order)
 class Order(models.Model):
     user = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE, related_name='store_orders')
@@ -187,3 +199,33 @@ class Banner(models.Model):
         if self.end_date and now > self.end_date:
             return False
         return True
+
+# Mô hình giỏ hàng (CartItem)
+class CartItem(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    session_key = models.CharField(max_length=40, null=True, blank=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [['user', 'product'], ['session_key', 'product']]
+
+    def total_price(self):
+        return self.product.price * self.quantity
+
+    def __str__(self):
+        return f"{self.quantity} x {self.product.name}"
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    price = models.DecimalField(max_digits=10, decimal_places=0)
+
+    def __str__(self):
+        return f"{self.quantity} x {self.product.name}"
+
+    def total_price(self):
+        return self.price * self.quantity

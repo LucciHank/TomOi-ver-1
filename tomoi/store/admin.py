@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django import forms
 from django.db import models
-from .models import Category, Product, ProductImage, Variant, Option, Order, Banner
+from .models import Category, Product, ProductImage, Variant, Option, Order, Banner, ProductLabel
 from django.utils.text import slugify
 
 @admin.register(Category)
@@ -60,3 +60,19 @@ class BannerAdmin(admin.ModelAdmin):
             'fields': ('order', 'is_active')
         })
     )
+
+@admin.register(ProductLabel)
+class ProductLabelAdmin(admin.ModelAdmin):
+    list_display = ['name', 'color']
+    search_fields = ['name']
+    
+    class Media:
+        css = {
+            'all': ['admin/css/color-picker.css']
+        }
+        js = ['admin/js/color-picker.js']
+    
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields['color'].widget.attrs['class'] = 'color-picker'
+        return form

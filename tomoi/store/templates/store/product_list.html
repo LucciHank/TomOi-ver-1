@@ -44,10 +44,8 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ product.name }}</h5>
                             <p class="card-text"><strong>Giá:</strong> {{ product.price }} VNĐ</p>
-                            <button class="btn btn-primary add-to-cart" 
-                                    data-product-id="{{ product.id }}" 
-                                    data-product-stock="{{ product.stock }}">
-                                Thêm vào giỏ hàng
+                            <button onclick="addToCart({{ product.id }})" class="btn btn-primary">
+                                <i class="fas fa-cart-plus"></i> Thêm vào giỏ
                             </button>
                         </div>
                     </div>

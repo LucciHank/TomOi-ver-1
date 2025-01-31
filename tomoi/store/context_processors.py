@@ -1,5 +1,5 @@
 from django.utils.timezone import now
-from .models import Banner
+from .models import Banner, Category
 
 def banners(request):
     banners = Banner.objects.filter(is_active=True)
@@ -9,4 +9,9 @@ def banners(request):
         'side2_banners': banners.filter(location='side2'),
         'left_banners': banners.filter(location='left'),
         'right_banners': banners.filter(location='right'),
+    }
+
+def categories(request):
+    return {
+        'categories': Category.objects.all()
     } 
