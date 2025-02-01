@@ -41,21 +41,25 @@ SECRET_KEY = 'django-insecure-07d6%7f4=mg5e+g89&b(ke1-oklw=^2m(9ub&4f352i9kl8$pf
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'console': {
-#             'class': 'logging.StreamHandler',
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['console'],
-#             'level': 'DEBUG',
-#         },
-#     },
-# }
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+        },
+    },
+    'loggers': {
+        'payment': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+        },
+    },
+}
 ALLOWED_HOSTS = []
 
 
@@ -64,6 +68,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'accounts',
     'store',
+    'payment',
     'colorfield',
     'admin_interface',
     'django.contrib.admin',
@@ -163,11 +168,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Ho_Chi_Minh'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -198,3 +203,16 @@ EMAIL_HOST_PASSWORD = 'vhnl yeww apjf jaar'
 # PAYPAL_MODE = 'sandbox'  # Hoặc 'live' nếu sử dụng trong môi trường thực tế
 # PAYPAL_CLIENT_ID = 'your-client-id'
 # PAYPAL_CLIENT_SECRET = 'your-client-secret'
+
+# VNPAY Configuration
+VNPAY_CLIENT_ID = 'tomoi.vn'
+VNPAY_USERNAME = 'tomoivn2024@gmail.com'
+VNPAY_PASSWORD = 'Hanh2004@'
+VNPAY_CLIENT_SECRET = '890-'
+VNPAY_TMN_CODE = 'B2RG0YSD'
+VNPAY_HASH_SECRET = 'S500OYUZE6YZRFNMC2LFQZZXMXATAJKK'
+
+# SePay Configuration
+SEPAY_API_KEY = 'ZMR2Y3H54KLIZSKG0YYST8AJWCPCPN0D7KAUUXTUETG6HTOQGXL3NJDORFXZWQB1'
+SEPAY_ACCOUNT = 'VQRQABHEI5230'
+SEPAY_BANK = 'MBBank'

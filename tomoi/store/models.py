@@ -51,18 +51,21 @@ class Product(models.Model):
         return self.name
 
     def get_primary_image(self):
+        """Lấy ảnh chính của sản phẩm"""
         primary_image = self.images.filter(is_primary=True).first()
         if primary_image:
             return primary_image.image
+        # Nếu không có ảnh chính, lấy ảnh đầu tiên
         first_image = self.images.first()
         if first_image:
             return first_image.image
         return None
 
     def get_discount_percentage(self):
+        """Tính phần trăm giảm giá"""
         if self.old_price and self.price:
             discount = ((self.old_price - self.price) / self.old_price) * 100
-            return int(discount)
+            return round(discount)
         return 0
 
     def format_price(self):
@@ -204,7 +207,7 @@ class Banner(models.Model):
 class CartItem(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     session_key = models.CharField(max_length=40, null=True, blank=True)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -213,14 +216,15 @@ class CartItem(models.Model):
         unique_together = [['user', 'product'], ['session_key', 'product']]
 
     def total_price(self):
-        return self.product.price * self.quantity
+        """Tính tổng tiền của item"""
+        return self.quantity * self.product.price
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name}"
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    order = models.ForeignKey('Order', related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=10, decimal_places=0)
 
@@ -229,3 +233,11 @@ class OrderItem(models.Model):
 
     def total_price(self):
         return self.price * self.quantity
+
+class Cart(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'carts'

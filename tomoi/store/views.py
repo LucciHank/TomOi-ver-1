@@ -20,10 +20,9 @@ from django.template.loader import render_to_string
 from django.utils.crypto import get_random_string
 from django.urls import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import require_http_methods, require_POST
 from django.db.models import Q
-# from paypalrestsdk import Payment
-# import paypalrestsdk
+import time
 
 
 def dashboard(request):
@@ -150,31 +149,17 @@ def view_cart(request):
 
 @login_required
 def cart_view(request):
-    # Lấy user hoặc session key
-    user = request.user if request.user.is_authenticated else None
-    session_key = request.session.session_key if not user else None
-
-    # Lấy cart items từ database
-    cart_items = CartItem.objects.filter(
-        Q(user=user) | Q(session_key=session_key)
-    ).select_related('product')  # Tối ưu query bằng select_related
-
-    # Tính tổng tiền
-    total_price = sum(item.total_price() for item in cart_items)
+    cart_items = CartItem.objects.filter(user=request.user).select_related('product')
+    total_amount = sum(item.total_price() for item in cart_items)
+    discount_amount = 0
+    final_amount = total_amount - discount_amount
 
     context = {
-        'cart_items': [{
-            'id': item.id,
-            'product': item.product,
-            'name': item.product.name,
-            'price': item.product.price,
-            'quantity': item.quantity,
-            'total': item.total_price(),
-            'image': item.product.get_primary_image() if hasattr(item.product, 'get_primary_image') else None
-        } for item in cart_items],
-        'total_price': total_price
+        'cart_items': cart_items,
+        'total_amount': format_price(total_amount),
+        'discount_amount': format_price(discount_amount),
+        'final_amount': format_price(final_amount)
     }
-
     return render(request, 'store/cart.html', context)
 
 @require_http_methods(["POST"])
@@ -272,41 +257,34 @@ def get_cart_api(request):
     })
 
 # Xóa sản phẩm khỏi giỏ
-@require_http_methods(["POST"])
+@require_POST
 def remove_from_cart(request):
     try:
         data = json.loads(request.body)
-        product_id = data.get('id')
+        item_id = data.get('item_id')
         
-        user = request.user if request.user.is_authenticated else None
-        session_key = request.session.session_key
-
-        CartItem.objects.filter(
-            Q(user=user) | Q(session_key=session_key),
-            product_id=product_id
-        ).delete()
-
-        cart_items = CartItem.objects.filter(
-            Q(user=user) | Q(session_key=session_key)
-        ).select_related('product')
-
-        items = [{
-            'id': item.product.id,
-            'name': item.product.name,
-            'price': str(item.product.price),
-            'old_price': str(item.product.old_price) if item.product.old_price else None,
-            'discount': item.product.get_discount_percentage(),
-            'quantity': item.quantity,
-            'total': str(item.total_price()),
-            'image': item.product.get_primary_image().url if item.product.get_primary_image() else None,
-            'stock': item.product.stock
-        } for item in cart_items]
-
+        cart_item = CartItem.objects.get(id=item_id, user=request.user)
+        cart_item.delete()
+        
+        # Tính toán lại giỏ hàng
+        cart_items = CartItem.objects.filter(user=request.user)
+        total_amount = sum(item.total_price() for item in cart_items)
+        discount_amount = 0
+        final_amount = total_amount - discount_amount
+        
         return JsonResponse({
             'success': True,
-            'cart_items': items
+            'total_amount': format_price(total_amount),
+            'discount_amount': format_price(discount_amount),
+            'final_amount': format_price(final_amount),
+            'count': sum(item.quantity for item in cart_items)
         })
-
+        
+    except CartItem.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Sản phẩm không tồn tại trong giỏ hàng'
+        })
     except Exception as e:
         return JsonResponse({
             'success': False,
@@ -420,51 +398,48 @@ def category_detail(request, slug):
     }
     return render(request, 'store/category_detail.html', context)
 
-@require_http_methods(["POST"])
+@require_POST
 def update_cart(request):
     try:
         data = json.loads(request.body)
-        product_id = data.get('id')
-        quantity = data.get('quantity', 1)
+        item_id = data.get('item_id')
+        quantity = int(data.get('quantity', 1))
         
-        user = request.user if request.user.is_authenticated else None
-        session_key = request.session.session_key
-
-        cart_item = CartItem.objects.filter(
-            Q(user=user) | Q(session_key=session_key),
-            product_id=product_id
-        ).first()
-
-        if cart_item:
-            if quantity > 0:
-                cart_item.quantity = quantity
-                cart_item.save()
-            else:
-                cart_item.delete()
-
-        cart_items = CartItem.objects.filter(
-            Q(user=user) | Q(session_key=session_key)
-        ).select_related('product')
-
-        items = [{
-            'id': item.product.id,
-            'name': item.product.name,
-            'price': str(item.product.price),
-            'old_price': str(item.product.old_price) if item.product.old_price else None,
-            'discount': item.product.get_discount_percentage(),
-            'quantity': item.quantity,
-            'total': str(item.total_price()),
-            'image': item.product.get_primary_image().url if item.product.get_primary_image() else None,
-            'stock': item.product.stock
-        } for item in cart_items]
-
+        # Lấy cart item
+        cart_item = CartItem.objects.get(id=item_id, user=request.user)
+        
+        # Kiểm tra stock
+        if quantity > cart_item.product.stock:
+            return JsonResponse({
+                'success': False,
+                'error': 'Số lượng vượt quá hàng tồn kho',
+                'current_quantity': cart_item.quantity
+            })
+        
+        # Cập nhật số lượng
+        cart_item.quantity = quantity
+        cart_item.save()
+        
+        # Tính toán lại giỏ hàng
+        cart_items = CartItem.objects.filter(user=request.user)
+        total_amount = sum(item.total_price() for item in cart_items)
+        discount_amount = 0
+        final_amount = total_amount - discount_amount
+        
         return JsonResponse({
             'success': True,
-            'cart_items': items
+            'total_amount': format_price(total_amount),
+            'discount_amount': format_price(discount_amount),
+            'final_amount': format_price(final_amount),
+            'count': sum(item.quantity for item in cart_items)
         })
-
+        
+    except CartItem.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Sản phẩm không tồn tại trong giỏ hàng'
+        })
     except Exception as e:
-        print("Error updating cart:", str(e))
         return JsonResponse({
             'success': False,
             'error': str(e)
@@ -484,14 +459,25 @@ def get_cart_count(request):
 
 def check_stock(request, product_id):
     try:
-        product = get_object_or_404(Product, id=product_id)
+        product = Product.objects.get(id=product_id)
         return JsonResponse({
             'success': True,
-            'stock': product.stock,
-            'product_id': product.id
+            'stock': product.stock
         })
+    except Product.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Sản phẩm không tồn tại'
+        }, status=404)
     except Exception as e:
         return JsonResponse({
             'success': False,
             'error': str(e)
         }, status=400)
+
+def format_price(value):
+    """Format giá tiền theo định dạng Việt Nam"""
+    try:
+        return f"{int(value):,}đ".replace(',', '.')
+    except (ValueError, TypeError):
+        return value

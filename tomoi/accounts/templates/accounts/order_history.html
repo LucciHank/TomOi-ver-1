@@ -109,26 +109,84 @@
                             <thead>
                                 <tr>
                                     <th>Mã đơn hàng</th>
-                                    <th>Sản phẩm</th>
-                                    <th>Ngày mua</th>
-                                    <th>Giá</th>
+                                    <th>Ngày đặt</th>
+                                    <th>Phương thức thanh toán</th>
+                                    <th>Tổng tiền</th>
                                     <th>Trạng thái</th>
+                                    <th>Chi tiết</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for order in orders %}
+                                {% for transaction in transactions %}
                                 <tr>
-                                    <td>{{ order.code }}</td>
-                                    <td>{{ order.product_name }}</td>
-                                    <td>{{ order.date|date:"d/m/Y H:i" }}</td>
-                                    <td>{{ order.price|floatformat:0 }}đ</td>
+                                    <td>{{ transaction.order_id }}</td>
+                                    <td>{{ transaction.created_at|date:"d/m/Y H:i" }}</td>
+                                    <td>{{ transaction.get_payment_method_display }}</td>
+                                    <td>{{ transaction.amount|floatformat:0|intcomma }} VNĐ</td>
                                     <td>
-                                        <span class="badge bg-success">{{ order.status }}</span>
+                                        <span class="badge {% if transaction.status == 'completed' %}bg-success
+                                                         {% elif transaction.status == 'pending' %}bg-warning
+                                                         {% else %}bg-danger{% endif %}">
+                                            {{ transaction.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#orderModal{{ transaction.id }}">
+                                            Chi tiết
+                                        </button>
                                     </td>
                                 </tr>
+                                
+                                <!-- Modal chi tiết đơn hàng -->
+                                <div class="modal fade" id="orderModal{{ transaction.id }}" tabindex="-1">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Chi tiết đơn hàng #{{ transaction.order_id }}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="order-info mb-4">
+                                                    <p><strong>Ngày đặt:</strong> {{ transaction.created_at|date:"d/m/Y H:i" }}</p>
+                                                    <p><strong>Phương thức thanh toán:</strong> {{ transaction.get_payment_method_display }}</p>
+                                                    <p><strong>Trạng thái:</strong> {{ transaction.get_status_display }}</p>
+                                                </div>
+                                                
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Sản phẩm</th>
+                                                            <th>Số lượng</th>
+                                                            <th>Đơn giá</th>
+                                                            <th>Thành tiền</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for item in transaction.items.all %}
+                                                        <tr>
+                                                            <td>{{ item.product_name }}</td>
+                                                            <td>{{ item.quantity }}</td>
+                                                            <td>{{ item.price|floatformat:0|intcomma }} VNĐ</td>
+                                                            <td>{{ item.subtotal|floatformat:0|intcomma }} VNĐ</td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td colspan="3" class="text-end"><strong>Tổng cộng:</strong></td>
+                                                            <td><strong>{{ transaction.amount|floatformat:0|intcomma }} VNĐ</strong></td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="5" class="text-center">Chưa có đơn hàng nào</td>
+                                    <td colspan="6" class="text-center">Bạn chưa có đơn hàng nào</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

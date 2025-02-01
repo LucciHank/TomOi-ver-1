@@ -1,0 +1,39 @@
+Starting VNPay payment process for amount: 1190000
+Generated order ID: ORDER_1738347232
+Generated payment URL: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?vnp_Version=2.1.0&vnp_Command=pay&vnp_TmnCode=B2RG0YSD&vnp_Amount=119000000&vnp_CreateDate=20250201011352&vnp_CurrCode=VND&vnp_IpAddr=127.0.0.1&vnp_Locale=vn&vnp_OrderInfo=Thanh+toan+don+hang+%23ORDER_1738347232&vnp_OrderType=other&vnp_ReturnUrl=https%3A%2F%2Fb0e9-113-185-53-72.ngrok-free.app%2Fpayment%2Fvnpay-return%2F&vnp_TxnRef=ORDER_1738347232&vnp_ExpireDate=20250201012852&vnp_SecureHash=74d10fbfc0b567ea31ad1bbdd8d24384aee6ba58e54bab79eed85e7c5e56607924abf37d1615dee1c8eae05983f2f7e96dcdac3c84b6a45f312eca96ae7757d2
+Starting VNPay payment process for amount: 1091000
+Generated order ID: ORDER_1738347343
+Generated payment URL: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?vnp_Amount=109100000&vnp_Command=pay&vnp_CreateDate=20250201011543&vnp_CurrCode=VND&vnp_ExpireDate=20250201013043&vnp_IpAddr=127.0.0.1&vnp_Locale=vn&vnp_OrderInfo=Thanh+toan+don+hang+%23ORDER_1738347343&vnp_OrderType=other&vnp_ReturnUrl=https%3A%2F%2Fb0e9-113-185-53-72.ngrok-free.app%2Fpayment%2Fvnpay-return%2F&vnp_TmnCode=B2RG0YSD&vnp_TxnRef=ORDER_1738347343&vnp_Version=2.1.0&vnp_SecureHash=016be778aa18f0f53d7fbc9a1253fe9e9e445d22c8f4710db799ca7e924c39d35760c5210e5038255403a2331b4ecac81bccbcd2352dc4c000334461947744ea
+Starting VNPay payment process for amount: 1091000
+Generated order ID: ORDER_1738347560
+Generated payment URL: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?vnp_Amount=109100000&vnp_Command=pay&vnp_CreateDate=20250201011920&vnp_CurrCode=VND&vnp_ExpireDate=20250201013420&vnp_IpAddr=127.0.0.1&vnp_Locale=vn&vnp_OrderInfo=Thanh+toan+don+hang+%23ORDER_1738347560&vnp_OrderType=other&vnp_ReturnUrl=http%3A%2F%2Flocalhost%3A8000%2Fpayment%2Fvnpay-return%2F&vnp_TmnCode=B2RG0YSD&vnp_TxnRef=ORDER_1738347560&vnp_Version=2.1.0&vnp_SecureHash=1066647789c75b1fa87db2e4d074fd9a091ab7660d7fb79c8d147ace3a5742d6961c9e998d6a321266447662aaeb83b4761715429aa99c0b80acc8afb50db44b
+Starting VNPay payment process for amount: 1190000
+Generated order ID: ORDER_1738352403
+Generated payment URL: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?vnp_Amount=119000000&vnp_Command=pay&vnp_CreateDate=20250201024003&vnp_CurrCode=VND&vnp_ExpireDate=20250201025503&vnp_IpAddr=127.0.0.1&vnp_Locale=vn&vnp_OrderInfo=Thanh+toan+don+hang+%23ORDER_1738352403&vnp_OrderType=other&vnp_ReturnUrl=http%3A%2F%2Flocalhost%3A8000%2Fpayment%2Fvnpay-return%2F&vnp_TmnCode=B2RG0YSD&vnp_TxnRef=ORDER_1738352403&vnp_Version=2.1.0&vnp_SecureHash=7db018f560db8d6494ea2e5ad312c62577dccb04e4c259a668e60e9333888a62a5f44830f709682f909101acfce7f126ae3595ff1dd2861247354b57d163d266
+Error in qr_payment: ['“” value must be a decimal number.']
+Error in qr_payment: ['“” value must be a decimal number.']
+Starting VNPay payment process for amount: 1190000
+Generated order ID: ORDER_1738354590
+Generated payment URL: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?vnp_Amount=119000000&vnp_Command=pay&vnp_CreateDate=20250201031630&vnp_CurrCode=VND&vnp_ExpireDate=20250201033130&vnp_IpAddr=127.0.0.1&vnp_Locale=vn&vnp_OrderInfo=Thanh+toan+don+hang+%23ORDER_1738354590&vnp_OrderType=other&vnp_ReturnUrl=http%3A%2F%2Flocalhost%3A8000%2Fpayment%2Fvnpay-return%2F&vnp_TmnCode=B2RG0YSD&vnp_TxnRef=ORDER_1738354590&vnp_Version=2.1.0&vnp_SecureHash=68fc60a0bcc3ad99291627dab362c6d2a40e5d27f14f81ed4f1a7d56b93bfe110ba95a176aa2b4b657ba5923ac2fc1d03eb0b6c383930cf669c4370f0e190a69
+Error in qr_payment: Invalid filter: 'intcomma'
+Error in qr_payment: Invalid filter: 'intcomma'
+Error in qr_payment: Invalid filter: 'intcomma'
+Error in qr_payment: Invalid filter: 'intcomma'
+Error in qr_payment: Invalid filter: 'intcomma'
+Error in qr_payment: Invalid filter: 'intcomma'
+Error in qr_payment: Invalid filter: 'intcomma'
+Error in qr_payment: Invalid filter: 'intcomma'
+Error in qr_payment: Invalid filter: 'intcomma'
+Error in qr_payment: Invalid filter: 'intcomma'
+Error in qr_payment: Invalid filter: 'intcomma'
+Starting VNPay payment process for amount: 200000
+Generated order ID: ORDER_1738355239
+Generated payment URL: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?vnp_Amount=20000000&vnp_Command=pay&vnp_CreateDate=20250201032719&vnp_CurrCode=VND&vnp_ExpireDate=20250201034219&vnp_IpAddr=127.0.0.1&vnp_Locale=vn&vnp_OrderInfo=Thanh+toan+don+hang+%23ORDER_1738355239&vnp_OrderType=other&vnp_ReturnUrl=http%3A%2F%2Flocalhost%3A8000%2Fpayment%2Fvnpay-return%2F&vnp_TmnCode=B2RG0YSD&vnp_TxnRef=ORDER_1738355239&vnp_Version=2.1.0&vnp_SecureHash=d7e38fd176703f13366867e052cd8ea7d4560dfc8bd3c7bcaa14d978f9d8c0344185fd59d8c18a7ace8ac61976af557a83f868bad44530fcb37b2b883f5165f4
+Error in qr_payment: Invalid filter: 'intcomma'
+Error in qr_payment: Invalid filter: 'intcomma'
+Error in qr_payment: Invalid filter: 'intcomma'
+Error in qr_payment: Invalid filter: 'intcomma'
+Error in qr_payment: Invalid filter: 'intcomma'
+Error in qr_payment: Invalid filter: 'intcomma'
+Error in qr_payment: Invalid filter: 'intcomma'
+Error in qr_payment: UNIQUE constraint failed: transactions.order_id

@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_css %}
+<style>
+.qr-payment-container {
+    display: flex;
+    gap: 30px;
+    padding: 30px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+.qr-section, .bank-info-section {
+    flex: 1;
+    padding: 20px;
+}
+
+.qr-section {
+    text-align: center;
+    border-right: 1px solid #eee;
+}
+
+.qr-code {
+    margin: 20px auto;
+    padding: 15px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    max-width: 300px;
+}
+
+.qr-code img {
+    width: 100%;
+    height: auto;
+}
+
+.bank-info-section h3 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.bank-info {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.bank-info-item {
+    margin-bottom: 15px;
+}
+
+.bank-info-item label {
+    display: block;
+    color: #666;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+}
+
+.bank-info-item .value {
+    font-weight: 500;
+    color: #333;
+    font-size: 1.1em;
+}
+
+.copy-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.copy-btn:hover {
+    background: #0056b3;
+}
+
+.amount {
+    color: #e4434b;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.payment-status {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.payment-status.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.payment-status.success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.payment-status.failed {
+    background: #f8d7da;
+    color: #721c24;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="qr-payment-container">
+        <!-- QR Code Section -->
+        <div class="qr-section">
+            <h3>Quét mã QR</h3>
+            <div class="qr-code">
+                <img src="{{ qr_url }}" alt="QR Code" class="img-fluid">
+            </div>
+            <p class="text-muted small mt-2">Sử dụng app Mobile Banking để quét mã</p>
+        </div>
+
+        <!-- Bank Information Section -->
+        <div class="bank-info-section">
+            <h3>Thông tin chuyển khoản</h3>
+            <div class="bank-info">
+                <div class="bank-info-item">
+                    <label>Ngân hàng</label>
+                    <div class="value">
+                        MBBank
+                        <button class="copy-btn" onclick="copyToClipboard('MBBank')">Copy</button>
+                    </div>
+                </div>
+                
+                <div class="bank-info-item">
+                    <label>Số tài khoản</label>
+                    <div class="value">
+                        VQRQABHEI5230
+                        <button class="copy-btn" onclick="copyToClipboard('VQRQABHEI5230')">Copy</button>
+                    </div>
+                </div>
+                
+                <div class="bank-info-item">
+                    <label>Số tiền</label>
+                    <div class="value amount">
+                        {{ amount|floatformat:0|intcomma }} VNĐ
+                        <button class="copy-btn" onclick="copyToClipboard('{{ amount|floatformat:0 }}')">Copy</button>
+                    </div>
+                </div>
+                
+                <div class="bank-info-item">
+                    <label>Nội dung chuyển khoản</label>
+                    <div class="value">
+                        DH{{ order_id }}
+                        <button class="copy-btn" onclick="copyToClipboard('DH{{ order_id }}')">Copy</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="payment-status pending">
+                Đang chờ thanh toán...
+                <div class="countdown" id="countdown"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        showNotification('Đã sao chép', 'success');
+    }).catch(err => {
+        showNotification('Không thể sao chép', 'error');
+    });
+}
+
+// Countdown timer
+let timeLeft = 900; // 15 minutes
+function updateCountdown() {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    document.getElementById('countdown').textContent = 
+        `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    
+    if (timeLeft > 0) {
+        timeLeft--;
+        setTimeout(updateCountdown, 1000);
+    } else {
+        window.location.href = '/payment/timeout/';
+    }
+}
+
+// Check payment status
+function checkPaymentStatus() {
+    fetch('/payment/check-status/{{ order_id }}/')
+        .then(response => response.json())
+        .then(data => {
+            const statusElement = document.querySelector('.payment-status');
+            
+            switch(data.status) {
+                case 'completed':
+                    statusElement.className = 'payment-status success';
+                    statusElement.innerHTML = 'Thanh toán thành công! Đang chuyển hướng...';
+                    setTimeout(() => {
+                        window.location.href = '/payment/success/';
+                    }, 2000);
+                    break;
+                    
+                case 'failed':
+                    statusElement.className = 'payment-status failed';
+                    statusElement.innerHTML = 'Thanh toán thất bại!';
+                    break;
+                    
+                case 'expired':
+                    statusElement.className = 'payment-status failed';
+                    statusElement.innerHTML = 'Giao dịch đã hết hạn!';
+                    break;
+                    
+                case 'error':
+                    statusElement.className = 'payment-status failed';
+                    statusElement.innerHTML = `Lỗi: ${data.error}`;
+                    break;
+            }
+        })
+        .catch(error => {
+            console.error('Error checking payment status:', error);
+        });
+}
+
+// Start countdown and status checking
+document.addEventListener('DOMContentLoaded', () => {
+    updateCountdown();
+    setInterval(checkPaymentStatus, 5000); // Check every 5 seconds
+});
+</script>
+{% endblock %} 

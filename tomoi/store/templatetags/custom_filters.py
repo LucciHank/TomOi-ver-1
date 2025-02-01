@@ -29,4 +29,12 @@ def mask_email(email):
     except:
         return email
 
+@register.filter
+def format_price(value):
+    """Format giá tiền theo định dạng Việt Nam"""
+    try:
+        return f"{int(value):,}đ".replace(',', '.')
+    except (ValueError, TypeError):
+        return value
+
 # Thêm các filter khác từ accounts vào đây 

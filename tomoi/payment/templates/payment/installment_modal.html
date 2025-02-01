@@ -1,0 +1,64 @@
+<div class="modal fade" id="installmentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thanh toán trả góp</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label>Số tiền thanh toán:</label>
+                        <h4 class="text-danger">{{ amount|format_price }}</h4>
+                    </div>
+                </div>
+                
+                <div class="bank-list">
+                    <h5>Chọn ngân hàng:</h5>
+                    <div class="row" id="bankList">
+                        <!-- Banks will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="installment-plans mt-4" style="display: none;">
+                    <h5>Chọn kỳ hạn trả góp:</h5>
+                    <div class="row" id="installmentPlans">
+                        <!-- Plans will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="selected-plan-details mt-4" style="display: none;">
+                    <h5>Chi tiết khoản trả góp:</h5>
+                    <table class="table">
+                        <tr>
+                            <td>Số tiền gốc:</td>
+                            <td class="original-amount"></td>
+                        </tr>
+                        <tr>
+                            <td>Số kỳ:</td>
+                            <td class="number-of-terms"></td>
+                        </tr>
+                        <tr>
+                            <td>Số tiền mỗi kỳ:</td>
+                            <td class="amount-per-term"></td>
+                        </tr>
+                        <tr>
+                            <td>Phí trả góp:</td>
+                            <td class="fee-amount"></td>
+                        </tr>
+                        <tr>
+                            <td>Tổng tiền phải trả:</td>
+                            <td class="total-amount"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="confirmInstallment" style="display: none;">
+                    Xác nhận thanh toán
+                </button>
+            </div>
+        </div>
+    </div>
+</div> 

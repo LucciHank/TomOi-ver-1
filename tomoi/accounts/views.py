@@ -42,6 +42,7 @@ import hashlib
 from .utils import mask_email
 from django.core.cache import cache
 from django.utils import translation
+from payment.models import Transaction
 
 @csrf_exempt
 def auth(request):
@@ -1021,3 +1022,12 @@ def set_language(request):
         response.set_cookie('django_language', lang_code)
         return response
     return redirect('home')
+
+def profile(request):
+    # ... code hiện tại ...
+    transactions = Transaction.objects.filter(user=request.user).order_by('-created_at')
+    context = {
+        'transactions': transactions,
+        # ... context hiện tại ...
+    }
+    return render(request, 'accounts/profile.html', context)

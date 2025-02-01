@@ -1,0 +1,44 @@
+.bank-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.bank-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.bank-card.selected {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px #007bff;
+}
+
+.plan-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.plan-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.plan-card.selected {
+    border-color: #28a745;
+    box-shadow: 0 0 0 2px #28a745;
+}
+
+.selected-plan-details table {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.selected-plan-details td {
+    padding: 0.5rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.selected-plan-details td:first-child {
+    font-weight: 500;
+    width: 40%;
+} 

@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="payment-result success">
+    <i class="fas fa-check-circle"></i>
+    <h2>Thanh toán thành công!</h2>
+    <p>Cảm ơn bạn đã mua hàng. Đơn hàng của bạn sẽ được xử lý ngay.</p>
+    <a href="{% url 'store:home' %}" class="btn btn-primary">Về trang chủ</a>
+</div>
+{% endblock %} 
