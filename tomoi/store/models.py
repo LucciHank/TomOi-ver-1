@@ -205,7 +205,7 @@ class Banner(models.Model):
 
 # Mô hình giỏ hàng (CartItem)
 class CartItem(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE, null=True, blank=True)
     session_key = models.CharField(max_length=40, null=True, blank=True)
     product = models.ForeignKey('Product', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
@@ -213,7 +213,19 @@ class CartItem(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = [['user', 'product'], ['session_key', 'product']]
+        # Đảm bảo mỗi sản phẩm chỉ xuất hiện một lần cho mỗi user hoặc session
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'product'],
+                condition=models.Q(user__isnull=False),
+                name='unique_user_product'
+            ),
+            models.UniqueConstraint(
+                fields=['session_key', 'product'],
+                condition=models.Q(session_key__isnull=False),
+                name='unique_session_product'
+            )
+        ]
 
     def total_price(self):
         """Tính tổng tiền của item"""

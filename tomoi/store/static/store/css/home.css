@@ -554,8 +554,8 @@ body {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background-color: #4CAF50;
-    color: white;
+    background-color: #fff;
+    color: black;
     padding: 16px 24px;
     border-radius: 4px;
     z-index: 1000;

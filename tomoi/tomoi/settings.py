@@ -113,10 +113,13 @@ TEMPLATES = [
 ]
 WSGI_APPLICATION = 'tomoi.wsgi.application'
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
+    BASE_DIR / 'accounts' / 'static',
+    BASE_DIR / 'store' / 'static',
 ]
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Thêm cấu hình này
 STATICFILES_FINDERS = [
@@ -216,3 +219,6 @@ VNPAY_HASH_SECRET = 'S500OYUZE6YZRFNMC2LFQZZXMXATAJKK'
 SEPAY_API_KEY = 'ZMR2Y3H54KLIZSKG0YYST8AJWCPCPN0D7KAUUXTUETG6HTOQGXL3NJDORFXZWQB1'
 SEPAY_ACCOUNT = 'VQRQABHEI5230'
 SEPAY_BANK = 'MBBank'
+
+# Thêm vào cuối file
+CART_SESSION_ID = 'cart'

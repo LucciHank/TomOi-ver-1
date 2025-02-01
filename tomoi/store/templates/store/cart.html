@@ -2,6 +2,10 @@
 {% load static %}
 {% load custom_filters %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'store/css/cart.css' %}">
+{% endblock %}
+
 {% block page_css %}
 <style>
 .cart-page {
@@ -242,55 +246,82 @@
     color: #666;
     position: relative;
 }
+
+.empty-cart-message {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.empty-cart-message i {
+    font-size: 48px;
+    color: #ccc;
+    margin-bottom: 20px;
+}
+
+.empty-cart-message p {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.empty-cart-message .btn {
+    padding: 10px 30px;
+    font-size: 16px;
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="cart-page container">
+<div class="cart-page">
     <div class="cart-container">
-        <!-- Phần giỏ hàng bên trái -->
         <div class="cart-items-section">
             <h2 class="mb-4">Giỏ hàng ({{ cart_items|length }} sản phẩm)</h2>
-            {% for item in cart_items %}
-            <div class="cart-item-card" data-id="{{ item.id }}" data-stock="{{ item.product.stock }}">
-                <div class="cart-item-image">
-                    {% if item.product.images.first %}
-                        <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}">
-                    {% else %}
-                        <img src="{% static 'images/no-image.png' %}" alt="No image">
-                    {% endif %}
-                </div>
-                <div class="cart-item-details">
-                    <div class="cart-item-info">
-                        <h3>{{ item.product.name }}</h3>
-                        <div class="price-info">
-                            <span class="new-price">{{ item.product.price|format_price }}</span>
-                            {% if item.product.old_price %}
-                                <span class="old-price">{{ item.product.old_price|format_price }}</span>
-                                {% with discount=item.product.get_discount_percentage %}
-                                    {% if discount > 0 %}
-                                        <span class="discount-badge">-{{ discount }}%</span>
-                                    {% endif %}
-                                {% endwith %}
-                            {% endif %}
+            {% if cart_items %}
+                {% for item in cart_items %}
+                <div class="cart-item" data-id="{{ item.product.id }}" data-stock="{{ item.product.stock }}" data-price="{{ item.product.price|floatformat:0 }}">
+                    <div class="cart-item-image">
+                        {% if item.product.images.first %}
+                            <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}">
+                        {% else %}
+                            <img src="{% static 'images/no-image.png' %}" alt="No image">
+                        {% endif %}
+                    </div>
+                    <div class="cart-item-details">
+                        <div class="cart-item-info">
+                            <h3>{{ item.product.name }}</h3>
+                            <div class="price-info">
+                                <span class="new-price">{{ item.product.price|format_price }}</span>
+                                {% if item.product.old_price %}
+                                    <span class="old-price">{{ item.product.old_price|format_price }}</span>
+                                    {% with discount=item.product.get_discount_percentage %}
+                                        {% if discount > 0 %}
+                                            <span class="discount-badge">-{{ discount }}%</span>
+                                        {% endif %}
+                                    {% endwith %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="cart-item-controls">
+                            <div class="quantity-controls">
+                                <button type="button" class="btn-quantity minus" data-id="{{ item.product.id }}">-</button>
+                                <input type="number" class="quantity-input" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" readonly>
+                                <button type="button" class="btn-quantity plus" data-id="{{ item.product.id }}">+</button>
+                            </div>
+                            <button type="button" class="remove-btn" data-id="{{ item.product.id }}">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </div>
                     </div>
-                    <div class="cart-item-controls">
-                        <div class="quantity-controls">
-                            <button type="button" class="btn-quantity minus" data-id="{{ item.id }}">-</button>
-                            <input type="number" class="quantity-input" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" readonly>
-                            <button type="button" class="btn-quantity plus" data-id="{{ item.id }}">+</button>
-                        </div>
-                        <button type="button" class="btn-remove" data-id="{{ item.id }}">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
                 </div>
-            </div>
-            {% endfor %}
+                {% endfor %}
+            {% else %}
+                <div class="empty-cart-message">
+                    <i class="fas fa-shopping-cart"></i>
+                    <p>Giỏ hàng của bạn đang trống</p>
+                    <a href="{% url 'store:home' %}" class="btn btn-primary">Tiếp tục mua sắm</a>
+                </div>
+            {% endif %}
         </div>
-
-        <!-- Phần thanh toán bên phải -->
         <div class="cart-summary-section">
             <div class="cart-summary">
                 <div class="promo-section">
@@ -366,191 +397,10 @@
                 </div>
             </div>
         </div>
-      </div>
     </div>
+</div>
+{% endblock %}
 
-<script>
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-function togglePromoInput(type) {
-    const input = document.getElementById(`${type}-input`);
-    input.classList.toggle('active');
-}
-
-function payWithVNPay() {
-    const button = event.target;
-    button.disabled = true;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
-    
-    const amount = {{ final_amount }};
-    
-    fetch('/payment/vnpay/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({
-            amount: amount
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.location.href = data.payment_url;
-        } else {
-            showNotification('Có lỗi xảy ra khi tạo thanh toán: ' + data.error, 'error');
-            button.disabled = false;
-            button.innerHTML = '<i class="fas fa-qrcode"></i> Thanh toán qua VNPAY';
-        }
-    })
-    .catch(error => {
-        showNotification('Có lỗi xảy ra khi tạo thanh toán', 'error');
-        button.disabled = false;
-        button.innerHTML = '<i class="fas fa-qrcode"></i> Thanh toán qua VNPAY';
-    });
-}
-
-function updateQuantity(itemId, change) {
-    console.log('updateQuantity called:', itemId, change); // Debug
-    const cartItem = document.querySelector(`.cart-item-card[data-id="${itemId}"]`);
-    if (!cartItem) {
-        console.error('Cart item not found:', itemId);
-        return;
-    }
-
-    const quantityInput = cartItem.querySelector('.quantity-input');
-    const currentQuantity = parseInt(quantityInput.value);
-    const maxStock = parseInt(cartItem.dataset.stock);
-    
-    let newQuantity = currentQuantity + change;
-    console.log('New quantity:', newQuantity); // Debug
-    
-    if (newQuantity < 1 || newQuantity > maxStock) {
-        console.log('Invalid quantity:', newQuantity); // Debug
-        return;
-    }
-
-    // Cập nhật giao diện ngay
-    quantityInput.value = newQuantity;
-    
-    fetch('/cart/update/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({
-            item_id: itemId,
-            quantity: newQuantity
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Server response:', data); // Debug
-        if (data.success) {
-            // Cập nhật tổng tiền
-            document.querySelector('.summary-row:nth-child(1) span:last-child').textContent = data.total_amount;
-            document.querySelector('.summary-row:nth-child(2) span:last-child').textContent = data.discount_amount;
-            document.querySelector('.total-row span:last-child').textContent = data.final_amount;
-        } else {
-            quantityInput.value = currentQuantity;
-            alert(data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        quantityInput.value = currentQuantity;
-        alert('Có lỗi xảy ra');
-    });
-}
-
-function removeItem(itemId) {
-    if (!confirm('Bạn có chắc muốn xóa sản phẩm này?')) return;
-    
-    fetch('/cart/remove/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({
-            item_id: itemId
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Xóa item khỏi giao diện
-            const cartItem = document.querySelector(`.cart-item-card[data-id="${itemId}"]`);
-            if (cartItem) {
-                cartItem.remove();
-            }
-            
-            // Cập nhật tổng tiền
-            document.querySelector('.summary-row:nth-child(1) span:last-child').textContent = data.total_amount;
-            document.querySelector('.summary-row:nth-child(2) span:last-child').textContent = data.discount_amount;
-            document.querySelector('.total-row span:last-child').textContent = data.final_amount;
-
-            // Nếu giỏ hàng trống, reload trang
-            if (document.querySelectorAll('.cart-item-card').length === 0) {
-                location.reload();
-            }
-
-            showNotification('Đã xóa sản phẩm', 'success');
-        } else {
-            showNotification(data.error, 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showNotification('Có lỗi xảy ra', 'error');
-    });
-}
-
-function showNotification(message, type = 'success') {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 3000);
-}
-
-// Thêm event listeners khi trang load xong
-document.addEventListener('DOMContentLoaded', function() {
-    // Event listeners cho nút tăng/giảm số lượng
-    document.querySelectorAll('.btn-quantity').forEach(button => {
-        button.addEventListener('click', function() {
-            const itemId = this.dataset.id;
-            const change = this.classList.contains('plus') ? 1 : -1;
-            console.log('Updating quantity:', itemId, change); // Debug
-            updateQuantity(itemId, change);
-        });
-    });
-
-    // Event listeners cho nút xóa
-    document.querySelectorAll('.btn-remove').forEach(button => {
-        button.addEventListener('click', function() {
-            const itemId = this.dataset.id;
-            console.log('Removing item:', itemId); // Debug
-            if (confirm('Bạn có chắc muốn xóa sản phẩm này?')) {
-                removeItem(itemId);
-            }
-        });
-    });
-});
-</script>
+{% block extra_js %}
+<script src="{% static 'store/js/cart.js' %}"></script>
 {% endblock %}
