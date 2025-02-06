@@ -124,7 +124,7 @@
                                 {% for transaction in transactions %}
                                 <tr>
                                     <td>{{ transaction.code }}</td>
-                                    <td>{{ transaction.date|date:"d/m/Y H:i" }}</td>
+                                    <td>{{ transaction.created_at|date:"d/m/Y H:i" }}</td>
                                     <td>{{ transaction.method }}</td>
                                     <td class="text-success">+{{ transaction.amount|floatformat:0 }}đ</td>
                                     <td>

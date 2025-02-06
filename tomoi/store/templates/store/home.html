@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css"/>
 
 <!-- Home CSS -->
-<link rel="stylesheet" href="{% static 'store/css/home.css' %}" type="text/css">
+{% comment %} <link rel="stylesheet" href="{% static 'store/css/home.css' %}?v=1.1" type="text/css"> {% endcomment %}
 {% endblock %}
 
 {% block content %}
@@ -192,7 +192,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Swiper JS chỉ dành cho trang home -->
+<!-- Chỉ load những script cần thiết cho trang home -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
-<script src="{% static 'store/js/home.js' %}"></script>
+<script src="{% static 'store/js/home.js' %}?v=1.0"></script>
 {% endblock %}

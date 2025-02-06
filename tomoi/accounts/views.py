@@ -611,7 +611,7 @@ def toggle_user_status(request):
 
 @login_required
 def payment_history(request):
-    transactions = Transaction.objects.filter(user=request.user).order_by('-date')
+    transactions = Transaction.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'accounts/payment_history.html', {
         'transactions': transactions
     })

@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
+{% load custom_filters %}
 
 {% block extra_css %}
 <link href="{% static 'css/security.css' %}" rel="stylesheet"/>
@@ -122,7 +124,7 @@
                                     <td>{{ transaction.order_id }}</td>
                                     <td>{{ transaction.created_at|date:"d/m/Y H:i" }}</td>
                                     <td>{{ transaction.get_payment_method_display }}</td>
-                                    <td>{{ transaction.amount|floatformat:0|intcomma }} VNĐ</td>
+                                    <td>{{ transaction.amount|format_price }} VNĐ</td>
                                     <td>
                                         <span class="badge {% if transaction.status == 'completed' %}bg-success
                                                          {% elif transaction.status == 'pending' %}bg-warning
@@ -168,15 +170,15 @@
                                                         <tr>
                                                             <td>{{ item.product_name }}</td>
                                                             <td>{{ item.quantity }}</td>
-                                                            <td>{{ item.price|floatformat:0|intcomma }} VNĐ</td>
-                                                            <td>{{ item.subtotal|floatformat:0|intcomma }} VNĐ</td>
+                                                            <td>{{ item.price|format_price }} VNĐ</td>
+                                                            <td>{{ item.subtotal|format_price }} VNĐ</td>
                                                         </tr>
                                                         {% endfor %}
                                                     </tbody>
                                                     <tfoot>
                                                         <tr>
                                                             <td colspan="3" class="text-end"><strong>Tổng cộng:</strong></td>
-                                                            <td><strong>{{ transaction.amount|floatformat:0|intcomma }} VNĐ</strong></td>
+                                                            <td><strong>{{ transaction.amount|format_price }} VNĐ</strong></td>
                                                         </tr>
                                                     </tfoot>
                                                 </table>

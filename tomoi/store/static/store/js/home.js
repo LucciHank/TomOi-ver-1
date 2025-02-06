@@ -153,149 +153,6 @@ function updateCartDropdown(cartItems) {
     }
 }
 
-function showConfirmation(message, onConfirm, onCancel) {
-    const notification = document.createElement('div');
-    notification.className = 'confirmation-dialog';
-    notification.innerHTML = `
-        <div class="confirmation-content">
-            <div class="delete-icon">
-                <i class="fas fa-times-circle"></i>
-            </div>
-            <p>${message}</p>
-            <div class="confirmation-buttons">
-                <button class="btn-confirm">Có</button>
-                <button class="btn-cancel">Không</button>
-            </div>
-        </div>
-    `;
-
-    document.body.appendChild(notification);
-
-    // Thêm animation khi hiển thị
-    setTimeout(() => {
-        notification.querySelector('.confirmation-content').style.transform = 'scale(1)';
-        notification.querySelector('.confirmation-content').style.opacity = '1';
-    }, 10);
-
-    const confirmBtn = notification.querySelector('.btn-confirm');
-    const cancelBtn = notification.querySelector('.btn-cancel');
-
-    confirmBtn.addEventListener('click', () => {
-        onConfirm();
-        notification.remove();
-    });
-
-    cancelBtn.addEventListener('click', () => {
-        onCancel();
-        notification.remove();
-    });
-}
-
-function confirmRemoveItem(productId) {
-    showConfirmation(
-        'Bạn có chắc chắn muốn xóa sản phẩm này?',
-        () => removeItem(productId),
-        () => { } // Do nothing if cancelled
-    );
-}
-
-function removeItem(productId) {
-    fetch('/cart/remove/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({
-            item_id: productId
-        })
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Xóa item khỏi DOM
-                const cartItem = document.querySelector(`.cart-item[data-id="${productId}"]`);
-                if (cartItem) {
-                    cartItem.remove();
-                }
-
-                // Kiểm tra và hiển thị empty cart nếu cần
-                const cartItems = document.querySelectorAll('.cart-item');
-                if (cartItems.length === 0) {
-                    const emptyCart = document.querySelector('.empty-cart');
-                    if (emptyCart) {
-                        emptyCart.style.display = 'block';
-                    }
-                }
-
-                // Cập nhật tổng tiền
-                const totalAmount = document.querySelector('.total-amount');
-                if (totalAmount) {
-                    totalAmount.textContent = data.final_amount;
-                }
-
-                // Cập nhật badge
-                const cartCountBadge = document.querySelector('.cart-count-badge');
-                if (cartCountBadge) {
-                    cartCountBadge.textContent = data.count;
-                    cartCountBadge.style.display = data.count > 0 ? 'flex' : 'none';
-                }
-
-                showNotification('Đã xóa sản phẩm khỏi giỏ hàng', 'success');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Không thể kết nối đến server', 'error');
-        });
-}
-
-function updateQuantity(productId, quantity) {
-    fetch('/cart/update/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({
-            item_id: productId,
-            quantity: quantity
-        })
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Cập nhật số lượng trên giao diện
-                const cartItem = document.querySelector(`.cart-item[data-id="${productId}"]`);
-                if (cartItem) {
-                    const quantityInput = cartItem.querySelector('.quantity-input');
-                    if (quantityInput) {
-                        quantityInput.value = quantity;
-                    }
-                }
-
-                // Cập nhật tổng tiền
-                const totalAmount = document.querySelector('.total-amount');
-                if (totalAmount) {
-                    totalAmount.textContent = data.final_amount;
-                }
-
-                // Cập nhật số lượng badge
-                const cartCountBadge = document.querySelector('.cart-count-badge');
-                if (cartCountBadge) {
-                    cartCountBadge.textContent = data.count;
-                    cartCountBadge.style.display = data.count > 0 ? 'flex' : 'none';
-                }
-            } else {
-                showNotification(data.error || 'Có lỗi xảy ra', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Không thể kết nối đến server', 'error');
-        });
-}
-
 function showNotification(message, type = 'success') {
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
@@ -494,3 +351,31 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// Xóa tất cả các hàm liên quan đến xóa sản phẩm
+document.addEventListener('DOMContentLoaded', function() {
+    // Chỉ giữ lại các chức năng khác của trang home
+    // Ví dụ: slider, thêm vào giỏ hàng, v.v.
+    
+    // Xóa các event listener liên quan đến xóa sản phẩm
+    const removeButtons = document.querySelectorAll('.remove-btn');
+    removeButtons.forEach(btn => {
+        btn.replaceWith(btn.cloneNode(true)); // Xóa tất cả event listeners
+    });
+
+    // Xóa các hàm không cần thiết
+    // if (typeof showConfirmation !== 'undefined') delete showConfirmation;
+    // if (typeof confirmRemoveItem !== 'undefined') delete confirmRemoveItem;
+    // if (typeof removeItem !== 'undefined') delete removeItem;
+});
+
+// Chỉ giữ lại các hàm cần thiết cho trang home
+function updateCartDropdown(cartItems) {
+    // ... code cập nhật dropdown ...
+}
+
+function showNotification(message, type = 'success') {
+    // ... code hiển thị thông báo ...
+}
+
+// Các hàm khác không liên quan đến xóa sản phẩm
