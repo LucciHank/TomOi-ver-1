@@ -27,77 +27,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    document.querySelectorAll('.add-to-cart-btn').forEach(button => {
-        button.addEventListener('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation(); // Ngăn event bubble
-            
-            const productId = this.dataset.productId;
-            const stock = parseInt(this.dataset.stock);
-            
-            if (stock <= 0) {
-                Swal.fire({
-                    title: 'Hết hàng!',
-                    text: 'Sản phẩm này hiện đã hết hàng',
-                    icon: 'warning'
-                });
-                return;
-            }
-
-            fetch('/cart/add/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify({
-                    id: productId,
-                    quantity: 1
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Cập nhật dropdown giỏ hàng
-                    updateCartDropdown(data.cart_items);
-                    
-                    // Cập nhật số lượng badge
-                    updateCartCount(data.total_items);
-
-                    // Hiển thị thông báo thành công
-                    Swal.fire({
-                        title: 'Thành công!',
-                        text: 'Đã thêm sản phẩm vào giỏ hàng',
-                        icon: 'success',
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                } else {
-                    Swal.fire({
-                        title: 'Lỗi!',
-                        text: data.error || 'Có lỗi xảy ra',
-                        icon: 'error'
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Add to cart error:', error);
-                Swal.fire({
-                    title: 'Lỗi!',
-                    text: 'Không thể kết nối đến server',
-                    icon: 'error'
-                });
-            });
-        });
+    // Xóa tất cả các event listener cũ
+    document.querySelectorAll('.quantity-btn').forEach(btn => {
+        btn.replaceWith(btn.cloneNode(true));
+    });
+    
+    document.querySelectorAll('.remove-btn').forEach(btn => {
+        btn.replaceWith(btn.cloneNode(true));
     });
 
     // Load cart count khi trang web được tải
     loadCartItems();
-    updateCartCount();
-});
-
-document.querySelectorAll('.add-to-cart-btn').forEach(button => {
-    button.removeEventListener('click', function () { });
 });
 
 function formatPrice(price) {

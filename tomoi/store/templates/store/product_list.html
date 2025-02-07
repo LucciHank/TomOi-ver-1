@@ -36,14 +36,18 @@
                 {% for product in products %}
                 <div class="col-md-3 mb-4">
                     <div class="card">
-                        {% if product.image and product.image.name %}
-                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
-                        {% else %}
-                            <img src="{% static 'images/placeholder.png' %}" class="card-img-top" alt="No image available">
-                        {% endif %}
-                        <div class="card-body">
-                            <h5 class="card-title">{{ product.name }}</h5>
-                            <p class="card-text"><strong>Giá:</strong> {{ product.price }} VNĐ</p>
+                        <a href="{% url 'store:product_detail' product.id %}">
+                            {% if product.image and product.image.name %}
+                                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                            {% else %}
+                                <img src="{% static 'images/placeholder.png' %}" class="card-img-top" alt="No image available">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ product.name }}</h5>
+                                <p class="card-text"><strong>Giá:</strong> {{ product.price }} VNĐ</p>
+                            </div>
+                        </a>
+                        <div class="card-footer">
                             <button onclick="addToCart({{ product.id }})" class="btn btn-primary">
                                 <i class="fas fa-cart-plus"></i> Thêm vào giỏ
                             </button>
@@ -59,12 +63,14 @@
                 {% for product in featured_products %}
                 <div class="col-md-3">
                     <div class="product-card">
-                        <img src="{{ product.image_url }}" alt="{{ product.name }}">
-                        <p>{{ product.name }}</p>
-                        <p>{{ product.description }}</p>
-                        <p class="price">{{ product.price }}₫</p>
-                        <p class="old-price">{{ product.old_price }}₫</p>
-                        <p>{{ product.discount }}%</p>
+                        <a href="{% url 'store:product_detail' product.id %}">
+                            <img src="{{ product.image_url }}" alt="{{ product.name }}">
+                            <p>{{ product.name }}</p>
+                            <p>{{ product.description }}</p>
+                            <p class="price">{{ product.price }}₫</p>
+                            <p class="old-price">{{ product.old_price }}₫</p>
+                            <p>{{ product.discount }}%</p>
+                        </a>
                     </div>
                 </div>
                 {% endfor %}

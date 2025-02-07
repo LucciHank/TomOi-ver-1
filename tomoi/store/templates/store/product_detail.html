@@ -1,17 +1,613 @@
-{% extends "base.html" %}
-<h1>{{ product.name }}</h1>
-<img src="{{ product.get_primary_image.image.url }}" alt="{{ product.name }}">
-<p>{{ product.description }}</p>
-<p>Giá cơ bản: {{ product.price }}</p>
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
 
-<h2>Biến thể</h2>
-{% for variant in variants %}
-    <h3>{{ variant.name }}</h3>
-    <ul>
-        {% for option in variant.options.all %}
-            <li>
-                Thời gian: {{ option.duration }} tháng - Giá: {{ option.price }}
-            </li>
+{% block page_css %}
+<!-- Swiper CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css"/>
+<!-- Product Detail CSS -->
+<link rel="stylesheet" href="{% static 'store/css/product_detail.css' %}">
+
+<style>
+.product-detail {
+    padding: 30px 0;
+}
+
+/* Tabs navigation */
+.product-tabs {
+    margin-bottom: 30px;
+    border-bottom: 1px solid #eee;
+}
+
+.product-tabs .nav-link {
+    color: #666;
+    font-weight: 500;
+    padding: 12px 24px;
+    border: none;
+    border-bottom: 2px solid transparent;
+}
+
+.product-tabs .nav-link.active {
+    color: #df2626;
+    border-bottom-color: #df2626;
+}
+
+/* Product images */
+.product-images {
+    margin-bottom: 30px;
+}
+
+.main-image {
+    width: 100%;
+    height: 400px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.main-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.thumbnail-container {
+    position: relative;
+    margin: 0 -5px;
+}
+
+.thumbnails-swiper {
+    padding: 0 5px;
+}
+
+.thumbnail {
+    width: 80px;
+    height: 80px;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.3s;
+}
+
+.thumbnail.active {
+    border-color: #df2626;
+}
+
+.thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Product info */
+.product-info {
+    padding-left: 30px;
+}
+
+.product-title {
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.price-info {
+    margin-bottom: 20px;
+}
+
+.old-price {
+    color: #999;
+    text-decoration: line-through;
+    font-size: 16px;
+}
+
+.discount-badge {
+    background: #fef2f2;
+    color: #df2626;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-left: 8px;
+}
+
+.current-price {
+    color: #df2626;
+    font-size: 28px;
+    font-weight: 600;
+    display: block;
+    margin-top: 5px;
+}
+
+.product-options {
+    margin-bottom: 20px;
+}
+
+.option-label {
+    font-weight: 500;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.option-select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.account-inputs {
+    margin-bottom: 20px;
+}
+
+.account-input {
+    margin-bottom: 15px;
+}
+
+.account-input label {
+    font-weight: 500;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.account-input input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.btn-buy-now,
+.btn-add-cart {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.btn-buy-now {
+    background: #df2626;
+    color: white;
+}
+
+.btn-add-cart {
+    background: #f8f9fa;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.btn-buy-now:hover {
+    background: #c41e1e;
+}
+
+.btn-add-cart:hover {
+    background: #e9ecef;
+}
+
+/* Affiliate section */
+.affiliate-section {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.affiliate-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.affiliate-link input {
+    flex: 1;
+    border: none;
+    padding: 5px;
+}
+
+.btn-copy {
+    background: none;
+    border: none;
+    color: #2563eb;
+    cursor: pointer;
+}
+
+/* Product description */
+.product-description {
+    margin-bottom: 30px;
+}
+
+/* Related products */
+.related-products {
+    margin-top: 50px;
+}
+
+.related-products h3 {
+    margin-bottom: 20px;
+}
+
+.product-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s;
+}
+
+.product-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-5px);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="product-detail">
+    <div class="container">
+        <!-- Tabs Navigation -->
+        <div class="product-tabs">
+            <a href="#intro" class="product-tab-item active">Giới thiệu</a>
+            <a href="#details" class="product-tab-item">Chi tiết</a>
+            <a href="#reviews" class="product-tab-item">Đánh giá</a>
+            <a href="#posts" class="product-tab-item">Bài viết</a>
+        </div>
+
+        <div class="row">
+            <!-- Left column - Images -->
+            <div class="col-md-6">
+                <div class="product-images">
+                    <div class="main-image">
+                        <img src="{{ product.get_primary_image.url }}" alt="{{ product.name }}" id="mainImage">
+                    </div>
+                    
+                    <!-- Thumbnails Swiper -->
+                    <div class="thumbnail-container">
+                        <div class="swiper thumbnails-swiper">
+                            <div class="swiper-wrapper">
+                                {% for image in product.images.all %}
+                                <div class="swiper-slide">
+                                    <div class="thumbnail {% if forloop.first %}active{% endif %}" 
+                                         onclick="changeMainImage(this, '{{ image.image.url }}')">
+                                        <img src="{{ image.image.url }}" alt="{{ product.name }}">
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% if product.images.count > 5 %}
+                            <div class="swiper-button-next"></div>
+                            <div class="swiper-button-prev"></div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Affiliate section -->
+                <div class="affiliate-section">
+                    <h5>Giới thiệu bạn bè</h5>
+                    <p>Giảm giá 5% cho bạn bè được giới thiệu.</p>
+                    <div class="affiliate-link">
+                        <input type="text" value="{{ request.build_absolute_uri }}" readonly>
+                        <button class="btn-copy" onclick="copyLink()">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Product description -->
+                <div class="product-description">
+                    <h4>Thông tin sản phẩm</h4>
+                    <div class="description-content">
+                        {{ product.description|safe }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right column - Product info -->
+            <div class="col-md-6">
+                <div class="product-info">
+                    <h1 class="product-title">{{ product.name }}</h1>
+                    
+                    <div class="price-info">
+                        {% if product.old_price %}
+                        <span class="old-price">{{ product.old_price|format_price }}</span>
+                        <span class="discount-badge">-{{ product.get_discount_percentage }}%</span>
+                        {% endif %}
+                        <span class="current-price">{{ product.price|format_price }}</span>
+                    </div>
+
+                    <!-- Product Options -->
+                    <div class="product-options">
+                        <!-- Variants Selection -->
+                        <div class="variant-selection">
+                            <h4>Loại sản phẩm</h4>
+                            <div class="variant-options">
+                                {% for variant in product.variants.all %}
+                                    <button type="button" 
+                                            class="variant-option {% if forloop.first %}active{% endif %}" 
+                                            data-variant-id="{{ variant.id }}"
+                                            onclick="selectVariant(this)">
+                                        {{ variant.name }}
+                                    </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Duration Selection -->
+                        <div class="duration-selection">
+                            <h4>Thời hạn</h4>
+                            <div class="duration-options">
+                                {% for duration in product.get_all_durations %}
+                                    <button type="button"
+                                            class="duration-option"
+                                            data-duration="{{ duration }}"
+                                            onclick="selectDuration(this)">
+                                        {{ duration }} tháng
+                                    </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="action-buttons">
+                            <button class="btn-buy-now" onclick="buyNow()">Mua ngay</button>
+                            <button class="btn-add-cart" onclick="addToCart()">Thêm vào giỏ</button>
+                        </div>
+
+                        <!-- Account Info Fields -->
+                        {% if product.requires_email or product.requires_account_password %}
+                        <div class="account-info-fields">
+                            <h4>Nhập thông tin tài khoản cần nâng cấp</h4>
+                            <div class="account-info-content">
+                                {% if product.requires_email %}
+                                <div class="form-group">
+                                    <label>Email của bạn</label>
+                                    <input type="email" class="form-control" name="account_email" required>
+                                    <small class="text-muted">Email dùng để nâng cấp tài khoản</small>
+                                </div>
+                                {% endif %}
+
+                                {% if product.requires_account_password %}
+                                <div class="form-group">
+                                    <label>Tài khoản cần nâng cấp</label>
+                                    <input type="text" class="form-control" name="account_username" required>
+                                    <small class="text-muted">Nhập chính xác tên tài khoản cần nâng cấp</small>
+                                </div>
+                                <div class="form-group">
+                                    <label>Mật khẩu</label>
+                                    <input type="password" class="form-control" name="account_password" required>
+                                    <small class="text-muted">Mật khẩu của tài khoản cần nâng cấp</small>
+                                </div>
+                                {% endif %}
+
+                                <p class="form-note">*Vui lòng kiểm tra kỹ lại thông tin chính xác</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Cross-sale Products -->
+                    {% if product.cross_sale_products.exists %}
+                    <div class="cross-sale-section">
+                        <h4>Mua kèm giảm thêm {{ product.cross_sale_discount }}%</h4>
+                        <div class="cross-sale-products">
+                            {% for cross_product in product.cross_sale_products.all %}
+                            <div class="cross-sale-item">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input cross-sale-checkbox" 
+                                           id="cross_sale_{{ cross_product.id }}"
+                                           data-product-id="{{ cross_product.id }}"
+                                           data-price="{{ cross_product.price }}"
+                                           data-discount="{{ product.cross_sale_discount }}">
+                                    <label class="form-check-label" for="cross_sale_{{ cross_product.id }}">
+                                        <div class="cross-sale-content">
+                                            <img src="{{ cross_product.get_primary_image.url }}" alt="{{ cross_product.name }}">
+                                            <div class="cross-sale-info">
+                                                <h5>{{ cross_product.name }}</h5>
+                                                <p class="price">{{ cross_product.price|format_price }}</p>
+                                                <p class="discount">Giảm {{ product.cross_sale_discount }}%</p>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Related products -->
+        {% if related_products %}
+        <div class="related-products">
+            <h3>Sản phẩm liên quan</h3>
+            <div class="products-grid">
+                {% for related in related_products %}
+                <div class="col-md-3">
+                    {% include 'store/includes/product_card.html' with product=related %}
+                </div>
         {% endfor %}
-    </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Blog posts -->
+        {% if blog_posts %}
+        <div class="blog-posts mt-5">
+            <h3>Bài viết chi tiết</h3>
+            <div class="row">
+                {% for post in blog_posts %}
+                <!-- Blog post card -->
 {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+<script>
+// Initialize Swiper
+const thumbnailsSwiper = new Swiper('.thumbnails-swiper', {
+    slidesPerView: 5,
+    spaceBetween: 10,
+    navigation: {
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev',
+    },
+    breakpoints: {
+        320: {
+            slidesPerView: 3,
+        },
+        480: {
+            slidesPerView: 4,
+        },
+        768: {
+            slidesPerView: 5,
+        }
+    }
+});
+
+// Thêm biến để lưu trữ mapping giữa variant và durations
+const variantDurations = {
+    {% for variant in product.variants.all %}
+        "{{ variant.id }}": [
+            {% for option in variant.options.all %}
+                {{ option.duration }},
+            {% endfor %}
+        ],
+    {% endfor %}
+};
+
+function checkDurationAvailability(variantId, duration) {
+    // Kiểm tra xem duration có tồn tại trong variant không
+    const availableDurations = variantDurations[variantId] || [];
+    return availableDurations.includes(parseInt(duration));
+}
+
+function updateDurationOptions(variantId) {
+    const durationButtons = document.querySelectorAll('.duration-option');
+    let firstEnabled = true;
+
+    durationButtons.forEach(button => {
+        const duration = parseInt(button.dataset.duration);
+        const isAvailable = checkDurationAvailability(variantId, duration);
+        
+        if (isAvailable) {
+            button.classList.remove('disabled');
+            if (firstEnabled) {
+                button.click();
+                firstEnabled = false;
+            }
+        } else {
+            button.classList.add('disabled');
+            button.classList.remove('active');
+        }
+    });
+}
+
+// Xử lý chọn variant và duration
+document.addEventListener('DOMContentLoaded', function() {
+    // Variant selection
+    const variantButtons = document.querySelectorAll('.variant-option');
+    variantButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Bỏ active tất cả các variant khác
+            variantButtons.forEach(btn => btn.classList.remove('active'));
+            // Thêm active cho variant được chọn
+            this.classList.add('active');
+            
+            // Lấy variant ID
+            const variantId = this.dataset.variantId;
+            
+            // Cập nhật các duration options
+            updateDurationOptions(variantId);
+        });
+    });
+
+    // Duration selection
+    const durationButtons = document.querySelectorAll('.duration-option');
+    durationButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            if (!this.classList.contains('disabled')) {
+                // Bỏ active tất cả các duration khác
+                durationButtons.forEach(btn => btn.classList.remove('active'));
+                // Thêm active cho duration được chọn
+                this.classList.add('active');
+                
+                // Cập nhật giá
+                updatePrice();
+            }
+        });
+    });
+
+    // Chọn variant đầu tiên mặc định
+    const firstVariant = document.querySelector('.variant-option');
+    if (firstVariant) {
+        firstVariant.click();
+    }
+});
+
+function updatePrice() {
+    const activeVariant = document.querySelector('.variant-option.active');
+    const activeDuration = document.querySelector('.duration-option.active');
+    
+    if (!activeVariant || !activeDuration) return;
+
+    // Gọi API để lấy giá
+    fetch(`/api/get-price/?variant=${activeVariant.dataset.variantId}&duration=${activeDuration.dataset.duration}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.querySelector('.current-price').textContent = data.price;
+                if (data.old_price) {
+                    document.querySelector('.old-price').textContent = data.old_price;
+                    document.querySelector('.discount-badge').textContent = `-${data.discount}%`;
+                }
+            }
+        });
+}
+
+// Change main image
+function changeMainImage(thumbnail, imageUrl) {
+    // Remove active class from all thumbnails
+    document.querySelectorAll('.thumbnail').forEach(thumb => {
+        thumb.classList.remove('active');
+    });
+    
+    // Add active class to clicked thumbnail
+    thumbnail.classList.add('active');
+    
+    // Update main image
+    document.getElementById('mainImage').src = imageUrl;
+}
+
+// Copy affiliate link
+function copyLink() {
+    const linkInput = document.querySelector('.affiliate-link input');
+    linkInput.select();
+    document.execCommand('copy');
+    
+    // Show notification
+    Swal.fire({
+        title: 'Đã sao chép!',
+        text: 'Đường dẫn đã được sao chép vào clipboard',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false
+    });
+}
+</script>
+{% endblock %}

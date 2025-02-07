@@ -1,6 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
-from .models import Order, PurchasedAccount, Product, ProductImage, Category, Banner, CartItem  # Tạm thời bỏ CartItem
+from .models import (
+    Order, PurchasedAccount, Product, ProductImage, 
+    Category, Banner, CartItem, BlogPost, ProductVariant, 
+    VariantOption
+)
 from accounts.models import CustomUser
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
@@ -60,8 +64,15 @@ def add_images_to_product(request, product_id):
 
 def product_detail(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    variants = product.variants.all()
-    return render(request, 'store/product_detail', {'product': product, 'variants': variants})
+    
+    context = {
+        'product': product,
+        'related_products': Product.objects.filter(category=product.category).exclude(id=product.id)[:4],
+        'cross_sale_products': product.cross_sale_products.all(),
+        'blog_posts': BlogPost.objects.filter(products=product),
+    }
+    
+    return render(request, 'store/product_detail.html', context)
 
 @login_required
 def add_balance(request, amount):
@@ -469,49 +480,32 @@ def category_detail(request, slug):
 
 @require_POST
 def update_cart(request):
-    if request.method == 'POST':
+    try:
         data = json.loads(request.body)
-        product_id = data.get('id')
-        quantity = int(data.get('quantity', 1))
+        cart_item = CartItem.objects.get(id=data['id'])
+        cart_item.quantity = data['quantity']
+        cart_item.save()
         
-        try:
-            # Cập nhật CartItem trong database
-            user = request.user if request.user.is_authenticated else None
-            session_key = request.session.session_key
-            
-            cart_item = CartItem.objects.filter(
-                Q(user=user) | Q(session_key=session_key),
-                product_id=product_id
-            ).first()
-            
-            if cart_item:
-                cart_item.quantity = quantity
-                cart_item.save()
-            
-            # Lấy danh sách cart items mới
-            cart_items = CartItem.objects.filter(
-                Q(user=user) | Q(session_key=session_key)
-            ).select_related('product')
-            
-            items = [{
-                'id': item.product.id,
-                'name': item.product.name,
-                'price': float(item.product.price),
+        # Lấy tất cả cart items để tính tổng
+        cart_items = CartItem.objects.filter(
+            Q(user=request.user) if request.user.is_authenticated else Q(session_key=request.session.session_key)
+        ).select_related('product')
+        
+        return JsonResponse({
+            'success': True,
+            'total_items': sum(item.quantity for item in cart_items),
+            'cart_items': [{
+                'id': item.id,
                 'quantity': item.quantity,
-                'total': float(item.total_price()),
+                'price': float(item.product.price),
+                'name': item.product.name,
                 'image': item.product.get_primary_image().url if item.product.get_primary_image() else None,
-                'stock': item.product.stock
+                'stock': item.product.stock,
+                'total': float(item.quantity * item.product.price)
             } for item in cart_items]
-            
-            return JsonResponse({
-                'success': True,
-                'cart_items': items,
-                'total_items': sum(item['quantity'] for item in items)
-            })
-            
-        except Exception as e:
-            print("Update error:", str(e))
-            return JsonResponse({'success': False, 'error': str(e)})
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 
 def get_cart_count(request):
     user = request.user if request.user.is_authenticated else None
@@ -538,3 +532,30 @@ def format_price(value):
         return f"{int(value):,}đ".replace(',', '.')
     except (ValueError, TypeError):
         return value
+
+def get_variant_price(request):
+    variant_id = request.GET.get('variant')
+    option_id = request.GET.get('option')
+    
+    try:
+        option = VariantOption.objects.get(id=option_id, variant_id=variant_id)
+        return JsonResponse({
+            'success': True,
+            'price': format_price(option.price),
+            'old_price': format_price(option.old_price) if hasattr(option, 'old_price') else None,
+            'discount': option.get_discount_percentage() if hasattr(option, 'get_discount_percentage') else 0
+        })
+    except VariantOption.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Option not found'
+        })
+
+def blog_detail(request, slug):
+    post = get_object_or_404(BlogPost, slug=slug, is_active=True)
+    related_products = post.products.all()
+    
+    return render(request, 'store/blog_detail.html', {
+        'post': post,
+        'related_products': related_products
+    })

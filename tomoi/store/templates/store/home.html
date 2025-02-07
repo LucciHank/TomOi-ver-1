@@ -137,13 +137,15 @@
                         {% for product in products %}
                         <div class="product-card" data-product-id="{{ product.id }}">
                             <div class="product-image-wrapper">
-                                {% if product.get_primary_image %}
-                                    <img src="{{ product.get_primary_image.url }}" alt="{{ product.name }}" class="product-image">
-                                {% else %}
-                                    <div class="product-placeholder">
-                                        <i class="fas fa-image"></i>
-                                    </div>
-                                {% endif %}
+                                <a href="{% url 'store:product_detail' product.id %}">
+                                    {% if product.get_primary_image %}
+                                        <img src="{{ product.get_primary_image.url }}" alt="{{ product.name }}" class="product-image">
+                                    {% else %}
+                                        <div class="product-placeholder">
+                                            <i class="fas fa-image"></i>
+                                        </div>
+                                    {% endif %}
+                                </a>
                             </div>
                             {% if product.label %}
                             <div class="product-label" style="--label-color: {{ product.label.color }}">
@@ -151,7 +153,7 @@
                             </div>
                             {% endif %}
                             <h3 class="product-title">
-                                <a href="#" class="product-link">{{ product.name }}</a>
+                                <a href="{% url 'store:product_detail' product.id %}" class="product-link">{{ product.name }}</a>
                             </h3>
                             <div class="price-wrapper">
                                 <div class="price-row">

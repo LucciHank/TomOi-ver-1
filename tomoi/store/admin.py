@@ -1,7 +1,10 @@
 from django.contrib import admin
 from django import forms
 from django.db import models
-from .models import Category, Product, ProductImage, Variant, Option, Order, Banner, ProductLabel
+from .models import (
+    Category, Product, ProductImage, ProductVariant, 
+    VariantOption, Order, Banner, ProductLabel, BlogPost
+)
 from django.utils.text import slugify
 
 @admin.register(Category)
@@ -13,31 +16,68 @@ class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
 
-class VariantInline(admin.TabularInline):
-    model = Variant
+class VariantOptionInline(admin.TabularInline):
+    model = VariantOption
     extra = 1
 
-class OptionInline(admin.TabularInline):
-    model = Option
+class ProductVariantInline(admin.TabularInline):
+    model = ProductVariant
     extra = 1
+    inlines = [VariantOptionInline]
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'category', 'price', 'stock', 'is_featured')
-    list_filter = ('category', 'is_featured')
+    list_filter = (
+        'category', 
+        'is_featured',
+        'requires_email',
+        'requires_account_password'
+    )
     search_fields = ('name',)
-    list_editable = ('is_featured',)
-    inlines = [ProductImageInline, VariantInline]
+    inlines = [ProductImageInline, ProductVariantInline]
+    fieldsets = (
+        ('Thông tin cơ bản', {
+            'fields': ('name', 'category', 'price', 'old_price', 'stock', 'description')
+        }),
+        ('Tùy chọn nâng cao', {
+            'fields': ('is_featured', 'label', 'is_cross_sale', 'cross_sale_products', 'cross_sale_discount')
+        }),
+        ('Yêu cầu thông tin khách hàng', {
+            'fields': (
+                'requires_email',
+                'requires_account_password',
+            ),
+            'description': 'Chọn loại thông tin cần yêu cầu từ khách hàng'
+        }),
+    )
+    filter_horizontal = ('cross_sale_products',)
 
-@admin.register(Variant)
-class VariantAdmin(admin.ModelAdmin):
-    list_display = ('name', 'product')
-    list_filter = ('product',)
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        field = super().formfield_for_dbfield(db_field, **kwargs)
+        if db_field.name == 'requires_email':
+            field.label = 'Yêu cầu Email'
+        elif db_field.name == 'requires_account_password':
+            field.label = 'Yêu cầu Tài khoản & Mật khẩu'
+        return field
 
-@admin.register(Option)
-class OptionAdmin(admin.ModelAdmin):
-    list_display = ('variant', 'duration', 'price')
-    list_filter = ('variant',)
+    class Media:
+        css = {
+            'all': [
+                'django_ckeditor_5/dist/styles.css',
+            ]
+        }
+
+@admin.register(ProductVariant)
+class ProductVariantAdmin(admin.ModelAdmin):
+    list_display = ('name', 'product', 'is_active', 'order')
+    list_filter = ('product', 'is_active')
+    inlines = [VariantOptionInline]
+
+@admin.register(VariantOption)
+class VariantOptionAdmin(admin.ModelAdmin):
+    list_display = ('variant', 'duration', 'price', 'stock', 'is_active')
+    list_filter = ('variant', 'is_active')
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
@@ -76,3 +116,18 @@ class ProductLabelAdmin(admin.ModelAdmin):
         form = super().get_form(request, obj, **kwargs)
         form.base_fields['color'].widget.attrs['class'] = 'color-picker'
         return form
+
+@admin.register(BlogPost)
+class BlogPostAdmin(admin.ModelAdmin):
+    list_display = ('title', 'created_at', 'is_active')
+    list_filter = ('is_active', 'created_at')
+    search_fields = ('title', 'content')
+    prepopulated_fields = {'slug': ('title',)}
+    filter_horizontal = ('products',)
+
+    class Media:
+        css = {
+            'all': [
+                'django_ckeditor_5/dist/styles.css',
+            ]
+        }

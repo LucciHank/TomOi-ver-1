@@ -6,6 +6,7 @@ from django.contrib.auth.models import AbstractUser, Group, Permission
 from datetime import timedelta
 from django.utils import timezone
 from django.utils.text import slugify
+from django_ckeditor_5.fields import CKEditor5Field
 
 def default_expiry_date():
     return now() + timedelta(days=30)
@@ -43,9 +44,26 @@ class Product(models.Model):
     label = models.ForeignKey(ProductLabel, on_delete=models.SET_NULL, null=True, blank=True)
     category = models.ForeignKey(Category, related_name="products", on_delete=models.CASCADE, null=True, blank=True)
     stock = models.PositiveIntegerField(default=0)
-    description = models.TextField(null=True, blank=True)
+    description = CKEditor5Field(
+        'Mô tả', 
+        config_name='default',
+        blank=True
+    )
     is_featured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    requires_email = models.BooleanField(
+        default=False,
+        verbose_name="Yêu cầu Email",
+        help_text="Khách hàng cần cung cấp email để nâng cấp"
+    )
+    requires_account_password = models.BooleanField(
+        default=False,
+        verbose_name="Yêu cầu Tài khoản & Mật khẩu",
+        help_text="Khách hàng cần cung cấp tài khoản và mật khẩu để nâng cấp"
+    )
+    is_cross_sale = models.BooleanField(default=False)
+    cross_sale_products = models.ManyToManyField('self', blank=True)
+    cross_sale_discount = models.IntegerField(default=0, help_text="Phần trăm giảm giá khi mua kèm")
 
     def __str__(self):
         return self.name
@@ -76,6 +94,27 @@ class Product(models.Model):
             return "{:,}".format(self.old_price)
         return None
 
+    def get_variants_with_options(self):
+        """Lấy tất cả variants và options của sản phẩm"""
+        variants = self.variants.filter(is_active=True).order_by('order')
+        result = []
+        for variant in variants:
+            options = variant.options.filter(is_active=True).order_by('duration')
+            if options:
+                result.append({
+                    'variant': variant,
+                    'options': options
+                })
+        return result
+
+    def get_all_durations(self):
+        """Lấy tất cả các thời hạn không trùng lặp"""
+        durations = set()
+        for variant in self.variants.all():
+            for option in variant.options.all():
+                durations.add(option.duration)
+        return sorted(list(durations))
+
 
 # Mô hình hình ảnh sản phẩm (ProductImage)
 class ProductImage(models.Model):
@@ -99,22 +138,26 @@ class ProductImage(models.Model):
 
 
 # Mô hình biến thể sản phẩm (Variant)
-class Variant(models.Model):
-    product = models.ForeignKey(Product, related_name="variants", on_delete=models.CASCADE)
-    name = models.CharField(max_length=255)  # Ví dụ: "Tiết kiệm" hoặc "Cao cấp"
+class ProductVariant(models.Model):
+    product = models.ForeignKey(Product, related_name='variants', on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)  # e.g. "Tiết kiệm", "PRO"
+    is_active = models.BooleanField(default=True)
+    order = models.IntegerField(default=0)
 
-    def __str__(self):
-        return f"{self.product.name} - {self.name}"
+    class Meta:
+        ordering = ['order']
 
 
 # Mô hình tùy chọn sản phẩm (Option)
-class Option(models.Model):
-    variant = models.ForeignKey(Variant, related_name="options", on_delete=models.CASCADE)
-    duration = models.PositiveIntegerField()  # Thời gian (ví dụ: 1, 3, 6, 12)
-    price = models.DecimalField(max_digits=10, decimal_places=0)  # Giá của tùy chọn
+class VariantOption(models.Model):
+    variant = models.ForeignKey(ProductVariant, related_name='options', on_delete=models.CASCADE)
+    duration = models.IntegerField()  # Số tháng
+    price = models.DecimalField(max_digits=10, decimal_places=0)
+    stock = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
 
-    def __str__(self):
-        return f"{self.variant.product.name} - {self.variant.name} ({self.duration} tháng)"
+    class Meta:
+        ordering = ['duration']
 
 
 # Form quản lý hình ảnh sản phẩm (ProductImageForm)
@@ -253,3 +296,28 @@ class Cart(models.Model):
 
     class Meta:
         db_table = 'carts'
+
+class BlogPost(models.Model):
+    title = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=200, unique=True)
+    content = CKEditor5Field(
+        'Nội dung',
+        config_name='default',
+        blank=True
+    )
+    products = models.ManyToManyField(Product, related_name='blog_posts')
+    image = models.ImageField(upload_to='blog/', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['-created_at']

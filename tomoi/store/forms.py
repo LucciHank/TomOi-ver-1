@@ -1,5 +1,5 @@
 from django import forms
-from .models import ProductImage, Product, ProductImage, Variant, Option
+from .models import ProductImage, Product, ProductVariant, VariantOption
 
 class ProductImageForm(forms.ModelForm):
     class Meta:
@@ -17,14 +17,14 @@ class ProductImageForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['name', 'category', 'price', 'stock', 'description']
+        fields = '__all__'
 
-class VariantForm(forms.ModelForm):
+class ProductVariantForm(forms.ModelForm):
     class Meta:
-        model = Variant
-        fields = ['product', 'name']
+        model = ProductVariant
+        fields = ['name', 'product', 'is_active', 'order']
 
-class OptionForm(forms.ModelForm):
+class VariantOptionForm(forms.ModelForm):
     class Meta:
-        model = Option
-        fields = ['variant', 'duration', 'price']
+        model = VariantOption
+        fields = ['variant', 'duration', 'price', 'stock', 'is_active']

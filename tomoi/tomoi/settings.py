@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'social_django',
     'django.contrib.humanize',
+    'django_ckeditor_5',
 ]
 
 MIDDLEWARE = [
@@ -223,3 +224,15 @@ SEPAY_BANK = 'MBBank'
 
 # Thêm vào cuối file
 CART_SESSION_ID = 'cart'
+
+# Thêm cấu hình cho CKEditor 5
+CKEDITOR_5_CONFIGS = {
+    'default': {
+        'toolbar': ['heading', '|', 'bold', 'italic', 'link',
+                   'bulletedList', 'numberedList', 'blockQuote', 'imageUpload', ],
+        'height': '300px',
+    },
+}
+
+CKEDITOR_5_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+CKEDITOR_5_UPLOAD_PATH = "uploads/"

@@ -38,54 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Hàm cập nhật giỏ hàng trong giao diện người dùng
-function updateCartDropdown(cartItems) {
-    const cartItemsContainer = document.querySelector('.cart-items');
-    const emptyCart = document.querySelector('.empty-cart');
-    const totalAmount = document.querySelector('.total-amount');
-
-    if (!cartItems || cartItems.length === 0) {
-        if (emptyCart) emptyCart.style.display = 'block';
-        if (cartItemsContainer) cartItemsContainer.innerHTML = '';
-        if (totalAmount) totalAmount.textContent = '0đ';
-        return;
-    }
-
-    if (emptyCart) emptyCart.style.display = 'none';
-    
-    if (cartItemsContainer) {
-        cartItemsContainer.innerHTML = cartItems.map(item => `
-            <div class="cart-item" data-id="${item.id}" data-stock="${item.stock}">
-                <div class="item-image">
-                    <img src="${item.image || '/static/images/placeholder.png'}" alt="${item.name}">
-                </div>
-                <div class="item-content">
-                    <div class="item-info">
-                        <h6 class="item-name">${item.name}</h6>
-                        <div class="item-price">
-                            <span class="current-price">${formatPrice(item.price)}</span>
-                        </div>
-                    </div>
-                    <div class="item-controls">
-                        <div class="quantity-controls">
-                            <button class="quantity-btn minus">-</button>
-                            <input type="number" class="quantity-input" value="${item.quantity}" min="1" max="${item.stock}">
-                            <button class="quantity-btn plus">+</button>
-                        </div>
-                        <button class="remove-btn">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    // Cập nhật tổng tiền
-    if (totalAmount) {
-        const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        totalAmount.textContent = formatPrice(total);
-    }
-}
+// function updateCartDropdown(cartItems) { ... }
 
 function formatPrice(price) {
     return new Intl.NumberFormat('vi-VN', {
@@ -307,13 +260,6 @@ function updateTotalAmount(amount) {
     }
 }
 
-function formatPrice(value) {
-    return new Intl.NumberFormat('vi-VN', {
-        style: 'currency',
-        currency: 'VND'
-    }).format(value).replace('₫', 'đ');
-}
-
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -330,60 +276,10 @@ function getCookie(name) {
 }
 
 // Thêm hàm updateCartTotal
-function updateCartTotal() {
-    const cartItems = document.querySelectorAll('.cart-item');
-    let total = 0;
-    cartItems.forEach(cartItem => {
-        const price = parseFloat(cartItem.dataset.price || 0);
-        const qty = parseInt(cartItem.querySelector('.quantity-input').value);
-        if (!isNaN(price) && !isNaN(qty)) {
-            total += price * qty;
-        }
-    });
-    const totalAmount = document.querySelector('.total-amount');
-    if (totalAmount) {
-        totalAmount.textContent = formatPrice(total);
-    }
-}
+// function updateCartTotal() { ... }
 
 // Thêm hàm addToCart
-function addToCart(productId) {
-    fetch('/cart/add/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ id: productId, quantity: 1 })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            loadCartItems(); // Tải lại toàn bộ giỏ hàng
-            Swal.fire({
-                title: 'Thành công!',
-                text: 'Đã thêm sản phẩm vào giỏ hàng',
-                icon: 'success',
-                timer: 1500,
-                showConfirmButton: false
-            });
-        } else {
-            Swal.fire({
-                title: 'Lỗi!',
-                text: data.error || 'Có lỗi xảy ra',
-                icon: 'error'
-            });
-        }
-    })
-    .catch(error => {
-        console.error('Add to cart error:', error);
-        Swal.fire({
-            title: 'Lỗi!',
-            text: 'Không thể kết nối đến server',
-            icon: 'error'
-        });
-    });
-}
+// function addToCart(productId) { ... }
 
 // Sửa lại event listeners
 document.addEventListener('DOMContentLoaded', function() {
