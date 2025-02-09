@@ -495,11 +495,11 @@ const thumbnailsSwiper = new Swiper('.thumbnails-swiper', {
 const variantDurations = {
     {% for variant in product.variants.all %}
         "{{ variant.id }}": [
-            {% for option in variant.options.all %}
+        {% for option in variant.options.all %}
                 {{ option.duration }},
-            {% endfor %}
+        {% endfor %}
         ],
-    {% endfor %}
+{% endfor %}
 };
 
 function checkDurationAvailability(variantId, duration) {

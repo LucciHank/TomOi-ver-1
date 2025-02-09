@@ -168,7 +168,20 @@
                 </button>
                 <div class="cart-dropdown-content">
                     <div class="cart-items">
-                        <!-- Cart items sẽ được thêm vào đây bởi JavaScript -->
+                        {% for item in cart_items %}
+                        <div class="cart-item" data-id="{{ item.id }}" data-stock="{{ item.stock }}">
+                            <div class="item-controls">
+                                <div class="quantity-controls">
+                                    <button class="quantity-btn minus" data-id="{{ item.id }}">-</button>
+                                    <input type="number" class="quantity-input" value="{{ item.quantity }}" min="1" max="{{ item.stock }}" readonly>
+                                    <button class="quantity-btn plus" data-id="{{ item.id }}">+</button>
+                                </div>
+                                <button class="remove-btn" data-id="{{ item.id }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
                     <div class="empty-cart" style="display: none;">
                         <i class="fas fa-shopping-cart"></i>
