@@ -140,7 +140,13 @@ class ProductImage(models.Model):
 # Mô hình biến thể sản phẩm (Variant)
 class ProductVariant(models.Model):
     product = models.ForeignKey(Product, related_name='variants', on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)  # e.g. "Tiết kiệm", "PRO"
+    name = models.CharField(max_length=100)
+    base_price = models.DecimalField(max_digits=10, decimal_places=2)
+    original_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    price_3_months = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    price_6_months = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    price_12_months = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    stock = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
     order = models.IntegerField(default=0)
 
@@ -248,30 +254,39 @@ class Banner(models.Model):
 
 # Mô hình giỏ hàng (CartItem)
 class CartItem(models.Model):
-    user = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     session_key = models.CharField(max_length=40, null=True, blank=True)
     product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    variant = models.ForeignKey('ProductVariant', on_delete=models.CASCADE, null=True, blank=True)
+    duration = models.IntegerField(null=True, blank=True)
+    upgrade_email = models.EmailField(null=True, blank=True)
+    account_username = models.CharField(max_length=255, null=True, blank=True)
+    account_password = models.CharField(max_length=255, null=True, blank=True)
     quantity = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        # Đảm bảo mỗi sản phẩm chỉ xuất hiện một lần cho mỗi user hoặc session
         constraints = [
             models.UniqueConstraint(
-                fields=['user', 'product'],
+                fields=['user', 'product', 'variant', 'duration', 'upgrade_email'],
                 condition=models.Q(user__isnull=False),
-                name='unique_user_product'
+                name='unique_user_product_variant'
             ),
             models.UniqueConstraint(
-                fields=['session_key', 'product'],
+                fields=['session_key', 'product', 'variant', 'duration', 'upgrade_email'],
                 condition=models.Q(session_key__isnull=False),
-                name='unique_session_product'
+                name='unique_session_product_variant'
             )
         ]
 
     def total_price(self):
-        """Tính tổng tiền của item"""
+        if self.variant and self.duration:
+            try:
+                option = self.variant.options.get(duration=self.duration)
+                return self.quantity * option.price
+            except VariantOption.DoesNotExist:
+                return 0
         return self.quantity * self.product.price
 
     def __str__(self):
@@ -293,9 +308,6 @@ class Cart(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        db_table = 'carts'
 
 class BlogPost(models.Model):
     title = models.CharField(max_length=200)

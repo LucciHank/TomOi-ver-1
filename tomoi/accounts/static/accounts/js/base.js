@@ -11,8 +11,9 @@ if (typeof baseJsLoaded === 'undefined') {
     function initBaseJS() {
         console.log('Initializing base.js');
         
-        // Load giỏ hàng ban đầu
+        // Load giỏ hàng ngay khi trang load
         loadCartItems();
+        updateCartBadge();
         
         // Thêm event listener cho click toàn cục
         document.removeEventListener('click', handleGlobalClick);
@@ -150,16 +151,14 @@ if (typeof baseJsLoaded === 'undefined') {
     }
 
     function loadCartItems() {
-        if (isUpdating) return; // Nếu đang update thì không load
-
         fetch('/cart/api/')
             .then(response => response.json())
             .then(data => {
-                // Cập nhật UI
                 updateCartUI(data);
+                updateCartBadge();
             })
             .catch(error => {
-                console.error('Error loading cart:', error);
+                console.error('Error loading cart items:', error);
             });
     }
 
@@ -279,19 +278,22 @@ if (typeof baseJsLoaded === 'undefined') {
     }
 
     // Thêm hàm addToCart
-    function addToCart(productId) {
+    function addToCart(productData) {
         fetch('/cart/add/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': getCookie('csrftoken')
             },
-            body: JSON.stringify({ id: productId, quantity: 1 })
+            body: JSON.stringify(productData)
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                loadCartItems(); // Tải lại toàn bộ giỏ hàng
+                // Cập nhật UI giỏ hàng
+                updateCartDropdown(data.cart_items);
+                updateCartCount(data.total_items);
+                
                 Swal.fire({
                     title: 'Thành công!',
                     text: 'Đã thêm sản phẩm vào giỏ hàng',
@@ -300,18 +302,14 @@ if (typeof baseJsLoaded === 'undefined') {
                     showConfirmButton: false
                 });
             } else {
-                Swal.fire({
-                    title: 'Lỗi!',
-                    text: data.error || 'Có lỗi xảy ra',
-                    icon: 'error'
-                });
+                throw new Error(data.error || 'Có lỗi xảy ra');
             }
         })
         .catch(error => {
             console.error('Add to cart error:', error);
             Swal.fire({
                 title: 'Lỗi!',
-                text: 'Không thể kết nối đến server',
+                text: error.message || 'Không thể thêm sản phẩm vào giỏ hàng',
                 icon: 'error'
             });
         });
@@ -330,7 +328,6 @@ if (typeof baseJsLoaded === 'undefined') {
             return;
         }
 
-        // Cập nhật UI giỏ hàng
         emptyCartMessages.forEach(msg => msg.style.display = 'none');
         
         const cartItemHTML = data.cart_items.map(item => `
@@ -341,11 +338,19 @@ if (typeof baseJsLoaded === 'undefined') {
                 <div class="item-content">
                     <div class="item-info">
                         <h6 class="item-name">${item.name}</h6>
-                        <div class="item-price">
-                            <span class="current-price">${formatPrice(item.price)}</span>
+                        <div class="item-price-wrapper">
+                            <span class="current-price">${formatPrice(item.price * item.quantity)}</span>
+                            ${item.old_price ? `
+                                <span class="old-price">${formatPrice(item.old_price * item.quantity)}</span>
+                                <span class="discount-badge">-${item.discount}%</span>
+                            ` : ''}
+                        </div>
+                        <div class="item-details">
+                            <span class="account-type">${item.variant_name}</span>
+                            <span class="duration">${item.duration} tháng</span>
                         </div>
                     </div>
-                    <div class="item-controls">
+                    <div class="item-controls-wrapper">
                         <div class="quantity-controls">
                             <button class="quantity-btn minus">-</button>
                             <input type="number" class="quantity-input" value="${item.quantity}" min="1" max="${item.stock}" readonly>
@@ -365,10 +370,96 @@ if (typeof baseJsLoaded === 'undefined') {
 
         // Tính và cập nhật tổng tiền
         const total = data.cart_items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        console.log('Updating total amount:', total); // Debug log
         totalAmounts.forEach(totalEl => {
             totalEl.textContent = formatPrice(total);
         });
+
+        // Cập nhật số lượng sản phẩm trong giỏ
+        updateCartCount(data.total_items);
+    }
+
+    // Thêm hàm updateCartDropdown
+    function updateCartDropdown(cartItems) {
+        const cartItemsContainer = document.querySelector('.cart-items');
+        const emptyCartMessage = document.querySelector('.empty-cart');
+        const totalAmountElement = document.querySelector('.total-amount');
+        
+        if (!cartItems || cartItems.length === 0) {
+            if (cartItemsContainer) cartItemsContainer.innerHTML = '';
+            if (emptyCartMessage) emptyCartMessage.style.display = 'block';
+            if (totalAmountElement) totalAmountElement.textContent = '0đ';
+            return;
+        }
+
+        if (emptyCartMessage) emptyCartMessage.style.display = 'none';
+
+        const cartHTML = cartItems.map(item => `
+            <div class="cart-item" data-id="${item.id}" data-stock="${item.stock}" data-price="${item.price}">
+                <div class="item-image">
+                    <img src="${item.image || '/static/images/placeholder.png'}" alt="${item.name}">
+                </div>
+                <div class="item-content">
+                    <div class="item-info">
+                        <h6 class="item-name">${item.name}</h6>
+                        <div class="item-price-wrapper">
+                            <span class="current-price">${formatPrice(item.price * item.quantity)}</span>
+                            ${item.old_price ? `
+                                <span class="old-price">${formatPrice(item.old_price * item.quantity)}</span>
+                                <span class="discount-badge">-${item.discount}%</span>
+                            ` : ''}
+                        </div>
+                        <div class="item-details">
+                            <span class="account-type">${item.variant_name}</span>
+                            <span class="duration">${item.duration} tháng</span>
+                        </div>
+                    </div>
+                    <div class="item-controls-wrapper">
+                        <div class="quantity-controls">
+                            <button class="quantity-btn minus">-</button>
+                            <input type="number" class="quantity-input" value="${item.quantity}" min="1" max="${item.stock}" readonly>
+                            <button class="quantity-btn plus">+</button>
+                        </div>
+                        <button class="remove-btn" data-id="${item.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        if (cartItemsContainer) {
+            cartItemsContainer.innerHTML = cartHTML;
+        }
+
+        // Tính tổng tiền
+        const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        if (totalAmountElement) {
+            totalAmountElement.textContent = formatPrice(total);
+        }
+    }
+
+    // Thêm hàm updateCartCount
+    function updateCartCount(count) {
+        const cartCountBadge = document.querySelector('.cart-count-badge');
+        if (cartCountBadge) {
+            cartCountBadge.textContent = count;
+            cartCountBadge.style.display = count > 0 ? 'inline' : 'none';
+        }
+    }
+
+    // Thêm hàm updateCartBadge
+    function updateCartBadge() {
+        fetch('/cart/api/')
+            .then(response => response.json())
+            .then(data => {
+                const cartCountBadge = document.querySelector('.cart-count-badge');
+                if (cartCountBadge) {
+                    const count = data.total_items;
+                    cartCountBadge.textContent = count;
+                    cartCountBadge.style.display = count > 0 ? 'inline' : 'none';
+                }
+            })
+            .catch(error => console.error('Error updating cart badge:', error));
     }
 
     // Khởi tạo khi DOM đã sẵn sàng
@@ -377,5 +468,77 @@ if (typeof baseJsLoaded === 'undefined') {
     } else {
         initBaseJS();
     }
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Đóng modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('authModal'));
+                modal.hide();
+                
+                // Hiển thị thông báo thành công
+                Swal.fire({
+                    title: 'Thành công!',
+                    text: data.message || 'Đăng nhập thành công!',
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    // Reload trang thay vì chỉ redirect
+                    window.location.reload();
+                });
+            } else {
+                Swal.fire({
+                    title: 'Lỗi',
+                    text: data.error || 'Có lỗi xảy ra',
+                    icon: 'error'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'Lỗi',
+                text: 'Có lỗi xảy ra khi đăng nhập',
+                icon: 'error'
+            });
+        });
+    });
+
+    // Thêm hàm kiểm tra trạng thái đăng nhập
+    function checkLoginStatus() {
+        const userAuthenticated = document.body.dataset.userAuthenticated === 'true';
+        const userDropdown = document.querySelector('.dropdown-content');
+        const loginButton = document.querySelector('[data-bs-target="#authModal"]');
+        
+        if (userAuthenticated) {
+            if (loginButton) loginButton.style.display = 'none';
+            if (userDropdown) userDropdown.classList.add('authenticated');
+        } else {
+            if (loginButton) loginButton.style.display = 'block';
+            if (userDropdown) userDropdown.classList.remove('authenticated');
+        }
+    }
+
+    // Chạy kiểm tra khi trang load
+    document.addEventListener('DOMContentLoaded', checkLoginStatus);
+
+    // Thêm event listener cho window load
+    window.addEventListener('load', function() {
+        loadCartItems();
+        updateCartBadge();
+    });
 }
 

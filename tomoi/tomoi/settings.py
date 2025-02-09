@@ -66,20 +66,20 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'accounts',
-    'store',
-    'payment',
-    'colorfield',
-    'admin_interface',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'accounts',
+    'store',
+    'payment',
     'social_django',
-    'django.contrib.humanize',
     'django_ckeditor_5',
+    'colorfield',
+    'admin_interface',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [

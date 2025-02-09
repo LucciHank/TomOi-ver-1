@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.quantity-btn').forEach(btn => {
         btn.replaceWith(btn.cloneNode(true));
     });
-    
+
     document.querySelectorAll('.remove-btn').forEach(btn => {
         btn.replaceWith(btn.cloneNode(true));
     });
@@ -57,7 +57,7 @@ function updateCartDropdown(cartItems) {
     }
 
     if (emptyCart) emptyCart.style.display = 'none';
-    
+
     if (cartItemsContainer) {
         cartItemsContainer.innerHTML = cartItems.map(item => `
             <div class="cart-item" data-id="${item.id}" data-stock="${item.stock}">
@@ -210,7 +210,7 @@ function loadCartItems() {
 // Thêm hàm xử lý sự kiện cho cart controls
 function initCartControls() {
     // Xử lý nút tăng/giảm số lượng
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (e.target.matches('.quantity-btn.minus') || e.target.matches('.quantity-btn.plus')) {
             const cartItem = e.target.closest('.cart-item');
             if (!cartItem) return;
@@ -248,7 +248,7 @@ function initCartControls() {
     });
 
     // Xử lý input số lượng
-    document.addEventListener('change', function(e) {
+    document.addEventListener('change', function (e) {
         if (e.target.matches('.quantity-input')) {
             const cartItem = e.target.closest('.cart-item');
             if (!cartItem) return;
@@ -272,7 +272,7 @@ function initCartControls() {
 }
 
 // Khởi tạo các controls khi trang được load
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     initCartControls();
     loadCartItems();
     updateCartCount();
@@ -293,10 +293,10 @@ style.textContent = `
 document.head.appendChild(style);
 
 // Xóa tất cả các hàm liên quan đến xóa sản phẩm
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Chỉ giữ lại các chức năng khác của trang home
     // Ví dụ: slider, thêm vào giỏ hàng, v.v.
-    
+
     // Xóa các event listener liên quan đến xóa sản phẩm
     const removeButtons = document.querySelectorAll('.remove-btn');
     removeButtons.forEach(btn => {

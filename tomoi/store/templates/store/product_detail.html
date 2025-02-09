@@ -247,6 +247,11 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     transform: translateY(-5px);
 }
+
+/* Hiệu ứng mượt mà cho tabs */
+.product-tab-item {
+    transition: all 0.3s ease;
+}
 </style>
 {% endblock %}
 
@@ -263,7 +268,7 @@
 
         <div class="row">
             <!-- Left column - Images -->
-            <div class="col-md-6">
+            <div class="col-md-6" id="intro">
                 <div class="product-images">
                     <div class="main-image">
                         <img src="{{ product.get_primary_image.url }}" alt="{{ product.name }}" id="mainImage">
@@ -303,7 +308,7 @@
                 </div>
 
                 <!-- Product description -->
-                <div class="product-description">
+                <div class="product-description" id="details">
                     <h4>Thông tin sản phẩm</h4>
                     <div class="description-content">
                         {{ product.description|safe }}
@@ -436,19 +441,25 @@
                 <div class="col-md-3">
                     {% include 'store/includes/product_card.html' with product=related %}
                 </div>
-        {% endfor %}
+                {% endfor %}
             </div>
         </div>
         {% endif %}
 
+        <!-- Reviews section -->
+        <div class="reviews-section" id="reviews">
+            <h4>Đánh giá sản phẩm</h4>
+            <!-- Thêm nội dung phần đánh giá ở đây -->
+        </div>
+
         <!-- Blog posts -->
         {% if blog_posts %}
-        <div class="blog-posts mt-5">
+        <div class="blog-posts mt-5" id="posts">
             <h3>Bài viết chi tiết</h3>
             <div class="row">
                 {% for post in blog_posts %}
                 <!-- Blog post card -->
-{% endfor %}
+                {% endfor %}
             </div>
         </div>
         {% endif %}
@@ -558,6 +569,37 @@ document.addEventListener('DOMContentLoaded', function() {
     if (firstVariant) {
         firstVariant.click();
     }
+
+    // Thêm Intersection Observer để theo dõi các section
+    const sections = document.querySelectorAll('#intro, #details, #reviews, #posts');
+    const tabs = document.querySelectorAll('.product-tab-item');
+    
+    const observerOptions = {
+        root: null, // viewport
+        rootMargin: '-100px 0px -50% 0px', // Điều chỉnh vùng quan sát
+        threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Tìm và active tab tương ứng
+                const targetId = entry.target.id;
+                tabs.forEach(tab => {
+                    if (tab.getAttribute('href') === '#' + targetId) {
+                        tab.classList.add('active');
+                    } else {
+                        tab.classList.remove('active');
+                    }
+                });
+            }
+        });
+    }, observerOptions);
+
+    // Theo dõi tất cả các section
+    sections.forEach(section => {
+        observer.observe(section);
+    });
 });
 
 function updatePrice() {
@@ -566,18 +608,42 @@ function updatePrice() {
     
     if (!activeVariant || !activeDuration) return;
 
+    const variantId = activeVariant.dataset.variantId;
+    const duration = activeDuration.dataset.duration;
+
     // Gọi API để lấy giá
-    fetch(`/api/get-price/?variant=${activeVariant.dataset.variantId}&duration=${activeDuration.dataset.duration}`)
+    fetch(`/api/get-price/?variant_id=${variantId}&duration=${duration}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                document.querySelector('.current-price').textContent = data.price;
+                const priceElement = document.querySelector('.current-price');
+                const oldPriceElement = document.querySelector('.old-price');
+                const discountElement = document.querySelector('.discount-badge');
+
+                priceElement.textContent = formatPrice(data.price);
+                
                 if (data.old_price) {
-                    document.querySelector('.old-price').textContent = data.old_price;
-                    document.querySelector('.discount-badge').textContent = `-${data.discount}%`;
+                    oldPriceElement.textContent = formatPrice(data.old_price);
+                    discountElement.textContent = `-${data.discount}%`;
+                    oldPriceElement.style.display = 'inline';
+                    discountElement.style.display = 'inline';
+                } else {
+                    oldPriceElement.style.display = 'none';
+                    discountElement.style.display = 'none';
                 }
             }
+        })
+        .catch(error => {
+            console.error('Error fetching price:', error);
         });
+}
+
+// Thêm hàm format giá
+function formatPrice(price) {
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND'
+    }).format(price).replace('₫', 'đ');
 }
 
 // Change main image
@@ -608,6 +674,186 @@ function copyLink() {
         timer: 1500,
         showConfirmButton: false
     });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Xử lý click vào các tab
+    document.querySelectorAll('.product-tab-item').forEach(tab => {
+        tab.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.product-tab-item').forEach(t => {
+                t.classList.remove('active');
+            });
+            
+            // Add active class to clicked tab
+            this.classList.add('active');
+            
+            // Get the target section id
+            const targetId = this.getAttribute('href');
+            const targetSection = document.querySelector(targetId);
+            
+            if (targetSection) {
+                // Scroll to section with offset for fixed header
+                const headerOffset = 100; // Điều chỉnh offset tùy theo chiều cao header
+                const elementPosition = targetSection.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+});
+
+function addToCart() {
+    const activeVariant = document.querySelector('.variant-option.active');
+    const activeDuration = document.querySelector('.duration-option.active');
+    const emailInput = document.querySelector('input[name="account_email"]');
+    const accountInput = document.querySelector('input[name="account_username"]');
+    const passwordInput = document.querySelector('input[name="account_password"]');
+    
+    // Kiểm tra đã chọn variant và duration
+    if (!activeVariant || !activeDuration) {
+        Swal.fire({
+            title: 'Lỗi',
+            text: 'Vui lòng chọn loại tài khoản và thời hạn',
+            icon: 'error'
+        });
+        return;
+    }
+
+    // Kiểm tra yêu cầu email
+    if ({{ product.requires_email|yesno:"true,false" }} && (!emailInput || !emailInput.value)) {
+        Swal.fire({
+            title: 'Lỗi',
+            text: 'Vui lòng nhập email để nâng cấp tài khoản',
+            icon: 'error'
+        });
+        return;
+    }
+
+    // Kiểm tra yêu cầu tài khoản & mật khẩu
+    if ({{ product.requires_account_password|yesno:"true,false" }}) {
+        if (!accountInput || !accountInput.value) {
+            Swal.fire({
+                title: 'Lỗi',
+                text: 'Vui lòng nhập tài khoản cần nâng cấp',
+                icon: 'error'
+            });
+            return;
+        }
+        if (!passwordInput || !passwordInput.value) {
+            Swal.fire({
+                title: 'Lỗi',
+                text: 'Vui lòng nhập mật khẩu của tài khoản',
+                icon: 'error'
+            });
+            return;
+        }
+    }
+
+    const productData = {
+        product_id: {{ product.id }},
+        variant_id: parseInt(activeVariant.dataset.variantId),
+        duration: parseInt(activeDuration.dataset.duration),
+        upgrade_email: emailInput ? emailInput.value : null,
+        account_username: accountInput ? accountInput.value : null,
+        account_password: passwordInput ? passwordInput.value : null,
+        quantity: 1
+    };
+
+    // Lấy CSRF token từ cookie
+    const csrftoken = getCookie('csrftoken');
+
+    fetch('/cart/add/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify(productData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateCartDropdown(data.cart_items);
+            updateCartCount(data.total_items);
+            Swal.fire({
+                title: 'Thành công',
+                text: 'Đã thêm sản phẩm vào giỏ hàng',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        } else {
+            Swal.fire({
+                title: 'Lỗi',
+                text: data.error || 'Có lỗi xảy ra',
+                icon: 'error'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Lỗi',
+            text: 'Có lỗi xảy ra khi thêm vào giỏ hàng',
+            icon: 'error'
+        });
+    });
+}
+
+// Hàm lấy CSRF token từ cookie
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Thêm các hàm này vào đầu phần script
+function selectVariant(button) {
+    // Bỏ active tất cả các variant khác
+    document.querySelectorAll('.variant-option').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Active variant được chọn
+    button.classList.add('active');
+    
+    // Lấy variant ID
+    const variantId = button.dataset.variantId;
+    
+    // Cập nhật các option duration cho variant này
+    updateDurationOptions(variantId);
+    
+    // Cập nhật giá
+    updatePrice();
+}
+
+function selectDuration(button) {
+    // Bỏ active tất cả các duration khác
+    document.querySelectorAll('.duration-option').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Active duration được chọn
+    button.classList.add('active');
+    
+    // Cập nhật giá
+    updatePrice();
 }
 </script>
 {% endblock %}

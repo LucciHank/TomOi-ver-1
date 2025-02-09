@@ -1,15 +1,17 @@
 /* Product Tabs Navigation */
 .product-tabs {
     display: flex;
-    gap: 10px;
+    gap: 3px;
     margin-bottom: 30px;
-    padding: 10px;
-    background: rgba(0, 0, 0, 0.03);
+    background: rgba(0, 0, 0, 0.05);
     border-radius: 16px;
+    width: fit-content;
 }
 
 .product-tab-item {
-    padding: 12px 24px;
+    padding: 10px 20px;
+    width: 120px;
+    text-align: center;
     cursor: pointer;
     border-radius: 16px;
     color: #666;

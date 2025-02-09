@@ -21,8 +21,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/', include('accounts.urls', namespace='accounts')),
     path('', include('store.urls')),
+    path('accounts/', include('accounts.urls')),
     path('payment/', include('payment.urls')),
     path('social-auth/', include('social_django.urls', namespace='social')),
     path("ckeditor5/", include('django_ckeditor_5.urls')),

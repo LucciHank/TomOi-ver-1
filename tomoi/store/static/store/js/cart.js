@@ -224,7 +224,7 @@ function removeCartItem(itemId) {
                     if (data.total_items === 0) {
                         location.reload();
                     }
-                } else {
+  } else {
                     Swal.fire({
                         title: 'Lỗi!',
                         text: data.error || 'Có lỗi xảy ra',
@@ -293,4 +293,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Các event listeners khác giữ nguyên...
-});
+  });

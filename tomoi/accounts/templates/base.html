@@ -202,8 +202,9 @@
         <form id="loginForm" method="post" action="{% url 'accounts:login' %}">
           {% csrf_token %}
           <div class="mb-3">
-            <label for="loginUsername" class="form-label">Tên đăng nhập</label>
-            <input type="text" class="form-control" id="loginUsername" name="username" required>
+            <label for="loginUsername" class="form-label">Tên đăng nhập / Email</label>
+            <input type="text" class="form-control" id="loginUsername" name="username" 
+                   placeholder="Nhập tên đăng nhập hoặc email" required>
           </div>
           <div class="mb-3">
             <label for="loginPassword" class="form-label">Mật khẩu</label>

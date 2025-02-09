@@ -176,75 +176,78 @@ def cart_view(request):
 
 @require_POST
 def add_to_cart(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({
-            'success': False,
-            'error': 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng'
-        })
-        
     try:
         data = json.loads(request.body)
-        product_id = data.get('id')
-        quantity = int(data.get('quantity', 1))
-        
-        product = get_object_or_404(Product, id=product_id)
-        
-        # Kiểm tra số lượng tồn kho
-        if quantity > product.stock:
+        product_id = data.get('product_id')
+        variant_id = data.get('variant_id')
+        duration = data.get('duration')
+        upgrade_email = data.get('upgrade_email')
+        account_username = data.get('account_username')
+        account_password = data.get('account_password')
+        quantity = data.get('quantity', 1)
+
+        # Kiểm tra sản phẩm tồn tại
+        try:
+            product = Product.objects.get(id=product_id)
+            variant = ProductVariant.objects.get(id=variant_id, product=product)
+            option = variant.options.get(duration=duration)
+        except (Product.DoesNotExist, ProductVariant.DoesNotExist, VariantOption.DoesNotExist):
             return JsonResponse({
                 'success': False,
-                'error': 'Vượt quá số lượng trong kho'
+                'error': 'Sản phẩm không tồn tại'
             })
-            
-        # Thêm vào CartItem database
-        user = request.user if request.user.is_authenticated else None
-        session_key = request.session.session_key
-        if not session_key:
-            request.session.create()
-            session_key = request.session.session_key
-            
-        # Tìm hoặc tạo CartItem
-        cart_item = CartItem.objects.filter(
-            Q(user=user) | Q(session_key=session_key),
-            product=product
-        ).first()
-        
-        if cart_item:
-            # Nếu đã tồn tại, cập nhật số lượng
+
+        # Kiểm tra yêu cầu email/tài khoản
+        if product.requires_email and not upgrade_email:
+            return JsonResponse({
+                'success': False,
+                'error': 'Vui lòng nhập email để nâng cấp tài khoản'
+            })
+
+        if product.requires_account_password and (not account_username or not account_password):
+            return JsonResponse({
+                'success': False,
+                'error': 'Vui lòng nhập đầy đủ tài khoản và mật khẩu'
+            })
+
+        # Thêm vào giỏ hàng
+        if request.user.is_authenticated:
+            cart_item, created = CartItem.objects.get_or_create(
+                user=request.user,
+                product=product,
+                variant=variant,
+                duration=duration,
+                upgrade_email=upgrade_email,
+                account_username=account_username,
+                account_password=account_password
+            )
+        else:
+            # Xử lý giỏ hàng cho khách chưa đăng nhập
+            if not request.session.session_key:
+                request.session.create()
+            cart_item, created = CartItem.objects.get_or_create(
+                session_key=request.session.session_key,
+                product=product,
+                variant=variant,
+                duration=duration,
+                upgrade_email=upgrade_email,
+                account_username=account_username,
+                account_password=account_password
+            )
+
+        if not created:
             cart_item.quantity += quantity
             cart_item.save()
-        else:
-            # Nếu chưa tồn tại, tạo mới
-            cart_item = CartItem.objects.create(
-                product=product,
-                user=user,
-                session_key=session_key,
-                quantity=quantity
-            )
-        
-        # Lấy danh sách cart items mới
-        cart_items = CartItem.objects.filter(
-            Q(user=user) | Q(session_key=session_key)
-        ).select_related('product')
-        
-        items = [{
-            'id': item.product.id,
-            'name': item.product.name,
-            'price': float(item.product.price),
-            'quantity': item.quantity,
-            'total': float(item.total_price()),
-            'image': item.product.get_primary_image().url if item.product.get_primary_image() else None,
-            'stock': item.product.stock
-        } for item in cart_items]
-        
+
+        # Trả về thông tin giỏ hàng đã cập nhật
+        cart_items = get_cart_items(request)
         return JsonResponse({
             'success': True,
-            'cart_items': items,
-            'total_items': sum(item['quantity'] for item in items)
+            'cart_items': cart_items,
+            'total_items': sum(item['quantity'] for item in cart_items)
         })
-        
+
     except Exception as e:
-        print("Add to cart error:", str(e))
         return JsonResponse({
             'success': False,
             'error': str(e)
@@ -385,42 +388,48 @@ def checkout(request):
         except Exception as e:
             return JsonResponse({'success': False, 'message': 'Có lỗi xảy ra.', 'error': str(e)})
 
-@require_http_methods(["GET"])  # Chỉ cho phép GET request
+@require_http_methods(["GET"])
 def cart_api(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({
-            'cart_items': [],
-            'total_items': 0
-        })
+    cart_items = []
+    if request.user.is_authenticated:
+        items = CartItem.objects.filter(user=request.user)
+        for item in items:
+            variant = item.variant
+            product_image = ProductImage.objects.filter(product=item.product).first()
+            
+            # Lấy giá từ VariantOption
+            try:
+                variant_option = VariantOption.objects.get(
+                    variant=variant,
+                    duration=item.duration
+                )
+                price = variant_option.price
+                # Tính giá gốc (luôn hiển thị cao hơn 20%)
+                original_price = float(price) * 1.2
+            except VariantOption.DoesNotExist:
+                price = variant.price
+                original_price = float(price) * 1.2
+
+            # Tính phần trăm giảm giá
+            discount = round((1 - float(price)/original_price) * 100)
+
+            cart_items.append({
+                'id': item.id,
+                'name': item.product.name,
+                'image': product_image.image.url if product_image else None,
+                'price': float(price),
+                'old_price': original_price,  # Luôn trả về old_price
+                'discount': discount,
+                'quantity': item.quantity,
+                'stock': variant.stock,
+                'variant_name': variant.name,
+                'duration': item.duration
+            })
     
-    try:
-        user = request.user
-        session_key = request.session.session_key
-
-        cart_items = CartItem.objects.filter(
-            Q(user=user) | Q(session_key=session_key)
-        ).select_related('product')
-
-        items = [{
-            'id': item.product.id,
-            'name': item.product.name,
-            'price': float(item.product.price),
-            'quantity': item.quantity,
-            'total': float(item.total_price()),
-            'image': item.product.get_primary_image().url if item.product.get_primary_image() else None,
-            'stock': item.product.stock
-        } for item in cart_items]
-
-        return JsonResponse({
-            'cart_items': items,
-            'total_items': sum(item['quantity'] for item in items)
-        })
-    except Exception as e:
-        print("Cart API error:", str(e))
-        return JsonResponse({
-            'cart_items': [],
-            'total_items': 0
-        })
+    return JsonResponse({
+        'cart_items': cart_items,
+        'total_items': len(cart_items)
+    })
 
 def paypal_webhook(request):
     data = json.loads(request.body)
@@ -533,22 +542,25 @@ def format_price(value):
     except (ValueError, TypeError):
         return value
 
+@require_http_methods(["GET"])
 def get_variant_price(request):
-    variant_id = request.GET.get('variant')
-    option_id = request.GET.get('option')
+    variant_id = request.GET.get('variant_id')
+    duration = request.GET.get('duration')
     
     try:
-        option = VariantOption.objects.get(id=option_id, variant_id=variant_id)
+        variant = ProductVariant.objects.get(id=variant_id)
+        option = variant.options.get(duration=duration)
+        
         return JsonResponse({
             'success': True,
-            'price': format_price(option.price),
-            'old_price': format_price(option.old_price) if hasattr(option, 'old_price') else None,
-            'discount': option.get_discount_percentage() if hasattr(option, 'get_discount_percentage') else 0
+            'price': option.price,
+            'old_price': variant.product.old_price if variant.product.old_price else None,
+            'discount': variant.product.get_discount_percentage()
         })
-    except VariantOption.DoesNotExist:
+    except (ProductVariant.DoesNotExist, VariantOption.DoesNotExist):
         return JsonResponse({
             'success': False,
-            'error': 'Option not found'
+            'error': 'Không tìm thấy thông tin giá'
         })
 
 def blog_detail(request, slug):
@@ -559,3 +571,24 @@ def blog_detail(request, slug):
         'post': post,
         'related_products': related_products
     })
+
+def get_cart_items(request):
+    if request.user.is_authenticated:
+        cart_items = CartItem.objects.filter(user=request.user)
+    else:
+        if not request.session.session_key:
+            request.session.create()
+        cart_items = CartItem.objects.filter(session_key=request.session.session_key)
+
+    return [{
+        'id': item.id,
+        'name': item.product.name,
+        'price': float(item.total_price()),
+        'quantity': item.quantity,
+        'image': item.product.get_primary_image().url if item.product.get_primary_image() else None,
+        'stock': item.product.stock,
+        'variant_name': item.variant.name if item.variant else None,
+        'duration': item.duration,
+        'upgrade_email': item.upgrade_email,
+        'account_username': item.account_username
+    } for item in cart_items]

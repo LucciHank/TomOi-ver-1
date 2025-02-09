@@ -193,22 +193,48 @@ def register(request):
     return render(request, 'accounts/register.html')
 
 # Login view
-def user_login(request):
+def login_view(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        remember_me = request.POST.get('remember_me')  # Lấy giá trị của checkbox
+        username = request.POST.get('username')  # Có thể là email hoặc username
+        password = request.POST.get('password')
+        remember_me = request.POST.get('remember_me')
+
+        # Thử authenticate với username trước
         user = authenticate(request, username=username, password=password)
+        
+        # Nếu không được và input có dạng email, thử với email
+        if user is None and '@' in username:
+            try:
+                user_obj = CustomUser.objects.get(email=username)
+                user = authenticate(request, username=user_obj.username, password=password)
+            except CustomUser.DoesNotExist:
+                user = None
+
         if user is not None:
             login(request, user)
             if remember_me:
-                request.session.set_expiry(1209600)  # 14 ngày
+                request.session.set_expiry(1209600)  # 14 days
             else:
-                request.session.set_expiry(0)  # Hết khi đóng trình duyệt
-            return redirect('profile')
+                request.session.set_expiry(0)
+
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'redirect_url': reverse('store:home'),
+                    'message': 'Đăng nhập thành công!'
+                })
+            messages.success(request, 'Đăng nhập thành công!')
+            return redirect('store:home')
         else:
-            return render(request, 'accounts/login.html', {'error': 'Tên đăng nhập hoặc mật khẩu không chính xác.'})
-    return render(request, 'accounts/login.html')
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Tên đăng nhập/Email hoặc mật khẩu không đúng'
+                })
+            messages.error(request, 'Tên đăng nhập/Email hoặc mật khẩu không đúng')
+            return redirect('store:home')
+
+    return redirect('store:home')
 
 # Logout view
 def user_logout(request):
@@ -289,18 +315,6 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
 # Social Auth views
 def social_login(request):
     return render(request, 'accounts/social_login.html')
-
-def login_view(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            messages.success(request, 'Đăng nhập thành công!')
-            return JsonResponse({'success': True})
-        return JsonResponse({'success': False, 'error': 'Invalid credentials'})
-    return JsonResponse({'success': False, 'error': 'Invalid method'})
 
 @login_required
 def logout_view(request):
