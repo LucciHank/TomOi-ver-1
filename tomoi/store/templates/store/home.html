@@ -186,7 +186,8 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Chỉ load những script cần thiết cho trang home -->
+<!-- Load Swiper trước -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
-<script src="{% static 'store/js/home.js' %}?v=1.0"></script>
+<!-- Sau đó load các file JS khác -->
+<script src="{% static 'store/js/home.js' %}"></script>
 {% endblock %}

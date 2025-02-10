@@ -4,6 +4,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'store/css/cart.css' %}">
+<link rel="stylesheet" href="{% static 'store/css/checkout-steps.css' %}">
 {% endblock %}
 
 {% block page_css %}
@@ -272,128 +273,306 @@
 {% endblock %}
 
 {% block content %}
+<!-- Thêm style trực tiếp vào đây -->
+<style>
+.checkout-steps {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 30px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    width: 1270px;
+    position: relative;
+    z-index: 1;
+    border-radius: 8px;
+    left: 15px;
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: 0;
+    flex: 0 0 auto;
+}
+
+.step:first-child {
+    margin-right: auto;
+    margin-left: 50px;
+}
+
+.step:last-child {
+    margin-left: auto;
+    margin-right: 50px;
+}
+
+.step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: -300px;
+    top: 50%;
+    width: 230px;
+    height: 2px;
+    background: #ddd;
+    transform: translateY(-50%);
+}
+
+.step-circle {
+    width: 35px;
+    height: 35px;
+    border: 2px solid #ddd;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-right: 12px;
+    background: white;
+    color: #666;
+}
+
+.step span {
+    font-size: 16px;
+    font-weight: 500;
+    color: #666;
+    white-space: nowrap;
+}
+
+.step.active .step-circle {
+    background: #df2626;
+    border-color: #df2626;
+    color: white;
+}
+
+.step.active span {
+    color: #df2626;
+    font-weight: 600;
+}
+
+.step.completed .step-circle {
+    background: #df2626;
+    border-color: #df2626;
+    color: white;
+}
+
+.step.completed span {
+    color: #df2626;
+}
+
+@media (max-width: 992px) {
+    .step:not(:last-child)::after {
+        right: -150px;
+        width: 100px;
+    }
+    
+    .step:first-child {
+        margin-left: 20px;
+    }
+    
+    .step:last-child {
+        margin-right: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .checkout-steps {
+        padding: 20px 15px;
+    }
+    
+    .step:not(:last-child)::after {
+        right: -70px;
+        width: 50px;
+    }
+    
+    .step span {
+        font-size: 14px;
+    }
+    
+    .step:first-child {
+        margin-left: 10px;
+    }
+    
+    .step:last-child {
+        margin-right: 10px;
+    }
+}
+</style>
+
+<!-- Checkout steps -->
+<div class="checkout-steps">
+    <div class="step active">
+        <div class="step-circle">1</div>
+        <span>Giỏ hàng</span>
+    </div>
+    <div class="step">
+        <div class="step-circle">2</div>
+        <span>Xác nhận</span>
+    </div>
+    <div class="step">
+        <div class="step-circle">3</div>
+        <span>Thanh toán</span>
+    </div>
+</div>
+
 <div class="cart-page">
-    <div class="cart-container">
-        <div class="cart-items-section">
-            <h2 class="mb-4">Giỏ hàng ({{ cart_items|length }} sản phẩm)</h2>
-            {% if cart_items %}
-                {% for item in cart_items %}
-                <div class="cart-item" data-id="{{ item.product.id }}" data-stock="{{ item.product.stock }}" data-price="{{ item.product.price|floatformat:0 }}">
-                    <div class="cart-item-image">
-                        {% if item.product.images.first %}
-                            <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}">
-                        {% else %}
-                            <img src="{% static 'images/no-image.png' %}" alt="No image">
-                        {% endif %}
-                    </div>
-                    <div class="cart-item-details">
-                        <div class="cart-item-info">
-                            <h3>{{ item.product.name }}</h3>
-                            <div class="price-info">
-                                <span class="new-price">{{ item.product.price|format_price }}</span>
-                                {% if item.product.old_price %}
-                                    <span class="old-price">{{ item.product.old_price|format_price }}</span>
-                                    {% with discount=item.product.get_discount_percentage %}
-                                        {% if discount > 0 %}
-                                            <span class="discount-badge">-{{ discount }}%</span>
-                                        {% endif %}
-                                    {% endwith %}
+    <div class="container">
+        <div class="row">
+            <!-- Giỏ hàng bên trái -->
+            <div class="col-md-8">
+                <div class="cart-items-container">
+                    {% for item in cart_items %}
+                    <div class="cart-item" data-id="{{ item.id }}" data-stock="{{ item.product.stock }}">
+                        <div class="item-image">
+                            {% if item.product.get_primary_image %}
+                                <img src="{{ item.product.get_primary_image.url }}" alt="{{ item.product.name }}">
+                            {% else %}
+                                <img src="{% static 'images/no-image.png' %}" alt="No image">
+                            {% endif %}
+                        </div>
+                        <div class="item-content">
+                            <div class="item-info">
+                                <h3 class="item-name">{{ item.product.name }}</h3>
+                                
+                                <!-- Giá và % giảm -->
+                                <div class="item-price-wrapper">
+                                    <span class="current-price">{{ item.product.price|format_price }}</span>
+                                    {% if item.product.old_price %}
+                                        <span class="old-price">{{ item.product.old_price|format_price }}</span>
+                                        <span class="discount-badge">-{{ item.product.get_discount_percentage }}%</span>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Thông tin variant -->
+                                {% if item.variant %}
+                                <div class="variant-info">
+                                    <span class="info-label">Gói:</span>
+                                    <span class="info-value">{{ item.variant.name }} ({{ item.duration }} tháng)</span>
+                                </div>
                                 {% endif %}
+
+                                <!-- Thông tin tài khoản/email -->
+                                {% if item.upgrade_email %}
+                                <div class="account-info">
+                                    <span class="info-label">Email:</span>
+                                    <span class="info-value">{{ item.upgrade_email }}</span>
+                                </div>
+                                {% endif %}
+                                
+                                {% if item.account_username %}
+                                <div class="account-info">
+                                    <span class="info-label">Tài khoản:</span>
+                                    <span class="info-value">{{ item.account_username }}</span>
+                                    {% if item.account_password %}
+                                    <span class="info-label ml-3">Mật khẩu:</span>
+                                    <span class="info-value">{{ item.account_password }}</span>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+
+                                <div class="item-controls">
+                                    <div class="quantity-controls">
+                                        <button class="quantity-btn minus">-</button>
+                                        <input type="number" class="quantity-input" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}">
+                                        <button class="quantity-btn plus">+</button>
+                                    </div>
+                                    <button class="remove-btn" data-id="{{ item.id }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                        <div class="cart-item-controls">
-                            <div class="quantity-controls">
-                                <button type="button" class="btn-quantity minus" data-id="{{ item.product.id }}">-</button>
-                                <input type="number" class="quantity-input" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" readonly>
-                                <button type="button" class="btn-quantity plus" data-id="{{ item.product.id }}">+</button>
+                    </div>
+                    {% empty %}
+                    <div class="empty-cart-message">
+                        <i class="fas fa-shopping-cart"></i>
+                        <p>Giỏ hàng của bạn đang trống</p>
+                        <a href="{% url 'store:home' %}" class="btn btn-primary">Tiếp tục mua sắm</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Thanh toán bên phải -->
+            <div class="col-md-4">
+                <div class="cart-summary">
+                    <div class="promo-section">
+                        <div class="promo-item">
+                            <div class="promo-header" data-target="referral-input">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Bạn có mã giới thiệu?</span>
                             </div>
-                            <button type="button" class="remove-btn" data-id="{{ item.product.id }}">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <div class="promo-input" id="referral-input">
+                                <input type="text" placeholder="Nhập mã giới thiệu">
+                                <button class="btn-apply">Áp dụng</button>
+                            </div>
+                        </div>
+
+                        <div class="promo-item">
+                            <div class="promo-header" data-target="voucher-input">
+                                <i class="fas fa-ticket-alt"></i>
+                                <span>Bạn có mã giảm giá?</span>
+                            </div>
+                            <div class="promo-input" id="voucher-input">
+                                <input type="text" placeholder="Nhập mã giảm giá">
+                                <button class="btn-apply">Áp dụng</button>
+                            </div>
+                        </div>
+
+                        <div class="promo-item">
+                            <div class="promo-header" data-target="gift-input">
+                                <i class="fas fa-gift"></i>
+                                <span>Bạn muốn tặng cho bạn bè?</span>
+                            </div>
+                            <div class="promo-input" id="gift-input">
+                                <input type="email" placeholder="Nhập email người nhận">
+                                <button class="btn-apply">Áp dụng</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-                {% endfor %}
-            {% else %}
-                <div class="empty-cart-message">
-                    <i class="fas fa-shopping-cart"></i>
-                    <p>Giỏ hàng của bạn đang trống</p>
-                    <a href="{% url 'store:home' %}" class="btn btn-primary">Tiếp tục mua sắm</a>
-                </div>
-            {% endif %}
-        </div>
-        <div class="cart-summary-section">
-            <div class="cart-summary">
-                <div class="promo-section">
-                    <div class="promo-toggle" onclick="togglePromoInput('referral')">
-                        <i class="fas fa-user-plus"></i>
-                        Bạn có mã giới thiệu?
-                    </div>
-                    <div class="promo-input" id="referral-input">
-                        <input type="text" placeholder="Nhập mã giới thiệu">
-                        <button class="btn-apply">Áp dụng</button>
-                    </div>
 
-                    <div class="promo-toggle" onclick="togglePromoInput('voucher')">
-                        <i class="fas fa-ticket-alt"></i>
-                        Bạn có mã giảm giá?
+                    <div class="summary-details">
+                        <div class="summary-row">
+                            <span>Tạm tính</span>
+                            <span>{{ total_amount|format_price }}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Voucher giảm giá</span>
+                            <span>-{{ discount_amount|format_price }}</span>
+                        </div>
+                        <div class="summary-row total-row">
+                            <span>Tổng thanh toán</span>
+                            <span>{{ final_amount|format_price }}</span>
+                        </div>
                     </div>
-                    <div class="promo-input" id="voucher-input">
-                        <input type="text" placeholder="Nhập mã giảm giá">
-                        <button class="btn-apply">Áp dụng</button>
-                    </div>
-
-                    <div class="promo-toggle" onclick="togglePromoInput('gift')">
-                        <i class="fas fa-gift"></i>
-                        Bạn muốn tặng cho bạn bè?
-                    </div>
-                    <div class="promo-input" id="gift-input">
-                        <input type="email" placeholder="Nhập email người nhận">
-                        <button class="btn-apply">Áp dụng</button>
-                    </div>
-                </div>
-
-                <div class="summary-details">
-                    <div class="summary-row">
-                        <span>Tạm tính</span>
-                        <span>{{ total_amount|format_price }}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Voucher giảm giá</span>
-                        <span>-{{ discount_amount|format_price }}</span>
-                    </div>
-                    <div class="summary-row total-row">
-                        <span>Tổng thanh toán</span>
-                        <span>{{ final_amount|format_price }}</span>
-                    </div>
-                </div>
   
-                <div class="payment-buttons">
-                    <button class="btn-payment btn-balance">
-                        <i class="fas fa-wallet"></i>
-                        Thanh toán bằng số dư ({{ user.balance|format_price }})
-                    </button>
-                    <div class="or-divider">
-                        <span>HOẶC</span>
-                    </div>
-                    <!-- VNPAY Button -->
-                    <button class="btn-payment btn-vnpay" onclick="payWithVNPay()">
-                        <i class="fas fa-qrcode"></i>
-                        Thanh toán qua VNPAY
-                    </button>
-                    <!-- Mobile Banking Button -->
-                    <form action="{% url 'payment:qr_payment' %}" method="POST" class="w-100">
-                        {% csrf_token %}
-                        <input type="hidden" name="amount" value="{{ final_amount|floatformat:0 }}">
-                        <button type="submit" class="btn-payment btn-banking w-100">
-                            <i class="fas fa-mobile-alt"></i>
-                            Thanh toán siêu tốc qua Mobile Banking
+                    <div class="payment-buttons">
+                        <button class="btn-payment btn-balance">
+                            <i class="fas fa-wallet"></i>
+                            Thanh toán bằng số dư ({{ user.balance|format_price }})
                         </button>
-                    </form>
-                    <button class="btn-payment btn-momo">
-                        <i class="fas fa-mobile-alt"></i>
-                        Thanh toán qua MoMo
-                    </button>
+                        <div class="or-divider">
+                            <span>HOẶC</span>
+                        </div>
+                        <!-- VNPAY Button -->
+                        <button class="btn-payment btn-vnpay" onclick="payWithVNPay()">
+                            <i class="fas fa-qrcode"></i>
+                            Thanh toán qua VNPAY
+                        </button>
+                        <!-- Mobile Banking Button -->
+                        <form action="{% url 'payment:qr_payment' %}" method="POST" class="w-100">
+                            {% csrf_token %}
+                            <input type="hidden" name="amount" value="{{ final_amount|floatformat:0 }}">
+                            <button type="submit" class="btn-payment btn-banking w-100">
+                                <i class="fas fa-mobile-alt"></i>
+                                Thanh toán siêu tốc qua Mobile Banking
+                            </button>
+                        </form>
+                        <button class="btn-payment btn-momo">
+                            <i class="fas fa-mobile-alt"></i>
+                            Thanh toán qua MoMo
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

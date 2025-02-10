@@ -1969,3 +1969,18 @@ h6 {
 }
 
 /* Tương tự cho các class khác */
+
+/* Thêm style cho cart badge */
+.cart-count-badge {
+    display: none !important; /* Ẩn mặc định */
+}
+
+/* Chỉ hiển thị khi đã đăng nhập và có sản phẩm */
+body[data-user-authenticated="true"] .cart-count-badge {
+    display: flex !important;
+}
+
+/* Ẩn khi số lượng = 0 */
+.cart-count-badge[data-count="0"] {
+    display: none !important;
+}

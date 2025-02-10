@@ -1,0 +1,78 @@
+.checkout-steps {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 30px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    margin-bottom: 10px;
+    width: 1270px;
+    position: relative;
+    z-index: 1;
+    border-radius: 8px;
+    left: 15px;
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: 0 40px;
+}
+
+.step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: -270px !important;
+    top: 50%;
+    width: 200px;
+    height: 2px;
+    background: #ddd;
+    transform: translateY(-50%);
+}
+
+.step.active:not(:last-child)::after {
+    background: #df2626;
+}
+
+.step-circle {
+    width: 35px;
+    height: 35px;
+    border: 2px solid #ddd;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-right: 12px;
+    background: white;
+    color: #666;
+}
+
+.step span {
+    font-size: 16px;
+    font-weight: 500;
+    color: #666;
+    white-space: nowrap;
+}
+
+.step.active .step-circle {
+    background: #df2626;
+    border-color: #df2626;
+    color: white;
+}
+
+.step.active span {
+    color: #df2626;
+    font-weight: 600;
+}
+
+.step.completed .step-circle {
+    background: #df2626;
+    border-color: #df2626;
+    color: white;
+}
+
+.step.completed span {
+    color: #df2626;
+} 

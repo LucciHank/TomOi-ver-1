@@ -186,68 +186,57 @@ def add_to_cart(request):
         account_password = data.get('account_password')
         quantity = data.get('quantity', 1)
 
-        # Kiểm tra sản phẩm tồn tại
-        try:
-            product = Product.objects.get(id=product_id)
-            variant = ProductVariant.objects.get(id=variant_id, product=product)
-            option = variant.options.get(duration=duration)
-        except (Product.DoesNotExist, ProductVariant.DoesNotExist, VariantOption.DoesNotExist):
+        # Kiểm tra xác thực
+        if not request.user.is_authenticated:
             return JsonResponse({
                 'success': False,
-                'error': 'Sản phẩm không tồn tại'
-            })
+                'error': 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng'
+            }, status=401)
 
-        # Kiểm tra yêu cầu email/tài khoản
+        # Lấy thông tin sản phẩm
+        product = get_object_or_404(Product, id=product_id)
+        
+        # Kiểm tra các trường bắt buộc
         if product.requires_email and not upgrade_email:
             return JsonResponse({
                 'success': False,
-                'error': 'Vui lòng nhập email để nâng cấp tài khoản'
+                'error': 'Vui lòng nhập email cần nâng cấp'
             })
-
+            
         if product.requires_account_password and (not account_username or not account_password):
             return JsonResponse({
                 'success': False,
-                'error': 'Vui lòng nhập đầy đủ tài khoản và mật khẩu'
+                'error': 'Vui lòng nhập đầy đủ thông tin tài khoản cần nâng cấp'
             })
 
-        # Thêm vào giỏ hàng
-        if request.user.is_authenticated:
-            cart_item, created = CartItem.objects.get_or_create(
-                user=request.user,
-                product=product,
-                variant=variant,
-                duration=duration,
-                upgrade_email=upgrade_email,
-                account_username=account_username,
-                account_password=account_password
-            )
-        else:
-            # Xử lý giỏ hàng cho khách chưa đăng nhập
-            if not request.session.session_key:
-                request.session.create()
-            cart_item, created = CartItem.objects.get_or_create(
-                session_key=request.session.session_key,
-                product=product,
-                variant=variant,
-                duration=duration,
-                upgrade_email=upgrade_email,
-                account_username=account_username,
-                account_password=account_password
-            )
+        # Tạo hoặc cập nhật cart item
+        cart_item, created = CartItem.objects.get_or_create(
+            user=request.user,
+            product=product,
+            variant_id=variant_id,
+            duration=duration,
+            upgrade_email=upgrade_email,
+            account_username=account_username,
+            account_password=account_password,
+            defaults={'quantity': quantity}
+        )
 
         if not created:
             cart_item.quantity += quantity
             cart_item.save()
 
-        # Trả về thông tin giỏ hàng đã cập nhật
+        # Lấy thông tin giỏ hàng mới
         cart_items = get_cart_items(request)
+        total_items = sum(item['quantity'] for item in cart_items)
+
         return JsonResponse({
             'success': True,
             'cart_items': cart_items,
-            'total_items': sum(item['quantity'] for item in cart_items)
+            'total_items': total_items
         })
 
     except Exception as e:
+        print(f"Error in add_to_cart: {str(e)}")
         return JsonResponse({
             'success': False,
             'error': str(e)
@@ -461,55 +450,58 @@ def category_detail(request, slug):
 def update_cart(request):
     try:
         data = json.loads(request.body)
-        cart_item_id = data.get('cart_item_id')  # Đổi tên tham số
+        item_id = data.get('itemId')  # Sửa từ cart_item_id thành itemId
         quantity = data.get('quantity', 1)
         
-        print(f"Updating cart item: ID={cart_item_id}, Quantity={quantity}")  # Debug log
+        print(f"Updating cart item: ID={item_id}, Quantity={quantity}")  # Debug log
         
-        # Tìm CartItem dựa trên user hoặc session
-        if request.user.is_authenticated:
+        # Kiểm tra xác thực
+        if not request.user.is_authenticated:
+            return JsonResponse({
+                'success': False,
+                'error': 'Vui lòng đăng nhập để cập nhật giỏ hàng'
+            }, status=401)
+
+        # Tìm CartItem
+        try:
             cart_item = CartItem.objects.get(
-                id=cart_item_id,
+                id=item_id,
                 user=request.user
             )
-        else:
-            cart_item = CartItem.objects.get(
-                id=cart_item_id,
-                session_key=request.session.session_key
-            )
+        except CartItem.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Không tìm thấy sản phẩm trong giỏ hàng'
+            })
 
-        # Cập nhật số lượng
+        # Lưu số lượng cũ để trả về
         old_quantity = cart_item.quantity
+        
+        # Cập nhật số lượng
+        if quantity > cart_item.product.stock:
+            return JsonResponse({
+                'success': False,
+                'error': 'Số lượng vượt quá hàng có sẵn'
+            })
+        
         cart_item.quantity = quantity
         cart_item.save()
         
         print(f"Updated quantity from {old_quantity} to {quantity}")  # Debug log
 
-        # Tính toán lại tổng
-        if request.user.is_authenticated:
-            cart_items = CartItem.objects.filter(user=request.user)
-        else:
-            cart_items = CartItem.objects.filter(session_key=request.session.session_key)
-        
+        # Tính tổng số lượng và tổng tiền mới
+        cart_items = CartItem.objects.filter(user=request.user)
         total_items = sum(item.quantity for item in cart_items)
         total_amount = sum(item.total_price() for item in cart_items)
-        
+
         return JsonResponse({
             'success': True,
-            'item_price': cart_item.total_price(),
             'total_amount': total_amount,
             'total_items': total_items,
-            'variant_name': cart_item.variant.name if cart_item.variant else None,
-            'duration': cart_item.duration,
+            'item_price': cart_item.total_price(),
             'old_quantity': old_quantity
         })
         
-    except CartItem.DoesNotExist:
-        print(f"Cart item not found: ID={cart_item_id}")  # Debug log
-        return JsonResponse({
-            'success': False,
-            'error': 'Không tìm thấy sản phẩm trong giỏ hàng'
-        })
     except Exception as e:
         print(f"Error in update_cart: {str(e)}")  # Debug log
         return JsonResponse({
@@ -574,13 +566,13 @@ def blog_detail(request, slug):
     })
 
 def get_cart_items(request):
-    if request.user.is_authenticated:
-        cart_items = CartItem.objects.filter(user=request.user)
-    else:
-        if not request.session.session_key:
-            request.session.create()
-        cart_items = CartItem.objects.filter(session_key=request.session.session_key)
-
+    # Nếu không đăng nhập, trả về list rỗng
+    if not request.user.is_authenticated:
+        return []
+        
+    # Nếu đã đăng nhập, lấy cart items của user
+    cart_items = CartItem.objects.filter(user=request.user)
+    
     return [{
         'id': item.id,
         'name': item.product.name,
