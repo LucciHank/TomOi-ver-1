@@ -4,8 +4,8 @@ from . import views
 app_name = 'payment'
 
 urlpatterns = [
-    path('vnpay/', views.payment_vnpay, name='vnpay'),
-    path('vnpay-return/', views.payment_vnpay_return, name='vnpay_return'),
+    path('vnpay/', views.vnpay_payment, name='vnpay_payment'),
+    path('vnpay/return/', views.vnpay_return, name='vnpay_return'),
     path('installment/info/', views.get_installment_info, name='installment_info'),
     path('installment/init/', views.init_installment, name='init_installment'),
     path('installment-return/', views.installment_return, name='installment_return'),

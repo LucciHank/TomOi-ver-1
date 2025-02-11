@@ -632,20 +632,22 @@ def payment_history(request):
 
 @login_required
 def order_history(request):
-    # Lấy cả đơn hàng từ accounts và store
-    account_orders = Order.objects.filter(user=request.user).order_by('-date')
-    store_orders = request.user.store_orders.all().order_by('-created_at')
+    purchase_transactions = Transaction.objects.filter(
+        user=request.user,
+        transaction_type='purchase'
+    ).order_by('-created_at')
     
-    # Kết hợp và sắp xếp theo thời gian
-    orders = sorted(
-        list(account_orders) + list(store_orders),
-        key=lambda x: x.date if hasattr(x, 'date') else x.created_at,
-        reverse=True
-    )
+    deposit_transactions = Transaction.objects.filter(
+        user=request.user,
+        transaction_type='deposit'
+    ).order_by('-created_at')
     
-    return render(request, 'accounts/order_history.html', {
-        'orders': orders
-    })
+    context = {
+        'purchase_transactions': purchase_transactions,
+        'deposit_transactions': deposit_transactions
+    }
+    
+    return render(request, 'accounts/order_history.html', context)
 
 @login_required
 def security_view(request):

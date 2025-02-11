@@ -9,38 +9,37 @@
 
 {% block content %}
 <div class="container py-4">
-
     <div class="row">
         <!-- Sidebar -->
         <div class="col-md-3">
-            <div class="card mb-4">
-                <div class="list-group">
+            <div class="card">
+                <div class="list-group list-group-flush">
                     <a href="{% url 'accounts:user_info' %}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-user me-2"></i> Tài khoản
+                        <i class="fas fa-user me-2"></i>Tài khoản
                     </a>
                     <a href="{% url 'accounts:order_history' %}" class="list-group-item list-group-item-action active">
-                        <i class="fas fa-shopping-bag me-2"></i> Sản phẩm đã mua
+                        <i class="fas fa-shopping-bag me-2"></i>Sản phẩm đã mua
                     </a>
                     <a href="{% url 'accounts:payment_history' %}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-money-bill-wave me-2"></i> Lịch sử nạp tiền
+                        <i class="fas fa-wallet me-2"></i>Lịch sử nạp tiền
                     </a>
                     <a href="{% url 'accounts:security' %}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-shield-alt me-2"></i> Bảo mật
+                        <i class="fas fa-shield-alt me-2"></i>Bảo mật
                     </a>
                     <a href="#" class="list-group-item list-group-item-action">
-                        <i class="fas fa-heart me-2"></i> Sản phẩm yêu thích
+                        <i class="fas fa-heart me-2"></i>Sản phẩm yêu thích
                     </a>
                     <a href="{% url 'accounts:settings' %}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-cog me-2"></i> Cài đặt
+                        <i class="fas fa-cog me-2"></i>Cài đặt
                     </a>
                     <a href="#" class="list-group-item list-group-item-action">
-                        <i class="fas fa-user-plus me-2"></i> Giới thiệu bạn bè
+                        <i class="fas fa-user-plus me-2"></i>Giới thiệu bạn bè
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- Main Content -->
+        <!-- Main content -->
         <div class="col-md-9">
             <div class="card">
                 <div class="card-body">
@@ -52,15 +51,16 @@
                                 <label class="form-label">Trạng thái</label>
                                 <select class="form-select" name="status">
                                     <option value="">Tất cả</option>
-                                    <option value="pending">Chờ xử lý</option>
-                                    <option value="processing">Đang xử lý</option>
-                                    <option value="completed">Hoàn thành</option>
-                                    <option value="cancelled">Hủy đơn</option>
+                                    <option value="Chờ thanh toán">Chờ thanh toán</option>
+                                    <option value="Chờ xử lý">Chờ xử lý</option>
+                                    <option value="Hoàn thành">Hoàn thành</option>
+                                    <option value="Lỗi">Lỗi</option>
+                                    <option value="Huỷ">Huỷ</option>
                                 </select>
                             </div>
                             
                             <div class="col-md-4">
-                                <label class="form-label text-center w-100">Ngày</label>
+                                <label class="form-label text-center w-100">Thời gian mua</label>
                                 <div class="input-group">
                                     <input type="date" class="form-control" name="date_from">
                                     <span class="input-group-text">đến</span>
@@ -69,34 +69,32 @@
                             </div>
                             
                             <div class="col-md-4">
-                                <label class="form-label text-center w-100">Giá</label>
+                                <label class="form-label text-center w-100">Số tiền</label>
                                 <div class="input-group">
-                                    <input type="number" class="form-control" name="price_min" placeholder="Từ">
+                                    <input type="number" class="form-control" name="amount_min" placeholder="Từ">
                                     <span class="input-group-text">đến</span>
-                                    <input type="number" class="form-control" name="price_max" placeholder="Đến">
+                                    <input type="number" class="form-control" name="amount_max" placeholder="Đến">
                                 </div>
                             </div>
 
                             <!-- Dòng 2 -->
-                            <div class="col-md-3">
-                                <label class="form-label">Trạng thái chi tiết</label>
-                                <select class="form-select" name="status_detail">
+                            <div class="col-md-4">
+                                <label class="form-label">Mã đơn hàng</label>
+                                <input type="text" class="form-control" name="order_id">
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label class="form-label">Phương thức</label>
+                                <select class="form-select" name="payment_method">
                                     <option value="">Tất cả</option>
-                                    <!-- options -->
+                                    <option value="vnpay">VNPAY</option>
+                                    <option value="tcoin">TCoin</option>
+                                    <option value="momo">MoMo</option>
+                                    <option value="paypal">PayPal</option>
                                 </select>
                             </div>
                             
-                            <div class="col-md-3">
-                                <label class="form-label">Mã đơn hàng</label>
-                                <input type="text" class="form-control" name="order_code">
-                            </div>
-                            
-                            <div class="col-md-3">
-                                <label class="form-label">Tên sản phẩm</label>
-                                <input type="text" class="form-control" name="product_name">
-                            </div>
-                            
-                            <div class="col-md-3 d-flex align-items-end gap-2">
+                            <div class="col-md-4 d-flex align-items-end gap-2">
                                 <button type="submit" class="btn btn-danger flex-grow-1">
                                     <i class="fas fa-search me-2"></i>Lọc
                                 </button>
@@ -106,89 +104,35 @@
                             </div>
                         </form>
                     </div>
+
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
                                 <tr>
                                     <th>Mã đơn hàng</th>
-                                    <th>Ngày đặt</th>
-                                    <th>Phương thức thanh toán</th>
+                                    <th>Ngày mua</th>
                                     <th>Tổng tiền</th>
                                     <th>Trạng thái</th>
+                                    <th>Phương thức</th>
                                     <th>Chi tiết</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for transaction in transactions %}
+                                {% for transaction in purchase_transactions %}
                                 <tr>
-                                    <td>{{ transaction.order_id }}</td>
+                                    <td>{{ transaction.transaction_id }}</td>
                                     <td>{{ transaction.created_at|date:"d/m/Y H:i" }}</td>
+                                    <td>{{ transaction.amount|intcomma }}đ</td>
+                                    <td>{{ transaction.get_status_display }}</td>
                                     <td>{{ transaction.get_payment_method_display }}</td>
-                                    <td>{{ transaction.amount|format_price }} VNĐ</td>
                                     <td>
-                                        <span class="badge {% if transaction.status == 'completed' %}bg-success
-                                                         {% elif transaction.status == 'pending' %}bg-warning
-                                                         {% else %}bg-danger{% endif %}">
-                                            {{ transaction.get_status_display }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-info" 
+                                        <button class="btn btn-sm" 
+                                                style="background-color: #df2626; color: white;"
                                                 data-bs-toggle="modal" 
                                                 data-bs-target="#orderModal{{ transaction.id }}">
-                                            Chi tiết
+                                            <i class="fas fa-info-circle"></i>
                                         </button>
                                     </td>
-                                </tr>
-                                
-                                <!-- Modal chi tiết đơn hàng -->
-                                <div class="modal fade" id="orderModal{{ transaction.id }}" tabindex="-1">
-                                    <div class="modal-dialog modal-lg">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Chi tiết đơn hàng #{{ transaction.order_id }}</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="order-info mb-4">
-                                                    <p><strong>Ngày đặt:</strong> {{ transaction.created_at|date:"d/m/Y H:i" }}</p>
-                                                    <p><strong>Phương thức thanh toán:</strong> {{ transaction.get_payment_method_display }}</p>
-                                                    <p><strong>Trạng thái:</strong> {{ transaction.get_status_display }}</p>
-                                                </div>
-                                                
-                                                <table class="table">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Sản phẩm</th>
-                                                            <th>Số lượng</th>
-                                                            <th>Đơn giá</th>
-                                                            <th>Thành tiền</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {% for item in transaction.items.all %}
-                                                        <tr>
-                                                            <td>{{ item.product_name }}</td>
-                                                            <td>{{ item.quantity }}</td>
-                                                            <td>{{ item.price|format_price }} VNĐ</td>
-                                                            <td>{{ item.subtotal|format_price }} VNĐ</td>
-                                                        </tr>
-                                                        {% endfor %}
-                                                    </tbody>
-                                                    <tfoot>
-                                                        <tr>
-                                                            <td colspan="3" class="text-end"><strong>Tổng cộng:</strong></td>
-                                                            <td><strong>{{ transaction.amount|format_price }} VNĐ</strong></td>
-                                                        </tr>
-                                                    </tfoot>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="6" class="text-center">Bạn chưa có đơn hàng nào</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -199,4 +143,68 @@
         </div>
     </div>
 </div>
+
+<!-- Order Detail Modals -->
+{% for transaction in purchase_transactions %}
+<div class="modal fade" id="orderModal{{ transaction.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chi tiết đơn hàng #{{ transaction.transaction_id }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Thời gian:</strong> {{ transaction.created_at|date:"d/m/Y H:i" }}</p>
+                        <p><strong>Trạng thái:</strong> {{ transaction.get_status_display }}</p>
+                        <p><strong>Phương thức:</strong> {{ transaction.get_payment_method_display }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Tổng tiền:</strong> {{ transaction.amount|intcomma }}đ</p>
+                    </div>
+                </div>
+                
+                <h6>Sản phẩm đã mua:</h6>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th>Loại</th>
+                            <th>Thời hạn</th>
+                            <th>Số lượng</th>
+                            <th>Đơn giá</th>
+                            <th>Email/Tài khoản</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in transaction.items.all %}
+                        <tr>
+                            <td>{{ item.product_name }}</td>
+                            <td>{{ item.variant_name|default:"-" }}</td>
+                            <td>{% if item.duration %}{{ item.duration }} tháng{% else %}-{% endif %}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.price|floatformat:0|intcomma }}đ</td>
+                            <td>
+                                {% if item.upgrade_email %}
+                                    {{ item.upgrade_email }}
+                                {% elif item.account_username %}
+                                    {{ item.account_username }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/order-history.js' %}"></script>
 {% endblock %} 

@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Checkout steps -->
+<div class="checkout-steps">
+    <div class="step">
+        <div class="step-circle">1</div>
+        <span>Giỏ hàng</span>
+    </div>
+    <div class="step active">
+        <div class="step-circle">2</div>
+        <span>Thanh toán</span>
+    </div>
+    <div class="step">
+        <div class="step-circle">3</div>
+        <span>Hoàn thành</span>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Thanh toán qua VNPAY</h4>
+                </div>
+                <div class="card-body">
+                    <div class="order-info mb-4">
+                        <h5>Thông tin đơn hàng</h5>
+                        <p>Mã giao dịch: <strong>{{ transaction_id }}</strong></p>
+                        <p>Số tiền: <strong>{{ amount|format_price }}đ</strong></p>
+                    </div>
+                    
+                    <form id="vnpayForm" action="{% url 'payment:vnpay_payment' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="amount" value="{{ amount }}">
+                        <input type="hidden" name="transaction_id" value="{{ transaction_id }}">
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-qrcode me-2"></i>
+                            Tiếp tục thanh toán
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('vnpayForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const form = this;
+    Swal.fire({
+        title: 'Xác nhận thanh toán',
+        text: 'Bạn sẽ được chuyển đến cổng thanh toán VNPAY',
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'Tiếp tục',
+        cancelButtonText: 'Hủy'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit();
+        }
+    });
+});
+</script>
+{% endblock %} 

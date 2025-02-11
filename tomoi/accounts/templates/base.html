@@ -72,6 +72,9 @@
   <link rel="canonical" href="https://tomoi.vn{{ request.path }}">
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- Thêm favicon -->
+  <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}"/>
 </head>
 <body data-user-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
   <!-- Google Translate Element -->
@@ -145,8 +148,8 @@
                         <a href="{% url 'accounts:security' %}" class="dropdown-item">
                             <i class="fas fa-shield-alt"></i> Bảo mật
                         </a>
-                        <a href="/store/order-history/" class="dropdown-item">
-                            <i class="fas fa-history"></i> Lịch sử mua hàng
+                        <a href="/store/user-info/order-history/" class="dropdown-item">
+                            <i class="fas fa-history"></i> Sản phẩm đã mua
                         </a>
                         <a href="{% url 'accounts:logout' %}" class="dropdown-item">
                             <i class="fas fa-sign-out-alt"></i> Đăng xuất

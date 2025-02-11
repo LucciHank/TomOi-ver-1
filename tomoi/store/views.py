@@ -27,7 +27,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods, require_POST
 from django.db.models import Q
 import time
-from .cart import Cart
+from decimal import Decimal
 
 
 def dashboard(request):
@@ -124,29 +124,10 @@ def order_history(request):
 
 @login_required
 def payment_success(request):
-    payment_id = request.GET.get("paymentId")
-    payer_id = request.GET.get("PayerID")
+    return render(request, 'store/payment_success.html')
 
-    if not payment_id or not payer_id:
-        messages.error(request, "Lỗi thanh toán: Không tìm thấy thông tin giao dịch.")
-        return redirect("store:checkout")
-
-    # # Lấy Payment từ PayPal SDK
-    # payment = Payment.find(payment_id)
-
-    # if payment.execute({"payer_id": payer_id}):  # Xác nhận thanh toán
-    #     order = Order.objects.get(user=request.user, payment_id=payment_id)
-    #     order.status = "PAID"
-    #     order.save()
-
-        # Gửi email xác nhận
-        send_payment_confirmation_email(request.user, order)
-
-        messages.success(request, "Thanh toán thành công! Kiểm tra email để nhận thông tin đơn hàng.")
-        return redirect("store:order_history")
-    else:
-        messages.error(request, "Thanh toán không thành công. Vui lòng thử lại.")
-        return redirect("store:checkout")
+def payment_failed(request):
+    return render(request, 'store/payment_failed.html')
 
 def send_payment_confirmation_email(user, order):
     subject = "Xác nhận thanh toán thành công"
@@ -161,17 +142,21 @@ def view_cart(request):
 
 @login_required
 def cart_view(request):
-    cart_items = CartItem.objects.filter(user=request.user).select_related('product')
+    # Lấy cart items trực tiếp từ CartItem
+    cart_items = CartItem.objects.filter(user=request.user)
+    
+    # Tính toán các giá trị
     total_amount = sum(item.total_price() for item in cart_items)
-    discount_amount = 0
+    discount_amount = 0  # Tính giảm giá nếu có
     final_amount = total_amount - discount_amount
-
+    
     context = {
         'cart_items': cart_items,
-        'total_amount': format_price(total_amount),
-        'discount_amount': format_price(discount_amount),
-        'final_amount': format_price(final_amount)
+        'total_amount': total_amount,
+        'discount_amount': discount_amount,
+        'final_amount': final_amount,
     }
+    
     return render(request, 'store/cart.html', context)
 
 @require_POST
@@ -446,64 +431,36 @@ def category_detail(request, slug):
     }
     return render(request, 'store/category_detail.html', context)
 
-@require_POST
+@login_required
 def update_cart(request):
     try:
         data = json.loads(request.body)
-        item_id = data.get('itemId')  # Sửa từ cart_item_id thành itemId
-        quantity = data.get('quantity', 1)
+        item_id = data.get('itemId')
+        quantity = data.get('quantity')
         
-        print(f"Updating cart item: ID={item_id}, Quantity={quantity}")  # Debug log
-        
-        # Kiểm tra xác thực
-        if not request.user.is_authenticated:
-            return JsonResponse({
-                'success': False,
-                'error': 'Vui lòng đăng nhập để cập nhật giỏ hàng'
-            }, status=401)
-
-        # Tìm CartItem
-        try:
-            cart_item = CartItem.objects.get(
-                id=item_id,
-                user=request.user
-            )
-        except CartItem.DoesNotExist:
-            return JsonResponse({
-                'success': False,
-                'error': 'Không tìm thấy sản phẩm trong giỏ hàng'
-            })
-
-        # Lưu số lượng cũ để trả về
-        old_quantity = cart_item.quantity
-        
-        # Cập nhật số lượng
-        if quantity > cart_item.product.stock:
-            return JsonResponse({
-                'success': False,
-                'error': 'Số lượng vượt quá hàng có sẵn'
-            })
-        
+        cart_item = CartItem.objects.get(id=item_id, user=request.user)
         cart_item.quantity = quantity
         cart_item.save()
         
-        print(f"Updated quantity from {old_quantity} to {quantity}")  # Debug log
-
-        # Tính tổng số lượng và tổng tiền mới
+        # Lấy danh sách cart items đã cập nhật
         cart_items = CartItem.objects.filter(user=request.user)
-        total_items = sum(item.quantity for item in cart_items)
+        
+        # Tính tổng tiền
         total_amount = sum(item.total_price() for item in cart_items)
-
+        
         return JsonResponse({
             'success': True,
-            'total_amount': total_amount,
-            'total_items': total_items,
-            'item_price': cart_item.total_price(),
-            'old_quantity': old_quantity
+            'cart_items': [item.to_dict() for item in cart_items],
+            'total_items': sum(item.quantity for item in cart_items),
+            'total_amount': total_amount
         })
         
+    except CartItem.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Sản phẩm không tồn tại trong giỏ hàng'
+        })
     except Exception as e:
-        print(f"Error in update_cart: {str(e)}")  # Debug log
         return JsonResponse({
             'success': False,
             'error': str(e)

@@ -51,4 +51,19 @@ function updateCartDropdown(cartItems) {
         const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         totalAmount.textContent = formatPrice(total);
     }
-} 
+}
+
+// Dropdown menu HTML
+const dropdownHTML = `
+    <div class="dropdown-content">
+        <a href="/accounts/user-info/"><i class="fas fa-user"></i>Tài khoản</a>
+        <a href="/accounts/user-info/order-history/"><i class="fas fa-shopping-bag"></i>Sản phẩm đã mua</a>
+        <a href="/accounts/user-info/payment-history/"><i class="fas fa-wallet"></i>Lịch sử nạp tiền</a>
+        <a href="/accounts/user-info/security/"><i class="fas fa-shield-alt"></i>Bảo mật</a>
+        <a href="/accounts/user-info/wishlist/"><i class="fas fa-heart"></i>Sản phẩm yêu thích</a>
+        <a href="/accounts/user-info/settings/"><i class="fas fa-cog"></i>Cài đặt</a>
+        <a href="/accounts/user-info/referral/"><i class="fas fa-user-plus"></i>Giới thiệu bạn bè</a>
+        <div class="dropdown-divider"></div>
+        <a href="/accounts/logout/" class="text-danger"><i class="fas fa-sign-out-alt"></i>Đăng xuất</a>
+    </div>
+`; 

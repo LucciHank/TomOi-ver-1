@@ -266,6 +266,46 @@ class CartItem(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def to_dict(self):
+        item_dict = {
+            'id': self.id,
+            'product_id': self.product.id,
+            'name': self.product.name,
+            'quantity': self.quantity,
+            'stock': self.product.stock,
+            'price': float(self.total_price()),
+            'image': self.product.get_primary_image().url if self.product.get_primary_image() else None,
+        }
+
+        # Thêm thông tin variant nếu có
+        if self.variant:
+            item_dict.update({
+                'variant_id': self.variant.id,
+                'variant_name': self.variant.name,
+            })
+
+        # Thêm thông tin duration nếu có
+        if self.duration:
+            item_dict['duration'] = self.duration
+
+        # Thêm thông tin upgrade_email nếu có
+        if self.upgrade_email:
+            item_dict['upgrade_email'] = self.upgrade_email
+
+        return item_dict
+
+    def total_price(self):
+        if self.variant and self.duration:
+            try:
+                option = self.variant.options.get(duration=self.duration)
+                return self.quantity * option.price
+            except VariantOption.DoesNotExist:
+                return 0
+        return self.quantity * self.product.price
+
+    def __str__(self):
+        return f"{self.quantity} x {self.product.name}"
+
     class Meta:
         constraints = [
             models.UniqueConstraint(
@@ -280,18 +320,6 @@ class CartItem(models.Model):
             )
         ]
 
-    def total_price(self):
-        if self.variant and self.duration:
-            try:
-                option = self.variant.options.get(duration=self.duration)
-                return self.quantity * option.price
-            except VariantOption.DoesNotExist:
-                return 0
-        return self.quantity * self.product.price
-
-    def __str__(self):
-        return f"{self.quantity} x {self.product.name}"
-
 class OrderItem(models.Model):
     order = models.ForeignKey('Order', related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey('Product', on_delete=models.CASCADE)
@@ -303,11 +331,6 @@ class OrderItem(models.Model):
 
     def total_price(self):
         return self.price * self.quantity
-
-class Cart(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
 class BlogPost(models.Model):
     title = models.CharField(max_length=200)

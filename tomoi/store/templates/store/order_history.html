@@ -1,9 +1,0 @@
-{% extends "base.html" %}
-{% block content %}
-<h2>Lịch sử Đơn Hàng</h2>
-<ul>
-    {% for order in orders %}
-        <li>Đơn hàng #{{ order.id }} - {{ order.total_amount }} VNĐ - {{ order.status }}</li>
-    {% endfor %}
-</ul>
-{% endblock %}

@@ -1,10 +1,49 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'store/css/checkout-steps.css' %}">
+<style>
+    /* CSS cho trạng thái hoàn thành */
+    .checkout-steps .step:last-child {
+        color: #e50914;
+    }
+    .checkout-steps .step:last-child .step-circle {
+        background-color: #e50914;
+        border-color: #e50914;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="payment-result success">
-    <i class="fas fa-check-circle"></i>
-    <h2>Thanh toán thành công!</h2>
-    <p>Cảm ơn bạn đã mua hàng. Đơn hàng của bạn sẽ được xử lý ngay.</p>
-    <a href="{% url 'store:home' %}" class="btn btn-primary">Về trang chủ</a>
+<!-- Checkout steps -->
+<div class="checkout-steps">
+    <div class="step">
+        <div class="step-circle">1</div>
+        <span>Giỏ hàng</span>
+    </div>
+    <div class="step">
+        <div class="step-circle">2</div>
+        <span>Thanh toán</span>
+    </div>
+    <div class="step active">
+        <div class="step-circle">3</div>
+        <span>Hoàn thành</span>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="fas fa-check-circle text-success" style="font-size: 64px;"></i>
+                    <h2 class="mt-3">Thanh toán thành công!</h2>
+                    <p>Cảm ơn bạn đã mua hàng. Chúng tôi đã gửi email xác nhận đến địa chỉ email của bạn.</p>
+                    <a href="{% url 'store:home' %}" class="btn btn-primary mt-3">Tiếp tục mua sắm</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %} 

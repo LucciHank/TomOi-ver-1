@@ -30,6 +30,8 @@ urlpatterns = [
     path('cart/count/', views.get_cart_count, name='cart_count'),
     path('api/get-price/', views.get_variant_price, name='get_variant_price'),
     path('blog/<slug:slug>/', views.blog_detail, name='blog_detail'),
+    path('payment/success/', views.payment_success, name='payment_success'),
+    path('payment/failed/', views.payment_failed, name='payment_failed'),
 
 
     # path('payment/paypal/', views.paypal_payment, name='paypal_payment'),

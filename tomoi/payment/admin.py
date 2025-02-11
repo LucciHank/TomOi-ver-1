@@ -11,20 +11,19 @@ class TransactionItemInline(admin.TabularInline):
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('order_id', 'user_info', 'payment_method', 'amount', 
-                   'status', 'created_at', 'transaction_actions')
+    list_display = ('transaction_id', 'user', 'amount', 'payment_method', 'status', 'created_at')
     list_filter = ('status', 'payment_method', 'created_at')
-    search_fields = ('order_id', 'user__email', 'user__first_name', 
-                    'user__last_name', 'transaction_id')
-    readonly_fields = ('created_at', 'updated_at')
+    search_fields = ('transaction_id', 'user__username')
+    readonly_fields = ('transaction_id', 'created_at', 'updated_at')
+    ordering = ('-created_at',)
     inlines = [TransactionItemInline]
     
     fieldsets = (
         ('Basic Information', {
-            'fields': (('user', 'order_id'), ('payment_method', 'status'))
+            'fields': (('user', 'transaction_id'), ('payment_method', 'status'))
         }),
         ('Payment Details', {
-            'fields': (('amount', 'transaction_id'), 'description')
+            'fields': ('amount', 'description')
         }),
         ('Additional Information', {
             'fields': ('error_message', ('created_at', 'updated_at', 'expired_at'))

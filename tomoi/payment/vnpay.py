@@ -1,77 +1,63 @@
-import hmac
 import hashlib
-from datetime import datetime, timedelta
+import hmac
 import urllib.parse
+from datetime import datetime
+from django.conf import settings
 
-class VNPay:
-    requestData = {}
-    responseData = {}
-    
+class VnPay:
     def __init__(self):
-        self.vnp_TmnCode = "B2RG0YSD"
-        self.vnp_HashSecret = "S500OYUZE6YZRFNMC2LFQZZXMXATAJKK"
-        self.vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
-        self.vnp_ReturnUrl = "http://localhost:8000/payment/vnpay-return/"
-        
-    def get_payment_url(self, amount, order_id, order_desc, bank_code=None):
-        # Lấy thời gian hiện tại và thời gian hết hạn
-        now = datetime.now()
-        expire = now + timedelta(minutes=15)
-        
-        # Format thời gian theo yêu cầu của VNPay
-        vnp_CreateDate = now.strftime('%Y%m%d%H%M%S')
-        vnp_ExpireDate = expire.strftime('%Y%m%d%H%M%S')
-        
-        # Tạo dữ liệu gửi VNPAY
-        raw_data = {
-            'vnp_Version': '2.1.0',
-            'vnp_Command': 'pay',
-            'vnp_TmnCode': self.vnp_TmnCode,
-            'vnp_Amount': int(amount * 100),
-            'vnp_CreateDate': vnp_CreateDate,
-            'vnp_CurrCode': 'VND',
-            'vnp_IpAddr': '127.0.0.1',
-            'vnp_Locale': 'vn',
-            'vnp_OrderInfo': order_desc,
-            'vnp_OrderType': 'other',
-            'vnp_ReturnUrl': self.vnp_ReturnUrl,
-            'vnp_TxnRef': order_id,
-            'vnp_ExpireDate': vnp_ExpireDate
-        }
-        
-        if bank_code:
-            raw_data['vnp_BankCode'] = bank_code
+        self.vnp_Version = '2.1.0'
+        self.vnp_Command = 'pay'
+        self.vnp_TmnCode = settings.VNPAY_TMN_CODE
+        self.vnp_HashSecret = settings.VNPAY_HASH_SECRET_KEY
+        self.vnp_Url = settings.VNPAY_PAYMENT_URL
+        self.vnp_ReturnUrl = settings.VNPAY_RETURN_URL
+        self.requestData = {}
 
-        # Sắp xếp theo key và mã hóa URL các giá trị
-        sorted_items = sorted(raw_data.items())
-        hash_data = ''
-        seq = 0
-        for key, value in sorted_items:
-            if seq == 1:
-                hash_data = hash_data + "&" + urllib.parse.quote_plus(str(key)) + "=" + urllib.parse.quote_plus(str(value))
-            else:
-                hash_data = urllib.parse.quote_plus(str(key)) + "=" + urllib.parse.quote_plus(str(value))
-                seq = 1
-
-        # Tạo chữ ký
-        secure_hash = hmac.new(
-            bytes(self.vnp_HashSecret, 'UTF-8'),
-            bytes(hash_data, 'UTF-8'),
-            hashlib.sha512
-        ).hexdigest()
-        
-        # Thêm chữ ký vào data
-        raw_data['vnp_SecureHash'] = secure_hash
-        
-        # Tạo URL thanh toán với các tham số được mã hóa
+    def get_payment_url(self, payment_url):
+        input_data = sorted(self.requestData.items())
         query_string = ''
         seq = 0
-        for key, value in sorted_items:
+        
+        for key, val in input_data:
             if seq == 1:
-                query_string = query_string + "&" + urllib.parse.quote_plus(str(key)) + "=" + urllib.parse.quote_plus(str(value))
+                query_string = query_string + "&" + key + '=' + urllib.parse.quote_plus(str(val))
             else:
-                query_string = urllib.parse.quote_plus(str(key)) + "=" + urllib.parse.quote_plus(str(value))
                 seq = 1
+                query_string = key + '=' + urllib.parse.quote_plus(str(val))
 
-        query_string += f"&vnp_SecureHash={secure_hash}"
-        return f"{self.vnp_Url}?{query_string}" 
+        hash_value = self._hmacsha512(self.vnp_HashSecret, query_string)
+        return payment_url + "?" + query_string + '&vnp_SecureHash=' + hash_value
+
+    def validate_response(self, response_data):
+        vnp_SecureHash = response_data.get('vnp_SecureHash')
+        if not vnp_SecureHash:
+            return False
+
+        # Remove hash from the validation
+        if 'vnp_SecureHash' in response_data:
+            response_data.pop('vnp_SecureHash')
+
+        # Sort response data
+        input_data = sorted(response_data.items())
+        
+        # Create query string
+        query_string = ''
+        seq = 0
+        for key, val in input_data:
+            if seq == 1:
+                query_string = query_string + "&" + key + '=' + urllib.parse.quote_plus(str(val))
+            else:
+                seq = 1
+                query_string = key + '=' + urllib.parse.quote_plus(str(val))
+
+        # Create secure hash
+        hash_value = self._hmacsha512(self.vnp_HashSecret, query_string)
+        
+        # Compare hashes
+        return vnp_SecureHash == hash_value
+
+    def _hmacsha512(self, key, data):
+        byteKey = key.encode('utf-8')
+        byteData = data.encode('utf-8')
+        return hmac.new(byteKey, byteData, hashlib.sha512).hexdigest() 

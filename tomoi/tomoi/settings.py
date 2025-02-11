@@ -214,8 +214,11 @@ VNPAY_CLIENT_ID = 'tomoi.vn'
 VNPAY_USERNAME = 'tomoivn2024@gmail.com'
 VNPAY_PASSWORD = 'Hanh2004@'
 VNPAY_CLIENT_SECRET = '890-'
-VNPAY_TMN_CODE = 'B2RG0YSD'
+VNPAY_TMN_CODE = "B2RG0YSD"  # Thay bằng mã của bạn
 VNPAY_HASH_SECRET = 'S500OYUZE6YZRFNMC2LFQZZXMXATAJKK'
+VNPAY_HASH_SECRET_KEY = "S500OYUZE6YZRFNMC2LFQZZXMXATAJKK"  # Thay bằng key của bạn
+VNPAY_PAYMENT_URL = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
+VNPAY_RETURN_URL = "http://localhost:8000/payment/vnpay/return/"
 
 # SePay Configuration
 SEPAY_API_KEY = 'ZMR2Y3H54KLIZSKG0YYST8AJWCPCPN0D7KAUUXTUETG6HTOQGXL3NJDORFXZWQB1'
@@ -236,3 +239,6 @@ CKEDITOR_5_CONFIGS = {
 
 CKEDITOR_5_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
 CKEDITOR_5_UPLOAD_PATH = "uploads/"
+
+# Thêm đường dẫn cho favicon
+FAVICON_PATH = STATIC_URL + 'images/favicon.ico'

@@ -1,27 +1,27 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const categoriesSwiper = new Swiper('.categories-slider', {
-        slidesPerView: 'auto',
-        spaceBetween: 20,
-        loop: true,
+const categoriesSwiper = new Swiper('.categories-slider', {
+    slidesPerView: 'auto',
+    spaceBetween: 20,
+    loop: true,
         loopedSlides: 10,
         watchSlidesProgress: true,
         observer: true,
         observeParents: true,
-        navigation: {
-            nextEl: '.nav-btn.next',
-            prevEl: '.nav-btn.prev',
-        },
-        breakpoints: {
-            320: {
-                slidesPerView: 2,
+    navigation: {
+        nextEl: '.nav-btn.next',
+        prevEl: '.nav-btn.prev',
+    },
+    breakpoints: {
+        320: {
+            slidesPerView: 2,
                 spaceBetween: 10
-            },
-            480: {
-                slidesPerView: 3,
+        },
+        480: {
+            slidesPerView: 3,
                 spaceBetween: 15
-            },
-            768: {
-                slidesPerView: 4,
+        },
+        768: {
+            slidesPerView: 4,
                 spaceBetween: 20
             }
         }
@@ -264,35 +264,35 @@ function initCartControls() {
                     quantity: newQty
                 })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    input.value = newQty;
-                    updateCartCount(data.total_items);
-                    
-                    // Cập nhật tổng tiền
-                    const totalAmount = document.querySelector('.total-amount');
-                    if (totalAmount) {
-                        totalAmount.textContent = formatPrice(data.total_amount);
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        input.value = newQty;
+                        updateCartCount(data.total_items);
+
+                        // Cập nhật tổng tiền
+                        const totalAmount = document.querySelector('.total-amount');
+                        if (totalAmount) {
+                            totalAmount.textContent = formatPrice(data.total_amount);
+                        }
+                    } else {
+                        input.value = currentQty;
+                        Swal.fire({
+                            title: 'Lỗi',
+                            text: data.error || 'Có lỗi xảy ra khi cập nhật giỏ hàng',
+                            icon: 'error'
+                        });
                     }
-                } else {
+                })
+                .catch(error => {
+                    console.error('Error:', error);
                     input.value = currentQty;
                     Swal.fire({
                         title: 'Lỗi',
-                        text: data.error || 'Có lỗi xảy ra khi cập nhật giỏ hàng',
+                        text: 'Không thể kết nối đến server',
                         icon: 'error'
                     });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                input.value = currentQty;
-                Swal.fire({
-                    title: 'Lỗi',
-                    text: 'Không thể kết nối đến server',
-                    icon: 'error'
                 });
-            });
         }
     });
 }

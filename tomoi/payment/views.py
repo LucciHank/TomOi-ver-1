@@ -3,15 +3,21 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 import time
-from .vnpay import VNPay
+from .vnpay import VnPay
 from .services.installment_service import InstallmentService
 from .models import InstallmentTransaction, Transaction, TransactionItem
 import logging
 from django.conf import settings
 from datetime import datetime, timedelta
 from django.utils import timezone
-from store.models import Cart, CartItem
+from store.models import CartItem
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from .models import Transaction
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from decimal import Decimal
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +34,7 @@ def payment_vnpay(request):
             logger.info(f"Generated order ID: {order_id}")
             
             # Khởi tạo VNPay
-            vnpay = VNPay()
+            vnpay = VnPay()
             
             # Tạo URL thanh toán
             payment_url = vnpay.get_payment_url(
@@ -268,9 +274,14 @@ def qr_payment(request):
             
             # Lưu các items
             for item in cart_items:
+                variant_name = item.variant.name if item.variant else None
+                duration = f"{item.duration} tháng" if item.duration else None
+                
                 TransactionItem.objects.create(
                     transaction=transaction,
                     product_name=item.product.name,
+                    variant_name=variant_name,
+                    duration=duration,
                     quantity=item.quantity,
                     price=item.product.price,
                     subtotal=item.quantity * item.product.price
@@ -347,12 +358,12 @@ def check_payment_status(request, order_id):
 def process_successful_payment(transaction):
     """Xử lý khi thanh toán thành công"""
     try:
-        # Cập nhật inventory
-        for item in transaction.items.all():
-            product = item.product
-            product.stock -= item.quantity
-            product.save()
-        
+        # Cập nhật số dư của user nếu cần
+        if transaction.payment_method == 'balance':
+            user = transaction.user
+            user.balance -= transaction.amount
+            user.save()
+
         # Xóa giỏ hàng
         CartItem.objects.filter(user=transaction.user).delete()
         
@@ -361,5 +372,173 @@ def process_successful_payment(transaction):
         
     except Exception as e:
         logger.error(f"Error processing successful payment: {str(e)}")
-        # Không ảnh hưởng đến trạng thái thanh toán
-        pass 
+        # Log lỗi nhưng không ảnh hưởng đến trạng thái thanh toán
+        pass
+
+@login_required
+def vnpay_payment(request):
+    if request.method == 'POST':
+        try:
+            # Lấy amount từ POST data
+            amount = request.POST.get('amount')
+            
+            # Kiểm tra amount có tồn tại không
+            if not amount:
+                messages.error(request, 'Số tiền không hợp lệ')
+                return redirect('store:cart')
+            
+            # Chuyển đổi amount từ string sang decimal
+            try:
+                amount = Decimal(amount)
+            except:
+                messages.error(request, 'Số tiền không hợp lệ')
+                return redirect('store:cart')
+
+            # Tạo transaction
+            transaction = Transaction.objects.create(
+                user=request.user,
+                amount=amount,
+                payment_method='vnpay',
+                status='pending',
+                transaction_type='purchase'
+            )
+
+            # Lưu cart items vào transaction items
+            cart_items = CartItem.objects.filter(user=request.user)
+            for cart_item in cart_items:
+                # Lấy thông tin variant và duration từ cart item
+                variant = cart_item.variant
+                variant_name = variant.name if variant else None
+                duration = cart_item.duration
+                
+                # Lấy thông tin email/username
+                upgrade_email = cart_item.upgrade_email.strip() if cart_item.upgrade_email else None
+                account_username = cart_item.account_username.strip() if cart_item.account_username else None
+                
+                TransactionItem.objects.create(
+                    transaction=transaction,
+                    product_name=cart_item.product.name,
+                    variant_name=variant_name,  # Lưu trực tiếp tên variant
+                    duration=duration,  # Lưu số tháng
+                    quantity=cart_item.quantity,
+                    price=cart_item.total_price(),
+                    subtotal=cart_item.total_price(),
+                    upgrade_email=upgrade_email,
+                    account_username=account_username
+                )
+
+            # Tạo thông tin thanh toán VNPAY
+            vnp = VnPay()
+            vnp.requestData = {
+                'vnp_Version': '2.1.0',
+                'vnp_Command': 'pay',
+                'vnp_TmnCode': settings.VNPAY_TMN_CODE,
+                'vnp_Amount': str(int(amount * 100)),
+                'vnp_CreateDate': datetime.now().strftime('%Y%m%d%H%M%S'),
+                'vnp_CurrCode': 'VND',
+                'vnp_IpAddr': get_client_ip(request),
+                'vnp_Locale': 'vn',
+                'vnp_OrderInfo': f'Thanh toan don hang {transaction.transaction_id}',
+                'vnp_OrderType': 'billpayment',
+                'vnp_ReturnUrl': settings.VNPAY_RETURN_URL,
+                'vnp_TxnRef': transaction.transaction_id,
+            }
+
+            # Tạo URL thanh toán
+            payment_url = vnp.get_payment_url(settings.VNPAY_PAYMENT_URL)
+            
+            # Xóa giỏ hàng sau khi tạo transaction
+            cart_items.delete()
+            
+            return redirect(payment_url)
+            
+        except Exception as e:
+            logger.error(f"Error in vnpay_payment: {str(e)}")
+            messages.error(request, 'Có lỗi xảy ra, vui lòng thử lại sau')
+            return redirect('store:cart')
+    
+    return redirect('store:cart')
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+def send_payment_confirmation_email(transaction):
+    """Gửi email xác nhận thanh toán"""
+    try:
+        # Chuẩn bị context cho template email
+        context = {
+            'user': transaction.user,
+            'transaction_id': transaction.transaction_id,
+            'amount': transaction.amount,
+            'payment_method': transaction.get_payment_method_display(),
+            'created_at': transaction.created_at,
+            'items': transaction.items.all() if hasattr(transaction, 'items') else [],
+        }
+
+        # Render email template
+        html_message = render_to_string('payment/email/payment_confirmation.html', context)
+        plain_message = strip_tags(html_message)
+
+        # Gửi email
+        send_mail(
+            subject=f'Xác nhận thanh toán - {transaction.transaction_id}',
+            message=plain_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[transaction.user.email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        
+        logger.info(f"Sent payment confirmation email for transaction {transaction.transaction_id}")
+    except Exception as e:
+        logger.error(f"Failed to send payment confirmation email: {str(e)}")
+        
+@csrf_exempt
+def vnpay_return(request):
+    try:
+        # Lấy các tham số trả về từ VNPAY
+        vnp_ResponseCode = request.GET.get('vnp_ResponseCode')
+        vnp_TxnRef = request.GET.get('vnp_TxnRef')
+        vnp_Amount = request.GET.get('vnp_Amount')
+        vnp_TransactionNo = request.GET.get('vnp_TransactionNo')
+        vnp_BankCode = request.GET.get('vnp_BankCode')
+
+        # Tìm transaction trong database
+        try:
+            transaction = Transaction.objects.get(transaction_id=vnp_TxnRef)
+        except Transaction.DoesNotExist:
+            messages.error(request, 'Không tìm thấy giao dịch')
+            return redirect('store:payment_failed')
+
+        # Kiểm tra mã phản hồi
+        if vnp_ResponseCode == "00":
+            # Cập nhật trạng thái transaction
+            transaction.status = 'completed'
+            transaction.save()
+
+            # Gửi email xác nhận
+            try:
+                send_payment_confirmation_email(transaction)
+            except Exception as e:
+                logger.error(f"Error sending confirmation email: {str(e)}")
+
+            messages.success(request, 'Thanh toán thành công!')
+            return redirect('store:payment_success')
+        else:
+            # Cập nhật trạng thái thất bại
+            transaction.status = 'failed'
+            transaction.error_message = f'VNPAY Response Code: {vnp_ResponseCode}'
+            transaction.save()
+
+            messages.error(request, 'Thanh toán thất bại')
+            return redirect('store:payment_failed')
+
+    except Exception as e:
+        logger.error(f"Error in vnpay_return: {str(e)}")
+        messages.error(request, 'Có lỗi xảy ra trong quá trình xử lý')
+        return redirect('store:payment_failed')

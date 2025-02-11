@@ -1,10 +1,35 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="payment-result failed">
-    <i class="fas fa-times-circle"></i>
-    <h2>Thanh toán thất bại!</h2>
-    <p>Có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại sau.</p>
-    <a href="{% url 'store:cart' %}" class="btn btn-primary">Quay lại giỏ hàng</a>
+<!-- Checkout steps -->
+<div class="checkout-steps">
+    <div class="step">
+        <div class="step-circle">1</div>
+        <span>Giỏ hàng</span>
+    </div>
+    <div class="step">
+        <div class="step-circle">2</div>
+        <span>Thanh toán</span>
+    </div>
+    <div class="step active">
+        <div class="step-circle">3</div>
+        <span>Hoàn thành</span>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="fas fa-times-circle text-danger" style="font-size: 64px;"></i>
+                    <h2 class="mt-3">Thanh toán thất bại!</h2>
+                    <p>Đã có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại.</p>
+                    <a href="{% url 'store:cart' %}" class="btn btn-primary mt-3">Quay lại giỏ hàng</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %} 

@@ -309,8 +309,8 @@ function showEmptyCart() {
                 <i class="fas fa-shopping-cart"></i>
                 <p>Giỏ hàng của bạn đang trống</p>
                 <a href="/" class="btn btn-primary">Tiếp tục mua sắm</a>
-            </div>
-        `;
+                </div>
+            `;
     }
 }
 
@@ -328,4 +328,4 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-});
+  });

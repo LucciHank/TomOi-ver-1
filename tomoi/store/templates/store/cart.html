@@ -398,7 +398,6 @@
     }
 }
 </style>
-
 <!-- Checkout steps -->
 <div class="checkout-steps">
     <div class="step active">
@@ -407,13 +406,13 @@
     </div>
     <div class="step">
         <div class="step-circle">2</div>
-        <span>Xác nhận</span>
-    </div>
+        <span>Thanh toán</span>
+                    </div>
     <div class="step">
         <div class="step-circle">3</div>
-        <span>Thanh toán</span>
-    </div>
-</div>
+        <span>Hoàn thành</span>
+                      </div>
+                    </div>
 
 <div class="cart-page">
     <div class="container">
@@ -479,9 +478,9 @@
                                     <button class="remove-btn" data-id="{{ item.id }}">
                                         <i class="fas fa-trash"></i>
                                     </button>
-                                </div>
-                            </div>
                         </div>
+                      </div>
+                      </div>
                     </div>
                     {% empty %}
                     <div class="empty-cart-message">
@@ -491,7 +490,7 @@
                     </div>
                     {% endfor %}
                 </div>
-            </div>
+              </div>
 
             <!-- Thanh toán bên phải -->
             <div class="col-md-4">
@@ -527,10 +526,10 @@
                             <div class="promo-input" id="gift-input">
                                 <input type="email" placeholder="Nhập email người nhận">
                                 <button class="btn-apply">Áp dụng</button>
-                            </div>
-                        </div>
-                    </div>
-
+                </div>
+              </div>
+            </div>
+  
                     <div class="summary-details">
                         <div class="summary-row">
                             <span>Tạm tính</span>
@@ -544,7 +543,7 @@
                             <span>Tổng thanh toán</span>
                             <span>{{ final_amount|format_price }}</span>
                         </div>
-                    </div>
+            </div>
   
                     <div class="payment-buttons">
                         <button class="btn-payment btn-balance">
@@ -555,10 +554,14 @@
                             <span>HOẶC</span>
                         </div>
                         <!-- VNPAY Button -->
-                        <button class="btn-payment btn-vnpay" onclick="payWithVNPay()">
-                            <i class="fas fa-qrcode"></i>
-                            Thanh toán qua VNPAY
-                        </button>
+                        <form action="{% url 'payment:vnpay_payment' %}" method="POST" class="w-100">
+                            {% csrf_token %}
+                            <input type="hidden" name="amount" value="{{ final_amount }}">
+                            <button type="submit" class="btn-payment btn-vnpay w-100">
+                                <i class="fas fa-qrcode"></i>
+                                Thanh toán qua VNPAY
+                            </button>
+                        </form>
                         <!-- Mobile Banking Button -->
                         <form action="{% url 'payment:qr_payment' %}" method="POST" class="w-100">
                             {% csrf_token %}
@@ -576,8 +579,8 @@
                 </div>
             </div>
         </div>
+      </div>
     </div>
-</div>
 {% endblock %}
 
 {% block extra_js %}

@@ -1,3 +1,5 @@
+{% load humanize %}
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -21,9 +23,9 @@
             <p>Xin chào {{ user.get_full_name }},</p>
             <p>Cảm ơn bạn đã mua hàng tại TomOi. Đơn hàng của bạn đã được thanh toán thành công.</p>
             
-            <h3>Chi tiết đơn hàng #{{ transaction.order_id }}</h3>
-            <p>Phương thức thanh toán: {{ payment_method }}</p>
-            <p>Ngày thanh toán: {{ transaction.created_at|date:"d/m/Y H:i" }}</p>
+            <h3>Chi tiết đơn hàng #{{ transaction.transaction_id }}</h3>
+            <p>Ngày đặt hàng: {{ transaction.created_at|date:"d/m/Y H:i" }}</p>
+            <p>Phương thức thanh toán: {{ transaction.payment_method }}</p>
         </div>
         
         <table class="items-table">
@@ -40,15 +42,15 @@
                 <tr>
                     <td>{{ item.product_name }}</td>
                     <td>{{ item.quantity }}</td>
-                    <td>{{ item.price|floatformat:0|intcomma }} VNĐ</td>
-                    <td>{{ item.subtotal|floatformat:0|intcomma }} VNĐ</td>
+                    <td>{{ item.price|floatformat:0 }} VNĐ</td>
+                    <td>{{ item.subtotal|floatformat:0 }} VNĐ</td>
                 </tr>
                 {% endfor %}
             </tbody>
             <tfoot>
                 <tr>
                     <td colspan="3" class="total">Tổng cộng:</td>
-                    <td class="total">{{ transaction.amount|floatformat:0|intcomma }} VNĐ</td>
+                    <td class="total">{{ transaction.amount|floatformat:0 }} VNĐ</td>
                 </tr>
             </tfoot>
         </table>
