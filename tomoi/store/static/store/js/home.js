@@ -334,3 +334,71 @@ function showNotification(message, type = 'success') {
 }
 
 // Các hàm khác không liên quan đến xóa sản phẩm
+
+function toggleWishlist(button, event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!document.body.dataset.userAuthenticated) {
+        Swal.fire({
+            title: 'Yêu cầu đăng nhập',
+            text: 'Vui lòng đăng nhập để sử dụng tính năng này',
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: 'Đăng nhập',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Mở modal đăng nhập
+                $('#loginModal').modal('show');
+            }
+        });
+        return;
+    }
+
+    const productId = button.dataset.productId;
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch('/store/toggle-wishlist/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify({
+            product_id: productId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'added') {
+            button.classList.add('active');
+            button.querySelector('i').classList.remove('far');
+            button.querySelector('i').classList.add('fas');
+        } else if (data.status === 'removed') {
+            button.classList.remove('active');
+            button.querySelector('i').classList.remove('fas');
+            button.querySelector('i').classList.add('far');
+        }
+        
+        Swal.fire({
+            text: data.message,
+            icon: data.status === 'error' ? 'error' : 'success',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+        });
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            text: 'Có lỗi xảy ra',
+            icon: 'error',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+        });
+    });
+}

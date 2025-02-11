@@ -356,3 +356,12 @@ class BlogPost(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+# Thêm model Wishlist
+class Wishlist(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='wishlist_products')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'product')

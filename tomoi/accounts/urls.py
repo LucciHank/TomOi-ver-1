@@ -40,4 +40,5 @@ urlpatterns = [
     path('settings/', views.settings_view, name='settings'),
     path('update-language/', views.update_language, name='update_language'),
     path('set_language/', views.set_language, name='set_language'),
+    path('user-info/wishlist/', views.wishlist, name='wishlist'),
 ]

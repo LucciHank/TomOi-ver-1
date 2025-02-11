@@ -115,10 +115,6 @@
             </button>
         </div>
         <ul class="navbar-nav ms-auto">
-            <!-- Favorite -->
-            <li class="nav-item">
-                <a class="nav-link" href="#"><i class="fas fa-heart" style="color: white !important;"></i></a>
-            </li>
 
             <!-- User Icon -->
             <li class="nav-item">
@@ -150,6 +146,9 @@
                         </a>
                         <a href="/store/user-info/order-history/" class="dropdown-item">
                             <i class="fas fa-history"></i> Sản phẩm đã mua
+                        </a>
+                        <a href="{% url 'accounts:wishlist' %}" class="dropdown-item">
+                            <i class="fas fa-heart"></i> Sản phẩm yêu thích
                         </a>
                         <a href="{% url 'accounts:logout' %}" class="dropdown-item">
                             <i class="fas fa-sign-out-alt"></i> Đăng xuất

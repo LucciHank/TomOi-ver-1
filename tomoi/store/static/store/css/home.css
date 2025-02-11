@@ -10,6 +10,7 @@ body {
     margin: 0;
     padding: 0;
     width: 100%;
+    font-family: 'Nunito', sans-serif !important;
 }
 
 /* Cấu trúc layout chính */
@@ -454,35 +455,31 @@ body {
     color: #333;
 }
 
-.price-wrapper {
-    margin: 12px 0;
-}
-
-.price-row {
+.product-price {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
+    gap: 10px;
+    margin-top: 10px;
 }
 
 .old-price {
-    color: #999;
-    font-size: 1rem;
     text-decoration: line-through;
-}
-
-.discount-badge {
-    background-color: #df2626;
-    color: #fff;
-    padding: 2px 8px;
-    border-radius: 8px;
-    font-size: 0.9rem;
+    color: #999;
+    font-size: 14px;
 }
 
 .current-price {
     color: #df2626;
-    font-size: 1.3rem;
-    font-weight: 700;
+    font-weight: 600;
+    font-size: 18px;
+}
+
+.discount-badge {
+    background: #df2626;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
 }
 
 /* Add to Cart Button */
@@ -880,4 +877,171 @@ li.nav-item.dropdown {
 
 .add-to-cart-btn:active {
     transform: scale(0.95);
+}
+
+.wishlist-btn {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: 2px solid #df2626;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: auto;
+}
+
+.wishlist-btn i {
+    color: #df2626;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.wishlist-btn.active {
+    background: #df2626;
+}
+
+.wishlist-btn.active i {
+    color: white;
+}
+
+.wishlist-btn:hover {
+    background: #df2626;
+}
+
+.wishlist-btn:hover i {
+    color: white;
+}
+
+/* Thêm vào cuối file, không thay đổi CSS hiện có */
+.current-price-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 5px;
+}
+
+.wishlist-btn {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    border-radius: 50%;
+    border: 1.5px solid #df2626;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+    margin-left: auto;
+}
+
+.wishlist-btn i {
+    color: #df2626;
+    font-size: 14px;
+    padding-top: 1px;
+    transition: all 0.3s ease;
+}
+
+.wishlist-btn.active {
+    background: #df2626;
+}
+
+.wishlist-btn.active i {
+    color: white;
+}
+
+.wishlist-btn:hover {
+    background: #df2626;
+}
+
+.wishlist-btn:hover i {
+    color: white;
+}
+
+/* Sửa lại phần price-wrapper để căn chỉnh wishlist */
+.price-wrapper {
+    position: relative;
+}
+
+.wishlist-btn {
+    position: absolute;
+    right: 5px;
+    top: 70%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1.5px solid #df2626;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+}
+
+.price-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.current-price {
+    display: flex;
+    align-items: center;
+    color: #df2626;
+    font-weight: 600;
+    font-size: 18px;
+}
+
+/* Style cho wishlist */
+.wishlist-btn {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    border-radius: 50%;
+    border: 1.5px solid #df2626;
+    background: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+/* Style riêng cho icon */
+.wishlist-icon {
+    font-family: "Font Awesome 6 Free" !important;
+    color: #df2626;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.wishlist-btn.active {
+    background: #df2626;
+}
+
+.wishlist-btn.active .wishlist-icon {
+    color: white;
+}
+
+.wishlist-btn:hover {
+    background: #df2626;
+}
+
+.wishlist-btn:hover .wishlist-icon {
+    color: white;
+}
+
+/* Chỉ áp dụng Font Awesome cho icon */
+.wishlist-icon {
+    font-family: "Font Awesome 6 Free" !important;
 }

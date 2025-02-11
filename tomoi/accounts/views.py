@@ -30,7 +30,9 @@ from django.urls import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from .decorators import admin_required, staff_required
 from django.views.decorators.http import require_POST, require_http_methods
-from .models import Order, Transaction  # Thêm import này ở đầu file
+from .models import Order  # Import Order từ accounts.models
+from payment.models import Transaction  # Import Transaction từ payment.models
+from store.models import Wishlist  # Import Wishlist từ store.models
 import pyotp
 import qrcode
 import base64
@@ -42,7 +44,6 @@ import hashlib
 from .utils import mask_email
 from django.core.cache import cache
 from django.utils import translation
-from payment.models import Transaction
 
 @csrf_exempt
 def auth(request):
@@ -1047,3 +1048,14 @@ def profile(request):
         # ... context hiện tại ...
     }
     return render(request, 'accounts/profile.html', context)
+
+@login_required
+def wishlist(request):
+    # Lấy danh sách sản phẩm yêu thích của user
+    wishlist_items = Wishlist.objects.filter(user=request.user).select_related('product')
+    
+    context = {
+        'wishlist_items': wishlist_items,
+        'total_items': wishlist_items.count()
+    }
+    return render(request, 'accounts/wishlist.html', context)

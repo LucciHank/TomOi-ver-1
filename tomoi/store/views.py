@@ -3,7 +3,7 @@ from django.conf import settings
 from .models import (
     Order, PurchasedAccount, Product, ProductImage, 
     Category, Banner, CartItem, BlogPost, ProductVariant, 
-    VariantOption
+    VariantOption, Wishlist
 )
 from accounts.models import CustomUser
 from django.contrib.auth.decorators import login_required
@@ -542,3 +542,32 @@ def get_cart_items(request):
         'upgrade_email': item.upgrade_email,
         'account_username': item.account_username
     } for item in cart_items]
+
+@login_required
+@require_POST
+def toggle_wishlist(request):
+    try:
+        data = json.loads(request.body)
+        product_id = data.get('product_id')
+        product = get_object_or_404(Product, id=product_id)
+        
+        wishlist_item = Wishlist.objects.filter(user=request.user, product=product)
+        if wishlist_item.exists():
+            wishlist_item.delete()
+            return JsonResponse({
+                'status': 'removed',
+                'message': 'Đã xóa khỏi danh sách yêu thích'
+            })
+        else:
+            Wishlist.objects.create(user=request.user, product=product)
+            return JsonResponse({
+                'status': 'added',
+                'message': 'Đã thêm vào danh sách yêu thích'
+            })
+            
+    except Exception as e:
+        print(f"Error in toggle_wishlist: {str(e)}")
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=400)

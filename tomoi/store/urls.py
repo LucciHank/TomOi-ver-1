@@ -32,6 +32,7 @@ urlpatterns = [
     path('blog/<slug:slug>/', views.blog_detail, name='blog_detail'),
     path('payment/success/', views.payment_success, name='payment_success'),
     path('payment/failed/', views.payment_failed, name='payment_failed'),
+    path('toggle-wishlist/', views.toggle_wishlist, name='toggle_wishlist'),
 
 
     # path('payment/paypal/', views.paypal_payment, name='paypal_payment'),
