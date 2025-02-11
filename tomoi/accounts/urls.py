@@ -41,4 +41,6 @@ urlpatterns = [
     path('update-language/', views.update_language, name='update_language'),
     path('set_language/', views.set_language, name='set_language'),
     path('user-info/wishlist/', views.wishlist, name='wishlist'),
+    path('reset-password/', views.reset_password, name='reset_password'),
+    path('resend-verification-email/', views.resend_verification_email, name='resend_verification_email'),
 ]

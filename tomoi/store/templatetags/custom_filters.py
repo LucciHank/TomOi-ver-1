@@ -15,16 +15,19 @@ def format_balance(value):
 
 @register.filter
 def mask_email(email):
-    """Ẩn một phần email, chỉ hiện 3 ký tự đầu và domain"""
+    """Ẩn phần giữa của email, chỉ hiện ký tự đầu và cuối trước @"""
     try:
         parts = email.split('@')
         if len(parts) != 2:
             return email
+            
         username, domain = parts
-        if len(username) <= 3:
+        if len(username) <= 2:  # Nếu username quá ngắn
             masked_username = username + '*' * 3
         else:
-            masked_username = username[:3] + '*' * (len(username) - 3)
+            # Giữ lại ký tự đầu và cuối, thay phần giữa bằng 3 dấu *
+            masked_username = username[0] + '*' * 3 + username[-1]
+            
         return f"{masked_username}@{domain}"
     except:
         return email

@@ -1,6 +1,7 @@
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.contrib import messages
+from django.http import JsonResponse
 
 class RoleMiddleware:
     def __init__(self, get_response):
@@ -25,4 +26,34 @@ class RoleMiddleware:
                 return redirect('store:home')
 
         response = self.get_response(request)
-        return response 
+        return response
+
+class EmailVerificationMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if request.user.is_authenticated and not request.user.is_active:
+            # Danh sách các URL được phép truy cập khi chưa xác minh
+            allowed_urls = [
+                reverse('accounts:register_verify'),
+                reverse('accounts:verify_email', args=['dummy']).rsplit('dummy', 1)[0],
+                reverse('accounts:resend_verification_email'),
+                reverse('accounts:logout'),
+                '/static/',
+                '/media/',
+                '/accounts/login/',  # Cho phép truy cập URL đăng nhập
+            ]
+            
+            # Kiểm tra xem URL hiện tại có được phép không
+            current_path = request.path
+            if not any(current_path.startswith(url) for url in allowed_urls):
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Vui lòng xác thực email để tiếp tục',
+                        'redirect': reverse('accounts:register_verify')
+                    })
+                return redirect('accounts:register_verify')
+
+        return self.get_response(request) 

@@ -39,6 +39,7 @@ class ProductLabel(models.Model):
 # Mô hình sản phẩm (Product)
 class Product(models.Model):
     name = models.CharField(max_length=200)
+    product_code = models.CharField(max_length=50, unique=True, verbose_name='Mã sản phẩm')
     price = models.DecimalField(max_digits=10, decimal_places=0)
     old_price = models.DecimalField(max_digits=10, decimal_places=0, null=True, blank=True)
     label = models.ForeignKey(ProductLabel, on_delete=models.SET_NULL, null=True, blank=True)
@@ -114,6 +115,18 @@ class Product(models.Model):
             for option in variant.options.all():
                 durations.add(option.duration)
         return sorted(list(durations))
+
+    def save(self, *args, **kwargs):
+        if not self.product_code:
+            # Tự động tạo mã sản phẩm nếu không được nhập
+            prefix = 'PRD'
+            last_product = Product.objects.order_by('-id').first()
+            if last_product:
+                last_id = last_product.id + 1
+            else:
+                last_id = 1
+            self.product_code = f'{prefix}{last_id:06d}'
+        super().save(*args, **kwargs)
 
 
 # Mô hình hình ảnh sản phẩm (ProductImage)

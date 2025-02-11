@@ -32,7 +32,7 @@ from .decorators import admin_required, staff_required
 from django.views.decorators.http import require_POST, require_http_methods
 from .models import Order  # Import Order từ accounts.models
 from payment.models import Transaction  # Import Transaction từ payment.models
-from store.models import Wishlist  # Import Wishlist từ store.models
+from store.models import Wishlist, Category  # Import Wishlist và Category từ store.models
 import pyotp
 import qrcode
 import base64
@@ -44,6 +44,7 @@ import hashlib
 from .utils import mask_email
 from django.core.cache import cache
 from django.utils import translation
+from django.db.models import Q
 
 @csrf_exempt
 def auth(request):
@@ -125,12 +126,18 @@ def register(request):
             password = request.POST.get('password')
 
             # Kiểm tra email và username tồn tại
-            if CustomUser.objects.filter(email=email).exists():
-                return JsonResponse({
-                    'success': False,
-                    'error': 'Email đã tồn tại!',
-                    'action': 'login'
-                })
+            existing_user = CustomUser.objects.filter(email=email).first()
+            if existing_user:
+                # Chỉ báo email tồn tại nếu tài khoản đã được kích hoạt
+                if existing_user.is_active:
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'Email đã tồn tại!',
+                        'action': 'login'
+                    })
+                else:
+                    # Nếu tài khoản chưa kích hoạt, xóa và tạo mới
+                    existing_user.delete()
             
             if CustomUser.objects.filter(username=username).exists():
                 return JsonResponse({
@@ -146,44 +153,24 @@ def register(request):
                 is_active=False
             )
 
-            # Tạo token xác thực
+            # Tạo token xác thực và thời gian hết hạn
             token = get_random_string(64)
             user.verification_token = token
+            user.verification_token_expires = timezone.now() + timedelta(hours=24)
             user.save()
 
-            # Tạo URL xác thực
-            verification_url = request.build_absolute_uri(
-                reverse('accounts:verify_email', args=[token])
-            )
-
             # Gửi email xác thực
-            try:
-                html_message = render_to_string('accounts/email/verify_email.html', {
-                    'user': user,
-                    'verification_url': verification_url
-                })
+            send_verification_email(request, user)
 
-                send_mail(
-                    'Xác thực tài khoản TomOi.vn',
-                    '',
-                    'tomoivn2024@gmail.com',
-                    [email],
-                    html_message=html_message,
-                    fail_silently=False
-                )
+            # Đăng nhập user
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            login(request, user)
 
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.',
-                    'redirect': reverse('accounts:register_verify')
-                })
-
-            except Exception as e:
-                user.delete()  # Xóa user nếu gửi mail thất bại
-                return JsonResponse({
-                    'success': False,
-                    'error': 'Có lỗi xảy ra khi gửi email xác thực.'
-                })
+            return JsonResponse({
+                'success': True,
+                'message': 'Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.',
+                'redirect': reverse('accounts:register_verify')
+            })
 
         except Exception as e:
             return JsonResponse({
@@ -193,49 +180,140 @@ def register(request):
 
     return render(request, 'accounts/register.html')
 
-# Login view
-def login_view(request):
+def send_verification_email(request, user):
+    verification_url = request.build_absolute_uri(
+        reverse('accounts:verify_email', args=[user.verification_token])
+    )
+    
+    html_message = render_to_string('accounts/email/verify_email.html', {
+        'user': user,
+        'verification_url': verification_url
+    })
+
+    send_mail(
+        'Xác thực tài khoản TomOi.vn',
+        '',
+        settings.EMAIL_HOST_USER,
+        [user.email],
+        html_message=html_message,
+        fail_silently=False
+    )
+
+@csrf_exempt
+def resend_verification_email(request):
     if request.method == 'POST':
-        username = request.POST.get('username')  # Có thể là email hoặc username
-        password = request.POST.get('password')
-        remember_me = request.POST.get('remember_me')
-
-        # Thử authenticate với username trước
-        user = authenticate(request, username=username, password=password)
-        
-        # Nếu không được và input có dạng email, thử với email
-        if user is None and '@' in username:
-            try:
-                user_obj = CustomUser.objects.get(email=username)
-                user = authenticate(request, username=user_obj.username, password=password)
-            except CustomUser.DoesNotExist:
-                user = None
-
-        if user is not None:
-            login(request, user)
-            if remember_me:
-                request.session.set_expiry(1209600)  # 14 days
-            else:
-                request.session.set_expiry(0)
-
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': True,
-                    'redirect_url': reverse('store:home'),
-                    'message': 'Đăng nhập thành công!'
-                })
-            messages.success(request, 'Đăng nhập thành công!')
-            return redirect('store:home')
-        else:
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        try:
+            user = request.user
+            if not user.is_authenticated:
                 return JsonResponse({
                     'success': False,
-                    'error': 'Tên đăng nhập/Email hoặc mật khẩu không đúng'
+                    'message': 'Vui lòng đăng nhập'
                 })
-            messages.error(request, 'Tên đăng nhập/Email hoặc mật khẩu không đúng')
-            return redirect('store:home')
 
-    return redirect('store:home')
+            # Tạo token mới
+            user.verification_token = get_random_string(64)
+            user.verification_token_expires = timezone.now() + timedelta(hours=24)
+            user.save()
+
+            # Gửi lại email
+            send_verification_email(request, user)
+
+            return JsonResponse({
+                'success': True,
+                'message': 'Đã gửi lại email xác thực'
+            })
+
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            })
+
+    return JsonResponse({
+        'success': False,
+        'message': 'Phương thức không hợp lệ'
+    })
+
+def verify_email(request, token):
+    try:
+        user = CustomUser.objects.get(verification_token=token)
+        
+        # Kiểm tra token hết hạn
+        if timezone.now() > user.verification_token_expires:
+            # Xóa tài khoản nếu hết hạn
+            user.delete()
+            return render(request, 'accounts/verify_fail.html', {
+                'message': 'Link xác thực đã hết hạn. Tài khoản của bạn đã bị xóa, vui lòng đăng ký lại.'
+            })
+
+        user.is_active = True
+        user.verification_token = None
+        user.verification_token_expires = None
+        user.save()
+        
+        return render(request, 'accounts/verify_success.html')
+        
+    except CustomUser.DoesNotExist:
+        return render(request, 'accounts/verify_fail.html', {
+            'message': 'Link xác thực không hợp lệ'
+        })
+
+# Login view
+@csrf_exempt
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        try:
+            # Tìm user theo username hoặc email
+            if '@' in username:
+                user = CustomUser.objects.get(email=username)
+            else:
+                user = CustomUser.objects.get(username=username)
+
+            # Kiểm tra trạng thái tài khoản TRƯỚC
+            if user.status == 'suspended':
+                return JsonResponse({
+                    'success': False,
+                    'action': 'suspended',
+                    'message': 'Tài khoản đã bị đình chỉ',
+                    'reason': user.suspension_reason or 'Không có lý do được cung cấp'
+                })
+                
+            # Sau đó mới kiểm tra mật khẩu
+            if user.check_password(password):
+                # Đăng nhập user
+                user.backend = 'django.contrib.auth.backends.ModelBackend'
+                login(request, user)
+                
+                # Nếu đang chờ xác minh, chuyển đến trang xác thực
+                if user.status == 'pending':
+                    return JsonResponse({
+                        'success': True,
+                        'redirect': reverse('accounts:register_verify')
+                    })
+                    
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Đăng nhập thành công'
+                })
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Mật khẩu không chính xác'
+                })
+                
+        except CustomUser.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'Tài khoản không tồn tại'
+            })
+            
+    return JsonResponse({
+        'success': False,
+        'message': 'Phương thức không hợp lệ'
+    })
 
 # Logout view
 def user_logout(request):
@@ -332,12 +410,18 @@ def register(request):
             password = request.POST.get('password')
 
             # Kiểm tra email và username tồn tại
-            if CustomUser.objects.filter(email=email).exists():
-                return JsonResponse({
-                    'success': False,
-                    'error': 'Email đã tồn tại!',
-                    'action': 'login'
-                })
+            existing_user = CustomUser.objects.filter(email=email).first()
+            if existing_user:
+                # Chỉ báo email tồn tại nếu tài khoản đã được kích hoạt
+                if existing_user.is_active:
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'Email đã tồn tại!',
+                        'action': 'login'
+                    })
+                else:
+                    # Nếu tài khoản chưa kích hoạt, xóa và tạo mới
+                    existing_user.delete()
             
             if CustomUser.objects.filter(username=username).exists():
                 return JsonResponse({
@@ -472,30 +556,38 @@ def send_otp(request):
             if not user:
                 return JsonResponse({
                     'success': False,
-                    'message': 'Email không tồn tại! <a href="#" class="register-link" data-bs-toggle="modal" data-bs-target="#registerModal">Đăng ký ngay</a>',
+                    'message': 'Email không tồn tại trong hệ thống',
                     'code': 'EMAIL_NOT_FOUND'
                 })
 
-            otp = random.randint(100000, 999999)
-            request.session['otp'] = str(otp)
-            request.session['otp_email'] = email
+            # Tạo OTP 6 số
+            otp = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+            
+            # Lưu OTP vào session với thời gian hết hạn
+            request.session['reset_password_otp'] = {
+                'email': email,
+                'otp': otp,
+                'expires': (timezone.now() + timedelta(minutes=5)).timestamp()
+            }
 
+            # Gửi email
             send_mail(
-                'Mã xác thực OTP',
-                f'Mã OTP của bạn là: {otp}',
-                'tomoivn2024@gmail.com',
+                'Mã xác thực đặt lại mật khẩu - TomOi.vn',
+                f'Mã xác thực của bạn là: {otp}\nMã có hiệu lực trong 5 phút.',
+                settings.EMAIL_HOST_USER,
                 [email],
                 fail_silently=False,
             )
 
             return JsonResponse({
                 'success': True,
-                'message': 'OTP đã được gửi qua email.'
+                'message': f'Mã xác thực đã được gửi đến {mask_email(email)}'
             })
+
         except ValidationError:
             return JsonResponse({
                 'success': False,
-                'message': 'Địa chỉ email không hợp lệ.'
+                'message': 'Email không hợp lệ'
             })
         except Exception as e:
             return JsonResponse({
@@ -505,63 +597,102 @@ def send_otp(request):
 
     return JsonResponse({
         'success': False,
-        'message': 'Phương thức không hợp lệ.'
+        'message': 'Phương thức không hợp lệ'
     })
 
 @csrf_exempt
 def resend_otp(request):
-    # Hàm này có thể giống send_otp hoặc có logic khác nếu cần
-    return send_otp(request)
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        try:
+            validate_email(email)
+            user = CustomUser.objects.filter(email=email).first()
+            
+            if not user:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Email không tồn tại trong hệ thống'
+                })
 
-@login_required
-@require_http_methods(["POST"])
+            # Tạo OTP mới
+            otp = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+            
+            # Lưu OTP mới vào session
+            request.session['reset_password_otp'] = {
+                'email': email,
+                'otp': otp,
+                'expires': (timezone.now() + timedelta(minutes=5)).timestamp()
+            }
+
+            # Gửi email OTP mới
+            send_mail(
+                'Mã xác thực đặt lại mật khẩu - TomOi.vn',
+                f'Mã xác thực mới của bạn là: {otp}\nMã có hiệu lực trong 5 phút.',
+                settings.EMAIL_HOST_USER,
+                [email],
+                fail_silently=False,
+            )
+
+            return JsonResponse({
+                'success': True,
+                'message': 'Đã gửi lại mã xác thực'
+            })
+
+        except ValidationError:
+            return JsonResponse({
+                'success': False,
+                'message': 'Email không hợp lệ'
+            })
+        except Exception as e:
+            print(f"Error in resend_otp: {str(e)}")  # Log lỗi để debug
+            return JsonResponse({
+                'success': False,
+                'message': f'Có lỗi xảy ra: {str(e)}'
+            })
+
+    return JsonResponse({
+        'success': False,
+        'message': 'Phương thức không hợp lệ'
+    })
+
+@csrf_exempt
 def verify_otp(request):
     try:
         data = json.loads(request.body)
         otp = data.get('otp')
-        stored_otp = request.session.get('email_otp', {})
         
-        # Kiểm tra OTP có tồn tại và còn hạn không
-        if not stored_otp:
+        # Lấy thông tin OTP từ session
+        otp_info = request.session.get('reset_password_otp')
+        if not otp_info:
             return JsonResponse({
-                'status': 'error',
-                'message': 'OTP không tồn tại hoặc đã hết hạn'
-            }, status=400)
+                'success': False,
+                'message': 'OTP đã hết hạn hoặc không tồn tại'
+            })
             
-        if float(stored_otp['expires']) < timezone.now().timestamp():
-            del request.session['email_otp']
+        if otp != otp_info['otp']:
             return JsonResponse({
-                'status': 'error',
-                'message': 'OTP đã hết hạn'
-            }, status=400)
-            
-        if otp != stored_otp['code']:
-            return JsonResponse({
-                'status': 'error',
+                'success': False,
                 'message': 'Mã OTP không chính xác'
-            }, status=400)
+            })
             
-        # OTP hợp lệ
-        del request.session['email_otp']
-        request.user.two_factor_method = 'email'
-        request.user.has_2fa = True
-        request.user.save()
+        # Xóa OTP khỏi session sau khi xác thực thành công
+        del request.session['reset_password_otp']
         
         return JsonResponse({
-            'status': 'success',
+            'success': True,
             'message': 'Xác thực thành công'
         })
         
     except json.JSONDecodeError:
         return JsonResponse({
-            'status': 'error',
-            'message': 'Invalid JSON data'
-        }, status=400)
+            'success': False,
+            'message': 'Dữ liệu không hợp lệ'
+        })
     except Exception as e:
         return JsonResponse({
-            'status': 'error',
+            'success': False,
             'message': str(e)
-        }, status=500)
+        })
 
 def unauthorized_view(request):
     return JsonResponse({'error': 'Login required'}, status=401)
@@ -1051,11 +1182,76 @@ def profile(request):
 
 @login_required
 def wishlist(request):
-    # Lấy danh sách sản phẩm yêu thích của user
     wishlist_items = Wishlist.objects.filter(user=request.user).select_related('product')
+    
+    # Xử lý filter
+    search = request.GET.get('search')
+    category = request.GET.get('category')
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    has_discount = request.GET.get('has_discount')
+    
+    if search:
+        wishlist_items = wishlist_items.filter(
+            Q(product__name__icontains=search) | 
+            Q(product__product_code__icontains=search)
+        )
+    
+    if category:
+        wishlist_items = wishlist_items.filter(product__category_id=category)
+        
+    if min_price:
+        wishlist_items = wishlist_items.filter(product__price__gte=min_price)
+        
+    if max_price:
+        wishlist_items = wishlist_items.filter(product__price__lte=max_price)
+        
+    if has_discount:
+        if has_discount == '1':
+            wishlist_items = wishlist_items.filter(product__old_price__isnull=False)
+        else:
+            wishlist_items = wishlist_items.filter(product__old_price__isnull=True)
     
     context = {
         'wishlist_items': wishlist_items,
-        'total_items': wishlist_items.count()
+        'total_items': wishlist_items.count(),
+        'categories': Category.objects.all()
     }
     return render(request, 'accounts/wishlist.html', context)
+
+@csrf_exempt
+def reset_password(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            email = data.get('email')
+            new_password = data.get('new_password')
+            
+            user = CustomUser.objects.get(email=email)
+            user.set_password(new_password)
+            user.save()
+            
+            # Tự động đăng nhập user
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            login(request, user)
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Đặt lại mật khẩu thành công'
+            })
+            
+        except CustomUser.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'Không tìm thấy tài khoản'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            })
+            
+    return JsonResponse({
+        'success': False,
+        'message': 'Phương thức không hợp lệ'
+    })

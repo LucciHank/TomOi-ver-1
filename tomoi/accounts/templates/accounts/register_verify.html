@@ -10,8 +10,11 @@
         <p>Vui lòng kiểm tra hộp thư (bao gồm thư rác) và nhấp vào liên kết xác thực.</p>
         <div class="mt-4">
             <p>Không nhận được email? 
-                <a href="#" id="resendLink" class="text-primary">Gửi lại email xác thực</a>
+                <a href="#" id="resendVerifyEmailBtn" class="text-primary">Gửi lại email xác thực</a>
             </p>
+        </div>
+        <div class="mt-3">
+            <a href="{% url 'accounts:logout' %}" class="btn btn-secondary">Đăng xuất</a>
         </div>
     </div>
 </div>

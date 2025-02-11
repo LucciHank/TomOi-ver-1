@@ -49,7 +49,7 @@ class CustomUserAdmin(UserAdmin):
         'date_joined',            # Ngày tham gia
         'user_type_display',      # Chức vụ (chuyển xuống cuối)
     )
-    list_filter = ('is_active', 'account_label', 'user_type', 'groups')
+    list_filter = ('is_active', 'account_label', 'user_type', 'groups', 'status')
     search_fields = ('username', 'email', 'first_name', 'last_name', 'phone_number')
     ordering = ('-date_joined',)
     
@@ -66,6 +66,8 @@ class CustomUserAdmin(UserAdmin):
                 'account_label',
                 'user_type',
                 'balance',
+                'status',
+                'suspension_reason',
             ),
             'description': 'Quản lý trạng thái và phân loại tài khoản',
         }),
@@ -95,7 +97,7 @@ class CustomUserAdmin(UserAdmin):
     )
 
     readonly_fields = ('join_date', 'last_login', 'last_login_ip', 'failed_login_attempts')
-    actions = ['activate_users', 'deactivate_users', 'add_balance', 'subtract_balance']
+    actions = ['activate_users', 'deactivate_users', 'add_balance', 'subtract_balance', 'make_active', 'make_pending', 'make_suspended']
 
     def full_name(self, obj):
         return obj.get_full_name() or '-'
@@ -127,6 +129,27 @@ class CustomUserAdmin(UserAdmin):
     def phone_display(self, obj):
         return obj.phone_number or '-'
     phone_display.short_description = 'Số điện thoại'
+
+    def get_status_display(self, obj):
+        status_colors = {
+            'active': 'green',
+            'pending': 'orange',
+            'suspended': 'red'
+        }
+        status_labels = {
+            'active': 'Hoạt động',
+            'pending': 'Chờ xác minh',
+            'suspended': 'Ngừng hoạt động'
+        }
+        color = status_colors.get(obj.status, 'gray')
+        label = status_labels.get(obj.status, obj.status)
+        
+        html = f'<span style="color: {color}; font-weight: bold;">{label}</span>'
+        if obj.status == 'suspended' and obj.suspension_reason:
+            html += f'<br><small style="color: #666">Lý do: {obj.suspension_reason}</small>'
+            
+        return format_html(html)
+    get_status_display.short_description = 'Trạng thái'
 
     def activate_users(self, request, queryset):
         updated = queryset.update(is_active=True)
@@ -230,5 +253,33 @@ class CustomUserAdmin(UserAdmin):
         )
     balance_display.short_description = 'Số dư'
     balance_display.admin_order_field = 'balance'
+
+    def make_active(self, request, queryset):
+        queryset.update(status='active')
+    make_active.short_description = "Đánh dấu là Hoạt động"
+    
+    def make_pending(self, request, queryset):
+        queryset.update(status='pending')
+    make_pending.short_description = "Đánh dấu là Chờ xác minh"
+    
+    def make_suspended(self, request, queryset):
+        if 'apply' in request.POST:
+            reason = request.POST.get('suspension_reason')
+            updated = queryset.update(
+                status='suspended',
+                suspension_reason=reason,
+                is_active=False  # Tự động vô hiệu hóa tài khoản khi đình chỉ
+            )
+            self.message_user(request, f'Đã đình chỉ {updated} tài khoản.')
+        else:
+            return render(
+                request,
+                'admin/suspend_users.html',
+                context={
+                    'title': 'Đình chỉ tài khoản',
+                    'users': queryset
+                }
+            )
+    make_suspended.short_description = "Đánh dấu là Ngừng hoạt động"
 
 admin.site.register(CustomUser, CustomUserAdmin)

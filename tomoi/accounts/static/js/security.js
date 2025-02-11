@@ -626,6 +626,116 @@ document.addEventListener('DOMContentLoaded', function() {
         return `${localPart[0]}${'*'.repeat(localPart.length - 2)}${localPart.slice(-1)}@${domain}`;
     }
 
+    // Kiểm tra mật khẩu realtime cho form đổi mật khẩu
+    document.getElementById('newPassword')?.addEventListener('input', function() {
+        const password = this.value;
+        const currentPassword = document.getElementById('currentPassword').value;
+
+        // Kiểm tra độ dài
+        const lengthCheck = document.querySelector('.password-requirements li:nth-child(1) i');
+        if (password.length >= 8) {
+            lengthCheck.className = 'fas fa-check-circle text-success';
+        } else {
+            lengthCheck.className = 'fas fa-times-circle text-danger';
+        }
+
+        // Kiểm tra số và chữ hoa
+        const numberUpperCheck = document.querySelector('.password-requirements li:nth-child(2) i');
+        if (/(?=.*[0-9])|(?=.*[A-Z])/.test(password)) {
+            numberUpperCheck.className = 'fas fa-check-circle text-success';
+        } else {
+            numberUpperCheck.className = 'fas fa-times-circle text-danger';
+        }
+
+        // Kiểm tra ký tự đặc biệt
+        const specialCheck = document.querySelector('.password-requirements li:nth-child(3) i');
+        if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+            specialCheck.className = 'fas fa-check-circle text-success';
+        } else {
+            specialCheck.className = 'fas fa-times-circle text-danger';
+        }
+
+        // Kiểm tra khác mật khẩu hiện tại
+        const differentCheck = document.querySelector('.password-requirements li:nth-child(4) i');
+        if (password !== currentPassword && password.length > 0) {
+            differentCheck.className = 'fas fa-check-circle text-success';
+        } else {
+            differentCheck.className = 'fas fa-times-circle text-danger';
+        }
+    });
+
+    // Kiểm tra mật khẩu nhập lại
+    document.getElementById('confirmPassword')?.addEventListener('input', function() {
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = this.value;
+        
+        if (confirmPassword === newPassword) {
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+        } else {
+            this.classList.remove('is-valid');
+            this.classList.add('is-invalid');
+        }
+    });
+
+    // Kiểm tra form trước khi submit
+    document.getElementById('changePasswordForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        // Kiểm tra các điều kiện
+        if (newPassword.length < 8) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Mật khẩu phải có ít nhất 8 ký tự'
+            });
+            return;
+        }
+
+        if (!/(?=.*[0-9])|(?=.*[A-Z])/.test(newPassword)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Mật khẩu phải có ít nhất 1 số hoặc 1 chữ viết hoa'
+            });
+            return;
+        }
+
+        if (!/[!@#$%^&*(),.?":{}|<>]/.test(newPassword)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Mật khẩu phải có ít nhất 1 ký tự đặc biệt'
+            });
+            return;
+        }
+
+        if (newPassword === currentPassword) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Mật khẩu mới phải khác mật khẩu hiện tại'
+            });
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Mật khẩu nhập lại không khớp'
+            });
+            return;
+        }
+
+        // Nếu tất cả điều kiện đều thỏa mãn, submit form
+        // ... (phần code xử lý submit form)
+    });
+
     // Khởi động tất cả chức năng
     const initializeAll = () => {
         try {

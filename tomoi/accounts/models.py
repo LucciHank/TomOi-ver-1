@@ -121,11 +121,25 @@ class CustomUser(AbstractUser):
         auto_now_add=True,
         verbose_name='Ngày tham gia'
     )
-    verification_token = models.CharField(
-        max_length=100, 
-        null=True, 
-        blank=True
+    STATUS_CHOICES = [
+        ('active', 'Hoạt động'),
+        ('pending', 'Chờ xác minh'),
+        ('suspended', 'Ngừng hoạt động')
+    ]
+    
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='pending',
+        verbose_name='Trạng thái'
     )
+    suspension_reason = models.TextField(
+        null=True, 
+        blank=True,
+        verbose_name='Lý do ngừng hoạt động'
+    )
+    verification_token = models.CharField(max_length=64, null=True, blank=True)
+    verification_token_expires = models.DateTimeField(null=True, blank=True)
     last_login_ip = models.GenericIPAddressField(
         null=True, 
         blank=True,

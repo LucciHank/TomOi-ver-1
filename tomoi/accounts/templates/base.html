@@ -75,6 +75,155 @@
 
   <!-- Thêm favicon -->
   <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}"/>
+
+  <!-- Thêm CSS cho phần OTP -->
+  <style>
+    .otp-inputs {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin: 20px 0;
+        width: 100%;
+    }
+
+    .otp-input {
+        width: calc((100% - 50px) / 6); /* 50px là tổng gap (5 * 10px) */
+        height: 50px;
+        text-align: center;
+        font-size: 24px;
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+    }
+
+    .otp-input:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
+    }
+
+    .resend-section {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    #resendOtpBtn {
+        color: #0d6efd;
+        text-decoration: none;
+        border: none;
+        background: none;
+        padding: 0;
+    }
+
+    #resendOtpBtn:disabled {
+        color: #6c757d;
+        cursor: not-allowed;
+    }
+
+    .resend-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    #resendOtpBtn {
+        color: #0d6efd;
+        text-decoration: none;
+        border: none;
+        background: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .password-requirements {
+        font-size: 0.85rem;
+        margin-top: 10px;
+    }
+
+    .password-requirements p {
+        color: #666;
+    }
+
+    .password-requirements ul {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+
+    .password-requirements li {
+        color: #666;
+        margin-bottom: 5px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .password-requirements li::before {
+        content: '';
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        background-size: contain;
+        background-repeat: no-repeat;
+    }
+
+    .password-requirements li.invalid::before {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23dc3545'%3E%3Cpath d='M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z'/%3E%3C/svg%3E");
+    }
+
+    .password-requirements li.valid::before {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2328a745'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z'/%3E%3C/svg%3E");
+    }
+
+    .toggle-password {
+        cursor: pointer;
+    }
+
+    .toggle-password:focus {
+        box-shadow: none;
+    }
+
+    /* Thêm class register-requirements để phân biệt */
+    .register-modal .password-requirements {
+        font-size: 0.85rem;
+        margin-top: 10px;
+        margin-bottom: 0 !important;
+    }
+
+    .register-modal .password-requirements p {
+        color: #666;
+    }
+
+    .register-modal .password-requirements ul {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+
+    .register-modal .password-requirements li {
+        color: #666;
+        margin-bottom: 5px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .register-modal .password-requirements li::before {
+        content: '';
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        background-size: contain;
+        background-repeat: no-repeat;
+    }
+
+    .register-modal .password-requirements li.invalid::before {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23dc3545'%3E%3Cpath d='M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z'/%3E%3C/svg%3E");
+    }
+
+    .register-modal .password-requirements li.valid::before {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2328a745'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z'/%3E%3C/svg%3E");
+    }
+  </style>
 </head>
 <body data-user-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
   <!-- Google Translate Element -->
@@ -218,12 +367,16 @@
           {% csrf_token %}
           <div class="mb-3">
             <label for="loginUsername" class="form-label">Tên đăng nhập / Email</label>
-            <input type="text" class="form-control" id="loginUsername" name="username" 
-                   placeholder="Nhập tên đăng nhập hoặc email" required>
+            <input type="text" class="form-control" id="loginUsername" name="username" required>
           </div>
           <div class="mb-3">
             <label for="loginPassword" class="form-label">Mật khẩu</label>
+            <div class="input-group">
             <input type="password" class="form-control" id="loginPassword" name="password" required>
+              <button class="btn btn-outline-secondary toggle-password" type="button">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
           </div>
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="form-check">
@@ -304,24 +457,19 @@
                 </p>
                 <form id="verifyOtpForm">
                     {% csrf_token %}
-                    <div class="mb-3">
-                        <label class="form-label">Nhập mã xác nhận</label>
-                        <div id="otpInputs" class="d-flex gap-2">
+                    <div class="otp-inputs">
+                        {% for i in '123456' %}
                             <input type="text" maxlength="1" class="form-control otp-input" required>
-                            <input type="text" maxlength="1" class="form-control otp-input" required>
-                            <input type="text" maxlength="1" class="form-control otp-input" required>
-                            <input type="text" maxlength="1" class="form-control otp-input" required>
-                            <input type="text" maxlength="1" class="form-control otp-input" required>
-                            <input type="text" maxlength="1" class="form-control otp-input" required>
+                        {% endfor %}
                         </div>
-                    </div>
-                    <button type="button" class="btn btn-primary w-100" id="verifyOtpBtn">Xác minh</button>
-                </form>
-                <div class="text-center mt-3">
-                    <span>Bạn chưa nhận được mã? 
+                    <button type="button" class="btn btn-primary w-100 mb-3" id="verifyOtpBtn">Xác minh</button>
+                    <div class="text-center">
+                        <div class="resend-wrapper">
+                            <span>Bạn chưa nhận được mã?</span>
                         <button type="button" id="resendOtpBtn" class="btn btn-link p-0">Gửi lại</button>
-                    </span>
                 </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -330,38 +478,82 @@
 <!-- Thêm script để đếm ngược -->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    var resendBtn = document.getElementById('resendOtpBtn');
-    var countdown = 30;
-    var interval;
+    let countdownInterval;
+    const resendBtn = document.getElementById('resendOtpBtn');
 
     function startCountdown() {
+        let countdown = 30;
       resendBtn.disabled = true;
-      resendBtn.textContent = `Gửi lại (${countdown} giây)`;
-      interval = setInterval(function() {
+        resendBtn.textContent = `Gửi lại (${countdown}s)`;
+        
+        // Clear any existing interval
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+        }
+        
+        countdownInterval = setInterval(() => {
         countdown--;
         if (countdown > 0) {
-          resendBtn.textContent = `Gửi lại (${countdown} giây)`;
+                resendBtn.textContent = `Gửi lại (${countdown}s)`;
+                resendBtn.disabled = true;  // Đảm bảo nút luôn bị disable trong quá trình đếm ngược
         } else {
-          clearInterval(interval);
+                clearInterval(countdownInterval);
           resendBtn.disabled = false;
           resendBtn.textContent = 'Gửi lại';
-          countdown = 30;  // Reset lại 30 giây cho lần sau
         }
       }, 1000);
     }
 
+    // Xử lý nút Gửi lại OTP
     resendBtn.addEventListener('click', function() {
-      // Gọi hàm gửi lại OTP tại đây (ví dụ: AJAX request)
-      // ...
+        if (this.disabled) return;  // Ngăn chặn click khi đang disable
 
-      // Khởi động lại đếm ngược
-      startCountdown();
+        const email = document.getElementById('displayEmail').textContent;
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        this.disabled = true;
+        this.textContent = 'Đang gửi...';
+
+        fetch('{% url "accounts:resend_otp" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrftoken
+            },
+            body: `email=${encodeURIComponent(email)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                startCountdown();  // Bắt đầu đếm ngược mới
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    text: data.message,
+                    showConfirmButton: true
+                });
+                this.disabled = false;
+                this.textContent = 'Gửi lại';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            this.disabled = false;
+            this.textContent = 'Gửi lại';
+        });
     });
 
     // Khởi động đếm ngược khi modal mở
-    var verifyOtpModal = document.getElementById('verifyOtpModal');
-    verifyOtpModal.addEventListener('shown.bs.modal', function () {
+    const verifyOtpModal = document.getElementById('verifyOtpModal');
+    verifyOtpModal.addEventListener('shown.bs.modal', function() {
       startCountdown();
+    });
+
+    // Clear interval khi modal đóng
+    verifyOtpModal.addEventListener('hidden.bs.modal', function() {
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+        }
     });
   });
 </script>
@@ -393,31 +585,53 @@
   </div>
 </div>
 
-<!-- Modal Đăng Ký -->
-<div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+<!-- Modal Register -->
+<div class="modal fade register-modal" id="registerModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <img src="https://placehold.co/50x50" alt="Logo Shop" class="me-auto">
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title">Đăng ký</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <h5 class="text-center">Đăng Ký</h5>
-        <form id="registerForm" method="post" action="{% url 'accounts:register' %}">
+        <form id="registerForm">
           {% csrf_token %}
           <div class="mb-3">
-            <label for="registerEmail" class="form-label">Email</label>
-            <input type="email" class="form-control" id="registerEmail" name="email" required>
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-control" required>
           </div>
           <div class="mb-3">
-            <label for="registerUsername" class="form-label">Tên đăng nhập</label>
-            <input type="text" class="form-control" id="registerUsername" name="username" required>
+            <label class="form-label">Tên đăng nhập</label>
+            <input type="text" name="username" class="form-control" required>
           </div>
           <div class="mb-3">
-            <label for="registerPassword" class="form-label">Mật khẩu</label>
-            <input type="password" class="form-control" id="registerPassword" name="password" required>
+            <label class="form-label">Mật khẩu</label>
+            <div class="input-group">
+              <input type="password" name="password" id="registerPassword" class="form-control" required>
+              <button class="btn btn-outline-secondary toggle-password" type="button">
+                <i class="fas fa-eye"></i>
+              </button>
           </div>
-          <button type="submit" class="btn btn-primary w-100">Đăng ký</button>
+            <div class="password-requirements small text-muted mt-1">
+              <p>Mật khẩu phải đáp ứng các yêu cầu sau:</p>
+              <ul>
+                  <li id="length-check" class="invalid">Có ít nhất 8 ký tự</li>
+                  <li id="number-check" class="invalid">Không được sử dụng toàn số</li>
+                  <li id="common-check" class="invalid">Không được sử dụng mật khẩu quá phổ biến</li>
+                  <li id="personal-check" class="invalid">Không được giống với Username</li>
+              </ul>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Nhập lại mật khẩu</label>
+            <div class="input-group">
+              <input type="password" name="confirm_password" id="confirmPassword" class="form-control" required>
+              <button class="btn btn-outline-secondary toggle-password" type="button">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary w-100" id="registerBtn">Đăng ký</button>
         </form>
       </div>
     </div>
@@ -445,6 +659,28 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- Modal Register Verify -->
+<div class="modal fade" id="registerVerifyModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <i class="fas fa-envelope-open-text fa-4x mb-4" style="color: #e50914;"></i>
+                <h5>Xác thực email</h5>
+                <p>Chúng tôi đã gửi email xác thực đến địa chỉ email của bạn.</p>
+                <p>Vui lòng kiểm tra hộp thư (bao gồm thư rác) và nhấp vào liên kết xác thực.</p>
+                <div class="mt-4">
+                    <p>Không nhận được email? 
+                        <a href="#" id="resendVerifyEmailBtn" class="text-primary">Gửi lại email xác thực</a>
+                    </p>
+                </div>
+                <div class="mt-3">
+                    <a href="{% url 'accounts:logout' %}" class="btn btn-secondary">Đăng xuất</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
   <div class="container mt-4 content">
@@ -541,7 +777,513 @@
 <script src="{% static 'accounts/js/base.js' %}?v=1.2"></script>
 
 <!-- Load các file JS khác sau -->
-{% block extra_js %}{% endblock %}
+  {% block extra_js %}{% endblock %}
+
+<!-- Thêm script này vào phần cuối của base.html, trước </body> -->
+<script>
+// Lấy các modal
+const forgotPasswordModal = new bootstrap.Modal(document.getElementById('forgotPasswordModal'));
+const verifyOtpModal = new bootstrap.Modal(document.getElementById('verifyOtpModal'));
+const resetPasswordModal = new bootstrap.Modal(document.getElementById('resetPasswordModal'));
+
+// Xử lý form quên mật khẩu
+document.getElementById('sendOtpBtn').addEventListener('click', function() {
+    const button = this;
+    button.disabled = true;
+    button.innerHTML = 'Đang xử lý...';
+
+    const email = document.getElementById('forgotEmail').value;
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch('{% url "accounts:send_otp" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': csrftoken
+        },
+        body: `email=${encodeURIComponent(email)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                text: 'Đã gửi mã xác thực đến email của bạn',
+                showConfirmButton: false,
+                timer: 3000
+            });
+
+            // Hiển thị email đầy đủ
+            document.getElementById('displayEmail').textContent = email;
+
+            // Đóng modal quên mật khẩu và mở modal nhập OTP
+            forgotPasswordModal.hide();
+            verifyOtpModal.show();
+
+            // Reset form
+            document.getElementById('forgotPasswordForm').reset();
+        } else {
+            Swal.fire({
+                icon: 'error',
+                text: data.message,
+                showConfirmButton: true
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            text: 'Có lỗi xảy ra, vui lòng thử lại sau',
+            showConfirmButton: true
+        });
+    })
+    .finally(() => {
+        button.disabled = false;
+        button.innerHTML = 'Gửi mã xác nhận';
+    });
+});
+
+// Xử lý nút "Chỉnh sửa" email trong modal OTP
+document.getElementById('editEmailLink').addEventListener('click', function(e) {
+    e.preventDefault();
+    verifyOtpModal.hide();
+    forgotPasswordModal.show();
+});
+
+// Xử lý nút "Chỉnh sửa" trong form quên mật khẩu
+document.getElementById('editEmailBtn').addEventListener('click', function() {
+    const emailInput = document.getElementById('forgotEmail');
+    emailInput.readOnly = false;
+    emailInput.focus();
+});
+
+// Xử lý input OTP
+document.querySelectorAll('.otp-input').forEach((input, index) => {
+    input.addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        if (this.value && index < 5) {
+            document.querySelectorAll('.otp-input')[index + 1].focus();
+        }
+    });
+
+    input.addEventListener('keydown', function(e) {
+        if (e.key === 'Backspace' && !this.value && index > 0) {
+            document.querySelectorAll('.otp-input')[index - 1].focus();
+        }
+    });
+
+    // Ngăn chặn paste nhiều số
+    input.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const pastedData = e.clipboardData.getData('text');
+        const numbers = pastedData.match(/\d/g);
+        if (numbers) {
+            const inputs = document.querySelectorAll('.otp-input');
+            numbers.forEach((num, i) => {
+                if (i < 6) {
+                    inputs[i].value = num;
+                    if (i < 5) inputs[i + 1].focus();
+                }
+            });
+        }
+    });
+});
+
+// Xử lý nút Xác minh OTP
+document.getElementById('verifyOtpBtn').addEventListener('click', function() {
+    const inputs = document.querySelectorAll('.otp-input');
+    const otp = Array.from(inputs).map(input => input.value).join('');
+    
+    if (otp.length !== 6) {
+        Swal.fire({
+            icon: 'error',
+            text: 'Vui lòng nhập đủ 6 số',
+            showConfirmButton: true
+        });
+        return;
+    }
+
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch('{% url "accounts:verify_otp" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify({ otp: otp })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                text: 'Xác minh thành công',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                // Đóng modal OTP và mở modal đặt mật khẩu mới
+                verifyOtpModal.hide();
+                resetPasswordModal.show();
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                text: data.message || 'Mã OTP không chính xác',
+                showConfirmButton: true
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            text: 'Có lỗi xảy ra, vui lòng thử lại',
+            showConfirmButton: true
+        });
+    });
+});
+
+// Sửa lại phần xử lý form reset password
+document.getElementById('resetPasswordForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const email = document.getElementById('displayEmail').textContent;
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    if (newPassword !== confirmPassword) {
+        Swal.fire({
+            icon: 'error',
+            text: 'Mật khẩu không khớp',
+            showConfirmButton: true
+        });
+        return;
+    }
+
+    fetch('{% url "accounts:reset_password" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify({
+            email: email,
+            new_password: newPassword
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Tự động đăng nhập sau khi đặt mật khẩu mới
+            fetch('{% url "accounts:login" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrftoken
+                },
+                body: `username=${encodeURIComponent(email)}&password=${encodeURIComponent(newPassword)}`
+            })
+            .then(response => response.json())
+            .then(loginData => {
+                if (loginData.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        text: 'Đặt mật khẩu mới thành công',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        resetPasswordModal.hide();
+                        window.location.reload(); // Reload trang sau khi đăng nhập thành công
+                    });
+                }
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                text: data.message || 'Có lỗi xảy ra',
+                showConfirmButton: true
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            text: 'Có lỗi xảy ra, vui lòng thử lại',
+            showConfirmButton: true
+        });
+    });
+});
+
+// Xử lý form đăng ký
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Disable nút đăng ký và hiển thị trạng thái loading
+    const submitButton = this.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+    
+    const formData = new FormData(this);
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch('{% url "accounts:register" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Đóng modal đăng ký
+            const registerModal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
+            registerModal.hide();
+
+            // Hiển thị thông báo thành công
+            Swal.fire({
+                icon: 'success',
+                title: 'Đăng ký thành công!',
+                text: 'Hệ thống sẽ gửi xác nhận qua Email của quý khách, vui lòng kiểm tra Email và hoàn tất quá trình đăng ký',
+                showConfirmButton: true
+            }).then((result) => {
+                // Sau khi đóng thông báo, chuyển đến trang xác thực
+                window.location.href = data.redirect;
+            });
+        } else {
+            if (data.action === 'login') {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Email đã tồn tại',
+                    text: 'Email này đã được đăng ký. Vui lòng đăng nhập.',
+                    showConfirmButton: true
+                }).then(() => {
+                    const registerModal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
+                    registerModal.hide();
+                    
+                    const authModal = new bootstrap.Modal(document.getElementById('authModal'));
+                    authModal.show();
+                    
+                    document.getElementById('loginUsername').value = formData.get('email');
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: data.error || 'Có lỗi xảy ra, vui lòng thử lại',
+                    showConfirmButton: true
+                });
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: 'Có lỗi xảy ra, vui lòng thử lại sau',
+            showConfirmButton: true
+        });
+    })
+    .finally(() => {
+        // Restore nút đăng ký về trạng thái ban đầu
+        submitButton.disabled = false;
+        submitButton.innerHTML = 'Đăng ký';
+    });
+});
+
+// Xử lý nút gửi lại email xác thực
+document.getElementById('resendVerifyEmailBtn')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    
+    const button = this;
+    button.disabled = true;
+    button.textContent = 'Đang gửi...';
+
+    fetch('{% url "accounts:resend_verification_email" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                text: 'Đã gửi lại email xác thực',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                text: data.message || 'Có lỗi xảy ra',
+                showConfirmButton: true
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            text: 'Có lỗi xảy ra, vui lòng thử lại',
+            showConfirmButton: true
+        });
+    })
+    .finally(() => {
+        button.disabled = false;
+        button.textContent = 'Gửi lại email xác thực';
+    });
+});
+
+// Xử lý form đăng nhập
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch('{% url "accounts:login" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            } else {
+                window.location.reload();
+            }
+        } else {
+            if (data.action === 'suspended') {
+                // Đóng modal đăng nhập nếu đang mở
+                const loginModal = bootstrap.Modal.getInstance(document.getElementById('authModal'));
+                if (loginModal) {
+                    loginModal.hide();
+                }
+
+                // Hiển thị thông báo đình chỉ với CSS tùy chỉnh
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Tài khoản đã bị đình chỉ!',
+                    html: `
+                        <p>Lý do: ${data.reason || 'Không có lý do được cung cấp'}</p>
+                        <div class="mt-3 text-center">
+                            <p style="margin-bottom: 5px;">Đây có thể là nhầm lẫn?</p>
+                            <a href="mailto:tomoivn2024@gmail.com" 
+                               style="
+                                   color: #df2626;
+                                   text-decoration: none;
+                                   font-weight: bold;
+                                   display: inline-block;
+                                   transition: color 0.3s ease;
+                               "
+                               onmouseover="this.style.color='#b91c1c'"
+                               onmouseout="this.style.color='#df2626'"
+                            >
+                                Liên hệ với quản trị viên ngay
+                            </a>
+                        </div>
+                    `,
+                    showConfirmButton: true,
+                    confirmButtonText: 'Đóng'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi đăng nhập',
+                    text: data.message || 'Có lỗi xảy ra, vui lòng thử lại',
+                    showConfirmButton: true
+                });
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: 'Có lỗi xảy ra, vui lòng thử lại sau',
+            showConfirmButton: true
+        });
+    });
+});
+
+// Xử lý toggle password
+document.querySelectorAll('.toggle-password').forEach(button => {
+    button.addEventListener('click', function() {
+        const input = this.previousElementSibling;
+        const icon = this.querySelector('i');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
+});
+
+// Kiểm tra mật khẩu khi đăng ký
+document.getElementById('registerPassword').addEventListener('input', function() {
+    const password = this.value;
+    const username = document.querySelector('input[name="username"]').value;
+    const email = document.querySelector('input[name="email"]').value;
+
+    // Kiểm tra độ dài
+    const lengthCheck = document.getElementById('length-check');
+    if (password.length >= 8) {
+        lengthCheck.classList.remove('invalid');
+        lengthCheck.classList.add('valid');
+    } else {
+        lengthCheck.classList.remove('valid');
+        lengthCheck.classList.add('invalid');
+    }
+
+    // Kiểm tra không chỉ chứa số
+    const numberCheck = document.getElementById('number-check');
+    if (!/^[0-9]+$/.test(password)) {
+        numberCheck.classList.remove('invalid');
+        numberCheck.classList.add('valid');
+    } else {
+        numberCheck.classList.remove('valid');
+        numberCheck.classList.add('invalid');
+    }
+
+    // Kiểm tra mật khẩu phổ biến
+    const commonCheck = document.getElementById('common-check');
+    const commonPasswords = ['password', '12345678', 'qwerty', '123456789'];
+    if (!commonPasswords.includes(password.toLowerCase())) {
+        commonCheck.classList.remove('invalid');
+        commonCheck.classList.add('valid');
+    } else {
+        commonCheck.classList.remove('valid');
+        commonCheck.classList.add('invalid');
+    }
+
+    // Kiểm tra giống username
+    const personalCheck = document.getElementById('personal-check');
+    if (!password.includes(username)) {
+        personalCheck.classList.remove('invalid');
+        personalCheck.classList.add('valid');
+    } else {
+        personalCheck.classList.remove('valid');
+        personalCheck.classList.add('invalid');
+    }
+});
+</script>
 </body>
 </html>
 
