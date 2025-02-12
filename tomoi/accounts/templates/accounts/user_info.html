@@ -53,9 +53,10 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h4 class="card-title mb-0">Thông tin cá nhân</h4>
+                        <h4 class="card-title mb-0" data-i18n="personal_info">Thông tin cá nhân</h4>
                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#editProfileModal">
-                            <i class="fas fa-edit me-2"></i>Chỉnh sửa thông tin
+                            <i class="fas fa-edit me-2"></i>
+                            <span data-i18n="edit_info">Chỉnh sửa thông tin</span>
                         </button>
                     </div>
                     <div class="row mb-4">
@@ -71,12 +72,18 @@
                         <div class="col-md-9">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label text-muted"><b>Họ và tên:</b></label>
+                                    <label class="form-label text-muted">
+                                        <b data-i18n="full_name">Họ và tên:</b>
+                                    </label>
                                     <p class="form-control-plaintext">{{ user.get_full_name|default:user.username }}</p>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label text-muted"><b>Số điện thoại:</b></label>
-                                    <p class="form-control-plaintext">{{ user.phone_number|default:"Chưa cập nhật" }}</p>
+                                    <label class="form-label text-muted">
+                                        <b data-i18n="phone">Số điện thoại:</b>
+                                    </label>
+                                    <p class="form-control-plaintext">
+                                        <span data-i18n="not_updated">{{ user.phone_number|default:"Chưa cập nhật" }}</span>
+                                    </p>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label text-muted"><b>Giới tính:</b></label>

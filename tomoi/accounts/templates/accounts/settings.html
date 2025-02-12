@@ -12,11 +12,43 @@
 
 <style>
 
+.section {
+
+  margin-bottom: 2rem;
+
+  padding: 1.5rem;
+
+  background: #fff;
+
+  border-radius: 8px;
+
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+
+}
+
+
+
+.section-title {
+
+  font-size: 1.1rem;
+
+  font-weight: 600;
+
+  margin-bottom: 1rem;
+
+  color: #333;
+
+}
+
+
+
 .language-toggle {
 
   display: flex;
 
-  gap: 10px;
+  flex-wrap: wrap;
+
+  gap: 12px;
 
   margin-bottom: 20px;
 
@@ -44,13 +76,25 @@
 
   transition: all 0.3s ease;
 
+  min-width: 140px;
+
+  font-size: 14px;
+
+  color: #333;
+
 }
 
 
 
 .lang-btn:hover {
 
-  background: #f8f9fa;
+  border-color: #df2626;
+
+  background: #fff;
+
+  transform: translateY(-1px);
+
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 
 }
 
@@ -58,11 +102,11 @@
 
 .lang-btn.active {
 
-  background: #e50914;
+  background: #df2626;
 
   color: white;
 
-  border-color: #e50914;
+  border-color: #df2626;
 
 }
 
@@ -72,12 +116,54 @@
 
   width: 24px;
 
-  height: 18px;
+  height: 16px;
 
   object-fit: cover;
 
-  border-radius: 4px;
+  border-radius: 2px;
 
+}
+
+.language-section {
+    margin-bottom: 2rem;
+}
+
+.language-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.lang-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    color: #333;
+}
+
+.lang-btn:hover {
+    background: #f8f9fa;
+    border-color: #df2626;
+}
+
+.lang-btn.active {
+    background: #df2626;
+    color: white;
+    border-color: #df2626;
+}
+
+.lang-btn img {
+    width: 24px;
+    height: 16px;
+    object-fit: cover;
+    border-radius: 2px;
 }
 
 </style>
@@ -102,46 +188,39 @@
 
                 <div class="list-group">
 
-                    <a href="{% url 'accounts:user_info' %}" class="list-group-item list-group-item-action">
-
-                        <i class="fas fa-user me-2"></i> {% trans "Tài khoản" %}
-
+                    <a href="/accounts/user-info/" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user me-2"></i>
+                        <span data-i18n="account_text">Tài khoản</span>
                     </a>
 
-                    <a href="{% url 'accounts:order_history' %}" class="list-group-item list-group-item-action">
-
-                        <i class="fas fa-shopping-bag me-2"></i> Sản phẩm đã mua
-
+                    <a href="/accounts/order-history/" class="list-group-item list-group-item-action">
+                        <i class="fas fa-shopping-bag me-2"></i>
+                        <span data-i18n="orders_text">Sản phẩm đã mua</span>
                     </a>
 
-                    <a href="{% url 'accounts:payment_history' %}" class="list-group-item list-group-item-action">
-
-                        <i class="fas fa-money-bill-wave me-2"></i> Lịch sử nạp tiền
-
+                    <a href="/accounts/payment-history/" class="list-group-item list-group-item-action">
+                        <i class="fas fa-money-bill-wave me-2"></i>
+                        <span data-i18n="payment_history_text">Lịch sử nạp tiền</span>
                     </a>
 
-                    <a href="{% url 'accounts:security' %}" class="list-group-item list-group-item-action">
-
-                        <i class="fas fa-shield-alt me-2"></i> Bảo mật
-
+                    <a href="/accounts/security/" class="list-group-item list-group-item-action">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        <span data-i18n="security_text">Bảo mật</span>
                     </a>
 
-                    <a href="{% url 'accounts:wishlist' %}" class="list-group-item list-group-item-action">
-
-                        <i class="fas fa-heart me-2"></i> Sản phẩm yêu thích
-
+                    <a href="/accounts/user-info/wishlist/" class="list-group-item list-group-item-action">
+                        <i class="fas fa-heart me-2"></i>
+                        <span data-i18n="wishlist_text">Sản phẩm yêu thích</span>
                     </a>
 
-                    <a href="{% url 'accounts:settings' %}" class="list-group-item list-group-item-action active">
-
-                        <i class="fas fa-cog me-2"></i> Cài đặt
-
+                    <a href="/accounts/settings/" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-cog me-2"></i>
+                        <span data-i18n="settings_text">Cài đặt</span>
                     </a>
 
                     <a href="#" class="list-group-item list-group-item-action">
-
-                        <i class="fas fa-user-plus me-2"></i> Giới thiệu bạn bè
-
+                        <i class="fas fa-user-plus me-2"></i>
+                        <span data-i18n="referral_text">Giới thiệu bạn bè</span>
                     </a>
 
                 </div>
@@ -160,7 +239,7 @@
 
                 <div class="card-body">
 
-                    <h4 class="card-title mb-4">Cài đặt</h4>
+                    <h4 class="card-title mb-4" data-i18n="settings">Cài đặt</h4>
 
 
 
@@ -168,59 +247,18 @@
 
                     <div class="section">
 
-                        <h5 class="section-title">Ngôn ngữ</h5>
+                        <h5 class="section-title" data-i18n="language">Ngôn ngữ</h5>
 
-                        <div class="language-toggle">
-
-                            <button class="lang-btn active" data-lang="vi">
-
-                                <img src="{% static 'images/flags/vi.png' %}" alt="VN" class="flag-icon">
-
-                                Tiếng Việt
-
+                        <div class="language-toggle" style="display: flex; gap: 12px; justify-content: flex-start;">
+                            <button type="button" class="lang-btn active" data-lang="vi" style="border: 2px solid #df2626; border-radius: 8px; padding: 8px 16px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; background: #df2626; color: white; transition: all 0.3s ease; font-size: 14px; white-space: nowrap;">
+                                <img src="{% static 'images/flags/vi.png' %}" alt="VN" class="flag-icon" style="width: 20px; height: 14px; object-fit: cover;">
+                                <span data-i18n="vietnamese">Tiếng Việt</span>
                             </button>
-
-                            <button class="lang-btn" data-lang="en">
-
-                                <img src="{% static 'images/flags/en.png' %}" alt="EN" class="flag-icon">
-
-                                English
-
+                            <button type="button" class="lang-btn" data-lang="en" style="border: 2px solid #df2626; border-radius: 8px; padding: 8px 16px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; background: transparent; color: #df2626; transition: all 0.3s ease; font-size: 14px; white-space: nowrap;">
+                                <img src="{% static 'images/flags/en.png' %}" alt="EN" class="flag-icon" style="width: 20px; height: 14px; object-fit: cover;">
+                                <span data-i18n="english">English</span>
                             </button>
-
-                            <button class="lang-btn" data-lang="zh-CN">
-
-                                <img src="{% static 'images/flags/cn.png' %}" alt="CN" class="flag-icon">
-
-                                中文
-
-                            </button>
-
-                            <button class="lang-btn" data-lang="ko">
-
-                                <img src="{% static 'images/flags/kr.png' %}" alt="KR" class="flag-icon">
-
-                                한국어
-
-                            </button>
-
-                            <button class="lang-btn" data-lang="ja">
-
-                                <img src="{% static 'images/flags/jp.png' %}" alt="JP" class="flag-icon">
-
-                                日本語
-
-                            </button>
-
                         </div>
-
-                        <form id="language-form" action="{% url 'accounts:set_language' %}" method="post" style="display: none;">
-
-                            {% csrf_token %}
-
-                            <input name="language" type="hidden" id="selected-language">
-
-                        </form>
 
                     </div>
 
@@ -230,7 +268,7 @@
 
                     <div class="section">
 
-                        <h5 class="section-title">Giao diện</h5>
+                        <h5 class="section-title" data-i18n="theme">Giao diện</h5>
 
                         <div class="theme-options">
 
@@ -241,9 +279,8 @@
                                        {% if current_theme == 'light' %}checked{% endif %}>
 
                                 <label class="btn btn-outline-danger" for="lightTheme">
-
-                                    <i class="fas fa-sun me-2"></i>Sáng
-
+                                    <i class="fas fa-sun me-2"></i>
+                                    <span data-i18n="light_theme_text">Sáng</span>
                                 </label>
 
 
@@ -253,9 +290,8 @@
                                        {% if current_theme == 'dark' %}checked{% endif %}>
 
                                 <label class="btn btn-outline-danger" for="darkTheme">
-
-                                    <i class="fas fa-moon me-2"></i>Tối
-
+                                    <i class="fas fa-moon me-2"></i>
+                                    <span data-i18n="dark_theme_text">Tối</span>
                                 </label>
 
 
@@ -265,9 +301,8 @@
                                        {% if current_theme == 'auto' %}checked{% endif %}>
 
                                 <label class="btn btn-outline-danger" for="autoTheme">
-
-                                    <i class="fas fa-magic me-2"></i>Tự động
-
+                                    <i class="fas fa-magic me-2"></i>
+                                    <span data-i18n="auto_theme_text">Tự động</span>
                                 </label>
 
                             </div>
@@ -282,7 +317,7 @@
 
                     <div class="section">
 
-                        <h5 class="section-title">Cỡ chữ</h5>
+                        <h5 class="section-title" data-i18n="font_size">Cỡ chữ</h5>
 
                         <div class="font-size-options">
 
@@ -293,9 +328,8 @@
                                        {% if font_size == 'small' %}checked{% endif %}>
 
                                 <label class="btn btn-outline-danger" for="smallFont">
-
-                                    <i class="fas fa-text-height me-2"></i>Nhỏ
-
+                                    <i class="fas fa-text-height me-2"></i>
+                                    <span data-i18n="small_font_text">Nhỏ</span>
                                 </label>
 
 
@@ -305,9 +339,8 @@
                                        {% if font_size == 'medium' %}checked{% endif %}>
 
                                 <label class="btn btn-outline-danger" for="mediumFont">
-
-                                    <i class="fas fa-text-height me-2"></i>Vừa
-
+                                    <i class="fas fa-text-height me-2"></i>
+                                    <span data-i18n="medium_font_text">Vừa</span>
                                 </label>
 
 
@@ -317,9 +350,8 @@
                                        {% if font_size == 'large' %}checked{% endif %}>
 
                                 <label class="btn btn-outline-danger" for="largeFont">
-
-                                    <i class="fas fa-text-height me-2"></i>Lớn
-
+                                    <i class="fas fa-text-height me-2"></i>
+                                    <span data-i18n="large_font_text">Lớn</span>
                                 </label>
 
                             </div>
@@ -332,7 +364,7 @@
 
                     <div class="section">
 
-                        <h5 class="section-title">Hiệu ứng</h5>
+                        <h5 class="section-title" data-i18n="effects">Hiệu ứng</h5>
 
                         <div class="effects-options">
 
@@ -343,9 +375,8 @@
                                        {% if snow_effect %}checked{% endif %}>
 
                                 <label class="form-check-label" for="snowEffect">
-
-                                    <i class="fas fa-snowflake me-2"></i>Hiệu ứng tuyết rơi
-
+                                    <i class="fas fa-snowflake me-2"></i>
+                                    <span data-i18n="snow_effect_text">Hiệu ứng tuyết rơi</span>
                                 </label>
 
                             </div>
@@ -357,9 +388,8 @@
                                        {% if pet_effect %}checked{% endif %}>
 
                                 <label class="form-check-label" for="petEffect">
-
-                                    <i class="fas fa-cat me-2"></i>Hiệu ứng pet mini
-
+                                    <i class="fas fa-cat me-2"></i>
+                                    <span data-i18n="pet_effect_text">Hiệu ứng pet mini</span>
                                 </label>
 
                             </div>
@@ -381,140 +411,16 @@
 </div>
 
 
-
-<!-- Thêm div cho Google Translate -->
-
-<div id="google_translate_element" style="display:none"></div>
-
 {% endblock %}
 
 
 
 {% block extra_js %}
 
+<script src="{% static 'js/translations.js' %}"></script>
+<script src="{% static 'js/base.js' %}"></script>
 <script src="{% static 'js/settings.js' %}"></script>
 
 <script type="text/javascript">
 
-// Khởi tạo Google Translate
-function googleTranslateElementInit() {
-    new google.translate.TranslateElement({
-        pageLanguage: 'vi',
-        includedLanguages: 'en,vi,zh-CN,ko,ja',
-        autoDisplay: false,
-        layout: google.translate.TranslateElement.InlineLayout.SIMPLE
-    }, 'google_translate_element');
-    
-    // Ẩn các element không cần thiết
-    document.querySelector('.goog-te-combo').style.display = 'none';
-    document.querySelector('.goog-logo-link').style.display = 'none';
-    document.querySelector('.goog-te-gadget').style.fontSize = '0';
-}
-
-
-
-// Chuyển đổi ngôn ngữ
-function changeLanguage(lang) {
-    // 1. Gửi ngôn ngữ về server để xử lý cookie Django
-    document.getElementById('selected-language').value = lang;
-    document.getElementById('language-form').submit();
-
-    // 2. Xử lý Google Translate
-    const translateInterval = setInterval(() => {
-        const selectField = document.querySelector('.goog-te-combo');
-        if(selectField) {
-            clearInterval(translateInterval);
-            
-            // Kiểm tra ngôn ngữ có hợp lệ
-            if(!selectField.querySelector(`option[value="${lang}"]`)) {
-                console.error('Ngôn ngữ không hỗ trợ:', lang);
-                return;
-            }
-
-            // Cập nhật giá trị và kích hoạt thay đổi
-            selectField.value = lang;
-            selectField.dispatchEvent(new Event('change'));
-
-            // 3. Force reload sau 500ms để đảm bảo cập nhật
-            setTimeout(() => {
-                localStorage.setItem('selectedLanguage', lang);
-                window.location.reload();
-            }, 500);
-
-            // 4. Cập nhật UI ngay lập tức
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.lang === lang);
-            });
-        }
-    }, 100);
-}
-
-
-
-// Khôi phục ngôn ngữ đã chọn
-
-function restoreLanguage() {
-
-    const savedLang = localStorage.getItem('selectedLanguage');
-
-    if (savedLang) {
-
-        // Đợi Google Translate load xong
-
-        setTimeout(() => {
-
-            changeLanguage(savedLang);
-
-        }, 1000);
-
-    }
-
-}
-
-
-
-// Xử lý click nút ngôn ngữ
-
-document.querySelectorAll('.lang-btn').forEach(btn => {
-
-    btn.addEventListener('click', () => {
-
-        const lang = btn.dataset.lang;
-
-        changeLanguage(lang);
-
-    });
-
-});
-
-
-
-// Load Google Translate script
-
-function loadGoogleTranslate() {
-
-    var script = document.createElement('script');
-
-    script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-
-    document.body.appendChild(script);
-
-}
-
-
-
-// Load khi trang đã sẵn sàng
-
-document.addEventListener('DOMContentLoaded', function() {
-
-    loadGoogleTranslate();
-
-    // Khôi phục ngôn ngữ sau khi Google Translate đã load
-
-    setTimeout(restoreLanguage, 1500);
-
-});
-
-</script>
-
-{% endblock %} 
+{% endblock %}

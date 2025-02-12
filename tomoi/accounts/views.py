@@ -45,6 +45,7 @@ from .utils import mask_email
 from django.core.cache import cache
 from django.utils import translation
 from django.db.models import Q
+import requests
 
 @csrf_exempt
 def auth(request):
@@ -1255,3 +1256,59 @@ def reset_password(request):
         'success': False,
         'message': 'Phương thức không hợp lệ'
     })
+
+DEEPL_API_KEY = '893c70b4-e735-4e1c-b9cd-e27585166d17:fx'
+
+@csrf_exempt
+def translate_text(request):
+    if request.method != 'POST':
+        return JsonResponse({
+            'success': False,
+            'error': 'Method not allowed'
+        }, status=405)
+
+    try:
+        data = json.loads(request.body)
+        text = data.get('text')
+        target_lang = data.get('target_lang')
+
+        if not text or not target_lang:
+            return JsonResponse({
+                'success': False,
+                'error': 'Missing required parameters'
+            }, status=400)
+
+        response = requests.post(
+            'https://api-free.deepl.com/v2/translate',
+            headers={
+                'Authorization': f'DeepL-Auth-Key {settings.DEEPL_API_KEY}',
+                'Content-Type': 'application/json',
+            },
+            json={
+                'text': [text],
+                'target_lang': target_lang
+            }
+        )
+
+        if response.status_code == 200:
+            translation_data = response.json()
+            return JsonResponse({
+                'success': True,
+                'translation': translation_data['translations'][0]['text']
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': f'DeepL API error: {response.status_code}'
+            }, status=400)
+            
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid JSON data'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)

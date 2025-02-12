@@ -1509,12 +1509,7 @@ h6 {
 .user-icon-wrapper:hover .dropdown-content,
 .cart-wrapper:hover .cart-dropdown-content {
   display: block;
-}
 
-/* Ẩn Google Translate tạm thời */
-#google_translate_element {
-  display: none !important;
-}
 
 /* Hoặc di chuyển xuống góc phải dưới */
 #google_translate_element {

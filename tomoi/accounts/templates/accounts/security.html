@@ -45,7 +45,7 @@
                 <div class="card-body">
                     <!-- Đổi mật khẩu section -->
                     <div class="section mb-5">
-                        <h4 class="section-title">Đổi mật khẩu</h4>
+                        <h4 class="section-title" data-i18n="change_password">Đổi mật khẩu</h4>
                         <div class="row">
                             <!-- Phần form bên trái -->
                             <div class="col-md-5 pe-4">
@@ -60,7 +60,7 @@
                                                    id="currentPassword"
                                                    name="current_password" 
                                                    placeholder=" ">
-                                            <label for="currentPassword">Mật khẩu hiện tại</label>
+                                            <label for="currentPassword" data-i18n="current_password">Mật khẩu hiện tại</label>
                                         </div>
 
                                         <div class="form-floating mb-3">
@@ -70,7 +70,7 @@
                                                    name="new_password" 
                                                    placeholder=" "
                                                    autocomplete="new-password">
-                                            <label for="newPassword">Mật khẩu mới</label>
+                                            <label for="newPassword" data-i18n="new_password">Mật khẩu mới</label>
                                         </div>
 
                                         <div class="form-floating mb-4">
@@ -80,7 +80,7 @@
                                                    name="confirm_password" 
                                                    placeholder=" "
                                                    autocomplete="new-password">
-                                            <label for="confirmPassword">Xác nhận mật khẩu mới</label>
+                                            <label for="confirmPassword" data-i18n="confirm_password">Xác nhận mật khẩu mới</label>
                                         </div>
                                     </form>
                                     <button type="submit" form="changePasswordForm" class="btn btn-danger">
@@ -91,23 +91,23 @@
                             <!-- Phần lưu ý bên phải -->
                             <div class="col-md-6 ps-4 d-flex align-items-center">
                                 <div class="password-requirements">
-                                    <h6 class="mb-3">Mật khẩu mới của bạn nên:</h6>
+                                    <h6 class="mb-3" data-i18n="password_requirements">Mật khẩu mới của bạn nên:</h6>
                                     <ul class="list-unstyled">
                                         <li class="mb-2">
                                             <i class="fas fa-check-circle text-success me-2"></i>
-                                            Có từ 8 ký tự trở lên
+                                            <span data-i18n="min_length">Có từ 8 ký tự trở lên</span>
                                         </li>
                                         <li class="mb-2" >
                                             <i class="fas fa-check-circle text-success me-2"></i>
-                                            Có ít nhất 1 số hoặc 1 chữ viết hoa
+                                            <span data-i18n="at_least_one_number">Có ít nhất 1 số hoặc 1 chữ viết hoa</span>
                                         </li>
                                         <li class="mb-2" >
                                             <i class="fas fa-check-circle text-success me-2"></i>
-                                            Có ít nhất 1  ký tự đặc biệt
+                                            <span data-i18n="at_least_one_special_character">Có ít nhất 1  ký tự đặc biệt</span>
                                         </li>
                                         <li class="mb-2">
                                             <i class="fas fa-check-circle text-success me-2"></i>
-                                            Mật khẩu mới phải khác mật khẩu hiện tại
+                                            <span data-i18n="must_be_different_from_current">Mật khẩu mới phải khác mật khẩu hiện tại</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -221,15 +221,15 @@
                                     <ul class="list-unstyled mb-0">
                                         <li class="mb-2">
                                             <i class="fas fa-check-circle text-success me-2"></i>
-                                            Ít nhất 6 ký tự
+                                            <span data-i18n="at_least_six_characters">Ít nhất 6 ký tự</span>
                                         </li>
                                         <li class="mb-2">
                                             <i class="fas fa-check-circle text-success me-2"></i>
-                                            Chứa ít nhất 1 số
+                                            <span data-i18n="contain_at_least_one_number">Chứa ít nhất 1 số</span>
                                         </li>
                                         <li class="mb-2">
                                             <i class="fas fa-check-circle text-success me-2"></i>
-                                            Khác mật khẩu đăng nhập
+                                            <span data-i18n="must_be_different_from_login_password">Khác mật khẩu đăng nhập</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -240,13 +240,13 @@
                     <!-- Trường OTP Email -->
                     <div id="fa_email_fields" class="d-none">
                         <div class="alert alert-info">
-                            Mã OTP sẽ được gửi đến email: <strong>{{ user.email|mask_email }}</strong>
+                            <span data-i18n="otp_will_be_sent_to">Mã OTP sẽ được gửi đến email:</span> <strong>{{ user.email|mask_email }}</strong>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Nhập mã OTP</label>
                             <input type="text" class="form-control" name="otp" maxlength="6">
                             <div class="mt-2">
-                                <span>Gửi lại mã sau: <span id="setup_countdown_timer">60</span>s</span>
+                                <span><span data-i18n="resend_code_after">Gửi lại mã sau:</span> <span id="setup_countdown_timer">60</span>s</span>
                                 <button type="button" id="setup_resend_otp_btn" class="btn btn-link">Gửi lại mã</button>
                             </div>
                         </div>
@@ -257,7 +257,7 @@
                         <div class="text-center mb-3">
                             <img id="gaQrCode" class="img-fluid mb-3" style="max-width: 200px;">
                             <div class="alert alert-secondary">
-                                <small>Mã bí mật:</small>
+                                <small><span data-i18n="secret_key">Mã bí mật:</span></small>
                                 <code id="gaSecretKey" class="user-select-all"></code>
                             </div>
                         </div>
@@ -302,7 +302,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                 <button type="submit" form="verify2FAForm" class="btn btn-danger">
-                    <i class="fas fa-check me-2"></i>Xác nhận
+                    <i class="fas fa-check me-2"></i><span data-i18n="verify">Xác nhận</span>
                 </button>
             </div>
         </div>
@@ -320,13 +320,13 @@
             <div class="modal-body">
                 <form id="verifyCurrentEmailForm">
                     {% csrf_token %}
-                    <p>Vui lòng nhập chính xác email hiện tại của bạn để xác thực:</p>
+                    <p><span data-i18n="please_enter_correct_email">Vui lòng nhập chính xác email hiện tại của bạn để xác thực:</span></p>
                     <div class="mb-3">
                         <label class="form-label">Email hiện tại</label>
                         <input type="email" class="form-control" id="currentEmailInput" required>
                     </div>
                     <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-paper-plane me-2"></i>Gửi mã OTP
+                        <i class="fas fa-paper-plane me-2"></i><span data-i18n="send_otp">Gửi mã OTP</span>
                     </button>
                 </form>
             </div>
@@ -344,13 +344,13 @@
             </div>
             <div class="modal-body">
                 <form id="verifyOTPForm">
-                    <p>Mã OTP đã được gửi đến <span id="maskedEmailOTP"></span></p>
+                    <p><span data-i18n="otp_has_been_sent_to">Mã OTP đã được gửi đến</span> <span id="maskedEmailOTP"></span></p>
                     <div class="mb-3">
                         <input type="text" class="form-control" id="otpInput" maxlength="6" required>
                     </div>
                     <button type="submit" class="btn btn-danger">Xác thực</button>
                     <button type="button" id="resendOTPBtn" class="btn btn-link">
-                        Gửi lại OTP <span id="countdown"></span>
+                        <span data-i18n="resend_otp">Gửi lại OTP</span> <span id="countdown"></span>
                     </button>
                 </form>
             </div>
@@ -370,7 +370,7 @@
                 <form id="setupGAVerifyForm" class="verify-form">
                     {% csrf_token %}
                     <div class="text-center mb-4">
-                        <p>Vui lòng nhập mã xác thực từ Google Authenticator</p>
+                        <p><span data-i18n="please_enter_code_from_google_authenticator">Vui lòng nhập mã xác thực từ Google Authenticator</span></p>
                     </div>
                     <div class="otp-input-group mb-4">
                         <input type="text" maxlength="1" class="otp-input form-control ga-otp" required>
@@ -381,20 +381,20 @@
                         <input type="text" maxlength="1" class="otp-input form-control ga-otp" required>
                     </div>
                     <div class="verify-ga-guide">
-                        <h6 class="mb-2">Hướng dẫn:</h6>
+                        <h6 class="mb-2"><span data-i18n="instructions">Hướng dẫn:</span></h6>
                         <ol class="ps-3">
-                            <li class="mb-2">Mở app Google Authenticator trên thiết bị bạn đã quét QR</li>
-                            <li>Tìm mã OTP gồm 6 số của TomOi.vn và nhập vào để xác nhận</li>
+                            <li class="mb-2"><span data-i18n="open_app_on_device">Mở app Google Authenticator trên thiết bị bạn đã quét QR</span></li>
+                            <li><span data-i18n="find_otp_code">Tìm mã OTP gồm 6 số của TomOi.vn và nhập vào để xác nhận</span></li>
                         </ol>
                     </div>
                 </form>
             </div>
             <div class="modal-footer justify-content-between">
                 <button type="button" class="btn btn-secondary" id="backToVerifyGABtn">
-                    <i class="fas fa-arrow-left me-2"></i>Quay lại
+                    <i class="fas fa-arrow-left me-2"></i><span data-i18n="back">Quay lại</span>
                 </button>
                 <button type="submit" form="setupGAVerifyForm" class="btn btn-danger">
-                    <i class="fas fa-check me-2"></i>Xác nhận
+                    <i class="fas fa-check me-2"></i><span data-i18n="verify">Xác nhận</span>
                 </button>
             </div>
         </div>
@@ -435,7 +435,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                 <button type="submit" form="change2FAPasswordForm" class="btn btn-danger">
-                    <i class="fas fa-save me-2"></i>Lưu thay đổi
+                    <i class="fas fa-save me-2"></i><span data-i18n="save">Lưu thay đổi</span>
                 </button>
             </div>
         </div>
@@ -457,22 +457,22 @@
                         <div class="form-check mb-2">
                             <input type="checkbox" class="form-check-input" id="edit_2fa_purchase" 
                                    {% if user.require_2fa_purchase %}checked{% endif %}>
-                            <label class="form-check-label" for="edit_2fa_purchase">Thanh toán mua hàng</label>
+                            <label class="form-check-label" for="edit_2fa_purchase"><span data-i18n="payment">Thanh toán mua hàng</span></label>
                         </div>
                         <div class="form-check mb-2">
                             <input type="checkbox" class="form-check-input" id="edit_2fa_deposit"
                                    {% if user.require_2fa_deposit %}checked{% endif %}>
-                            <label class="form-check-label" for="edit_2fa_deposit">Nạp tiền</label>
+                            <label class="form-check-label" for="edit_2fa_deposit"><span data-i18n="deposit">Nạp tiền</span></label>
                         </div>
                         <div class="form-check mb-2">
                             <input type="checkbox" class="form-check-input" id="edit_2fa_password"
                                    {% if user.require_2fa_password %}checked{% endif %}>
-                            <label class="form-check-label" for="edit_2fa_password">Đổi mật khẩu</label>
+                            <label class="form-check-label" for="edit_2fa_password"><span data-i18n="change_password">Đổi mật khẩu</span></label>
                         </div>
                         <div class="form-check mb-2">
                             <input type="checkbox" class="form-check-input" id="edit_2fa_profile"
                                    {% if user.require_2fa_profile %}checked{% endif %}>
-                            <label class="form-check-label" for="edit_2fa_profile">Đổi thông tin cá nhân</label>
+                            <label class="form-check-label" for="edit_2fa_profile"><span data-i18n="edit_info">Đổi thông tin cá nhân</span></label>
                         </div>
                     </div>
                 </form>
@@ -480,7 +480,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                 <button type="submit" form="edit2FASettingsForm" class="btn btn-primary">
-                    <i class="fas fa-save me-2"></i>Lưu thay đổi
+                    <i class="fas fa-save me-2"></i><span data-i18n="save">Lưu thay đổi</span>
                 </button>
             </div>
         </div>

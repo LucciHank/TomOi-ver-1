@@ -43,27 +43,26 @@
         <div class="col-md-9">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title mb-4">Sản phẩm đã mua</h4>
+                    <h4 class="card-title mb-4" data-i18n="order_history">Sản phẩm đã mua</h4>
                     <div class="filter-section mb-4">
                         <form id="filterForm" class="row g-4">
-                            <!-- Dòng 1 -->
                             <div class="col-md-4">
-                                <label class="form-label">Trạng thái</label>
+                                <label class="form-label" data-i18n="status">Trạng thái</label>
                                 <select class="form-select" name="status">
-                                    <option value="">Tất cả</option>
-                                    <option value="Chờ thanh toán">Chờ thanh toán</option>
-                                    <option value="Chờ xử lý">Chờ xử lý</option>
-                                    <option value="Hoàn thành">Hoàn thành</option>
-                                    <option value="Lỗi">Lỗi</option>
-                                    <option value="Huỷ">Huỷ</option>
+                                    <option value="" data-i18n="all_status">Tất cả</option>
+                                    <option value="pending" data-i18n="pending_payment">Chờ thanh toán</option>
+                                    <option value="processing" data-i18n="processing">Chờ xử lý</option>
+                                    <option value="completed" data-i18n="completed">Hoàn thành</option>
+                                    <option value="error" data-i18n="error">Lỗi</option>
+                                    <option value="cancelled" data-i18n="cancelled">Huỷ</option>
                                 </select>
                             </div>
                             
                             <div class="col-md-4">
-                                <label class="form-label text-center w-100">Thời gian mua</label>
+                                <label class="form-label" data-i18n="purchase_date">Thời gian mua</label>
                                 <div class="input-group">
                                     <input type="date" class="form-control" name="date_from">
-                                    <span class="input-group-text">đến</span>
+                                    <span class="input-group-text" data-i18n="to">đến</span>
                                     <input type="date" class="form-control" name="date_to">
                                 </div>
                             </div>
@@ -109,12 +108,12 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Mã đơn hàng</th>
-                                    <th>Ngày mua</th>
-                                    <th>Tổng tiền</th>
-                                    <th>Trạng thái</th>
-                                    <th>Phương thức</th>
-                                    <th>Chi tiết</th>
+                                    <th data-i18n="order_table.id">Mã đơn hàng</th>
+                                    <th data-i18n="order_table.date">Ngày mua</th>
+                                    <th data-i18n="order_table.total">Tổng tiền</th>
+                                    <th data-i18n="order_table.status">Trạng thái</th>
+                                    <th data-i18n="order_table.method">Phương thức</th>
+                                    <th data-i18n="order_table.details">Chi tiết</th>
                                 </tr>
                             </thead>
                             <tbody>

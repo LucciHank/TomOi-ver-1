@@ -43,4 +43,5 @@ urlpatterns = [
     path('user-info/wishlist/', views.wishlist, name='wishlist'),
     path('reset-password/', views.reset_password, name='reset_password'),
     path('resend-verification-email/', views.resend_verification_email, name='resend_verification_email'),
+    path('translate/', views.translate_text, name='translate_text'),
 ]

@@ -242,3 +242,6 @@ CKEDITOR_5_UPLOAD_PATH = "uploads/"
 
 # Thêm đường dẫn cho favicon
 FAVICON_PATH = STATIC_URL + 'images/favicon.ico'
+
+# DeepL Translation API settings
+DEEPL_API_KEY = '893c70b4-e735-4e1c-b9cd-e27585166d17:fx'
