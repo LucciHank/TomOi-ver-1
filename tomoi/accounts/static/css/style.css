@@ -2,6 +2,51 @@
 :root {
   --bs-primary: #e50914;
   --bs-primary-rgb: 223, 38, 38;
+  /* Theme Variables */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --border-color: #dee2e6;
+  --card-bg: #ffffff;
+  --input-bg: #ffffff;
+  --navbar-bg: #e50914;
+  --navbar-text: #ffffff;
+  --dropdown-bg: #ffffff;
+  --dropdown-text: #212529;
+  --dropdown-hover: #f8f9fa;
+  --modal-bg: #ffffff;
+  --toast-bg: #ffffff;
+  --sidebar-bg: #ffffff;
+  --sidebar-hover: #f8f9fa;
+  --table-bg: #ffffff;
+  --table-stripe: #f8f9fa;
+  --cart-item-bg: #ffffff;
+  --cart-item-border: #eee;
+}
+
+[data-theme="dark"] {
+  /* Dark theme colors */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --text-primary: #ffffff;
+  --text-secondary: #ced4da;
+  --border-color: #404040;
+  --card-bg: #2d2d2d;
+  --input-bg: #333333;
+  --navbar-bg: #df2626;
+  --navbar-text: #ffffff;
+  --dropdown-bg: #2d2d2d;
+  --dropdown-text: #ffffff;
+  --dropdown-hover: #404040;
+  --modal-bg: #2d2d2d;
+  --toast-bg: #2d2d2d;
+  --sidebar-bg: #2d2d2d;
+  --sidebar-hover: #404040;
+  --table-bg: #2d2d2d;
+  --table-stripe: #333333;
+  --cart-item-bg: #2d2d2d;
+  --cart-item-border: #404040;
 }
 
 .btn-primary {
@@ -59,19 +104,23 @@ a:hover {
 }
 
 body {
-  background-color: #fff !important;
-display: flex;
-flex-direction: column;
-height: 100%;
-min-height: 100vh;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 100vh;
   margin: 0;
   /* Xóa khoảng trống mặc định */
-letter-spacing: 0.03em;
+  letter-spacing: 0.03em;
 }
 
 body .navbar {
-    background-color: #e50914;
+    background-color: var(--navbar-bg) !important;
+    color: var(--navbar-text);
     padding: 10px 20px;
+    border-bottom: 1px solid var(--border-color);
 }
 
 body .navbar-brand img {
@@ -1764,7 +1813,7 @@ h6 {
   height: 120px !important;
   /* Chiều cao cố định */
   border-bottom: 1px solid #eee !important;
-  background: #fff !important;
+  background: var(--cart-item-bg) !important;
   margin-bottom: 10px !important;
   align-items: center !important;
 }
@@ -1805,7 +1854,7 @@ h6 {
 
 .cart-item .item-name {
   font-size: 14px !important;
-  color: #333 !important;
+  color: var(--text-primary) !important;
   margin: 0 !important;
   line-height: 1.2 !important;
   display: flex !important;
@@ -1820,7 +1869,7 @@ h6 {
 }
 
 .cart-item .current-price {
-  color: #df2626 !important;
+  color: var(--bs-primary) !important;
   font-weight: 600 !important;
   font-size: 15px !important;
 }
@@ -1840,7 +1889,7 @@ h6 {
 
 .cart-item .discount-badge {
   background: #fef2f2 !important;
-  color: #df2626 !important;
+  color: var(--bs-primary) !important;
   padding: 1px 4px !important;
   border-radius: 4px !important;
   font-size: 11px !important;
@@ -1862,7 +1911,8 @@ h6 {
 }
 
 .cart-item .quantity-btn {
-  background: none;
+  background-color: var(--input-bg);
+  color: var(--text-primary);
   border: none;
   width: 24px;
   height: 24px;
@@ -1870,12 +1920,10 @@ h6 {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #666;
 }
 
 .cart-item .quantity-btn:hover {
-  background: #f5f5f5;
-  border-radius: 4px;
+  background-color: var(--bg-secondary);
 }
 
 .cart-item .quantity-btn:disabled {
@@ -1890,10 +1938,12 @@ h6 {
   border: none;
   font-size: 13px;
   padding: 2px;
+  background-color: var(--input-bg);
+  color: var(--text-primary);
 }
 
 .cart-item .remove-btn {
-  background-color: #df2626 !important;
+  background-color: var(--bs-primary) !important;
   color: white !important;
   border: none !important;
   width: 28px !important;
@@ -1908,7 +1958,7 @@ h6 {
 }
 
 .cart-item .remove-btn:hover {
-  background-color: #c41e1e;
+  background-color: #c41e1e !important;
 }
 
 .cart-item .remove-btn i {
@@ -1919,20 +1969,20 @@ h6 {
 /* Cart dropdown footer */
 .cart-dropdown-footer {
   padding: 15px;
-  border-top: 1px solid #eee;
-  background: #fff;
+  border-top: 1px solid var(--border-color);
+  background: var(--card-bg);
 }
 
 
 .total-amount {
   font-weight: 600;
-  color: #df2626;
+  color: var(--bs-primary);
   font-size: 16px;
 }
 
 .view-cart-btn {
   width: 100%;
-  background: #df2626;
+  background: var(--bs-primary);
   color: white;
   border: none;
   padding: 10px;
@@ -1942,19 +1992,19 @@ h6 {
 }
 
 .view-cart-btn:hover {
-  background: #c41e1e;
+  background-color: #c41e1e;
 }
 
 /* Empty cart message */
 .empty-cart {
   padding: 30px 20px;
   text-align: center;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .empty-cart i {
   font-size: 40px;
-  color: #ddd;
+  color: var(--text-secondary);
   margin-bottom: 10px;
 }
 
@@ -1982,3 +2032,73 @@ body[data-user-authenticated="true"] .cart-count-badge {
 .cart-count-badge[data-count="0"] {
   display: none !important;
 }
+
+/* Apply theme colors */
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.card, .modal-content, .dropdown-menu {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+.form-control, .form-select {
+    background-color: var(--input-bg);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.form-control:focus {
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+}
+
+.list-group-item:not(.active) {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.modal-content {
+    background-color: var(--modal-bg);
+    color: var(--text-primary);
+}
+
+.dropdown-menu {
+    background-color: var(--dropdown-bg);
+    border-color: var(--border-color);
+}
+
+.dropdown-item {
+    color: var(--dropdown-text);
+}
+
+.dropdown-item:hover {
+    background-color: var(--dropdown-hover);
+}
+
+.toast {
+    background-color: var(--toast-bg);
+    color: var(--text-primary);
+}
+
+.table {
+    color: var(--text-primary);
+    background-color: var(--table-bg);
+}
+
+.table td, .table th {
+    border-color: var(--border-color);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: var(--table-stripe);
+}
+
+/* Add smooth transition */
+*, *::before, *::after {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}}

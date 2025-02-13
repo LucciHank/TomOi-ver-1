@@ -121,129 +121,6 @@ window.translateText = async function(text, targetLang) {
     }
 };
 
-// Hàm chuyển đổi ngôn ngữ
-window.changeLanguage = async function(lang, showNotification) {
-    if (!lang || !window.TRANSLATIONS[lang]) {
-        console.error('Invalid language:', lang);
-        return;
-    }
-
-    let loadingDialog;
-    try {
-        loadingDialog = Swal.fire({
-            title: lang === 'en' ? 'Changing language...' : 'Đang chuyển đổi ngôn ngữ...',
-            allowOutsideClick: false,
-            showConfirmButton: false,
-            willOpen: () => {
-                Swal.showLoading();
-            }
-        });
-
-        // 1. Cập nhật UI cho các nút ngôn ngữ
-        document.querySelectorAll('.lang-btn').forEach(btn => {
-            const isActive = btn.dataset.lang === lang;
-            btn.classList.toggle('active', isActive);
-            btn.style.background = isActive ? '#df2626' : 'transparent';
-            btn.style.color = isActive ? 'white' : '#df2626';
-            btn.style.borderColor = '#df2626';
-        });
-
-        // 2. Cập nhật nội dung tĩnh
-        document.querySelectorAll('[data-i18n]').forEach(element => {
-            const key = element.getAttribute('data-i18n');
-            if (window.TRANSLATIONS[lang][key]) {
-                element.textContent = window.TRANSLATIONS[lang][key];
-            }
-        });
-
-        // 3. Xử lý nội dung động
-        if (lang === 'vi') {
-            // Khôi phục text gốc
-            document.querySelectorAll('[data-translate="true"]').forEach(element => {
-                const originalText = element.getAttribute('data-original-text');
-                if (originalText) {
-                    element.textContent = originalText;
-                }
-            });
-        } else {
-            // Dịch nội dung động qua API
-            const elements = Array.from(document.querySelectorAll('[data-translate="true"]'));
-            const batchSize = 5; // Xử lý 5 phần tử một lần
-            
-            for (let i = 0; i < elements.length; i += batchSize) {
-                const batch = elements.slice(i, i + batchSize);
-                const promises = batch.map(async element => {
-                    try {
-                        const originalText = element.getAttribute('data-original-text') || element.textContent.trim();
-                        if (!element.getAttribute('data-original-text')) {
-                            element.setAttribute('data-original-text', originalText);
-                        }
-                        
-                        const translatedText = await translateText(originalText, lang);
-                        if (translatedText) {
-                            element.textContent = translatedText;
-                        }
-                    } catch (error) {
-                        console.error('Error translating element:', error);
-                    }
-                });
-                
-                await Promise.all(promises);
-                await new Promise(resolve => setTimeout(resolve, 100));
-            }
-        }
-
-        localStorage.setItem('selectedLanguage', lang);
-        
-        if (loadingDialog) {
-            loadingDialog.close();
-        }
-
-        // Thông báo thành công
-        const successMessage = lang === 'en' ? 
-            'Language changed successfully' : 
-            'Đã chuyển đổi ngôn ngữ thành công';
-            
-        if (showNotification) {
-            await Swal.fire({
-                icon: 'success',
-                title: lang === 'en' ? 'Success!' : 'Thành công!',
-                text: successMessage,
-                timer: 1500,
-                showConfirmButton: false
-            });
-        }
-
-        // Thêm các placeholders
-        document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
-            const key = element.getAttribute('data-i18n-placeholder');
-            if (window.TRANSLATIONS[lang][key]) {
-                element.placeholder = window.TRANSLATIONS[lang][key];
-            }
-        });
-
-    } catch (error) {
-        console.error('Error changing language:', error);
-        
-        if (loadingDialog) {
-            loadingDialog.close();
-        }
-
-        const errorMessage = lang === 'en' ? 
-            'Could not change language. Please try again later.' : 
-            'Không thể chuyển đổi ngôn ngữ. Vui lòng thử lại sau.';
-
-        if (showNotification) {
-            await Swal.fire({
-                icon: 'error',
-                title: lang === 'en' ? 'Error!' : 'Lỗi!',
-                text: errorMessage,
-                confirmButtonText: lang === 'en' ? 'Close' : 'Đóng'
-            });
-        }
-    }
-};
-
 // Hàm tự động thêm data-translate cho tất cả text tiếng Việt
 function autoDetectVietnameseText() {
     const vietnameseRegex = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
@@ -314,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Khôi phục ngôn ngữ đã lưu mà không hiện thông báo
     const savedLang = localStorage.getItem('selectedLanguage') || 'vi';
     if (savedLang === 'en') {
-        changeLanguage('en', false); // Không hiện thông báo khi tự động load
+        changeLanguage('en'); // Không hiện thông báo khi tự động load
     }
     
     // Thêm event listener cho các nút ngôn ngữ
@@ -325,10 +202,15 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Chỉ hiện thông báo khi thực sự thay đổi ngôn ngữ
             if (newLang !== currentLang) {
-                changeLanguage(newLang, true);
+                changeLanguage(newLang);
             } else {
-                changeLanguage(newLang, false);
+                changeLanguage(newLang);
             }
         });
+    });
+
+    // Khôi phục ngôn ngữ đã chọn khi tải trang
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === savedLang);
     });
 }); 

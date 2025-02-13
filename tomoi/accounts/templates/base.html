@@ -273,8 +273,8 @@
                 </a>
             </li>
             {% endfor %}
-            </ul>
-          </div>
+          </ul>
+        </div>
       </div>
 
         <!-- Search bar -->
@@ -287,49 +287,49 @@
         <ul class="navbar-nav ms-auto">
 
             <!-- User Icon -->
-      <li class="nav-item">
-        <a class="nav-link user-icon" href="#">
-            {% if user.is_authenticated %}
-                {% if user.avatar %}
-                    <img src="{{ user.avatar.url }}" alt="Avatar">
-                {% else %}
-                    <img src="{% static 'images/default-avatar.png' %}" alt="Default Avatar">
-                {% endif %}
-            {% else %}
-                <i class="fa fa-user"></i>
-            {% endif %}
-        </a>
-        <div class="dropdown-content">
-            {% if user.is_authenticated %}
-                <p class="username">
-                    <i class="fas fa-user"></i>
-                    <span>{{ user.username }}</span>
-                </p>
-                <a href="#" class="dropdown-item">
-                    <i class="fas fa-wallet"></i> Số dư: <b>{{ user.balance|format_balance }}</b>
+            <li class="nav-item">
+                <a class="nav-link user-icon" href="#">
+                    {% if user.is_authenticated %}
+                        {% if user.avatar %}
+                            <img src="{{ user.avatar.url }}" alt="Avatar">
+                        {% else %}
+                            <img src="{% static 'images/default-avatar.png' %}" alt="Default Avatar">
+                        {% endif %}
+                    {% else %}
+                        <i class="fa fa-user"></i>
+                    {% endif %}
                 </a>
-                <a href="{% url 'accounts:user_info' %}" class="dropdown-item">
-                    <i class="fas fa-user-cog"></i> Thông tin tài khoản
-                </a>
-                <a href="{% url 'accounts:security' %}" class="dropdown-item">
-                    <i class="fas fa-shield-alt"></i> Bảo mật
-                </a>
+                <div class="dropdown-content">
+                    {% if user.is_authenticated %}
+                        <p class="username">
+                            <i class="fas fa-user"></i>
+                            <span>{{ user.username }}</span>
+                        </p>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-wallet"></i> Số dư: <b>{{ user.balance|format_balance }}</b>
+                        </a>
+                        <a href="{% url 'accounts:user_info' %}" class="dropdown-item">
+                            <i class="fas fa-user-cog"></i> Thông tin tài khoản
+                        </a>
+                        <a href="{% url 'accounts:security' %}" class="dropdown-item">
+                            <i class="fas fa-shield-alt"></i> Bảo mật
+                        </a>
                         <a href="/store/user-info/order-history/" class="dropdown-item">
                             <i class="fas fa-history"></i> Sản phẩm đã mua
                         </a>
                         <a href="{% url 'accounts:wishlist' %}" class="dropdown-item">
                             <i class="fas fa-heart"></i> Sản phẩm yêu thích
-                </a>
-                <a href="{% url 'accounts:logout' %}" class="dropdown-item">
-                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                </a>
-            {% else %}
-                <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#authModal">
-                    <i class="fas fa-sign-in-alt"></i> Đăng nhập / Đăng ký
-                </a>
-            {% endif %}
-        </div>
-    </li>
+                        </a>
+                        <a href="{% url 'accounts:logout' %}" class="dropdown-item">
+                            <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                        </a>
+                    {% else %}
+                        <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#authModal">
+                            <i class="fas fa-sign-in-alt"></i> Đăng nhập / Đăng ký
+                        </a>
+                    {% endif %}
+                </div>
+            </li>
 
             <!-- Cart -->
             <li class="nav-item cart-wrapper">
@@ -337,7 +337,7 @@
                     <i class="fas fa-shopping-cart"></i>
                     Giỏ hàng
                     <span class="cart-count-badge" style="display: none;">0</span>
-      </button>
+                </button>
                 <div class="cart-dropdown-content">
                     <div class="cart-items">
         {% for item in cart_items %}
@@ -358,7 +358,7 @@
                     <div class="empty-cart" style="display: none;">
                         <i class="fas fa-shopping-cart"></i>
                         <p>Bạn chưa có sản phẩm nào trong giỏ hàng</p>
-</div>
+                    </div>
                     <div class="cart-total">
                         <span>Tổng cộng:</span>
                         <span class="total-amount">0đ</span>
@@ -368,7 +368,7 @@
                         <a href="#" class="btn btn-checkout">Thanh toán ngay</a>
                     </div>
                 </div>
-</li>
+            </li>
         </ul>
     </div>
 </nav>
@@ -1305,24 +1305,32 @@ document.getElementById('registerPassword').addEventListener('input', function()
     }
 });
 
-document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        window.changeLanguage(this.dataset.lang);
-    });
-});
-  </script>
+// Khôi phục theme khi tải trang
+function applyTheme(theme) {
+    if (theme === 'auto') {
+        // Kiểm tra chế độ của hệ thống
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+        
+        // Theo dõi thay đổi theme hệ thống
+        window.matchMedia('(prefers-color-scheme: dark)')
+            .addEventListener('change', e => {
+                document.documentElement.setAttribute('data-theme', 
+                    e.matches ? 'dark' : 'light'
+                );
+            });
+    } else {
+        document.documentElement.setAttribute('data-theme', theme);
+    }
+}
 
-<!-- Thêm vào navbar -->
-<div class="language-selector">
-    <button type="button" class="lang-btn active" data-lang="vi" style="border-radius: 8px; border: 1px solid #e50914; padding: 6px 12px; display: flex; align-items: center; gap: 6px; background: white; cursor: pointer;">
-        <img src="{% static 'images/flags/vi.png' %}" alt="VN" class="flag-icon" style="width: 20px; height: 14px; object-fit: cover;">
-        <span>Tiếng Việt</span>
-    </button>
-    <button type="button" class="lang-btn" data-lang="en" style="border-radius: 8px; border: 1px solid #ddd; padding: 6px 12px; display: flex; align-items: center; gap: 6px; background: white; cursor: pointer;">
-        <img src="{% static 'images/flags/en.png' %}" alt="EN" class="flag-icon" style="width: 20px; height: 14px; object-fit: cover;">
-        <span>English</span>
-    </button>
-</div>
+// Áp dụng theme đã lưu khi tải trang
+const savedTheme = localStorage.getItem('theme') || 'light';
+applyTheme(savedTheme);
+  </script>
 </body>
 </html>
 

@@ -245,70 +245,49 @@
 
                     <!-- Ngôn ngữ -->
 
-                    <div class="section">
-
-                        <h5 class="section-title" data-i18n="language">Ngôn ngữ</h5>
-
-                        <div class="language-toggle" style="display: flex; gap: 12px; justify-content: flex-start;">
-                            <button type="button" class="lang-btn active" data-lang="vi" style="border: 2px solid #df2626; border-radius: 8px; padding: 8px 16px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; background: #df2626; color: white; transition: all 0.3s ease; font-size: 14px; white-space: nowrap;">
-                                <img src="{% static 'images/flags/vi.png' %}" alt="VN" class="flag-icon" style="width: 20px; height: 14px; object-fit: cover;">
-                                <span data-i18n="vietnamese">Tiếng Việt</span>
-                            </button>
-                            <button type="button" class="lang-btn" data-lang="en" style="border: 2px solid #df2626; border-radius: 8px; padding: 8px 16px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; background: transparent; color: #df2626; transition: all 0.3s ease; font-size: 14px; white-space: nowrap;">
-                                <img src="{% static 'images/flags/en.png' %}" alt="EN" class="flag-icon" style="width: 20px; height: 14px; object-fit: cover;">
-                                <span data-i18n="english">English</span>
-                            </button>
+                    <div class="security-section">
+                        <div class="d-flex align-items-center mb-3">
+                            <h5 class="mb-0">Ngôn ngữ</h5>
                         </div>
-
+                        <div>
+                            <div class="language-toggle">
+                                <button class="btn language-btn" data-language="vi">
+                                    <img src="{% static 'images/flags/vi.png' %}" alt="Tiếng Việt" class="flag-icon">
+                                    Tiếng Việt
+                                </button>
+                                <button class="btn language-btn" data-language="en">
+                                    <img src="{% static 'images/flags/en.png' %}" alt="English" class="flag-icon">
+                                    English
+                                </button>
+                            </div>
+                        </div>
                     </div>
-
 
 
                     <!-- Giao diện -->
 
-                    <div class="section">
-
-                        <h5 class="section-title" data-i18n="theme">Giao diện</h5>
-
-                        <div class="theme-options">
-
-                            <div class="btn-group" role="group">
-
-                                <input type="radio" class="btn-check" name="theme" id="lightTheme" value="light" 
-
-                                       {% if current_theme == 'light' %}checked{% endif %}>
-
-                                <label class="btn btn-outline-danger" for="lightTheme">
-                                    <i class="fas fa-sun me-2"></i>
-                                    <span data-i18n="light_theme_text">Sáng</span>
-                                </label>
-
-
-
-                                <input type="radio" class="btn-check" name="theme" id="darkTheme" value="dark"
-
-                                       {% if current_theme == 'dark' %}checked{% endif %}>
-
-                                <label class="btn btn-outline-danger" for="darkTheme">
-                                    <i class="fas fa-moon me-2"></i>
-                                    <span data-i18n="dark_theme_text">Tối</span>
-                                </label>
-
-
-
-                                <input type="radio" class="btn-check" name="theme" id="autoTheme" value="auto"
-
-                                       {% if current_theme == 'auto' %}checked{% endif %}>
-
-                                <label class="btn btn-outline-danger" for="autoTheme">
-                                    <i class="fas fa-magic me-2"></i>
-                                    <span data-i18n="auto_theme_text">Tự động</span>
-                                </label>
-
-                            </div>
-
+                    <div class="security-section" style="padding-left: 8px !important; padding-bottom: 16px !important; margin-top: 16px !important;">
+                        <div class="d-flex align-items-center mb-3">
+                            <h5 class="mb-0">Giao diện</h5>
                         </div>
+                        <div>
+                            <div class="btn-group">
+                                <input type="radio" class="btn-check" name="theme" id="lightTheme" value="light">
+                                <label class="btn btn-outline-danger" for="lightTheme">
+                                    <i class="fas fa-sun me-2"></i>Sáng
+                                </label>
 
+                                <input type="radio" class="btn-check" name="theme" id="darkTheme" value="dark">
+                                <label class="btn btn-outline-danger" for="darkTheme">
+                                    <i class="fas fa-moon me-2"></i>Tối
+                                </label>
+
+                                <input type="radio" class="btn-check" name="theme" id="autoTheme" value="auto">
+                                <label class="btn btn-outline-danger" for="autoTheme">
+                                    <i class="fas fa-adjust me-2"></i>Tự động
+                                </label>
+                            </div>
+                        </div>
                     </div>
 
 
@@ -317,7 +296,7 @@
 
                     <div class="section">
 
-                        <h5 class="section-title" data-i18n="font_size">Cỡ chữ</h5>
+                        <h5 class="section-title" data-i18n="font_size" style="margin-bottom: 16px !important;">Cỡ chữ</h5>
 
                         <div class="font-size-options">
 
