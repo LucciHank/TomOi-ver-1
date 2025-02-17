@@ -57,30 +57,30 @@
                                         <div class="form-floating mb-3">
                                             <input type="password" 
                                                    class="form-control" 
-                                                   id="currentPassword"
+                                                   id="current_password_change"
                                                    name="current_password" 
                                                    placeholder=" ">
-                                            <label for="currentPassword" data-i18n="current_password">Mật khẩu hiện tại</label>
+                                            <label for="current_password_change" data-i18n="current_password">Mật khẩu hiện tại</label>
                                         </div>
 
                                         <div class="form-floating mb-3">
                                             <input type="password" 
                                                    class="form-control" 
-                                                   id="newPassword"
+                                                   id="new_password_change"
                                                    name="new_password" 
                                                    placeholder=" "
                                                    autocomplete="new-password">
-                                            <label for="newPassword" data-i18n="new_password">Mật khẩu mới</label>
+                                            <label for="new_password_change" data-i18n="new_password">Mật khẩu mới</label>
                                         </div>
 
                                         <div class="form-floating mb-4">
                                             <input type="password" 
                                                    class="form-control" 
-                                                   id="confirmPassword"
+                                                   id="confirm_password_change"
                                                    name="confirm_password" 
                                                    placeholder=" "
                                                    autocomplete="new-password">
-                                            <label for="confirmPassword" data-i18n="confirm_password">Xác nhận mật khẩu mới</label>
+                                            <label for="confirm_password_change" data-i18n="confirm_password">Xác nhận mật khẩu mới</label>
                                         </div>
                                     </form>
                                     <button type="submit" form="changePasswordForm" class="btn btn-danger">
@@ -230,11 +230,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="setup2FAForm">
+                <form id="setup2FAForm" novalidate>
                     {% csrf_token %}
                     <div class="mb-3">
                         <label class="form-label">Chọn phương thức xác thực</label>
-                        <select class="form-select" id="fa_method" name="method">
+                        <select class="form-select" id="fa_method" name="method" required>
                             <option value="">Chọn phương thức</option>
                             <option value="password">Tự tạo mật khẩu</option>
                             <option value="email">Nhận mã OTP qua email</option>
@@ -247,24 +247,26 @@
                         <div class="row">
                             <div class="col-md-6 border-end">
                                 <div class="mb-3">
-                                    <label class="form-label">Mật khẩu cấp 2</label>
+                                    <label class="form-label" for="setup_2fa_password">Mật khẩu cấp 2</label>
                                     <div class="input-group">
                                         <input type="password" 
                                                class="form-control" 
                                                id="setup_2fa_password" 
-                                               name="password">
+                                               name="password" 
+                                               tabindex="1">
                                         <button class="btn btn-outline-secondary toggle-password" type="button">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                     </div>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label">Xác nhận mật khẩu</label>
+                                    <label class="form-label" for="setup_2fa_confirm">Xác nhận mật khẩu</label>
                                     <div class="input-group">
                                         <input type="password" 
                                                class="form-control" 
-                                               id="setup_2fa_password_confirm" 
-                                               name="password_confirm">
+                                               id="setup_2fa_confirm" 
+                                               name="confirm_password" 
+                                               tabindex="2">
                                         <button class="btn btn-outline-secondary toggle-password" type="button">
                                             <i class="fas fa-eye"></i>
                                         </button>
@@ -283,11 +285,20 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Trường nhập OTP qua email -->
+                    <div id="fa_email_fields" class="d-none">
+                        <div class="text-center mb-4">
+                            <p>Chúng tôi sẽ gửi mã OTP đến email: <strong>{{ user.email|mask_email }}</strong></p>
+                        </div>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                <button type="submit" form="setup2FAForm" class="btn btn-danger">Lưu thay đổi</button>
+                <button type="submit" form="setup2FAForm" class="btn btn-danger" id="setup2FASubmitBtn">
+                    Lưu thay đổi
+                </button>
             </div>
         </div>
     </div>
@@ -351,7 +362,7 @@
     </div>
 </div>
 
-<!-- Modal Nhập OTP -->
+<!-- Modal Verify OTP -->
 <div class="modal fade" id="verifyOTPModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -361,15 +372,32 @@
             </div>
             <div class="modal-body">
                 <form id="verifyOTPForm">
-                    <p><span data-i18n="otp_has_been_sent_to">Mã OTP đã được gửi đến</span> <span id="maskedEmailOTP"></span></p>
-                    <div class="mb-3">
-                        <input type="text" class="form-control" id="otpInput" maxlength="6" required>
+                    <div class="text-center mb-4">
+                        <p>Chúng tôi đã gửi mã OTP đến email: <strong>{{ user.email|mask_email }}</strong></p>
                     </div>
-                    <button type="submit" class="btn btn-danger">Xác thực</button>
-                    <button type="button" id="resendOTPBtn" class="btn btn-link">
-                        <span data-i18n="resend_otp">Gửi lại OTP</span> <span id="countdown"></span>
-                    </button>
+                    
+                    <div class="otp-container mb-4">
+                        <input type="text" class="otp-input" maxlength="1" data-index="1" inputmode="numeric">
+                        <input type="text" class="otp-input" maxlength="1" data-index="2" inputmode="numeric">
+                        <input type="text" class="otp-input" maxlength="1" data-index="3" inputmode="numeric">
+                        <input type="text" class="otp-input" maxlength="1" data-index="4" inputmode="numeric">
+                        <input type="text" class="otp-input" maxlength="1" data-index="5" inputmode="numeric">
+                        <input type="text" class="otp-input" maxlength="1" data-index="6" inputmode="numeric">
+                    </div>
+                    <input type="hidden" id="otpValue" name="otp">
+                    
+                    <div class="text-center mb-3">
+                        <p>Không nhận được mã? 
+                            <button type="button" id="resendOtpBtn" class="btn btn-link p-0" disabled>
+                                Gửi lại (<span id="countdown">60</span>s)
+                            </button>
+                        </p>
+                    </div>
                 </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="submit" form="verifyOTPForm" class="btn btn-danger">Xác nhận</button>
             </div>
         </div>
     </div>

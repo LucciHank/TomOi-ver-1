@@ -46,6 +46,9 @@ from django.utils import translation
 from django.db.models import Q
 import requests
 import user_agents
+import logging
+
+logger = logging.getLogger(__name__)
 
 @csrf_exempt
 def auth(request):
@@ -536,6 +539,7 @@ def verify_email(request, token):
         user = CustomUser.objects.get(verification_token=token, is_active=False)
         user.is_active = True
         user.verification_token = None
+        user.verification_token_expires = None
         user.save()
         
         # Tự động đăng nhập sau khi xác thực
@@ -708,38 +712,54 @@ def verify_otp(request):
         data = json.loads(request.body)
         otp = data.get('otp')
         
-        # Lấy thông tin OTP từ session
-        otp_info = request.session.get('reset_password_otp')
-        if not otp_info:
+        # Lấy OTP từ session
+        stored_otp = request.session.get('email_otp')
+        timestamp = request.session.get('email_otp_timestamp')
+        
+        if not stored_otp or not timestamp:
             return JsonResponse({
-                'success': False,
-                'message': 'OTP đã hết hạn hoặc không tồn tại'
-            })
+                'status': 'error',
+                'message': 'OTP không tồn tại'
+            }, status=400)
             
-        if otp != otp_info['otp']:
+        # Kiểm tra thời gian hết hạn (5 phút)
+        timestamp = datetime.fromisoformat(timestamp)
+        if timezone.now() > timestamp + timedelta(minutes=5):
+            # Xóa OTP hết hạn
+            del request.session['email_otp']
+            del request.session['email_otp_timestamp']
             return JsonResponse({
-                'success': False,
+                'status': 'error',
+                'message': 'OTP đã hết hạn'
+            }, status=400)
+            
+        # Kiểm tra OTP
+        if otp != stored_otp:
+            return JsonResponse({
+                'status': 'error',
                 'message': 'Mã OTP không chính xác'
-            })
+            }, status=400)
             
-        # Xóa OTP khỏi session sau khi xác thực thành công
-        del request.session['reset_password_otp']
+        # OTP hợp lệ, cập nhật 2FA
+        request.user.has_2fa = True
+        request.user.two_factor_method = 'email'
+        request.user.save()
+        
+        # Xóa OTP đã sử dụng
+        del request.session['email_otp']
+        del request.session['email_otp_timestamp']
         
         return JsonResponse({
-            'success': True,
+            'status': 'success',
             'message': 'Xác thực thành công'
         })
         
-    except json.JSONDecodeError:
-        return JsonResponse({
-            'success': False,
-            'message': 'Dữ liệu không hợp lệ'
-        })
     except Exception as e:
+        logger.error(f"Error in verify_otp: {str(e)}")
         return JsonResponse({
-            'success': False,
+            'status': 'error',
             'message': str(e)
-        })
+        }, status=500)
 
 def unauthorized_view(request):
     return JsonResponse({'error': 'Login required'}, status=401)
@@ -921,44 +941,51 @@ def setup_2fa(request):
 @login_required
 @require_http_methods(["POST"])
 def send_otp_email(request):
-    """Gửi mã OTP qua email"""
-    if request.method != 'POST':
-        return JsonResponse({'success': False, 'message': 'Invalid method'})
-        
     try:
-        # Tạo mã OTP 6 số
-        otp = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+        # Generate OTP
+        otp = ''.join(random.choices('0123456789', k=6))
         
-        # Lưu OTP vào cache với thời gian sống 5 phút
-        cache_key = f'email_otp_{request.user.id}'
-        cache.set(cache_key, otp, 300)
+        # Save OTP to session
+        request.session['email_otp'] = otp
+        request.session['email_otp_timestamp'] = str(timezone.now())
         
-        # Gửi email
-        subject = 'Mã xác thực thiết lập bảo mật 2 lớp'
-        html_message = render_to_string('accounts/emails/otp_email.html', {
-            'otp': otp,
-            'user': request.user
-        })
-        
-        send_mail(
-            subject,
-            f'Mã xác thực của bạn là: {otp}',
-            settings.DEFAULT_FROM_EMAIL,
-            [request.user.email],
-            html_message=html_message,
-            fail_silently=False
-        )
-        
-        return JsonResponse({
-            'success': True,
-            'message': 'Đã gửi mã OTP'
-        })
-        
+        try:
+            # Render email template
+            html_message = render_to_string('accounts/emails/otp_email.html', {
+                'otp': otp,
+                'user': request.user,
+                'expiry_minutes': 5
+            })
+            
+            # Send email
+            send_mail(
+                'Mã OTP xác thực - TomOi.vn',
+                f'Mã OTP của bạn là: {otp}\nMã có hiệu lực trong 5 phút.',
+                settings.DEFAULT_FROM_EMAIL,
+                [request.user.email],
+                html_message=html_message,
+                fail_silently=False,
+            )
+            logger.info(f"OTP email sent successfully to {request.user.email}")
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Đã gửi mã OTP'
+            })
+            
+        except Exception as e:
+            logger.error(f"Failed to send OTP email: {str(e)}")
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Không thể gửi email. Vui lòng thử lại sau.'
+            }, status=500)
+            
     except Exception as e:
+        logger.error(f"Error in send_otp_email: {str(e)}")
         return JsonResponse({
-            'success': False,
+            'status': 'error',
             'message': str(e)
-        })
+        }, status=500)
 
 @login_required
 @require_http_methods(["GET"])
@@ -1062,33 +1089,24 @@ def verify_google_authenticator(request):
         })
 
 @login_required
+@require_POST
 def delete_2fa(request):
-    if request.method == 'POST':
-        try:
-            # Xóa các thông tin 2FA
-            request.user.has_2fa = False
-            request.user.two_factor_method = None
-            request.user.two_factor_secret = None
-            request.user.require_2fa_purchase = False
-            request.user.require_2fa_deposit = False
-            request.user.require_2fa_password = False
-            request.user.require_2fa_profile = False
-            request.user.save()
-            
-            return JsonResponse({
-                'status': 'success',
-                'message': 'Đã xóa mật khẩu cấp 2'
-            })
-        except Exception as e:
-            return JsonResponse({
-                'status': 'error',
-                'message': str(e)
-            })
-            
-    return JsonResponse({
-        'status': 'error',
-        'message': 'Phương thức không được hỗ trợ'
-    })
+    try:
+        # Xóa thông tin 2FA
+        request.user.has_2fa = False
+        request.user.two_factor_method = None
+        request.user.two_factor_password = None
+        request.user.save()
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Đã xóa mật khẩu cấp 2'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
 
 @login_required
 @require_http_methods(["POST"])
