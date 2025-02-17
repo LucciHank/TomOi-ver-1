@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser, Group, Permission, BaseUserManager
 from django.db import models
 from django.utils.html import format_html
+from django.contrib.auth.hashers import check_password
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, username, email, password=None, **extra_fields):
@@ -231,6 +232,12 @@ class CustomUser(AbstractUser):
         }
         return USER_TYPE_CHOICES.get(self.user_type, 'Khách hàng')
 
+    def check_two_factor_password(self, password):
+        """Kiểm tra mật khẩu cấp 2"""
+        if not self.two_factor_password:
+            return False
+        return check_password(password, self.two_factor_password)
+
 class Order(models.Model):
     user = models.ForeignKey('CustomUser', on_delete=models.CASCADE, related_name='account_orders')
     code = models.CharField(max_length=50)
@@ -263,3 +270,23 @@ class EmailChangeOTP(models.Model):
     
     class Meta:
         ordering = ['-created_at']
+
+class LoginHistory(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='login_history')
+    ip_address = models.GenericIPAddressField()
+    device_info = models.CharField(max_length=255)  # Thông tin thiết bị
+    browser_info = models.CharField(max_length=255)  # Thông tin trình duyệt
+    location = models.CharField(max_length=255, null=True, blank=True)  # Vị trí dựa trên IP
+    login_time = models.DateTimeField(auto_now_add=True)
+    is_current = models.BooleanField(default=False)  # Đánh dấu thiết bị hiện tại
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ('pending', 'Chưa xác nhận'),
+            ('confirmed', 'Đã xác nhận')
+        ],
+        default='pending'
+    )
+
+    class Meta:
+        ordering = ['-login_time']

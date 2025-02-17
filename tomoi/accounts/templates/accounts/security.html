@@ -116,39 +116,103 @@
                     </div>
 
                     <!-- Mật khẩu cấp 2 section -->
-                    <div class="section">
+                    <div class="section mb-4">
                         <h4 class="section-title">Mật khẩu cấp 2</h4>
-                        {% if not user.has_2fa %}
-                            <p class="no-2fa-message">
-                                Bạn chưa thiết lập mật khẩu cấp 2. Bấm vào nút bên dưới để tạo mật khẩu cấp 2.
-                            </p>
-                            <button type="button" class="btn btn-danger" id="setup2FABtn" data-bs-toggle="modal" data-bs-target="#setup2FAModal">
-                                <i class="fas fa-lock me-2"></i>Tạo mật khẩu cấp 2
-                            </button>
-                        {% else %}
-                            <div class="2fa-info mb-4">
-                                <p class="mb-3">Bạn đã thiết lập mật khẩu cấp 2 với phương thức: 
-                                    <strong>
-                                        {% if user.two_factor_method == 'password' %}
-                                            Tự tạo mật khẩu
-                                        {% elif user.two_factor_method == 'email' %}
-                                            Nhận mã OTP qua email
-                                        {% else %}
-                                            Google Authenticator
-                                        {% endif %}
-                                    </strong>
-                                </p>
-                                
-                                <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-outline-danger" id="change2FAMethodBtn">
-                                        <i class="fas fa-exchange-alt me-2"></i>Đổi phương thức
-                                    </button>
-                                    <button type="button" class="btn btn-outline-danger" id="delete2FABtn">
-                                        <i class="fas fa-trash-alt me-2"></i>Xóa mật khẩu cấp 2
-                                    </button>
-                                </div>
-                            </div>
-                        {% endif %}
+                        <div class="section-content">
+                            {% if user.has_2fa %}
+                                {% if user.two_factor_method == 'google_authenticator' %}
+                                    <p>Bạn đang sử dụng Google Authenticator để xác thực 2 lớp.</p>
+                                    <div class="mt-3">
+                                        <button type="button" class="btn btn-outline-danger" id="delete2FABtn">
+                                            <i class="fas fa-trash-alt me-2"></i>Xóa xác thực 2 lớp
+                                        </button>
+                                    </div>
+                                {% else %}
+                                    <p>Bạn đã thiết lập mật khẩu cấp 2.</p>
+                                    <div class="mt-3">
+                                        <button type="button" class="btn btn-primary me-2" id="change2FABtn">
+                                            <i class="fas fa-key me-2"></i>Đổi mật khẩu cấp 2
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger" id="delete2FABtn">
+                                            <i class="fas fa-trash-alt me-2"></i>Xóa mật khẩu cấp 2
+                                        </button>
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                <p>Bạn chưa thiết lập mật khẩu cấp 2. Bấm vào nút bên dưới để tạo mật khẩu cấp 2.</p>
+                                <button type="button" class="btn btn-primary mt-3" id="setup2FABtn">
+                                    <i class="fas fa-shield-alt me-2"></i>Tạo mật khẩu cấp 2
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Phần quản lý thiết bị đăng nhập -->
+                    <div class="security-section mb-4">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <h5 class="mb-0">Quản lý thiết bị đăng nhập</h5>
+                            <span class="text-muted small">Xác nhận các thiết bị đăng nhập để bảo vệ tài khoản</span>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Thời gian</th>
+                                        <th>Lần cuối đăng nhập</th>
+                                        <th>Thiết bị</th>
+                                        <th>Trình duyệt</th>
+                                        <th>Địa chỉ IP</th>
+                                        <th>Trạng thái</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for login in login_history %}
+                                    <tr {% if login.is_current %}class="current-device"{% endif %}>
+                                        <td>{{ login.login_time|date:"d/m/Y H:i" }}</td>
+                                        <td>
+                                            {% if login.is_current %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-circle me-1"></i>Hiện tại
+                                                </span>
+                                            {% else %}
+                                                {{ login.login_time|timesince }} trước
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ login.device_info }}</td>
+                                        <td>{{ login.browser_info }}</td>
+                                        <td>{{ login.ip_address }}</td>
+                                        <td>
+                                            {% if login.status == 'confirmed' %}
+                                            <span class="text-success">
+                                                <i class="fas fa-check-circle me-1"></i>Đã xác nhận
+                                            </span>
+                                            {% else %}
+                                            <span class="text-warning">
+                                                <i class="fas fa-clock me-1"></i>Chưa xác nhận
+                                            </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if login.status == 'pending' %}
+                                                <div class="d-flex gap-2">
+                                                    <button class="btn btn-sm btn-outline-primary confirm-device-btn" 
+                                                            data-login-id="{{ login.id }}">
+                                                        <i class="fas fa-shield-alt me-1"></i>Xác nhận
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-danger not-me-btn"
+                                                            data-login-id="{{ login.id }}">
+                                                        <i class="fas fa-user-times me-1"></i>Không phải tôi?
+                                                    </button>
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -173,7 +237,7 @@
                            value="{{ request.user.username }}">
                     <div class="mb-3">
                         <label class="form-label">Chọn phương thức xác thực</label>
-                        <select class="form-select" id="fa_method" name="method" onchange="handle2FAMethodChange()">
+                        <select class="form-select" id="fa_method" name="method">
                             <option value="">Chọn phương thức</option>
                             <option value="password">Tự tạo mật khẩu</option>
                             <option value="email">Nhận mã OTP qua email</option>

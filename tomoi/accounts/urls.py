@@ -44,4 +44,7 @@ urlpatterns = [
     path('reset-password/', views.reset_password, name='reset_password'),
     path('resend-verification-email/', views.resend_verification_email, name='resend_verification_email'),
     path('translate/', views.translate_text, name='translate_text'),
+    path('check-2fa-password/', views.check_2fa_password, name='check_2fa_password'),
+    path('confirm-device/', views.confirm_device, name='confirm_device'),
+    path('logout-device/', views.logout_device, name='logout_device'),
 ]
