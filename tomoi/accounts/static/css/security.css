@@ -553,14 +553,33 @@
     color: #333;
 }
 
+.confirm-device-btn,
+.logout-device-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    margin: 0 0.25rem;
+}
+
 .confirm-device-btn {
-    border-color: #df2626;
-    color: #df2626;
+    color: #28a745;
+    border-color: #28a745;
 }
 
 .confirm-device-btn:hover {
-    background: #df2626;
-    color: white;
+    color: #fff;
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.logout-device-btn {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.logout-device-btn:hover {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
 }
 
 .badge {
@@ -568,11 +587,40 @@
     padding: 4px 8px;
 }
 
-.modal-open .content:not(.modal) {
-    -webkit-filter: blur(3px);
-    filter: blur(3px);
+/* Style cho button đổi và xóa mật khẩu cấp 2 */
+.btn-primary, .btn-outline-danger {
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 500;
 }
 
-.modal-open .content:not(.modal) * {
-    pointer-events: none;
+.btn-primary {
+    background-color: #df2626;
+    border-color: #df2626;
+    color: #fff;
 }
+
+.btn-primary:hover {
+    background-color: #c41e1e;
+    border-color: #c41e1e;
+}
+
+.btn-outline-danger {
+    color: #df2626;
+    border-color: #df2626;
+}
+
+.btn-outline-danger:hover {
+    background-color: #df2626;
+    border-color: #df2626;
+    color: #fff;
+}
+
+/* Thêm style cho button khi 2FA không phải password */
+.btn-primary.disabled-2fa {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+

@@ -47,4 +47,5 @@ urlpatterns = [
     path('check-2fa-password/', views.check_2fa_password, name='check_2fa_password'),
     path('confirm-device/', views.confirm_device, name='confirm_device'),
     path('logout-device/', views.logout_device, name='logout_device'),
+    path('security/change-2fa-password/', views.change_2fa_password, name='change_2fa_password'),
 ]

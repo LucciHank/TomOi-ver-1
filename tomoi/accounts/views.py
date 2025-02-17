@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
 from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
 from django.urls import reverse_lazy
 from django.core.mail import send_mail
@@ -36,7 +36,7 @@ import pyotp
 import qrcode
 import base64
 from io import BytesIO
-from django.contrib.auth.hashers import check_password
+from django.contrib.auth.hashers import check_password, make_password
 import time
 from django.utils import timezone
 import hashlib
@@ -836,34 +836,44 @@ def security_view(request):
     })
 
 @login_required
-@require_http_methods(["POST"])
+@require_POST
 def change_password(request):
-    current_password = request.POST.get('current_password')
-    new_password = request.POST.get('new_password')
-    confirm_password = request.POST.get('confirm_password')
-    
-    # Validate current password
-    if not request.user.check_password(current_password):
+    try:
+        data = json.loads(request.body)
+        current_password = data.get('current_password')
+        new_password = data.get('new_password')
+        
+        # Kiểm tra mật khẩu hiện tại
+        if not request.user.check_password(current_password):
+            return JsonResponse({
+                'error': 'current_password_incorrect',
+                'message': 'Mật khẩu hiện tại không đúng'
+            }, status=400)
+
+        # Kiểm tra mật khẩu mới khác mật khẩu cũ
+        if current_password == new_password:
+            return JsonResponse({
+                'error': 'same_password',
+                'message': 'Mật khẩu mới phải khác mật khẩu hiện tại'
+            }, status=400)
+
+        # Đổi mật khẩu
+        request.user.set_password(new_password)
+        request.user.save()
+        
+        # Cập nhật session để giữ người dùng đăng nhập
+        update_session_auth_hash(request, request.user)
+
         return JsonResponse({
-            'status': 'error',
-            'message': 'Mật khẩu hiện tại không đúng'
+            'message': 'Đổi mật khẩu thành công'
         })
-    
-    # Validate new password
-    if new_password != confirm_password:
+
+    except Exception as e:
+        print(f"Error in change_password: {str(e)}")  # Thêm log để debug
         return JsonResponse({
-            'status': 'error',
-            'message': 'Mật khẩu mới không khớp'
-        })
-    
-    # Change password
-    request.user.set_password(new_password)
-    request.user.save()
-    
-    return JsonResponse({
-        'status': 'success',
-        'message': 'Đổi mật khẩu thành công'
-    })
+            'error': 'server_error',
+            'message': str(e)
+        }, status=500)
 
 @login_required
 @require_http_methods(["POST"])
@@ -872,32 +882,41 @@ def setup_2fa(request):
         data = json.loads(request.body)
         method = data.get('method')
         
-        if not method:
+        if method == 'password':
+            password = data.get('password')
+            
+            if not password:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Vui lòng nhập mật khẩu'
+                })
+                
+            # Mã hóa và lưu mật khẩu cấp 2
+            request.user.two_factor_password = make_password(password)
+            request.user.two_factor_method = 'password'
+            request.user.has_2fa = True
+            request.user.save()
+            
             return JsonResponse({
-                'status': 'error',
-                'message': 'Vui lòng chọn phương thức xác thực'
-            }, status=400)
-
-        # Cập nhật thông tin user
-        request.user.has_2fa = True
-        request.user.two_factor_method = method
-        request.user.save()
-
+                'status': 'success',
+                'message': 'Thiết lập mật khẩu cấp 2 thành công'
+            })
+            
         return JsonResponse({
-            'status': 'success',
-            'message': 'Thiết lập mật khẩu cấp 2 thành công'
+            'status': 'error',
+            'message': 'Phương thức không hợp lệ'
         })
-
+        
     except json.JSONDecodeError:
         return JsonResponse({
             'status': 'error',
-            'message': 'Invalid JSON data'
-        }, status=400)
+            'message': 'Dữ liệu không hợp lệ'
+        })
     except Exception as e:
         return JsonResponse({
             'status': 'error',
             'message': str(e)
-        }, status=500)
+        })
 
 @login_required
 @require_http_methods(["POST"])
@@ -1425,76 +1444,44 @@ def check_2fa_password(request):
     })
 
 @login_required
+@require_POST
 def confirm_device(request):
-    """Xác nhận thiết bị đăng nhập"""
-    if request.method != 'POST':
-        return JsonResponse({'success': False, 'message': 'Invalid method'})
-        
     try:
         data = json.loads(request.body)
         login_id = data.get('login_id')
-        method = data.get('method')
-        
-        # Debug log
-        print(f"Received request: method={method}, login_id={login_id}")
-        print(f"User 2FA method: {request.user.two_factor_method}")
-        
-        login = LoginHistory.objects.get(
-            id=login_id,
-            user=request.user,
-            status='pending'
-        )
-        
-        # Xử lý theo phương thức xác thực
-        if method == 'email' or request.user.two_factor_method == 'email':
-            otp = data.get('otp')
-            if not otp:
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Không tìm thấy mã OTP'
-                })
-                
-            # Kiểm tra OTP từ cache
-            cache_key = f'email_otp_{login_id}'
-            stored_otp = cache.get(cache_key)
-            
-            if not stored_otp:
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Mã OTP đã hết hạn hoặc không tồn tại'
-                })
-                
-            if str(otp).strip() != stored_otp:
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Mã OTP không chính xác'
-                })
-                
-            # Xóa OTP đã sử dụng
-            cache.delete(cache_key)
-            
-            login.status = 'confirmed'
-            login.save()
-            
+        password = data.get('password')
+
+        # Kiểm tra mật khẩu cấp 2
+        if not request.user.check_two_factor_password(password):
             return JsonResponse({
-                'success': True,
-                'message': 'Đã xác nhận thiết bị thành công'
+                'success': False,
+                'message': 'Mật khẩu cấp 2 không chính xác'
             })
-            
-        elif method == 'google':
-            # Giữ nguyên code xử lý Google Authenticator
-            ...
+
+        # Lấy và cập nhật trạng thái login history
+        login = LoginHistory.objects.get(id=login_id, user=request.user)
+        login.status = 'confirmed'
+        login.save()
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Đã xác nhận thiết bị thành công'
+        })
 
     except LoginHistory.DoesNotExist:
         return JsonResponse({
             'success': False,
             'message': 'Không tìm thấy thông tin đăng nhập'
         })
-    except Exception as e:
-        print(f"Device confirmation error: {str(e)}")  # Debug log
+    except json.JSONDecodeError:
         return JsonResponse({
             'success': False,
-            'message': f'Có lỗi xảy ra: {str(e)}'
+            'message': 'Dữ liệu không hợp lệ'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
         })
 
 @login_required
@@ -1564,3 +1551,60 @@ def logout_device(request):
             'success': False,
             'message': f'Có lỗi xảy ra: {str(e)}'
         })
+
+@login_required
+@require_POST
+def change_2fa_password(request):
+    try:
+        data = json.loads(request.body)
+        current_password = data.get('current_password')
+        new_password = data.get('new_password')
+
+        # Kiểm tra mật khẩu cấp 2 hiện tại
+        if not request.user.check_two_factor_password(current_password):
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Mật khẩu cấp 2 hiện tại không đúng'
+            })
+
+        # Cập nhật mật khẩu cấp 2 mới
+        request.user.two_factor_password = make_password(new_password)
+        request.user.save()
+
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Đổi mật khẩu cấp 2 thành công'
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        })
+
+def save_login_history(user, request):
+    device, browser = get_client_info(request)
+    ip_address = request.META.get('REMOTE_ADDR')
+
+    # Kiểm tra xem đã có login history với thông tin giống hệt không
+    existing_login = LoginHistory.objects.filter(
+        user=user,
+        device_info=device,
+        browser_info=browser,
+        ip_address=ip_address,
+        status='confirmed'
+    ).first()
+
+    if existing_login:
+        # Cập nhật thời gian đăng nhập
+        existing_login.login_time = timezone.now()
+        existing_login.save()
+    else:
+        # Tạo mới nếu không tìm thấy
+        LoginHistory.objects.create(
+            user=user,
+            device_info=device,
+            browser_info=browser,
+            ip_address=ip_address,
+            status='pending'
+        )

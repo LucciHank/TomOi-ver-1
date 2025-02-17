@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load custom_filters %}
+{% load account_filters %}
 
 {% block extra_css %}
 <link href="{% static 'css/security.css' %}" rel="stylesheet"/>
@@ -128,9 +128,14 @@
                                         </button>
                                     </div>
                                 {% else %}
-                                    <p>Bạn đã thiết lập mật khẩu cấp 2.</p>
+                                    <p>Bạn đã thiết lập mật khẩu cấp 2 với phương thức: <strong>{{ user.get_two_factor_method_display }}</strong></p>
                                     <div class="mt-3">
-                                        <button type="button" class="btn btn-primary me-2" id="change2FABtn">
+                                        <button type="button" 
+                                                class="btn btn-primary me-2" 
+                                                id="change2FABtn"
+                                                {% if user.two_factor_method != 'password' %}
+                                                disabled
+                                                {% endif %}>
                                             <i class="fas fa-key me-2"></i>Đổi mật khẩu cấp 2
                                         </button>
                                         <button type="button" class="btn btn-outline-danger" id="delete2FABtn">
@@ -177,7 +182,7 @@
                                                     <i class="fas fa-circle me-1"></i>Hiện tại
                                                 </span>
                                             {% else %}
-                                                {{ login.login_time|timesince }} trước
+                                                {{ login.login_time|time_since_vi }}
                                             {% endif %}
                                         </td>
                                         <td>{{ login.device_info }}</td>
@@ -185,13 +190,9 @@
                                         <td>{{ login.ip_address }}</td>
                                         <td>
                                             {% if login.status == 'confirmed' %}
-                                            <span class="text-success">
-                                                <i class="fas fa-check-circle me-1"></i>Đã xác nhận
-                                            </span>
+                                                <span class="badge bg-success">Đã xác nhận</span>
                                             {% else %}
-                                            <span class="text-warning">
-                                                <i class="fas fa-clock me-1"></i>Chưa xác nhận
-                                            </span>
+                                                <span class="badge bg-warning">Chờ xác nhận</span>
                                             {% endif %}
                                         </td>
                                         <td>
@@ -201,7 +202,7 @@
                                                             data-login-id="{{ login.id }}">
                                                         <i class="fas fa-shield-alt me-1"></i>Xác nhận
                                                     </button>
-                                                    <button class="btn btn-sm btn-outline-danger not-me-btn"
+                                                    <button class="btn btn-sm btn-outline-danger logout-device-btn"
                                                             data-login-id="{{ login.id }}">
                                                         <i class="fas fa-user-times me-1"></i>Không phải tôi?
                                                     </button>
@@ -231,10 +232,6 @@
             <div class="modal-body">
                 <form id="setup2FAForm">
                     {% csrf_token %}
-                    <input type="hidden" 
-                           name="username" 
-                           autocomplete="username"
-                           value="{{ request.user.username }}">
                     <div class="mb-3">
                         <label class="form-label">Chọn phương thức xác thực</label>
                         <select class="form-select" id="fa_method" name="method">
@@ -248,7 +245,6 @@
                     <!-- Trường nhập mật khẩu -->
                     <div id="fa_password_fields" class="d-none">
                         <div class="row">
-                            <!-- Cột bên trái cho form nhập -->
                             <div class="col-md-6 border-end">
                                 <div class="mb-3">
                                     <label class="form-label">Mật khẩu cấp 2</label>
@@ -256,8 +252,7 @@
                                         <input type="password" 
                                                class="form-control" 
                                                id="setup_2fa_password" 
-                                               name="password"
-                                               autocomplete="new-password">
+                                               name="password">
                                         <button class="btn btn-outline-secondary toggle-password" type="button">
                                             <i class="fas fa-eye"></i>
                                         </button>
@@ -269,65 +264,23 @@
                                         <input type="password" 
                                                class="form-control" 
                                                id="setup_2fa_password_confirm" 
-                                               name="password_confirm"
-                                               autocomplete="new-password">
+                                               name="password_confirm">
                                         <button class="btn btn-outline-secondary toggle-password" type="button">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Cột bên phải cho hướng dẫn -->
                             <div class="col-md-6">
-                                <div class="password-guide h-100 d-flex flex-column justify-content-center">
-                                    <h6 class="mb-3">Yêu cầu mật khẩu:</h6>
-                                    <ul class="list-unstyled mb-0">
-                                        <li class="mb-2">
-                                            <i class="fas fa-check-circle text-success me-2"></i>
-                                            <span data-i18n="at_least_six_characters">Ít nhất 6 ký tự</span>
-                                        </li>
-                                        <li class="mb-2">
-                                            <i class="fas fa-check-circle text-success me-2"></i>
-                                            <span data-i18n="contain_at_least_one_number">Chứa ít nhất 1 số</span>
-                                        </li>
-                                        <li class="mb-2">
-                                            <i class="fas fa-check-circle text-success me-2"></i>
-                                            <span data-i18n="must_be_different_from_login_password">Khác mật khẩu đăng nhập</span>
-                                        </li>
+                                <div class="password-requirements">
+                                    <p class="mb-2">Yêu cầu mật khẩu:</p>
+                                    <ul class="list-unstyled">
+                                        <li><i class="fas fa-check-circle text-success me-2"></i>Ít nhất 6 ký tự</li>
+                                        <li><i class="fas fa-check-circle text-success me-2"></i>Chứa ít nhất 1 số</li>
+                                        <li><i class="fas fa-check-circle text-success me-2"></i>Khác mật khẩu đăng nhập</li>
                                     </ul>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Trường OTP Email -->
-                    <div id="fa_email_fields" class="d-none">
-                        <div class="alert alert-info">
-                            <span data-i18n="otp_will_be_sent_to">Mã OTP sẽ được gửi đến email:</span> <strong>{{ user.email|mask_email }}</strong>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Nhập mã OTP</label>
-                            <input type="text" class="form-control" name="otp" maxlength="6">
-                            <div class="mt-2">
-                                <span><span data-i18n="resend_code_after">Gửi lại mã sau:</span> <span id="setup_countdown_timer">60</span>s</span>
-                                <button type="button" id="setup_resend_otp_btn" class="btn btn-link">Gửi lại mã</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Trường Google Authenticator -->
-                    <div id="fa_google_fields" class="d-none">
-                        <div class="text-center mb-3">
-                            <img id="gaQrCode" class="img-fluid mb-3" style="max-width: 200px;">
-                            <div class="alert alert-secondary">
-                                <small><span data-i18n="secret_key">Mã bí mật:</span></small>
-                                <code id="gaSecretKey" class="user-select-all"></code>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Nhập mã xác thực 6 số</label>
-                            <input type="text" class="form-control" id="gaOtpInput" maxlength="6">
                         </div>
                     </div>
                 </form>
@@ -474,33 +427,54 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="change2FAPasswordForm">
+                <form id="change2FAForm">
                     {% csrf_token %}
-                    <div class="mb-3">
-                        <label class="form-label">Mật khẩu cấp 2 hiện tại</label>
-                        <div class="password-input">
-                            <input type="password" class="form-control" name="current_2fa_password" id="current2FAPassword">
+                    <div class="row">
+                        <div class="col-md-6 border-end">
+                            <div class="mb-3">
+                                <label class="form-label">Mật khẩu cấp 2 hiện tại</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="current_2fa_password" name="current_password">
+                                    <button class="btn btn-outline-secondary toggle-password" type="button">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Mật khẩu cấp 2 mới</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="new_2fa_password" name="new_password">
+                                    <button class="btn btn-outline-secondary toggle-password" type="button">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Xác nhận mật khẩu mới</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="confirm_2fa_password" name="confirm_password">
+                                    <button class="btn btn-outline-secondary toggle-password" type="button">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Mật khẩu cấp 2 mới</label>
-                        <div class="password-input">
-                            <input type="password" class="form-control" name="new_2fa_password" id="new2FAPassword">
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Xác nhận mật khẩu cấp 2 mới</label>
-                        <div class="password-input">
-                            <input type="password" class="form-control" name="confirm_2fa_password" id="confirm2FAPassword">
+                        <div class="col-md-6">
+                            <div class="password-requirements">
+                                <p class="mb-2">Yêu cầu mật khẩu:</p>
+                                <ul class="list-unstyled">
+                                    <li id="length-check"><i class="fas fa-check-circle me-2"></i>Ít nhất 6 ký tự</li>
+                                    <li id="number-check"><i class="fas fa-check-circle me-2"></i>Chứa ít nhất 1 số</li>
+                                    <li id="match-check"><i class="fas fa-check-circle me-2"></i>Mật khẩu mới khớp nhau</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                <button type="submit" form="change2FAPasswordForm" class="btn btn-danger">
-                    <i class="fas fa-save me-2"></i><span data-i18n="save">Lưu thay đổi</span>
-                </button>
+                <button type="submit" form="change2FAForm" class="btn btn-danger">Lưu thay đổi</button>
             </div>
         </div>
     </div>
@@ -546,35 +520,6 @@
                 <button type="submit" form="edit2FASettingsForm" class="btn btn-primary">
                     <i class="fas fa-save me-2"></i><span data-i18n="save">Lưu thay đổi</span>
                 </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal tự tạo mật khẩu -->
-<div class="modal fade" id="password2FAModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Tạo mật khẩu cấp 2</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="password2FAForm">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label class="form-label">Mật khẩu cấp 2</label>
-                        <input type="password" class="form-control" id="fa_password" name="password">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Xác nhận mật khẩu</label>
-                        <input type="password" class="form-control" id="fa_password_confirm" name="password_confirm">
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                <button type="submit" form="password2FAForm" class="btn btn-danger">Lưu thay đổi</button>
             </div>
         </div>
     </div>
