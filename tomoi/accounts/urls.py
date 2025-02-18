@@ -30,7 +30,7 @@ urlpatterns = [
     path('security/change-password/', views.change_password, name='change_password'),
     path('security/setup-2fa/', views.setup_2fa, name='setup_2fa'),
     path('security/setup-ga/', views.setup_google_authenticator, name='setup_ga'),
-    path('security/verify-ga/', views.verify_google_authenticator, name='verify_ga'),
+    path('security/verify-ga/', views.verify_ga, name='verify_ga'),
     path('security/delete-2fa/', views.delete_2fa, name='delete_2fa'),
     path('security/send-otp-email/', views.send_otp_email, name='send_otp_email'),
     path('security/verify-otp/', views.verify_otp, name='verify_otp'),
@@ -48,4 +48,7 @@ urlpatterns = [
     path('confirm-device/', views.confirm_device, name='confirm_device'),
     path('logout-device/', views.logout_device, name='logout_device'),
     path('security/change-2fa-password/', views.change_2fa_password, name='change_2fa_password'),
+    path('security/check-2fa-status/', views.check_2fa_status, name='check_2fa_status'),
+    path('security/verify-2fa-password/', views.verify_2fa_password, name='verify_2fa_password'),
+    path('security/verify-device/', views.verify_device, name='verify_device'),
 ]

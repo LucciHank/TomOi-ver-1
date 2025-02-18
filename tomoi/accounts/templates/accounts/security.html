@@ -4,6 +4,21 @@
 
 {% block extra_css %}
 <link href="{% static 'css/security.css' %}" rel="stylesheet"/>
+<style>
+    #gaQrCode img {
+        max-width: 150px;
+        margin: 0 auto;
+        border: 1px solid #ddd;
+        padding: 5px;
+        border-radius: 4px;
+    }
+    #gaSecretKey {
+        font-size: 1.2em;
+        letter-spacing: 2px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -200,11 +215,11 @@
                                                 <div class="d-flex gap-2">
                                                     <button class="btn btn-sm btn-outline-primary confirm-device-btn" 
                                                             data-login-id="{{ login.id }}">
-                                                        <i class="fas fa-shield-alt me-1"></i>Xác nhận
+                                                        Xác nhận
                                                     </button>
                                                     <button class="btn btn-sm btn-outline-danger logout-device-btn"
                                                             data-login-id="{{ login.id }}">
-                                                        <i class="fas fa-user-times me-1"></i>Không phải tôi?
+                                                        Không phải tôi?
                                                     </button>
                                                 </div>
                                             {% endif %}
@@ -221,29 +236,28 @@
     </div>
 </div>
 
-<!-- Modal tạo mật khẩu cấp 2 -->
+<!-- Modal thiết lập 2FA -->
 <div class="modal fade" id="setup2FAModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Tạo mật khẩu cấp 2</h5>
+                <h5 class="modal-title">Thiết lập xác thực 2 lớp</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="setup2FAForm" novalidate>
-                    {% csrf_token %}
+                <form id="setup2FAForm">
                     <div class="mb-3">
                         <label class="form-label">Chọn phương thức xác thực</label>
-                        <select class="form-select" id="fa_method" name="method" required>
+                        <select class="form-select" id="fa_method" name="method">
                             <option value="">Chọn phương thức</option>
-                            <option value="password">Tự tạo mật khẩu</option>
-                            <option value="email">Nhận mã OTP qua email</option>
-                            <option value="google">Google Authenticator</option>
+                            <option value="password">Mật khẩu cấp 2</option>
+                            <option value="email">Email</option>
+                            <option value="google_authenticator">Google Authenticator</option>
                         </select>
                     </div>
 
-                    <!-- Trường nhập mật khẩu -->
-                    <div id="fa_password_fields" class="d-none">
+                    <!-- Password fields -->
+                    <div id="fa_password_fields" class="fa-fields d-none">
                         <div class="row">
                             <div class="col-md-6 border-end">
                                 <div class="mb-3">
@@ -286,8 +300,8 @@
                         </div>
                     </div>
 
-                    <!-- Trường nhập OTP qua email -->
-                    <div id="fa_email_fields" class="d-none">
+                    <!-- Email fields -->
+                    <div id="fa_email_fields" class="fa-fields d-none">
                         <div class="text-center mb-4">
                             <p>Chúng tôi sẽ gửi mã OTP đến email: <strong>{{ user.email|mask_email }}</strong></p>
                         </div>
@@ -296,8 +310,8 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                <button type="submit" form="setup2FAForm" class="btn btn-danger" id="setup2FASubmitBtn">
-                    Lưu thay đổi
+                <button type="submit" form="setup2FAForm" class="btn btn-primary" id="setup2FASubmitBtn">
+                    <i class="fas fa-save me-2"></i>Lưu thay đổi
                 </button>
             </div>
         </div>

@@ -152,6 +152,7 @@ class CustomUser(AbstractUser):
     )
 
     # 2FA fields
+    ga_secret_key = models.CharField(max_length=32, null=True, blank=True)
     has_2fa = models.BooleanField(default=False)
     two_factor_method = models.CharField(
         max_length=20,
