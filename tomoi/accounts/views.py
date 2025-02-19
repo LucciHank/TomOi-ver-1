@@ -280,14 +280,11 @@ def login_view(request):
             # Tìm user theo username hoặc email
             try:
                 if '@' in username:
-                    # Nếu đăng nhập bằng email, ưu tiên tài khoản không phải social
-                    user = CustomUser.objects.filter(email=username).first()
-                    if not user:
-                        # Nếu không tìm thấy, thử tìm tài khoản social
-                        user = CustomUser.objects.filter(
-                            email=username,
-                            social_auth__provider='google-oauth2'
-                        ).first()
+                    # Nếu đăng nhập bằng email
+                    user = CustomUser.objects.filter(
+                        models.Q(email=username) | 
+                        models.Q(social_auth__uid=username)
+                    ).first()
                 else:
                     user = CustomUser.objects.get(username=username)
 
@@ -297,10 +294,14 @@ def login_view(request):
                         'message': 'Tài khoản không tồn tại'
                     })
 
-                # Kiểm tra mật khẩu
-                if user.check_password(password):
+                # Kiểm tra mật khẩu hoặc xác thực social
+                if user.check_password(password) or user.social_auth.exists():
                     # Chỉ định backend cụ thể khi đăng nhập
-                    user.backend = 'django.contrib.auth.backends.ModelBackend'
+                    if user.social_auth.exists():
+                        user.backend = 'social_core.backends.google.GoogleOAuth2'
+                    else:
+                        user.backend = 'django.contrib.auth.backends.ModelBackend'
+                        
                     login(request, user)
                     
                     # Lấy thông tin thiết bị và trình duyệt
@@ -309,40 +310,20 @@ def login_view(request):
                     # Lấy IP thật của user
                     ip_address = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', ''))
                     if ',' in ip_address:
-                        ip_address = ip_address.split(',')[0].strip()
-                    
-                    # Kiểm tra xem đã có bản ghi nào với thông tin tương tự chưa
-                    existing_login = LoginHistory.objects.filter(
+                        ip_address = ip_address.split(',')[0]
+
+                    # Lưu lịch sử đăng nhập cho cả tài khoản thường và social
+                    LoginHistory.objects.create(
                         user=user,
-                        device_info=device,
-                        browser_info=browser,
                         ip_address=ip_address,
-                        status='pending'
-                    ).first()
-                    
-                    if existing_login:
-                        # Cập nhật bản ghi hiện có
-                        existing_login.is_current = True
-                        existing_login.login_time = timezone.now()
-                        existing_login.save()
-                        
-                        # Đặt các bản ghi khác về is_current=False
-                        LoginHistory.objects.filter(user=user).exclude(id=existing_login.id).update(is_current=False)
-                    else:
-                        # Tạo bản ghi mới
-                        LoginHistory.objects.filter(user=user).update(is_current=False)
-                        LoginHistory.objects.create(
-                            user=user,
-                            ip_address=ip_address,
-                            device_info=device,
-                            browser_info=browser,
-                            is_current=True,
-                            status='pending'
-                        )
+                        device=device,
+                        browser=browser,
+                        status='confirmed' if user.social_auth.exists() else 'pending'
+                    )
 
                     return JsonResponse({
                         'success': True,
-                        'message': 'Đăng nhập thành công'
+                        'message': 'Đăng nhập thành công!'
                     })
                 else:
                     return JsonResponse({
@@ -357,10 +338,9 @@ def login_view(request):
                 })
 
         except Exception as e:
-            print(f"Login error: {str(e)}")  # Debug log
             return JsonResponse({
                 'success': False,
-                'message': str(e)
+                'message': f'Có lỗi xảy ra: {str(e)}'
             })
 
     return render(request, 'accounts/login.html')
@@ -443,7 +423,33 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
 
 # Social Auth views
 def social_login(request):
-    return render(request, 'accounts/social_login.html')
+    try:
+        # Lấy thông tin thiết bị và trình duyệt
+        device, browser = get_client_info(request)
+        
+        # Lấy IP thật của user
+        ip_address = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', ''))
+        if ',' in ip_address:
+            ip_address = ip_address.split(',')[0]
+
+        # Lưu lịch sử đăng nhập cho social account
+        LoginHistory.objects.create(
+            user=request.user,
+            ip_address=ip_address, 
+            device=device,
+            browser=browser,
+            status='confirmed'  # Social login tự động xác nhận
+        )
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Đăng nhập thành công!'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Có lỗi xảy ra: {str(e)}'
+        })
 
 @login_required
 def logout_view(request):
