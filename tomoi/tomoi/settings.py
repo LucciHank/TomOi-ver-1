@@ -91,6 +91,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'accounts.middleware.EmailVerificationMiddleware',
+    'accounts.middleware.RequestBodyMiddleware',
 ]
 
 ROOT_URLCONF = 'tomoi.urls'

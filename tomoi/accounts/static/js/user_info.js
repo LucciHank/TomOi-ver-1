@@ -12,12 +12,16 @@ function showVerifyOTPModal() {
 document.addEventListener('DOMContentLoaded', function() {
     const editProfileModal = new bootstrap.Modal(document.getElementById('editProfileModal'));
     
-    // Xử lý preview avatar
-    function previewAvatar(input) {
+    // Hàm xử lý preview avatar
+    window.previewAvatar = function(input) {
         if (input.files && input.files[0]) {
             const maxSize = 5 * 1024 * 1024; // 5MB
             if (input.files[0].size > maxSize) {
-                alert('Kích thước ảnh không được vượt quá 5MB');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Kích thước ảnh không được vượt quá 5MB'
+                });
                 input.value = '';
                 return;
             }
@@ -44,55 +48,51 @@ document.addEventListener('DOMContentLoaded', function() {
     // Xử lý form submit
     const editProfileForm = document.getElementById('editProfileForm');
     if (editProfileForm) {
-        editProfileForm.addEventListener('submit', async function(e) {
+        editProfileForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            try {
-                const formData = new FormData(this);
-                
-                // Thêm giới tính vào formData
-                const selectedGender = document.querySelector('input[name="gender"]:checked');
-                if (selectedGender) {
-                    formData.set('gender', selectedGender.value);
+            const formData = new FormData(this);
+            
+            fetch('/accounts/update-profile/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
                 }
-                
-                const response = await fetch(updateProfileUrl, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                    },
-                    credentials: 'same-origin'
-                });
-
-                const data = await response.json();
-                
-                if (data.success) {
-                    // Đóng modal
-                    editProfileModal.hide();
-                    
-                    // Hiển thị thông báo thành công
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
                     Swal.fire({
                         icon: 'success',
-                        title: 'Thành công!',
-                        text: data.message || 'Cập nhật thông tin thành công',
+                        title: 'Thành công',
+                        text: data.message,
                         showConfirmButton: false,
                         timer: 1500
                     }).then(() => {
-                        // Reload trang sau khi thông báo đóng
                         window.location.reload();
                     });
                 } else {
-                    throw new Error(data.message || 'Có lỗi xảy ra');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: data.message
+                    });
                 }
-            } catch (error) {
+            })
+            .catch(error => {
                 console.error('Error:', error);
                 Swal.fire({
                     icon: 'error',
-                    title: 'Lỗi!',
-                    text: error.message || 'Có lỗi xảy ra khi cập nhật thông tin'
+                    title: 'Lỗi',
+                    text: 'Có lỗi xảy ra, vui lòng thử lại'
                 });
-            }
+            });
         });
     }
 

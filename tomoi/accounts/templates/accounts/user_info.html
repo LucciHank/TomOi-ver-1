@@ -135,7 +135,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="editProfileForm" method="POST" enctype="multipart/form-data">
+                <form id="editProfileForm" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="row">
                         <!-- Avatar upload -->
@@ -149,7 +149,7 @@
                                 <div class="mt-2">
                                     <label class="btn btn-outline-danger btn-sm">
                                         <i class="fas fa-camera"></i> Đổi ảnh đại diện
-                                        <input type="file" name="avatar" hidden accept="image/*" onchange="previewAvatar(this)" data-max-size="5">
+                                        <input type="file" name="avatar" hidden accept="image/*" onchange="previewAvatar(this)">
                                     </label>
                                     <div class="text-muted small">Tối đa 5MB</div>
                                 </div>

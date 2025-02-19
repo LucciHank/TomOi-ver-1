@@ -180,8 +180,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else {
                         throw new Error(data.message || 'Có lỗi xảy ra');
                     }
-                }
-            } catch (error) {
+                    }
+                } catch (error) {
                 console.error('Error:', error);
                 Swal.fire({
                     icon: 'error',
@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }).then(() => {
                         window.location.reload();
                     });
-                } else {
+            } else {
                     throw new Error(data.message || 'Có lỗi xảy ra');
                 }
             } catch (error) {
@@ -374,34 +374,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 const response = await fetch('/accounts/security/change-password/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
                         'X-CSRFToken': getCookie('csrftoken')
-                    },
+                },
                     body: JSON.stringify({
                         current_password: currentPassword,
                         new_password: newPassword
                     })
-                });
+            });
 
-                const data = await response.json();
+            const data = await response.json();
                 if (response.ok) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Thành công',
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công',
                         text: 'Đã đổi mật khẩu thành công',
                         showConfirmButton: false,
                         timer: 1500
                     }).then(() => {
                         window.location.reload();
                     });
-                } else {
+            } else {
                     throw new Error(data.message || 'Có lỗi xảy ra');
-                }
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
                     title: 'Lỗi',
                     text: error.message
                 });
@@ -528,8 +528,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                             // Verify mã GA
                             const verifyResponse = await fetch('/accounts/security/verify-ga/', {
-                                method: 'POST',
-                                headers: {
+            method: 'POST',
+            headers: {
                                     'Content-Type': 'application/json',
                                     'X-CSRFToken': getCookie('csrftoken')
                                 },
@@ -1029,7 +1029,7 @@ document.querySelectorAll('.confirm-device-btn, .logout-device-btn').forEach(btn
                 // Hiển thị modal nhập OTP/GA code và đợi kết quả
                 const result = await showOTPVerificationDialog(loginId, isLogout, data.method);
                 
-                if (result.isConfirmed) {
+                    if (result.isConfirmed) {
                     const otp = result.value;
                     // Verify OTP
                     const verifyResponse = await fetch(data.method === 'google_authenticator' ? 
@@ -1071,8 +1071,8 @@ document.querySelectorAll('.confirm-device-btn, .logout-device-btn').forEach(btn
                             text: isLogout ? 'Đã xóa thiết bị' : 'Đã xác nhận thiết bị',
                             showConfirmButton: false,
                             timer: 1500
-                        });
-                    } else {
+                });
+            } else {
                         throw new Error(verifyData.message || 'Mã xác thực không chính xác');
                     }
                 }

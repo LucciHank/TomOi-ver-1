@@ -40,7 +40,7 @@ from django.contrib.auth.hashers import check_password, make_password
 import time
 from django.utils import timezone
 import hashlib
-from .utils import mask_email
+from .utils import mask_email, get_client_info, get_location_from_ip
 from django.core.cache import cache
 from django.utils import translation
 from django.db.models import Q
@@ -316,8 +316,9 @@ def login_view(request):
                     LoginHistory.objects.create(
                         user=user,
                         ip_address=ip_address,
-                        device=device,
-                        browser=browser,
+                        device_info=device,
+                        browser_info=browser,
+                        location=get_location_from_ip(ip_address),
                         status='confirmed' if user.social_auth.exists() else 'pending'
                     )
 
@@ -357,20 +358,33 @@ def update_profile(request):
     try:
         user = request.user
         
-        # Cập nhật thông tin cơ bản
-        user.first_name = request.POST.get('full_name', '').strip()
-        user.phone_number = request.POST.get('phone_number', '').strip()
-        
-        # Cập nhật giới tính
+        # Lấy dữ liệu từ form
+        username = request.POST.get('username')
+        full_name = request.POST.get('full_name')
+        phone_number = request.POST.get('phone_number')
         gender = request.POST.get('gender')
-        if gender in ['M', 'F', 'O']:
-            user.gender = gender
-            
-        # Cập nhật ngày sinh
         birth_day = request.POST.get('birth_day')
         birth_month = request.POST.get('birth_month')
         birth_year = request.POST.get('birth_year')
-        
+
+        # Cập nhật username nếu có thay đổi
+        if username and username != user.username:
+            if CustomUser.objects.filter(username=username).exists():
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Tên đăng nhập đã tồn tại'
+                })
+            user.username = username
+
+        # Cập nhật các thông tin khác
+        if full_name:
+            user.full_name = full_name
+        if phone_number:
+            user.phone_number = phone_number
+        if gender:
+            user.gender = gender
+
+        # Xử lý ngày sinh
         if birth_day and birth_month and birth_year:
             try:
                 user.birth_date = datetime(
@@ -379,22 +393,34 @@ def update_profile(request):
                     int(birth_day)
                 ).date()
             except ValueError:
-                pass
-        
-        # Xử lý avatar nếu có
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Ngày sinh không hợp lệ'
+                })
+
+        # Xử lý avatar
         if request.FILES.get('avatar'):
             user.avatar = request.FILES['avatar']
-        
+
         user.save()
-        
+
         return JsonResponse({
-            'success': True,
-            'message': 'Cập nhật thông tin thành công'
+            'status': 'success',
+            'message': 'Cập nhật thông tin thành công',
+            'data': {
+                'username': user.username,
+                'full_name': user.full_name,
+                'phone': user.phone_number,
+                'gender': user.gender,
+                'birth_date': user.birth_date.strftime('%Y-%m-%d') if user.birth_date else None,
+                'avatar_url': user.avatar.url if user.avatar else None
+            }
         })
-        
+
     except Exception as e:
+        print(f"Error updating profile: {str(e)}")
         return JsonResponse({
-            'success': False,
+            'status': 'error',
             'message': str(e)
         })
 
@@ -436,8 +462,9 @@ def social_login(request):
         LoginHistory.objects.create(
             user=request.user,
             ip_address=ip_address, 
-            device=device,
-            browser=browser,
+            device_info=device,
+            browser_info=browser,
+            location=get_location_from_ip(ip_address),
             status='confirmed'  # Social login tự động xác nhận
         )
 
@@ -1456,26 +1483,6 @@ def translate_text(request):
             'error': str(e)
         }, status=500)
 
-def get_client_info(request):
-    """Lấy thông tin thiết bị và trình duyệt"""
-    ua_string = request.META.get('HTTP_USER_AGENT', '')
-    user_agent = user_agents.parse(ua_string)
-    
-    # Xác định thiết bị
-    if user_agent.is_mobile:
-        device = "Mobile Device"
-        if user_agent.is_tablet:
-            device = "Tablet"
-    elif user_agent.is_pc:
-        device = "Desktop/Laptop"
-    else:
-        device = "Unknown Device"
-            
-    # Xác định trình duyệt và phiên bản
-    browser = f"{user_agent.browser.family} {user_agent.browser.version_string}"
-    
-    return device, browser
-
 @login_required
 def check_2fa_password(request):
     """Kiểm tra xem user đã có 2FA chưa"""
@@ -1633,28 +1640,32 @@ def change_2fa_password(request):
 
 def save_login_history(user, request):
     device, browser = get_client_info(request)
-    ip_address = request.META.get('REMOTE_ADDR')
+    ip_address = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', ''))
+    if ',' in ip_address:
+        ip_address = ip_address.split(',')[0]
 
-    # Kiểm tra xem đã có login history với thông tin giống hệt không
-    existing_login = LoginHistory.objects.filter(
+    # Kiểm tra xem có login history trong vòng 5 phút gần đây không
+    five_minutes_ago = timezone.now() - timedelta(minutes=5)
+    recent_login = LoginHistory.objects.filter(
         user=user,
         device_info=device,
         browser_info=browser,
         ip_address=ip_address,
-        status='confirmed'
+        login_time__gte=five_minutes_ago
     ).first()
 
-    if existing_login:
-        # Cập nhật thời gian đăng nhập
-        existing_login.login_time = timezone.now()
-        existing_login.save()
+    if recent_login:
+        # Cập nhật thời gian đăng nhập cho bản ghi gần nhất
+        recent_login.login_time = timezone.now()
+        recent_login.save()
     else:
-        # Tạo mới nếu không tìm thấy
+        # Tạo bản ghi mới nếu không có bản ghi nào trong 5 phút gần đây
         LoginHistory.objects.create(
             user=user,
+            ip_address=ip_address,
             device_info=device,
             browser_info=browser,
-            ip_address=ip_address,
+            location=get_location_from_ip(ip_address),
             status='pending'
         )
 

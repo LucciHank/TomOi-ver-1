@@ -2,6 +2,8 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.contrib import messages
 from django.http import JsonResponse
+from django.utils.deprecation import MiddlewareMixin
+import json
 
 class RoleMiddleware:
     def __init__(self, get_response):
@@ -56,4 +58,21 @@ class EmailVerificationMiddleware:
                     })
                 return redirect('accounts:register_verify')
 
-        return self.get_response(request) 
+        return self.get_response(request)
+
+class RequestBodyMiddleware(MiddlewareMixin):
+    def __init__(self, get_response):
+        self.get_response = get_response
+        super().__init__(get_response)
+
+    def __call__(self, request):
+        # Lưu request body dưới dạng bytes
+        try:
+            if request.method == 'POST' and request.path == '/accounts/update-profile/':
+                request._body = request.body
+        except Exception as e:
+            print(f"Middleware error: {str(e)}")
+            request._body = None
+
+        response = self.get_response(request)
+        return response 

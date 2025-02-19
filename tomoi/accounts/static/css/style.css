@@ -290,6 +290,40 @@ body .nav-link {
   box-sizing: border-box;
 }
 
+/* Style cho radio button */
+.form-check-input[type=radio] {
+  border-color: none !important;
+}
+
+.form-check-input[type=radio]:checked {
+  background-color: #df2626 !important;
+  border-color: transparent !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e") !important;
+}
+
+.form-check-input[type=radio]:focus {
+  border-color: none !important;
+  box-shadow: none !important;
+}
+
+.form-check-input[type=radio]:hover {
+  border-color: none !important;
+}
+
+/* Xóa style cũ nếu có */
+.form-check-input:checked {
+  background-color: #df2626 !important;
+  border-color: none !important;
+}
+
+.form-check-input:hover {
+  background-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+.form-check-input:focus {
+  border-color: none !important;
+}
+
 /* Tách giỏ hàng ra khỏi chữ "Sản phẩm" */
 .nav-item .btn i {
   margin-right: 8px;
@@ -658,6 +692,7 @@ body .nav-link {
 
 .nav-item:hover .dropdown-content {
   display: block;
+  width: fit-content;
 }
 
 .dropdown-content a {
@@ -677,7 +712,7 @@ body .nav-link {
 .dropdown-content .dropdown-item:hover {
   background-color: #e50914;
   color: white;
-  transform: translateX(5px);
+  transform: translateX(3px);
 }
 
 .dropdown-item:hover {
@@ -1236,6 +1271,7 @@ body .nav-link {
 /* Hiển thị dropdown khi hover */
 .nav-item:hover .dropdown-content {
   display: block;
+  width: fit-content;
 }
 
 .dropdown-content .dropdown-item:hover {
@@ -1253,6 +1289,7 @@ body .nav-link {
   display: flex;
   align-items: center;
   padding: 8px 16px;
+  max-width: 200px !important;
   border-bottom: 1px solid #eee;
 }
 
@@ -1269,6 +1306,9 @@ body .nav-link {
 
 .dropdown-content .username span {
   font-weight: 500;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  display: inline-block;
 }
 
 /* Responsive adjustments */
@@ -1325,7 +1365,7 @@ body .nav-link {
 
 .dropdown-content .dropdown-item {
   color: #333;
-  padding: 8px 15px;
+  padding: 8px 10px;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
@@ -1593,7 +1633,7 @@ h6 {
   .category-list .dropdown-item {
     display: inline-flex;
     align-items: center;
-    padding: 8px 15px;
+    padding: 8px 10px;
     min-width: auto;
     margin: 0 5px;
     border-radius: 8px;
@@ -1712,6 +1752,7 @@ h6 {
   /* Hiển thị dropdown khi hover */
   .nav-item:hover .dropdown-content {
     display: block;
+    width: fit-content;
   }
 
   /* Xóa các style không cần thiết */
@@ -2108,4 +2149,81 @@ h6 {
   *::after {
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
   }
+}
+
+/* Thêm style cho username trong dropdown */
+.dropdown-content .user-info .username {
+    max-width: 150px; /* Giới hạn chiều rộng tối đa */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Hiển thị dấu ... */
+    white-space: nowrap; /* Không cho xuống dòng */
+    display: inline-block; /* Để max-width có hiệu lực */
+}
+
+/* Sửa lại style cho username trong dropdown */
+.navbar .dropdown .dropdown-menu .user-info {
+    max-width: 200px; /* Giới hạn chiều rộng của container */
+    overflow: hidden;
+}
+
+.navbar .dropdown .dropdown-menu .user-info span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #333;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 1.2;
+}
+
+.navbar .dropdown .dropdown-menu .user-info small {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #666;
+    font-size: 12px;
+}
+
+/* Sửa lại style cho dropdown user */
+.navbar .nav-item.dropdown .dropdown-toggle {
+    max-width: 200px;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+
+.navbar .nav-item.dropdown .dropdown-toggle span {
+    max-width: 150px;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+
+/* Đảm bảo icon không bị ẩn */
+.navbar .nav-item.dropdown .dropdown-toggle i {
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+/* Style cho button giới tính */
+.gender-btn.active {
+    background-color: #df2626 !important;
+    border-color: #df2626 !important;
+    color: white !important;
+}
+
+.gender-btn:focus {
+    box-shadow: 0 0 0 0.25rem rgba(223, 38, 38, 0.25) !important;
+}
+
+.gender-btn:hover:not(.active) {
+    background-color: #f8d7da !important;
+    border-color: #df2626 !important;
+    color: #df2626 !important;
 }
