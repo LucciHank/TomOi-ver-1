@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
 from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.core.mail import send_mail
 from django.conf import settings
 from social_django.utils import psa
@@ -13,7 +13,7 @@ from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.utils.crypto import get_random_string
 from .forms import CustomUserCreationForm, CustomUserChangeForm, CustomPasswordResetForm, CustomSetPasswordForm
 from django.conf import settings
-from accounts.models import CustomUser, LoginHistory
+from accounts.models import CustomUser, LoginHistory, Deposit, TCoinHistory, DailyCheckin, CardTransaction
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.contrib import messages
@@ -40,13 +40,15 @@ from django.contrib.auth.hashers import check_password, make_password
 import time
 from django.utils import timezone
 import hashlib
-from .utils import mask_email, get_client_info, get_location_from_ip
+from .utils import mask_email, get_client_info, get_location_from_ip, create_vnpay_url, process_card_payment
 from django.core.cache import cache
 from django.utils import translation
 from django.db.models import Q
 import requests
 import user_agents
 import logging
+import uuid
+from django.db import transaction
 
 logger = logging.getLogger(__name__)
 
@@ -272,15 +274,12 @@ def login_view(request):
                 data = json.loads(request.body)
                 username = data.get('username')
                 password = data.get('password')
-            # Xử lý form submit
             else:
                 username = request.POST.get('username')
                 password = request.POST.get('password')
 
-            # Tìm user theo username hoặc email
             try:
                 if '@' in username:
-                    # Nếu đăng nhập bằng email
                     user = CustomUser.objects.filter(
                         models.Q(email=username) | 
                         models.Q(social_auth__uid=username)
@@ -294,33 +293,41 @@ def login_view(request):
                         'message': 'Tài khoản không tồn tại'
                     })
 
-                # Kiểm tra mật khẩu hoặc xác thực social
                 if user.check_password(password) or user.social_auth.exists():
-                    # Chỉ định backend cụ thể khi đăng nhập
                     if user.social_auth.exists():
                         user.backend = 'social_core.backends.google.GoogleOAuth2'
                     else:
                         user.backend = 'django.contrib.auth.backends.ModelBackend'
-                        
+
                     login(request, user)
                     
-                    # Lấy thông tin thiết bị và trình duyệt
+                    # Lấy thông tin thiết bị và IP
                     device, browser = get_client_info(request)
-                    
-                    # Lấy IP thật của user
                     ip_address = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', ''))
                     if ',' in ip_address:
                         ip_address = ip_address.split(',')[0]
 
-                    # Lưu lịch sử đăng nhập cho cả tài khoản thường và social
-                    LoginHistory.objects.create(
+                    # Kiểm tra xem đã có bản ghi nào trong vòng 5 phút gần đây không
+                    five_minutes_ago = timezone.now() - timedelta(minutes=5)
+                    existing_login = LoginHistory.objects.filter(
                         user=user,
-                        ip_address=ip_address,
                         device_info=device,
                         browser_info=browser,
-                        location=get_location_from_ip(ip_address),
-                        status='confirmed' if user.social_auth.exists() else 'pending'
-                    )
+                        ip_address=ip_address,
+                        login_time__gte=five_minutes_ago
+                    ).first()
+
+                    if not existing_login:
+                        # Chỉ tạo bản ghi mới nếu không có bản ghi gần đây
+                        LoginHistory.objects.create(
+                            user=user,
+                            ip_address=ip_address,
+                            device_info=device,
+                            browser_info=browser,
+                            location=get_location_from_ip(ip_address),
+                            status='confirmed' if user.social_auth.exists() else 'pending',
+                            login_time=timezone.now()
+                        )
 
                     return JsonResponse({
                         'success': True,
@@ -863,9 +870,11 @@ def toggle_user_status(request):
 @login_required
 def payment_history(request):
     transactions = Transaction.objects.filter(user=request.user).order_by('-created_at')
-    return render(request, 'accounts/payment_history.html', {
+    context = {
+        'user': request.user,
         'transactions': transactions
-    })
+    }
+    return render(request, 'accounts/payment_history.html', context)
 
 @login_required
 def order_history(request):
@@ -1666,7 +1675,8 @@ def save_login_history(user, request):
             device_info=device,
             browser_info=browser,
             location=get_location_from_ip(ip_address),
-            status='pending'
+            status='pending',
+            login_time=timezone.now()
         )
 
 @login_required
@@ -1767,3 +1777,250 @@ def verify_device(request):
             'status': 'error',
             'message': str(e)
         }, status=500)
+
+@login_required
+def deposit_view(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            amount = int(data.get('amount', 0))
+            payment_method = data.get('payment_method')
+            
+            if amount < 10000:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Số tiền tối thiểu là 10.000đ'
+                })
+                
+            # Tạo giao dịch nạp tiền
+            deposit = Deposit.objects.create(
+                user=request.user,
+                amount=amount,
+                payment_method=payment_method,
+                transaction_id=str(uuid.uuid4())
+            )
+            
+            # Xử lý theo từng phương thức thanh toán
+            if payment_method == 'vnpay':
+                # Tạo URL thanh toán VNPay
+                vnpay_url = create_vnpay_url(deposit)
+                return JsonResponse({
+                    'success': True,
+                    'redirect_url': vnpay_url
+                })
+            elif payment_method == 'banking':
+                # Trả về thông tin chuyển khoản
+                return JsonResponse({
+                    'success': True,
+                    'bank_info': {
+                        'account_number': '123456789',
+                        'bank_name': 'VietComBank',
+                        'account_name': 'CONG TY TNHH TOMOI',
+                        'amount': amount,
+                        'content': f'NAP {request.user.username} {deposit.transaction_id}'
+                    }
+                })
+            elif payment_method == 'card':
+                # Chuyển sang trang nạp thẻ
+                return JsonResponse({
+                    'success': True,
+                    'redirect_url': reverse('accounts:card_deposit', args=[deposit.transaction_id])
+                })
+                
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            })
+            
+    return render(request, 'accounts/deposit.html')
+
+@login_required
+def tcoin_view(request):
+    if request.method == 'POST':
+        try:
+            today = timezone.now().date()
+            # Kiểm tra xem đã điểm danh chưa
+            if DailyCheckin.objects.filter(user=request.user, date=today).exists():
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Bạn đã điểm danh hôm nay'
+                })
+
+            is_sunday = today.weekday() == 6
+            tcoin_amount = 10 if is_sunday else 5
+            
+            with transaction.atomic():
+                DailyCheckin.objects.create(
+                    user=request.user,
+                    date=today,
+                    tcoin_earned=tcoin_amount
+                )
+                
+                request.user.tcoin += tcoin_amount
+                request.user.save()
+                
+                TCoinHistory.objects.create(
+                    user=request.user,
+                    amount=tcoin_amount,
+                    activity_type='checkin',
+                    description='Điểm danh hàng ngày'
+                )
+                
+            return JsonResponse({
+                'success': True,
+                'message': 'Điểm danh thành công!'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            })
+
+    today = timezone.now().date()
+    current_weekday = today.weekday()  # 0 = Monday, 6 = Sunday
+    
+    # Tính ngày thứ 2 (đầu tuần)
+    monday = today - timedelta(days=current_weekday)
+    
+    days = []
+    weekdays = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
+    
+    # Tạo list 7 ngày từ thứ 2 đến chủ nhật
+    for i in range(7):
+        current_date = monday + timedelta(days=i)
+        is_sunday = i == 6
+        days.append({
+            'name': weekdays[i],
+            'date': current_date,
+            'is_today': current_date == today,
+            'is_sunday': is_sunday,
+            'tcoin': 10 if is_sunday else 5,
+            'checked_in': DailyCheckin.objects.filter(
+                user=request.user,
+                date=current_date
+            ).exists()
+        })
+
+    context = {
+        'days': days,
+        'can_checkin': not DailyCheckin.objects.filter(
+            user=request.user,
+            date=today
+        ).exists(),
+        'is_sunday': today.weekday() == 6,
+        'tcoin_history': TCoinHistory.objects.filter(
+            user=request.user
+        ).order_by('-created_at')
+    }
+    
+    return render(request, 'accounts/tcoin.html', context)
+
+def payment_history_view(request):
+    context = {
+        'user': request.user,  # Đảm bảo user được pass vào context
+        'transactions': ...
+    }
+    return render(request, 'accounts/payment_history.html', context)
+
+@login_required
+def card_deposit(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            telco = data.get('telco')
+            serial = data.get('serial')
+            pin = data.get('pin')
+            amount = int(data.get('amount'))
+
+            # Tạo request_id unique
+            request_id = f"THE_{int(time.time())}_{request.user.id}"
+
+            # Tạo chữ ký
+            sign = hashlib.md5(f"{settings.DOITHE_PARTNER_KEY}{pin}{serial}".encode()).hexdigest()
+
+            # Tạo giao dịch trong DB
+            transaction = CardTransaction.objects.create(
+                user=request.user,
+                request_id=request_id,
+                telco=telco,
+                serial=serial,
+                pin=pin,
+                amount=amount,
+                status='pending'
+            )
+
+            # Gọi API DoiThe.vn
+            payload = {
+                'telco': telco,
+                'code': pin,
+                'serial': serial,
+                'amount': amount,
+                'request_id': request_id,
+                'partner_id': settings.DOITHE_PARTNER_ID,
+                'sign': sign,
+                'command': 'charging'
+            }
+
+            response = requests.post(settings.DOITHE_API_URL, json=payload)
+            result = response.json()
+
+            if result.get('status') == 1:
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Thẻ đang được xử lý'
+                })
+            else:
+                transaction.status = 'failed'
+                transaction.message = result.get('message')
+                transaction.save()
+                return JsonResponse({
+                    'success': False,
+                    'message': result.get('message')
+                })
+
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            })
+
+    return render(request, 'accounts/card_deposit.html')
+
+@csrf_exempt
+def card_callback(request):
+    """Callback URL để nhận kết quả từ DoiThe.vn"""
+    try:
+        data = json.loads(request.body)
+        request_id = data.get('request_id')
+        status = data.get('status')
+        message = data.get('message')
+        real_amount = data.get('real_amount')
+        
+        # Verify callback bằng sign
+        sign = data.get('sign')
+        check_sign = hashlib.md5(f"{settings.DOITHE_PARTNER_KEY}{request_id}{status}".encode()).hexdigest()
+        
+        if sign != check_sign:
+            return HttpResponse('Sign invalid', status=400)
+            
+        transaction = CardTransaction.objects.get(request_id=request_id)
+        
+        if status == 1: # Thẻ đúng
+            transaction.status = 'success'
+            transaction.real_amount = real_amount
+            
+            # Cộng tiền cho user
+            transaction.user.balance += real_amount
+            transaction.user.save()
+            
+        else: # Thẻ sai
+            transaction.status = 'failed'
+            
+        transaction.message = message
+        transaction.save()
+        
+        return HttpResponse('OK')
+        
+    except Exception as e:
+        return HttpResponse(str(e), status=500)

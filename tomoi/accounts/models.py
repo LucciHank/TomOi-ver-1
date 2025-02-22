@@ -173,6 +173,8 @@ class CustomUser(AbstractUser):
     require_2fa_password = models.BooleanField(default=False)
     require_2fa_profile = models.BooleanField(default=False)
 
+    tcoin = models.IntegerField(default=0)
+
     objects = CustomUserManager()
 
     class Meta:
@@ -291,3 +293,97 @@ class LoginHistory(models.Model):
 
     class Meta:
         ordering = ['-login_time']
+
+class TCoin(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='tcoin_account')
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.amount} TCoin"
+
+    class Meta:
+        verbose_name = 'TCoin Account'
+        verbose_name_plural = 'TCoin Accounts'
+
+class Deposit(models.Model):
+    PAYMENT_METHODS = (
+        ('vnpay', 'VNPay'),
+        ('banking', 'Chuyển khoản'),
+        ('card', 'Thẻ cào'),
+    )
+    STATUS_CHOICES = (
+        ('pending', 'Chờ xử lý'),
+        ('processing', 'Đang xử lý'),
+        ('completed', 'Hoàn thành'),
+        ('failed', 'Thất bại'),
+    )
+    
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=0)
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    transaction_id = models.CharField(max_length=100, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.amount}đ - {self.get_payment_method_display()}"
+
+class TCoinHistory(models.Model):
+    ACTIVITY_TYPES = (
+        ('checkin', 'Điểm danh'),
+        ('purchase', 'Hoàn TCoin'),
+        ('admin', 'Admin điều chỉnh'),
+    )
+    
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    amount = models.IntegerField()  # Có thể âm hoặc dương
+    activity_type = models.CharField(max_length=20, choices=ACTIVITY_TYPES)
+    description = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.amount} TCoin - {self.get_activity_type_display()}"
+
+class DailyCheckin(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    date = models.DateField(auto_now_add=True)
+    tcoin_earned = models.IntegerField()
+    
+    class Meta:
+        unique_together = ('user', 'date')
+
+class CardTransaction(models.Model):
+    STATUS_CHOICES = (
+        ('pending', 'Đang xử lý'),
+        ('success', 'Thành công'),
+        ('failed', 'Thất bại')
+    )
+
+    TELCO_CHOICES = (
+        ('VIETTEL', 'Viettel'),
+        ('MOBIFONE', 'Mobifone'), 
+        ('VINAPHONE', 'Vinaphone'),
+        ('VIETNAMOBILE', 'Vietnamobile'),
+    )
+
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    request_id = models.CharField(max_length=50, unique=True)
+    telco = models.CharField(max_length=20, choices=TELCO_CHOICES)
+    serial = models.CharField(max_length=50)
+    pin = models.CharField(max_length=50)
+    amount = models.IntegerField()
+    real_amount = models.IntegerField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    message = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Giao dịch thẻ cào'
+        verbose_name_plural = 'Giao dịch thẻ cào'
+
+    def __str__(self):
+        return f"{self.user.username} - {self.amount}đ - {self.get_status_display()}"

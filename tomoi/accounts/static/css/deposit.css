@@ -1,0 +1,57 @@
+.deposit-methods {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.deposit-method {
+    padding: 15px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.deposit-method:hover {
+    border-color: #e50914;
+    background-color: rgba(229, 9, 20, 0.05);
+}
+
+.deposit-method .form-check-label {
+    cursor: pointer;
+    width: 100%;
+}
+
+.deposit-method img {
+    max-height: 30px;
+    object-fit: contain;
+}
+
+.method-fields {
+    display: none;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #dee2e6;
+}
+
+@media (max-width: 768px) {
+    .deposit-methods {
+        padding: 0 15px;
+    }
+    
+    .modal-dialog {
+        margin: 10px;
+    }
+}
+
+/* Dark mode support */
+[data-theme="dark"] .deposit-method {
+    border-color: #404040;
+    background-color: #2d2d2d;
+}
+
+[data-theme="dark"] .deposit-method:hover {
+    background-color: rgba(229, 9, 20, 0.1);
+}
+
+[data-theme="dark"] .method-fields {
+    border-color: #404040;
+} 

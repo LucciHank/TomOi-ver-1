@@ -211,16 +211,16 @@ EMAIL_HOST_PASSWORD = 'vhnl yeww apjf jaar'
 # PAYPAL_CLIENT_ID = 'your-client-id'
 # PAYPAL_CLIENT_SECRET = 'your-client-secret'
 
-# VNPAY Configuration
+# VNPay Configuration
 VNPAY_CLIENT_ID = 'tomoi.vn'
 VNPAY_USERNAME = 'tomoivn2024@gmail.com'
 VNPAY_PASSWORD = 'Hanh2004@'
 VNPAY_CLIENT_SECRET = '890-'
-VNPAY_TMN_CODE = "B2RG0YSD"  # Thay bằng mã của bạn
+VNPAY_TMN_CODE = "your_tmn_code"
 VNPAY_HASH_SECRET = 'S500OYUZE6YZRFNMC2LFQZZXMXATAJKK'
-VNPAY_HASH_SECRET_KEY = "S500OYUZE6YZRFNMC2LFQZZXMXATAJKK"  # Thay bằng key của bạn
+VNPAY_HASH_SECRET_KEY = "your_hash_secret"
 VNPAY_PAYMENT_URL = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
-VNPAY_RETURN_URL = "http://localhost:8000/payment/vnpay/return/"
+VNPAY_RETURN_URL = "http://yourdomain.com/payment/vnpay-return/"
 
 # SePay Configuration
 SEPAY_API_KEY = 'ZMR2Y3H54KLIZSKG0YYST8AJWCPCPN0D7KAUUXTUETG6HTOQGXL3NJDORFXZWQB1'
@@ -247,3 +247,8 @@ FAVICON_PATH = STATIC_URL + 'images/favicon.ico'
 
 # DeepL Translation API settings
 DEEPL_API_KEY = '893c70b4-e735-4e1c-b9cd-e27585166d17:fx'
+
+# DoiThe Configuration
+DOITHE_PARTNER_ID = "your_partner_id"
+DOITHE_PARTNER_KEY = "your_partner_key"
+DOITHE_API_URL = "https://api.doithe.vn/v1/card"

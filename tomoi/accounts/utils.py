@@ -1,5 +1,10 @@
 import requests
 import user_agents
+import hashlib
+import hmac
+import urllib.parse
+from django.conf import settings
+from datetime import datetime
 
 def mask_email(email):
     """
@@ -58,3 +63,56 @@ def get_location_from_ip(ip):
                 return 'Unknown'
     except:
         return 'Unknown' 
+
+def create_vnpay_url(deposit):
+    vnp_Params = {}
+    vnp_Params['vnp_Version'] = '2.1.0'
+    vnp_Params['vnp_Command'] = 'pay'
+    vnp_Params['vnp_TmnCode'] = settings.VNPAY_TMN_CODE
+    vnp_Params['vnp_Amount'] = int(deposit.amount) * 100
+    vnp_Params['vnp_CurrCode'] = 'VND'
+    vnp_Params['vnp_TxnRef'] = deposit.transaction_id
+    vnp_Params['vnp_OrderInfo'] = f'Nap tien tai khoan {deposit.user.username}'
+    vnp_Params['vnp_OrderType'] = 'billpayment'
+    vnp_Params['vnp_Locale'] = 'vn'
+    vnp_Params['vnp_ReturnUrl'] = settings.VNPAY_RETURN_URL
+    vnp_Params['vnp_IpAddr'] = '127.0.0.1'
+    vnp_Params['vnp_CreateDate'] = datetime.now().strftime('%Y%m%d%H%M%S')
+
+    vnp_Params = sorted(vnp_Params.items())
+    hash_data = '&'.join([f'{k}={v}' for k, v in vnp_Params])
+    
+    secret = bytes(settings.VNPAY_HASH_SECRET_KEY, 'utf-8')
+    hash = hmac.new(secret, bytes(hash_data, 'utf-8'), hashlib.sha512).hexdigest()
+    
+    vnp_Params.append(('vnp_SecureHash', hash))
+    vnpay_payment_url = settings.VNPAY_PAYMENT_URL + "?" + urllib.parse.urlencode(vnp_Params)
+    
+    return vnpay_payment_url
+
+def process_card_payment(card_info):
+    data = {
+        'partner_id': settings.DOITHE_PARTNER_ID,
+        'request_id': card_info['transaction_id'],
+        'telco': card_info['telco'],
+        'amount': card_info['amount'],
+        'serial': card_info['serial'],
+        'code': card_info['pin'],
+        'command': 'charging'
+    }
+    
+    # Tạo chữ ký
+    sign_string = '|'.join([
+        settings.DOITHE_PARTNER_ID,
+        data['request_id'],
+        data['telco'],
+        str(data['amount']),
+        data['serial'],
+        data['code'],
+        settings.DOITHE_PARTNER_KEY
+    ])
+    
+    data['sign'] = hashlib.md5(sign_string.encode()).hexdigest()
+    
+    response = requests.post(settings.DOITHE_API_URL, json=data)
+    return response.json() 

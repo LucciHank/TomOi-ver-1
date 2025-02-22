@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title mb-4">Nạp tiền qua thẻ cào</h5>
+            
+            <form id="cardForm">
+                <div class="mb-3">
+                    <label class="form-label">Loại thẻ</label>
+                    <select class="form-select" name="telco" required>
+                        <option value="VIETTEL">Viettel</option>
+                        <option value="MOBIFONE">Mobifone</option>
+                        <option value="VINAPHONE">Vinaphone</option>
+                        <option value="VIETNAMOBILE">Vietnamobile</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Mệnh giá</label>
+                    <select class="form-select" name="amount" required>
+                        <option value="10000">10,000đ</option>
+                        <option value="20000">20,000đ</option>
+                        <option value="50000">50,000đ</option>
+                        <option value="100000">100,000đ</option>
+                        <option value="200000">200,000đ</option>
+                        <option value="500000">500,000đ</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Số serial</label>
+                    <input type="text" class="form-control" name="serial" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Mã thẻ</label>
+                    <input type="text" class="form-control" name="pin" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Nạp thẻ
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('cardForm').onsubmit = function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const data = {
+        telco: formData.get('telco'),
+        amount: formData.get('amount'),
+        serial: formData.get('serial'),
+        pin: formData.get('pin')
+    };
+
+    fetch('/accounts/card-deposit/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Đã gửi thẻ',
+                text: 'Hệ thống đang xử lý thẻ của bạn',
+                showConfirmButton: false,
+                timer: 2000
+            }).then(() => {
+                window.location.href = '/accounts/payment-history/';
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Có lỗi xảy ra',
+                text: data.message
+            });
+        }
+    });
+};
+</script>
+{% endblock %} 

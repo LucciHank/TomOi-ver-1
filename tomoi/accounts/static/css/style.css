@@ -2153,77 +2153,82 @@ h6 {
 
 /* Thêm style cho username trong dropdown */
 .dropdown-content .user-info .username {
-    max-width: 150px; /* Giới hạn chiều rộng tối đa */
-    overflow: hidden;
-    text-overflow: ellipsis; /* Hiển thị dấu ... */
-    white-space: nowrap; /* Không cho xuống dòng */
-    display: inline-block; /* Để max-width có hiệu lực */
+  max-width: 150px;
+  /* Giới hạn chiều rộng tối đa */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Hiển thị dấu ... */
+  white-space: nowrap;
+  /* Không cho xuống dòng */
+  display: inline-block;
+  /* Để max-width có hiệu lực */
 }
 
 /* Sửa lại style cho username trong dropdown */
 .navbar .dropdown .dropdown-menu .user-info {
-    max-width: 200px; /* Giới hạn chiều rộng của container */
-    overflow: hidden;
+  max-width: 200px;
+  /* Giới hạn chiều rộng của container */
+  overflow: hidden;
 }
 
 .navbar .dropdown .dropdown-menu .user-info span {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: #333;
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 1.2;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #333;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.2;
 }
 
 .navbar .dropdown .dropdown-menu .user-info small {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: #666;
-    font-size: 12px;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #666;
+  font-size: 12px;
 }
 
 /* Sửa lại style cho dropdown user */
 .navbar .nav-item.dropdown .dropdown-toggle {
-    max-width: 200px;
-    display: inline-block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    vertical-align: middle;
+  max-width: 200px;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
 }
 
 .navbar .nav-item.dropdown .dropdown-toggle span {
-    max-width: 150px;
-    display: inline-block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    vertical-align: middle;
+  max-width: 150px;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
 }
 
 /* Đảm bảo icon không bị ẩn */
 .navbar .nav-item.dropdown .dropdown-toggle i {
-    margin-right: 5px;
-    vertical-align: middle;
+  margin-right: 5px;
+  vertical-align: middle;
 }
 
 /* Style cho button giới tính */
 .gender-btn.active {
-    background-color: #df2626 !important;
-    border-color: #df2626 !important;
-    color: white !important;
+  background-color: #df2626 !important;
+  border-color: #df2626 !important;
+  color: white !important;
 }
 
 .gender-btn:focus {
-    box-shadow: 0 0 0 0.25rem rgba(223, 38, 38, 0.25) !important;
+  box-shadow: 0 0 0 0.25rem rgba(223, 38, 38, 0.25) !important;
 }
 
 .gender-btn:hover:not(.active) {
-    background-color: #f8d7da !important;
-    border-color: #df2626 !important;
-    color: #df2626 !important;
+  background-color: #f8d7da !important;
+  border-color: #df2626 !important;
+  color: #df2626 !important;
 }

@@ -1,0 +1,207 @@
+.weekly-calendar {
+    background: var(--bg-secondary);
+    padding: 24px;
+    border-radius: 8px;
+}
+
+.weekly-calendar .d-flex {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: nowrap;
+}
+
+.day-circle {
+    width: 80px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.day-circle.today {
+    width: 90px;
+    background: #e50914;
+    color: white;
+    box-shadow: 0 4px 8px rgba(229,9,20,0.3);
+    z-index: 1;
+}
+
+.day-circle.checked {
+    background: #28a745;
+    color: white;
+}
+
+.day-name {
+    font-weight: 500;
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.day-circle.today .day-name {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.tcoin-amount {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #28a745;
+}
+
+.day-circle.today .tcoin-amount {
+    font-size: 14px;
+    color: white;
+}
+
+.day-circle.checked .tcoin-amount {
+    color: white;
+}
+
+.tcoin-amount img {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+}
+
+.day-circle.today .tcoin-amount img {
+    width: 16px;
+    height: 16px;
+}
+
+.check-icon {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 24px;
+    height: 24px;
+    background: #28a745;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    color: white;
+    font-size: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.text-center.mt-4 {
+    margin-top: 24px !important;
+}
+
+.text-success.mb-3 {
+    color: #28a745;
+}
+
+.text-success.mb-3 i {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.countdown {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+#nextCheckin {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.btn-primary {
+    background: #e50914;
+    border-color: #e50914;
+    font-weight: 500;
+    height: 38px;
+    padding: 0 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: #cc0812;
+    border-color: #cc0812;
+    transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+    background: #f5a4a7;
+    border-color: #f5a4a7;
+}
+
+.swal2-popup {
+    border-radius: 8px !important;
+    padding: 24px !important;
+}
+
+.swal2-title {
+    color: var(--text-primary) !important;
+    font-size: 24px !important;
+    font-weight: 600 !important;
+    margin-bottom: 8px !important;
+}
+
+.swal2-html-container {
+    color: var(--text-secondary) !important;
+    font-size: 16px !important;
+}
+
+.swal2-icon {
+    margin: 24px auto !important;
+}
+
+@keyframes bounceIn {
+    from {
+        opacity: 0;
+        transform: scale3d(0.3, 0.3, 0.3);
+    }
+    50% {
+        opacity: 1;
+        transform: scale3d(1.1, 1.1, 1.1);
+    }
+    to {
+        transform: scale3d(1, 1, 1);
+    }
+}
+
+.animated {
+    animation-duration: 0.5s;
+}
+
+.bounceIn {
+    animation-name: bounceIn;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    font-weight: 500;
+    color: var(--text-secondary);
+    border-bottom-width: 1px;
+}
+
+.table td {
+    vertical-align: middle;
+    color: var(--text-primary);
+}
+
+.text-success {
+    color: #28a745 !important;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+} 

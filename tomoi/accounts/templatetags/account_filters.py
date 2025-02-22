@@ -36,12 +36,9 @@ def time_since_vi(value):
 @register.filter
 def format_balance(value):
     try:
-        formatted = floatformat(float(value), 0)
-        parts = str(formatted).split('.')
-        parts[0] = "{:,}".format(int(parts[0]))
-        return parts[0]
+        return f"{int(value):,}₫"
     except (ValueError, TypeError):
-        return value
+        return "0₫"
 
 @register.filter
 def mask_email(email):

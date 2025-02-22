@@ -51,4 +51,6 @@ urlpatterns = [
     path('security/check-2fa-status/', views.check_2fa_status, name='check_2fa_status'),
     path('security/verify-2fa-password/', views.verify_2fa_password, name='verify_2fa_password'),
     path('security/verify-device/', views.verify_device, name='verify_device'),
+    path('deposit/', views.deposit_view, name='deposit'),
+    path('tcoin/', views.tcoin_view, name='tcoin'),
 ]

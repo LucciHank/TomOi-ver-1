@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.html import format_html
-from .models import CustomUser, AccountType
+from .models import CustomUser, AccountType, TCoin, CardTransaction
 
 @admin.register(AccountType)
 class AccountTypeAdmin(admin.ModelAdmin):
@@ -36,18 +36,37 @@ class AccountTypeAdmin(admin.ModelAdmin):
         # Chỉ admin mới có quyền thêm
         return request.user.user_type == 'admin'
 
+@admin.register(TCoin)
+class TCoinAdmin(admin.ModelAdmin):
+    list_display = ('user', 'amount', 'last_updated')
+    search_fields = ('user__username', 'user__email')
+    
+    def save_model(self, request, obj, form, change):
+        # Cập nhật số TCoin trong CustomUser
+        obj.user.tcoin = obj.amount
+        obj.user.save()
+        super().save_model(request, obj, form, change)
+
+@admin.register(CardTransaction)
+class CardTransactionAdmin(admin.ModelAdmin):
+    list_display = ('user', 'telco', 'amount', 'status', 'created_at')
+    list_filter = ('status', 'telco')
+    search_fields = ('user__username', 'serial', 'request_id')
+    readonly_fields = ('created_at', 'updated_at')
+
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
     list_display = (
         'username', 
         'email', 
         'full_name',
-        'balance_display',        # Thêm cột số dư vào đây
-        'account_label_display',  # Loại tài khoản
-        'get_status_display',     # Trạng thái
-        'phone_display',          # Số điện thoại
-        'date_joined',            # Ngày tham gia
-        'user_type_display',      # Chức vụ (chuyển xuống cuối)
+        'balance_display',
+        'tcoin_display',        # Thêm hiển thị TCoin
+        'account_label_display',
+        'get_status_display',
+        'phone_display',
+        'date_joined',
+        'user_type_display',
     )
     list_filter = ('is_active', 'account_label', 'user_type', 'groups', 'status')
     search_fields = ('username', 'email', 'first_name', 'last_name', 'phone_number')
@@ -65,11 +84,14 @@ class CustomUserAdmin(UserAdmin):
                 'is_active',
                 'account_label',
                 'user_type',
-                'balance',
                 'status',
                 'suspension_reason',
             ),
             'description': 'Quản lý trạng thái và phân loại tài khoản',
+        }),
+        ('Số dư & TCoin', {
+            'fields': ('balance', 'tcoin'),
+            'description': 'Quản lý số dư và TCoin của tài khoản',
         }),
         ('Phân quyền nâng cao', {
             'fields': ('is_staff', 'is_superuser', 'groups', 'user_permissions'),
@@ -96,7 +118,7 @@ class CustomUserAdmin(UserAdmin):
         }),
     )
 
-    readonly_fields = ('join_date', 'last_login', 'last_login_ip', 'failed_login_attempts')
+    readonly_fields = ('join_date', 'last_login', 'last_login_ip', 'failed_login_attempts', 'tcoin')
     actions = ['activate_users', 'deactivate_users', 'add_balance', 'subtract_balance', 'make_active', 'make_pending', 'make_suspended']
 
     def full_name(self, obj):
@@ -150,6 +172,15 @@ class CustomUserAdmin(UserAdmin):
             
         return format_html(html)
     get_status_display.short_description = 'Trạng thái'
+
+    def tcoin_display(self, obj):
+        formatted_tcoin = "{:,.0f}".format(obj.tcoin)
+        return format_html(
+            '<span style="color: #007bff; font-weight: bold;">{}</span>',
+            f"{formatted_tcoin} TCoin"
+        )
+    tcoin_display.short_description = 'TCoin'
+    tcoin_display.admin_order_field = 'tcoin'
 
     def activate_users(self, request, queryset):
         updated = queryset.update(is_active=True)

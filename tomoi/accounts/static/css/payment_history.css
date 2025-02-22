@@ -1,0 +1,104 @@
+.balance-box {
+    cursor: pointer !important;
+    position: relative !important;
+    overflow: hidden !important;
+    transition: all 0.3s ease !important;
+}
+
+.balance-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(229, 9, 20, 0.05);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.balance-box:hover::before {
+    opacity: 1;
+}
+
+.balance-box:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+.balance-box:active {
+    transform: translateY(-2px) !important;
+}
+
+/* Dark mode */
+[data-theme="dark"] .balance-box::before {
+    background: rgba(229, 9, 20, 0.1);
+}
+
+/* Ripple effect */
+.ripple {
+    position: absolute !important;
+    border-radius: 50% !important;
+    background: rgba(229, 9, 20, 0.2) !important;
+    transform: scale(0) !important;
+    animation: ripple 0.6s linear !important;
+    pointer-events: none !important;
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(4) !important;
+        opacity: 0 !important;
+    }
+}
+
+/* Filter section styles */
+.filter-section {
+    background: var(--bg-secondary) !important;
+    padding: 20px !important;
+    border-radius: 8px !important;
+    margin-bottom: 24px !important;
+}
+
+.filter-section .form-label {
+    font-weight: 500 !important;
+    margin-bottom: 8px !important;
+}
+
+.filter-section .input-group {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Button styles */
+.filter-section .btn {
+    height: 38px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 16px !important;
+}
+
+.filter-section .btn i {
+    font-size: 14px !important;
+}
+
+/* Đảm bảo các label cùng chiều cao */
+.filter-section .form-label {
+    height: 21px !important;
+    line-height: 21px !important;
+    margin-bottom: 8px !important;
+}
+
+/* Đảm bảo các input cùng chiều cao */
+.filter-section .form-control,
+.filter-section .form-select,
+.filter-section .input-group {
+    height: 38px !important;
+}
+
+/* Căn chỉnh button container */
+.filter-section .d-flex.gap-2 {
+    height: 38px !important;
+    margin-top: 29px !important;
+    /* = label height + margin-bottom */
+}

@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">Nạp tiền vào ví</h4>
+                    
+                    <div class="deposit-methods">
+                        <!-- VNPay -->
+                        <div class="deposit-method mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="vnpay" checked>
+                                <label class="form-check-label d-flex align-items-center" for="vnpay">
+                                    <img src="{% static 'images/vnpay.png' %}" alt="VNPay" height="30">
+                                    <span class="ms-2">Thanh toán qua VNPay</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Mobile Banking -->
+                        <div class="deposit-method mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="banking">
+                                <label class="form-check-label d-flex align-items-center" for="banking">
+                                    <i class="fas fa-university fa-2x"></i>
+                                    <span class="ms-2">Chuyển khoản ngân hàng</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Card -->
+                        <div class="deposit-method mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="card">
+                                <label class="form-check-label d-flex align-items-center" for="card">
+                                    <i class="fas fa-credit-card fa-2x"></i>
+                                    <span class="ms-2">Nạp thẻ cào</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Amount Input -->
+                        <div class="mb-4">
+                            <label class="form-label">Số tiền nạp</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" min="10000" step="10000" value="100000">
+                                <span class="input-group-text">VNĐ</span>
+                            </div>
+                            <div class="form-text">Số tiền tối thiểu: 10.000đ</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Tiếp tục</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Banking Modal -->
+<div class="modal fade" id="bankingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thông tin chuyển khoản</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="fw-bold">Số tài khoản:</label>
+                    <div class="d-flex align-items-center">
+                        <span id="accountNumber" class="me-2"></span>
+                        <button class="btn btn-sm btn-outline-primary copy-btn">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="fw-bold">Ngân hàng:</label>
+                    <div id="bankName"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="fw-bold">Tên tài khoản:</label>
+                    <div id="accountName"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="fw-bold">Số tiền:</label>
+                    <div class="d-flex align-items-center">
+                        <span id="transferAmount" class="me-2"></span>
+                        <button class="btn btn-sm btn-outline-primary copy-btn">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="fw-bold">Nội dung chuyển khoản:</label>
+                    <div class="d-flex align-items-center">
+                        <span id="transferContent" class="me-2"></span>
+                        <button class="btn btn-sm btn-outline-primary copy-btn">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Card Modal -->
+<div class="modal fade" id="cardModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nạp thẻ cào</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="cardForm">
+                    <div class="mb-3">
+                        <label class="form-label">Loại thẻ</label>
+                        <select class="form-select" name="telco" required>
+                            <option value="VIETTEL">Viettel</option>
+                            <option value="MOBIFONE">Mobifone</option>
+                            <option value="VINAPHONE">Vinaphone</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mệnh giá</label>
+                        <select class="form-select" name="amount" required>
+                            <option value="10000">10,000đ</option>
+                            <option value="20000">20,000đ</option>
+                            <option value="50000">50,000đ</option>
+                            <option value="100000">100,000đ</option>
+                            <option value="200000">200,000đ</option>
+                            <option value="500000">500,000đ</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Số serial</label>
+                        <input type="text" class="form-control" name="serial" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mã thẻ</label>
+                        <input type="text" class="form-control" name="pin" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Nạp thẻ</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

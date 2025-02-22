@@ -1,17 +1,105 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load account_filters %}
 
 {% block extra_css %}
 <link href="{% static 'css/security.css' %}" rel="stylesheet"/>
+<link href="{% static 'css/payment_history.css' %}" rel="stylesheet"/>
+<style>
+#payment-history-page .card .card-body {
+    padding: 24px !important;
+}
+
+#payment-history-page .card .card-title {
+    font-size: 24px !important;
+    font-weight: 600 !important;
+    margin-bottom: 24px !important;
+    color: var(--text-primary) !important;
+}
+
+#payment-history-page .card .balance-container {
+    display: flex !important;
+    gap: 16px !important;
+    margin: 24px 0 !important;
+    width: 100% !important;
+}
+
+#payment-history-page .card .balance-box {
+    flex: 1 !important;
+    padding: 24px !important;
+    border-radius: 8px !important;
+    background: #fff !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    transition: all 0.3s ease !important;
+    text-align: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 160px !important;
+    border: none !important;
+}
+
+#payment-history-page .card .balance-box:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+#payment-history-page .card .balance-title {
+    font-size: 16px !important;
+    color: #666 !important;
+    margin-bottom: 16px !important;
+}
+
+#payment-history-page .card .balance-icon {
+    font-size: 32px !important;
+    color: #e50914 !important;
+    margin-bottom: 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 64px !important;
+    height: 64px !important;
+    background: rgba(229, 9, 20, 0.1) !important;
+    border-radius: 50% !important;
+}
+
+#payment-history-page .card .balance-icon img {
+    width: 32px !important;
+    height: 32px !important;
+    object-fit: contain !important;
+}
+
+#payment-history-page .card .balance-amount {
+    font-size: 24px !important;
+    font-weight: bold !important;
+    color: #e50914 !important;
+}
+
+#payment-history-page .card .filter-section {
+    background: var(--bg-secondary) !important;
+    padding: 20px !important;
+    border-radius: 8px !important;
+    margin-top: 24px !important;
+}
+
+.balance-box:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15) !important;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/payment_history.js' %}"></script>
 {% endblock %}
 
 {% block content %}
-<div class="container py-4">
-
+<div id="payment-history-page" class="container py-4">
     <div class="row">
         <!-- Sidebar -->
         <div class="col-md-3">
-            <div class="card mb-4">
+            <div class="card">
                 <div class="list-group">
                     <a href="{% url 'accounts:user_info' %}" class="list-group-item list-group-item-action">
                         <i class="fas fa-user me-2"></i> Tài khoản
@@ -41,11 +129,72 @@
         <!-- Main Content -->
         <div class="col-md-9">
             <div class="card">
-                <div class="card-body">
-                    <h4 class="card-title mb-4">Lịch sử giao dịch</h4>
-                    <div class="filter-section mb-4">
-                        <form id="filterForm" class="row g-4">
-                            <!-- Dòng 1 -->
+                <div class="card-body" style="padding: 24px;">
+                    <!-- Title First -->
+                    <h4 class="card-title" style="font-size: 24px; font-weight: 600; margin-bottom: 24px; color: var(--text-primary);">
+                        Quản lý số dư
+                    </h4>
+
+                    <!-- Balance Boxes -->
+                    <div class="balance-container" style="display: flex; gap: 16px; margin: 24px 0; width: 100%;">
+                        <!-- Available Balance -->
+                        <div class="balance-box" style="flex: 1; padding: 24px; border-radius: 8px; background: #fff; 
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); transition: all 0.3s ease; text-align: center;
+                            display: flex; flex-direction: column; align-items: center; height: 220px; cursor: pointer;"
+                            onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 16px rgba(0, 0, 0, 0.15)';"
+                            onmouseout="this.style.transform='none';this.style.boxShadow='0 2px 8px rgba(0, 0, 0, 0.1)';">
+                            <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end;">
+                                <div class="balance-title" style="font-size: 16px; color: #666; margin-bottom: 20px;">
+                                    Số dư
+                                </div>
+                            </div>
+                            <div style="flex: 2; display: flex; flex-direction: column; justify-content: center;">
+                                <div class="balance-icon" style="width: 80px; height: 80px; background: rgba(229, 9, 20, 0.1); 
+                                    border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                                    <i class="fas fa-wallet" style="font-size: 32px; color: #e50914;"></i>
+                                </div>
+                                <div class="balance-amount" style="font-size: 24px; font-weight: bold; color: #e50914;">
+                                    {{ user.balance|format_balance }}
+                                </div>
+                            </div>
+                            <div style="flex: 1;"></div>
+                        </div>
+
+                        <!-- TCoin Balance -->
+                        <div class="balance-box" style="flex: 1; padding: 24px; border-radius: 8px; background: #fff; 
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); transition: all 0.3s ease; text-align: center;
+                            display: flex; flex-direction: column; align-items: center; height: 220px; cursor: pointer;"
+                            onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 16px rgba(0, 0, 0, 0.15)';"
+                            onmouseout="this.style.transform='none';this.style.boxShadow='0 2px 8px rgba(0, 0, 0, 0.1)';">
+                            <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end;">
+                                <div class="balance-title" style="font-size: 16px; color: #666; margin-bottom: 20px;">
+                                    TCoin
+                                </div>
+                            </div>
+                            <div style="flex: 2; display: flex; flex-direction: column; justify-content: center;">
+                                <div class="balance-icon" style="width: 80px; height: 80px; background: rgba(229, 9, 20, 0.1); 
+                                    border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                                    <img src="{% static 'images/tcoin.png' %}" alt="TCoin" style="width: 32px; height: 32px;">
+                                </div>
+                                <div class="balance-amount" style="font-size: 24px; font-weight: bold; color: #e50914; 
+                                    display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                    {{ user.tcoin|default:0 }}
+                                    <img src="{% static 'images/tcoin.png' %}" alt="TCoin" style="width: 24px; height: 24px;">
+                                </div>
+                            </div>
+                            <div style="flex: 1;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Transaction History Title -->
+                    <h4 class="card-title" style="font-size: 24px; font-weight: 600; margin: 32px 0 24px; color: var(--text-primary);">
+                        Lịch sử giao dịch
+                    </h4>
+
+                    <!-- Filter Section -->
+                    <div class="filter-section" style="background: var(--bg-secondary); padding: 20px; border-radius: 8px;">
+                        <form id="filterForm" class="row g-3">
+                            <!-- Trạng thái -->
                             <div class="col-md-4">
                                 <label class="form-label">Trạng thái</label>
                                 <select class="form-select" name="status">
@@ -53,21 +202,23 @@
                                     <option value="pending">Chờ xử lý</option>
                                     <option value="processing">Đang xử lý</option>
                                     <option value="completed">Hoàn thành</option>
-                                    <option value="cancelled">Hủy đơn</option>
+                                    <option value="failed">Thất bại</option>
                                 </select>
                             </div>
-                            
+
+                            <!-- Ngày -->
                             <div class="col-md-4">
-                                <label class="form-label text-center w-100">Ngày</label>
+                                <label class="form-label">Ngày</label>
                                 <div class="input-group">
                                     <input type="date" class="form-control" name="date_from">
                                     <span class="input-group-text">đến</span>
                                     <input type="date" class="form-control" name="date_to">
                                 </div>
                             </div>
-                            
+
+                            <!-- Số tiền -->
                             <div class="col-md-4">
-                                <label class="form-label text-center w-100">Số tiền</label>
+                                <label class="form-label">Số tiền</label>
                                 <div class="input-group">
                                     <input type="number" class="form-control" name="amount_min" placeholder="Từ">
                                     <span class="input-group-text">đến</span>
@@ -75,41 +226,40 @@
                                 </div>
                             </div>
 
-                            <!-- Dòng 2 -->
-                            <div class="col-md-3">
-                                <label class="form-label">Trạng thái chi tiết</label>
-                                <select class="form-select" name="status_detail">
-                                    <option value="">Tất cả trạng thái</option>
-                                    <!-- options -->
-                                </select>
-                            </div>
-                            
-                            <div class="col-md-3">
+                            <!-- Mã giao dịch -->
+                            <div class="col-md-4">
                                 <label class="form-label">Mã giao dịch</label>
-                                <input type="text" class="form-control" name="transaction_code">
+                                <input type="text" class="form-control" name="transaction_code" placeholder="Nhập mã giao dịch">
                             </div>
-                            
-                            <div class="col-md-3">
+
+                            <!-- Phương thức -->
+                            <div class="col-md-4">
                                 <label class="form-label">Phương thức</label>
                                 <select class="form-select" name="payment_method">
                                     <option value="">Tất cả</option>
-                                    <option value="bank">Chuyển khoản</option>
-                                    <option value="momo">Ví MoMo</option>
                                     <option value="vnpay">VNPay</option>
+                                    <option value="banking">Chuyển khoản</option>
+                                    <option value="card">Thẻ cào</option>
                                 </select>
                             </div>
-                            
-                            <div class="col-md-3 d-flex align-items-end gap-2">
-                                <button type="submit" class="btn btn-danger flex-grow-1">
-                                    <i class="fas fa-search me-2"></i>Lọc
-                                </button>
-                                <button type="reset" class="btn btn-secondary flex-grow-1">
-                                    <i class="fas fa-redo me-2"></i>Đặt lại
-                                </button>
+
+                            <!-- Buttons -->
+                            <div class="col-md-4">
+                                <label class="form-label d-block">&nbsp;</label>
+                                <div class="d-flex gap-2" style="margin-top: 0;">
+                                    <button type="submit" class="btn btn-danger d-flex align-items-center justify-content-center" 
+                                        style="width: 120px; height: 38px;">
+                                        <i class="fas fa-search me-2"></i>Lọc
+                                    </button>
+                                    <button type="reset" class="btn btn-secondary d-flex align-items-center justify-content-center" 
+                                        style="width: 120px; height: 38px;">
+                                        <i class="fas fa-redo me-2"></i>Đặt lại
+                                    </button>
+                                </div>
                             </div>
                         </form>
                     </div>
-                    <div class="table-responsive">
+                    <div class="table-responsive mt-4">
                         <table class="table">
                             <thead>
                                 <tr>

@@ -34,14 +34,14 @@ if (typeof baseJsLoaded === 'undefined') {
 
     // Tách riêng handler cho hover
     function handleCartHover() {
-        if (!isHovering && !isUpdating) {
-            isHovering = true;
-            loadCartItems();
-        }
+                if (!isHovering && !isUpdating) {
+                    isHovering = true;
+                    loadCartItems();
+                }
     }
             
     function handleCartLeave() {
-        isHovering = false;
+                isHovering = false;
     }
 
     // Xử lý click cho quantity buttons
@@ -49,7 +49,7 @@ if (typeof baseJsLoaded === 'undefined') {
         if (e.target.matches('.quantity-btn') && !isProcessing) {
             e.preventDefault();
             e.stopPropagation();
-
+            
             const cartItem = e.target.closest('.cart-item');
             if (!cartItem) return;
 

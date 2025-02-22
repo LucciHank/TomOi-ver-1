@@ -1,0 +1,359 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load account_filters %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+<style>
+/* Tablet */
+@media (max-width: 768px) {
+    .container {
+        padding: 12px !important;
+    }
+    
+    [style*="grid-template-columns"] {
+        grid-template-columns: repeat(7, 1fr) !important;
+        gap: 8px !important;
+    }
+
+    [style*="width:"][style*="90px"],
+    [style*="width:"][style*="80px"] {
+        width: 60px !important;
+        height: 60px !important;
+    }
+
+    [style*="font-size: 22px"] {
+        font-size: 16px !important;
+    }
+
+    [style*="font-size: 18px"] {
+        font-size: 14px !important;
+    }
+
+    [style*="font-size: 16px"] {
+        font-size: 12px !important;
+    }
+}
+
+/* Mobile */
+@media (max-width: 576px) {
+    [style*="grid-template-columns"] {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        padding-bottom: 20px !important;
+        scroll-snap-type: x mandatory !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    [style*="grid-template-columns"] > div {
+        flex: 0 0 auto !important;
+        scroll-snap-align: center !important;
+        width: calc(100% / 4) !important;
+        min-width: 70px !important;
+    }
+
+    /* Ẩn thanh cuộn nhưng vẫn cho phép cuộn */
+    [style*="grid-template-columns"]::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    [style*="grid-template-columns"] {
+        -ms-overflow-style: none !important;
+        scrollbar-width: none !important;
+    }
+
+    /* Điều chỉnh kích thước các phần tử */
+    [style*="width:"][style*="90px"],
+    [style*="width:"][style*="80px"] {
+        width: 55px !important;
+        height: 55px !important;
+    }
+
+    [style*="font-size: 22px"] {
+        font-size: 14px !important;
+    }
+
+    [style*="font-size: 18px"] {
+        font-size: 12px !important;
+    }
+
+    [style*="font-size: 16px"] {
+        font-size: 11px !important;
+    }
+
+    /* Điều chỉnh padding và margin */
+    [style*="padding: 32px"] {
+        padding: 16px !important;
+    }
+
+    [style*="margin-bottom: 32px"] {
+        margin-bottom: 20px !important;
+    }
+}
+
+/* Thêm hiệu ứng mượt mà cho scroll */
+@media (hover: none) {
+    [style*="grid-template-columns"] {
+        scroll-behavior: smooth !important;
+    }
+}
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card" style="border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-radius: 8px;">
+        <div class="card-body" style="padding: 24px;">
+            <h5 class="card-title" style="font-size: 24px; font-weight: 600; color: var(--text-primary); margin-bottom: 24px;">
+                Điểm Danh Hàng Ngày
+            </h5>
+
+            <!-- Weekly Calendar -->
+            <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 32px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                <!-- Days Container -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 16px; 
+                    margin-bottom: 32px; position: relative;">
+                    {% for day in days %}
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                        <!-- Day Circle -->
+                        <div style="width: {% if day.is_today %}90px{% else %}80px{% endif %}; 
+                            height: {% if day.is_today %}90px{% else %}80px{% endif %}; 
+                            border-radius: 50%;
+                            background: {% if day.is_today %}linear-gradient(135deg, #e50914 0%, #ff1e27 100%){% elif day.checked_in %}linear-gradient(135deg, #28a745 0%, #34ce57 100%){% else %}white{% endif %}; 
+                            display: flex; flex-direction: column; align-items: center; justify-content: center;
+                            box-shadow: {% if day.is_today %}0 8px 24px rgba(229,9,20,0.25), 0 0 0 4px rgba(229,9,20,0.1){% elif day.checked_in %}0 8px 20px rgba(40,167,69,0.2){% else %}0 4px 12px rgba(0,0,0,0.1){% endif %};
+                            position: relative; transition: all 0.3s ease; cursor: pointer;
+                            border: 2px solid {% if day.is_today %}#ff1e27{% elif day.checked_in %}#34ce57{% else %}#dee2e6{% endif %};
+                            transform: {% if day.is_today %}scale(1.1) translateY(-5px){% else %}scale(1){% endif %};
+                            z-index: {% if day.is_today %}2{% else %}1{% endif %};">
+                            
+                            <!-- Day Name -->
+                            <div style="font-weight: {% if day.is_today %}700{% else %}600{% endif %}; 
+                                font-size: {% if day.is_today %}22px{% else %}18px{% endif %}; 
+                                color: {% if day.is_today or day.checked_in %}white{% else %}#495057{% endif %}; 
+                                margin-bottom: 4px; letter-spacing: 0.5px;
+                                text-shadow: {% if day.is_today %}0 2px 4px rgba(0,0,0,0.1){% endif %};">
+                                {{ day.name }}
+                            </div>
+                            
+                            <!-- TCoin Amount -->
+                            <div style="display: flex; align-items: center; gap: 4px; 
+                                padding: 4px 8px; border-radius: 12px;
+                                {% if day.is_today %}background: rgba(255,255,255,0.2); backdrop-filter: blur(4px);{% endif %}">
+                                <span style="font-weight: 500; font-size: {% if day.is_today %}16px{% else %}14px{% endif %}; 
+                                    color: {% if day.is_today or day.checked_in %}white{% elif day.is_sunday %}#e50914{% else %}#28a745{% endif %};">
+                                    +{{ day.tcoin }}
+                                </span>
+                                <img src="{% static 'images/tcoin.png' %}" alt="TCoin" 
+                                    style="width: {% if day.is_today %}18px{% else %}16px{% endif %}; 
+                                    height: {% if day.is_today %}18px{% else %}16px{% endif %}; 
+                                    filter: {% if day.is_today or day.checked_in %}brightness(2){% endif %};">
+                            </div>
+
+                            <!-- Check Mark -->
+                            {% if day.checked_in %}
+                            <div style="position: absolute; top: -10px; right: -10px; 
+                                background: #28a745; width: 28px; height: 28px; border-radius: 50%;
+                                display: flex; align-items: center; justify-content: center;
+                                border: 2px solid white; box-shadow: 0 4px 8px rgba(40,167,69,0.3);">
+                                <i class="fas fa-check" style="color: white; font-size: 12px;"></i>
+                            </div>
+                            {% endif %}
+
+                            <!-- Today Indicator -->
+                            {% if day.is_today %}
+                            <div style="position: absolute; bottom: -24px; left: 50%; transform: translateX(-50%);
+                                color: #e50914; font-size: 12px; font-weight: 600;">
+                                <i class="fas fa-circle" style="font-size: 8px;"></i>
+                                <span style="margin-left: 4px;"></span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Check-in Status -->
+                <div style="background: white; border-radius: 12px; padding: 24px; text-align: center;
+                    box-shadow: 0 4px 16px rgba(0,0,0,0.08); margin-top: 32px;">
+                    {% if can_checkin %}
+                    <button onclick="checkIn()" 
+                        style="background: linear-gradient(135deg, #e50914 0%, #ff1e27 100%);
+                        border: none; color: white; font-weight: 600; font-size: 16px;
+                        height: 48px; padding: 0 32px; border-radius: 24px;
+                        display: inline-flex; align-items: center; justify-content: center;
+                        box-shadow: 0 4px 12px rgba(229,9,20,0.2); cursor: pointer;
+                        transition: all 0.3s ease;">
+                        <i class="fas fa-calendar-check" style="margin-right: 8px;"></i>
+                        Điểm danh ngay
+                    </button>
+                    <div style="margin-top: 16px; color: #6c757d; font-size: 15px;">
+                        Hôm nay bạn sẽ nhận được 
+                        <span style="color: #28a745; font-weight: 600; font-size: 16px;">
+                            {% if is_sunday %}10{% else %}5{% endif %} TCoin
+                        </span>
+                    </div>
+                    {% else %}
+                    <div style="margin-bottom: 20px;">
+                        <i class="fas fa-check-circle" style="font-size: 56px; color: #28a745;
+                            filter: drop-shadow(0 4px 8px rgba(40,167,69,0.2));"></i>
+                        <h4 style="margin: 16px 0; color: #28a745; font-weight: 600;">
+                            Bạn đã điểm danh hôm nay
+                        </h4>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 16px 24px; border-radius: 12px; 
+                        display: inline-block;">
+                        <div style="color: #6c757d; font-size: 14px;">Điểm danh tiếp theo sau:</div>
+                        <div id="nextCheckin" style="font-weight: 600; color: #212529; 
+                            font-size: 24px; margin-top: 4px;">24:00:00</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <hr style="margin: 24px 0; opacity: 0.1;">
+
+            <!-- TCoin History -->
+            <h5 style="font-size: 24px; font-weight: 600; color: var(--text-primary); margin-bottom: 24px;">
+                Lịch Sử TCoin
+            </h5>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th style="padding: 12px 16px; text-align: left; font-weight: 500; 
+                                color: var(--text-secondary); border-bottom: 1px solid var(--border-color);">Ngày</th>
+                            <th style="padding: 12px 16px; text-align: left; font-weight: 500;
+                                color: var(--text-secondary); border-bottom: 1px solid var(--border-color);">Hoạt động</th>
+                            <th style="padding: 12px 16px; text-align: left; font-weight: 500;
+                                color: var(--text-secondary); border-bottom: 1px solid var(--border-color);">TCoin</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for history in tcoin_history %}
+                        <tr>
+                            <td style="padding: 12px 16px; color: var(--text-primary);">
+                                {{ history.created_at|date:"d/m/Y H:i" }}
+                            </td>
+                            <td style="padding: 12px 16px; color: var(--text-primary);">
+                                {{ history.description }}
+                            </td>
+                            <td style="padding: 12px 16px; 
+                                color: {% if history.amount > 0 %}#28a745{% else %}#dc3545{% endif %};">
+                                {% if history.amount > 0 %}+{% endif %}{{ history.amount }} TCoin
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" style="padding: 24px; text-align: center; color: var(--text-secondary);">
+                                Chưa có lịch sử TCoin
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Thêm CSRF token vào tất cả AJAX requests
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    window.checkIn = function() {
+        const button = document.querySelector('button[onclick="checkIn()"]');
+        if (button) button.disabled = true;
+
+        fetch('/accounts/tcoin/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    title: 'Điểm danh thành công!',
+                    text: 'Bạn đã nhận được TCoin',
+                    icon: 'success',
+                    confirmButtonText: 'Đóng',
+                    confirmButtonColor: '#e50914',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    customClass: {
+                        popup: 'animated bounceIn'
+                    }
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire({
+                    title: 'Có lỗi xảy ra',
+                    text: data.message || 'Vui lòng thử lại sau',
+                    icon: 'error',
+                    confirmButtonText: 'Đóng',
+                    confirmButtonColor: '#e50914'
+                });
+                if (button) button.disabled = false;
+            }
+        })
+        .catch(error => {
+            Swal.fire({
+                title: 'Có lỗi xảy ra',
+                text: 'Vui lòng thử lại sau',
+                icon: 'error',
+                confirmButtonText: 'Đóng',
+                confirmButtonColor: '#e50914'
+            });
+            if (button) button.disabled = false;
+        });
+    };
+
+    // Countdown timer
+    function updateCountdown() {
+        const now = new Date();
+        const tomorrow = new Date(now);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0);
+        
+        const diff = tomorrow - now;
+        const hours = Math.floor(diff / 3600000);
+        const minutes = Math.floor((diff % 3600000) / 60000);
+        const seconds = Math.floor((diff % 60000) / 1000);
+        
+        const nextCheckin = document.getElementById('nextCheckin');
+        if (nextCheckin) {
+            nextCheckin.textContent = 
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+    }
+
+    if (document.getElementById('nextCheckin')) {
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    }
+});
+</script>
+{% endblock extra_js %} 
