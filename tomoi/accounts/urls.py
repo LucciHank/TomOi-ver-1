@@ -53,4 +53,6 @@ urlpatterns = [
     path('security/verify-device/', views.verify_device, name='verify_device'),
     path('deposit/', views.deposit_view, name='deposit'),
     path('tcoin/', views.tcoin_view, name='tcoin'),
+    path('deposit/create-payment/', views.create_payment, name='create_payment'),
+    path('deposit/vnpay-return/', views.vnpay_return, name='vnpay_return'),
 ]

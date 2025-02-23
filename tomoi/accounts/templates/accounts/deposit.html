@@ -10,52 +10,57 @@
                 <div class="card-body">
                     <h4 class="card-title mb-4">Nạp tiền vào ví</h4>
                     
-                    <div class="deposit-methods">
-                        <!-- VNPay -->
-                        <div class="deposit-method mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="paymentMethod" id="vnpay" checked>
-                                <label class="form-check-label d-flex align-items-center" for="vnpay">
-                                    <img src="{% static 'images/vnpay.png' %}" alt="VNPay" height="30">
-                                    <span class="ms-2">Thanh toán qua VNPay</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Mobile Banking -->
-                        <div class="deposit-method mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="paymentMethod" id="banking">
-                                <label class="form-check-label d-flex align-items-center" for="banking">
-                                    <i class="fas fa-university fa-2x"></i>
-                                    <span class="ms-2">Chuyển khoản ngân hàng</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Card -->
-                        <div class="deposit-method mb-4">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="paymentMethod" id="card">
-                                <label class="form-check-label d-flex align-items-center" for="card">
-                                    <i class="fas fa-credit-card fa-2x"></i>
-                                    <span class="ms-2">Nạp thẻ cào</span>
-                                </label>
-                            </div>
-                        </div>
-
+                    <!-- Form chính -->
+                    <form id="depositForm" method="post">
+                        {% csrf_token %}
+                        
                         <!-- Amount Input -->
                         <div class="mb-4">
                             <label class="form-label">Số tiền nạp</label>
                             <div class="input-group">
-                                <input type="number" class="form-control" min="10000" step="10000" value="100000">
+                                <input type="text" class="form-control" id="amount" value="100,000" required>
                                 <span class="input-group-text">VNĐ</span>
                             </div>
                             <div class="form-text">Số tiền tối thiểu: 10.000đ</div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100">Tiếp tục</button>
-                    </div>
+                        <div class="deposit-methods">
+                            <!-- VNPay -->
+                            <div class="deposit-method mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="vnpay" value="vnpay" checked>
+                                    <label class="form-check-label d-flex align-items-center" for="vnpay">
+                                        <img src="{% static 'images/vnpay.png' %}" alt="VNPay" height="30">
+                                        <span class="ms-2">Thanh toán qua VNPay</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Mobile Banking -->
+                            <div class="deposit-method mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="banking" value="banking">
+                                    <label class="form-check-label d-flex align-items-center" for="banking">
+                                        <i class="fas fa-university fa-2x"></i>
+                                        <span class="ms-2">Chuyển khoản ngân hàng</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Card -->
+                            <div class="deposit-method mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="cardPayment" value="card">
+                                    <label class="form-check-label d-flex align-items-center" for="cardPayment" data-bs-toggle="modal" data-bs-target="#cardModal">
+                                        <i class="fas fa-credit-card fa-2x"></i>
+                                        <span class="ms-2">Nạp thẻ cào</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100">Nạp tiền</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -115,7 +120,7 @@
 </div>
 
 <!-- Card Modal -->
-<div class="modal fade" id="cardModal" tabindex="-1">
+<div class="modal fade" id="cardModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -123,18 +128,32 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="cardForm">
+                <form id="cardDepositForm">
+                    {% csrf_token %}
                     <div class="mb-3">
                         <label class="form-label">Loại thẻ</label>
-                        <select class="form-select" name="telco" required>
+                        <select class="form-select" id="cardType" required>
+                            <option value="">Chọn loại thẻ</option>
                             <option value="VIETTEL">Viettel</option>
                             <option value="MOBIFONE">Mobifone</option>
                             <option value="VINAPHONE">Vinaphone</option>
+                            <option value="VIETNAMOBILE">Vietnamobile</option>
                         </select>
                     </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Số seri</label>
+                        <input type="text" class="form-control" id="cardSerial" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Mã thẻ</label>
+                        <input type="text" class="form-control" id="cardPin" required>
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label">Mệnh giá</label>
-                        <select class="form-select" name="amount" required>
+                        <select class="form-select" id="cardAmount" required>
                             <option value="10000">10,000đ</option>
                             <option value="20000">20,000đ</option>
                             <option value="50000">50,000đ</option>
@@ -143,15 +162,10 @@
                             <option value="500000">500,000đ</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Số serial</label>
-                        <input type="text" class="form-control" name="serial" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Mã thẻ</label>
-                        <input type="text" class="form-control" name="pin" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Nạp thẻ</button>
+
+                    <button type="submit" class="btn btn-danger w-100">
+                        <i class="fas fa-credit-card me-2"></i>Nạp thẻ
+                    </button>
                 </form>
             </div>
         </div>

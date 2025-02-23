@@ -49,6 +49,9 @@ import user_agents
 import logging
 import uuid
 from django.db import transaction
+from collections import OrderedDict
+from urllib.parse import urlencode
+import hmac
 
 logger = logging.getLogger(__name__)
 
@@ -1924,103 +1927,213 @@ def payment_history_view(request):
     return render(request, 'accounts/payment_history.html', context)
 
 @login_required
+@require_http_methods(["POST"])
 def card_deposit(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            telco = data.get('telco')
-            serial = data.get('serial')
-            pin = data.get('pin')
-            amount = int(data.get('amount'))
+    try:
+        data = json.loads(request.body)
+        telco = data.get('telco')
+        serial = data.get('serial')
+        pin = data.get('pin')
+        amount = int(data.get('amount'))
 
-            # Tạo request_id unique
-            request_id = f"THE_{int(time.time())}_{request.user.id}"
+        # Tạo request_id ngẫu nhiên
+        request_id = f"CARD_{int(time.time())}_{random.randint(1000,9999)}"
 
-            # Tạo chữ ký
-            sign = hashlib.md5(f"{settings.DOITHE_PARTNER_KEY}{pin}{serial}".encode()).hexdigest()
+        # Lưu thông tin giao dịch
+        transaction = CardTransaction.objects.create(
+            user=request.user,
+            request_id=request_id,
+            telco=telco,
+            serial=serial,
+            pin=pin,
+            amount=amount
+        )
 
-            # Tạo giao dịch trong DB
-            transaction = CardTransaction.objects.create(
-                user=request.user,
-                request_id=request_id,
-                telco=telco,
-                serial=serial,
-                pin=pin,
-                amount=amount,
-                status='pending'
-            )
+        # Gọi API nạp thẻ
+        result = process_card_payment({
+            'transaction_id': request_id,
+            'telco': telco,
+            'serial': serial,
+            'pin': pin,
+            'amount': amount
+        })
 
-            # Gọi API DoiThe.vn
-            payload = {
-                'telco': telco,
-                'code': pin,
-                'serial': serial,
-                'amount': amount,
-                'request_id': request_id,
-                'partner_id': settings.DOITHE_PARTNER_ID,
-                'sign': sign,
-                'command': 'charging'
-            }
-
-            response = requests.post(settings.DOITHE_API_URL, json=payload)
-            result = response.json()
-
-            if result.get('status') == 1:
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Thẻ đang được xử lý'
-                })
-            else:
-                transaction.status = 'failed'
-                transaction.message = result.get('message')
-                transaction.save()
-                return JsonResponse({
-                    'success': False,
-                    'message': result.get('message')
-                })
-
-        except Exception as e:
+        if result.get('status') == 1:  # Thẻ đúng
+            return JsonResponse({
+                'success': True,
+                'message': 'Thẻ đang được xử lý'
+            })
+        else:
+            transaction.status = 'failed'
+            transaction.message = result.get('message')
+            transaction.save()
             return JsonResponse({
                 'success': False,
-                'message': str(e)
+                'message': result.get('message')
             })
 
-    return render(request, 'accounts/card_deposit.html')
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        })
 
 @csrf_exempt
 def card_callback(request):
     """Callback URL để nhận kết quả từ DoiThe.vn"""
     try:
         data = json.loads(request.body)
-        request_id = data.get('request_id')
-        status = data.get('status')
-        message = data.get('message')
-        real_amount = data.get('real_amount')
         
-        # Verify callback bằng sign
-        sign = data.get('sign')
-        check_sign = hashlib.md5(f"{settings.DOITHE_PARTNER_KEY}{request_id}{status}".encode()).hexdigest()
+        # Verify callback signature
+        sign_string = f"{settings.DOITHE_PARTNER_KEY}{data['request_id']}{data['status']}"
+        check_sign = hashlib.md5(sign_string.encode()).hexdigest()
         
-        if sign != check_sign:
-            return HttpResponse('Sign invalid', status=400)
+        if data.get('sign') != check_sign:
+            return HttpResponse('Invalid signature', status=400)
             
-        transaction = CardTransaction.objects.get(request_id=request_id)
+        # Tìm giao dịch
+        transaction = CardTransaction.objects.get(request_id=data['request_id'])
         
-        if status == 1: # Thẻ đúng
+        if data['status'] == 1: # Thẻ đúng
             transaction.status = 'success'
-            transaction.real_amount = real_amount
+            transaction.real_amount = data.get('real_amount', transaction.amount)
             
-            # Cộng tiền cho user
-            transaction.user.balance += real_amount
+            # Cộng tiền vào tài khoản
+            transaction.user.balance += transaction.real_amount
             transaction.user.save()
+            
+            # Ghi log giao dịch thành công
+            print(f"Card charged successfully: {transaction.request_id}")
             
         else: # Thẻ sai
             transaction.status = 'failed'
+            transaction.message = data.get('message', 'Thẻ không hợp lệ')
             
-        transaction.message = message
         transaction.save()
         
         return HttpResponse('OK')
         
     except Exception as e:
+        print(f"Callback error: {str(e)}")
         return HttpResponse(str(e), status=500)
+
+@login_required
+@require_http_methods(["POST"])
+def create_payment(request):
+    try:
+        data = json.loads(request.body)
+        amount = int(data.get('amount', 0))
+        
+        if amount < 10000:
+            return JsonResponse({
+                'success': False,
+                'message': 'Số tiền tối thiểu là 10.000đ'
+            })
+
+        # Tạo mã giao dịch unique
+        txn_ref = f"VNP{int(time.time())}"
+        
+        # Tạo URL thanh toán VNPay
+        vnp_params = {
+            'vnp_Version': '2.1.0',
+            'vnp_Command': 'pay',
+            'vnp_TmnCode': settings.VNPAY_TMN_CODE,
+            'vnp_Amount': amount * 100,  # Nhân 100 vì VNPay tính theo xu
+            'vnp_CurrCode': 'VND',
+            'vnp_TxnRef': txn_ref,
+            'vnp_OrderInfo': f'Nap tien tai khoan {request.user.username}',
+            'vnp_OrderType': 'billpayment',
+            'vnp_Locale': 'vn',
+            'vnp_ReturnUrl': request.build_absolute_uri(reverse('accounts:vnpay_return')),
+            'vnp_IpAddr': get_client_ip(request),
+            'vnp_CreateDate': datetime.now().strftime('%Y%m%d%H%M%S')
+        }
+
+        # Tạo chữ ký
+        vnp_params = OrderedDict(sorted(vnp_params.items()))
+        hash_data = '&'.join([f'{k}={v}' for k, v in vnp_params.items()])
+        vnp_params['vnp_SecureHash'] = hmac.new(
+            settings.VNPAY_HASH_SECRET_KEY.encode(),
+            hash_data.encode(),
+            hashlib.sha512
+        ).hexdigest()
+
+        # Tạo URL thanh toán
+        vnpay_payment_url = f"{settings.VNPAY_PAYMENT_URL}?{urlencode(vnp_params)}"
+
+        # Lưu thông tin giao dịch
+        Deposit.objects.create(
+            user=request.user,
+            amount=amount,
+            transaction_id=txn_ref,
+            payment_method='vnpay',
+            status='pending'
+        )
+
+        return JsonResponse({
+            'success': True,
+            'payment_url': vnpay_payment_url
+        })
+
+    except Exception as e:
+        print(f"Error creating payment: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        })
+
+@csrf_exempt
+def vnpay_return(request):
+    """Xử lý kết quả trả về từ VNPay"""
+    if request.method == 'GET':
+        # Lấy các tham số trả về từ VNPay
+        vnp_params = request.GET
+
+        # Tạo chuỗi hash để kiểm tra
+        vnp_params_copy = vnp_params.copy()
+        vnp_secure_hash = vnp_params_copy.pop('vnp_SecureHash', '')
+        
+        # Sắp xếp các tham số theo thứ tự a-z
+        sorted_params = sorted(vnp_params_copy.items())
+        hash_data = '&'.join([f"{k}={v}" for k, v in sorted_params])
+        
+        # Tạo chữ ký để so sánh
+        secure_hash = hmac.new(
+            settings.VNPAY_HASH_SECRET_KEY.encode(),
+            hash_data.encode(),
+            hashlib.sha512
+        ).hexdigest()
+
+        # So sánh chữ ký
+        if secure_hash == vnp_secure_hash:
+            # Kiểm tra kết quả giao dịch
+            if vnp_params.get('vnp_ResponseCode') == '00':
+                # Giao dịch thành công
+                amount = int(vnp_params.get('vnp_Amount', 0)) / 100  # Chuyển từ xu sang đồng
+                txn_ref = vnp_params.get('vnp_TxnRef')
+                
+                # Cập nhật số dư tài khoản
+                try:
+                    user = request.user
+                    user.balance += amount
+                    user.save()
+                    
+                    # Lưu lịch sử giao dịch
+                    Deposit.objects.create(
+                        user=user,
+                        amount=amount,
+                        transaction_id=txn_ref,
+                        payment_method='vnpay',
+                        status='success'
+                    )
+                    
+                    messages.success(request, f'Nạp tiền thành công: {amount:,}đ')
+                except Exception as e:
+                    messages.error(request, 'Có lỗi xảy ra khi cập nhật số dư')
+                    print(f"Error updating balance: {str(e)}")
+            else:
+                messages.error(request, 'Giao dịch thất bại hoặc bị hủy')
+        else:
+            messages.error(request, 'Chữ ký không hợp lệ')
+    
+    return redirect('accounts:deposit')

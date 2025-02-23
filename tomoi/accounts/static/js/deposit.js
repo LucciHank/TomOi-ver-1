@@ -1,67 +1,157 @@
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('depositForm');
     const amountInput = document.getElementById('amount');
-    const methodInputs = document.querySelectorAll('input[name="paymentMethod"]');
     
-    // Xử lý hiển thị các trường theo phương thức thanh toán
-    methodInputs.forEach(input => {
-        input.addEventListener('change', function() {
-            const method = this.value;
-            document.querySelectorAll('.method-fields').forEach(div => {
-                div.style.display = 'none';
-            });
-            document.getElementById(`${method}Fields`).style.display = 'block';
-        });
-    });
-
     // Format số tiền khi nhập
-    amountInput.addEventListener('input', function() {
-        let value = this.value.replace(/\D/g, '');
-        if (value) {
-            value = parseInt(value).toLocaleString('vi-VN');
-            this.value = value;
-        }
-    });
-
-    form.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const amount = parseInt(amountInput.value.replace(/\D/g, ''));
-        const method = document.querySelector('input[name="paymentMethod"]:checked').value;
-        
-        if (amount < 10000) {
-            showError('Số tiền tối thiểu là 10.000đ');
-            return;
-        }
-
-        try {
-            const response = await fetch('/accounts/deposit/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify({
-                    amount: amount,
-                    payment_method: method
-                })
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                if (data.redirect_url) {
-                    window.location.href = data.redirect_url;
-                } else if (data.bank_info) {
-                    showBankingInfo(data.bank_info);
-                }
-            } else {
-                showError(data.message);
+    if (amountInput) {
+        amountInput.addEventListener('input', function() {
+            let value = this.value.replace(/\D/g, '');
+            if (value) {
+                value = parseInt(value).toLocaleString('vi-VN');
+                this.value = value;
             }
-        } catch (error) {
-            showError('Có lỗi xảy ra, vui lòng thử lại');
-        }
-    });
+        });
+    }
+
+    // Xử lý khi chọn phương thức thanh toán
+    const cardPaymentLabel = document.querySelector('label[for="cardPayment"]');
+    if (cardPaymentLabel) {
+        cardPaymentLabel.addEventListener('click', function(e) {
+            // Ngăn chặn hành vi mặc định của form
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Hiển thị modal nạp thẻ
+            const cardModal = new bootstrap.Modal(document.getElementById('cardModal'));
+            cardModal.show();
+        });
+    }
+
+    // Xử lý form nạp thẻ cào
+    const cardDepositForm = document.getElementById('cardDepositForm');
+    if (cardDepositForm) {
+        cardDepositForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Validate dữ liệu
+            const amount = document.getElementById('cardAmount').value;
+            const telco = document.getElementById('cardType').value;
+            const serial = document.getElementById('cardSerial').value.trim();
+            const pin = document.getElementById('cardPin').value.trim();
+
+            if (!telco || !serial || !pin) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Vui lòng điền đầy đủ thông tin thẻ'
+                });
+                return;
+            }
+
+            try {
+                const response = await fetch('/accounts/deposit/card/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({
+                        telco: telco,
+                        serial: serial,
+                        pin: pin,
+                        amount: amount
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Đóng modal
+                    bootstrap.Modal.getInstance(document.getElementById('cardModal')).hide();
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công',
+                        text: 'Thẻ đang được xử lý, vui lòng đợi trong giây lát',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                    // Reset form
+                    cardDepositForm.reset();
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: error.message || 'Có lỗi xảy ra, vui lòng thử lại sau'
+                });
+            }
+        });
+    }
+
+    // Xử lý form chính
+    if (form) {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            console.log('Form submitted');
+            
+            // Lấy số tiền và phương thức thanh toán
+            const amount = parseInt(amountInput.value.replace(/[^\d]/g, ''));
+            const method = document.querySelector('input[name="paymentMethod"]:checked').value;
+            
+            console.log('Amount:', amount);
+            console.log('Method:', method);
+            console.log('CSRF Token:', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+            // Validate số tiền
+            if (!amount || amount < 10000) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Số tiền nạp tối thiểu là 10.000đ'
+                });
+                return;
+            }
+
+            // Xử lý thanh toán VNPay
+            if (method === 'vnpay') {
+                try {
+                    console.log('Sending request to create payment...');
+                    const response = await fetch('/accounts/deposit/create-payment/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        },
+                        body: JSON.stringify({
+                            amount: amount,
+                            payment_method: 'vnpay'
+                        })
+                    });
+
+                    console.log('Response received');
+                    const data = await response.json();
+                    console.log('Response data:', data);
+                    
+                    if (data.success && data.payment_url) {
+                        console.log('Redirecting to:', data.payment_url);
+                        window.location.href = data.payment_url;
+                    } else {
+                        throw new Error(data.message || 'Có lỗi xảy ra khi tạo thanh toán');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: error.message || 'Không thể kết nối đến cổng thanh toán'
+                    });
+                }
+            }
+        });
+    }
 });
 
 function showBankingInfo(info) {

@@ -91,28 +91,48 @@ def create_vnpay_url(deposit):
     return vnpay_payment_url
 
 def process_card_payment(card_info):
-    data = {
-        'partner_id': settings.DOITHE_PARTNER_ID,
-        'request_id': card_info['transaction_id'],
-        'telco': card_info['telco'],
-        'amount': card_info['amount'],
-        'serial': card_info['serial'],
-        'code': card_info['pin'],
-        'command': 'charging'
-    }
-    
-    # Tạo chữ ký
-    sign_string = '|'.join([
-        settings.DOITHE_PARTNER_ID,
-        data['request_id'],
-        data['telco'],
-        str(data['amount']),
-        data['serial'],
-        data['code'],
-        settings.DOITHE_PARTNER_KEY
-    ])
-    
-    data['sign'] = hashlib.md5(sign_string.encode()).hexdigest()
-    
-    response = requests.post(settings.DOITHE_API_URL, json=data)
-    return response.json() 
+    """Xử lý gửi thẻ lên DoiThe.vn"""
+    try:
+        # Tạo dữ liệu gửi lên
+        data = {
+            'partner_id': settings.DOITHE_PARTNER_ID,
+            'request_id': card_info['transaction_id'],
+            'telco': card_info['telco'],
+            'amount': card_info['amount'],
+            'serial': card_info['serial'],
+            'code': card_info['pin'],
+            'command': 'charging',
+            'callback_url': settings.DOITHE_CALLBACK_URL
+        }
+        
+        # Tạo chữ ký
+        sign_string = '|'.join([
+            settings.DOITHE_PARTNER_ID,
+            data['request_id'],
+            data['telco'], 
+            str(data['amount']),
+            data['serial'],
+            data['code'],
+            settings.DOITHE_PARTNER_KEY
+        ])
+        
+        data['sign'] = hashlib.md5(sign_string.encode()).hexdigest()
+        
+        # Gọi API
+        response = requests.post(
+            settings.DOITHE_API_URL,
+            json=data,
+            headers={'Content-Type': 'application/json'}
+        )
+        
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise Exception(f"API Error: {response.status_code}")
+            
+    except Exception as e:
+        print(f"Error processing card: {str(e)}")
+        return {
+            'status': 0,
+            'message': str(e)
+        } 

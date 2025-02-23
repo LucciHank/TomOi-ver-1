@@ -216,11 +216,11 @@ VNPAY_CLIENT_ID = 'tomoi.vn'
 VNPAY_USERNAME = 'tomoivn2024@gmail.com'
 VNPAY_PASSWORD = 'Hanh2004@'
 VNPAY_CLIENT_SECRET = '890-'
-VNPAY_TMN_CODE = "your_tmn_code"
+VNPAY_TMN_CODE = "TOMOI001"  # Mã website của bạn đăng ký trên VNPay
 VNPAY_HASH_SECRET = 'S500OYUZE6YZRFNMC2LFQZZXMXATAJKK'
-VNPAY_HASH_SECRET_KEY = "your_hash_secret"
-VNPAY_PAYMENT_URL = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
-VNPAY_RETURN_URL = "http://yourdomain.com/payment/vnpay-return/"
+VNPAY_HASH_SECRET_KEY = "OQXFQTTVXLKPJXKZBVIRTXKUUKCQVZTO"  # Chuỗi bí mật
+VNPAY_PAYMENT_URL = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"  # URL thanh toán của VNPay
+VNPAY_RETURN_URL = "http://127.0.0.1:8000/accounts/deposit/vnpay-return/"  # URL nhận kết quả trả về
 
 # SePay Configuration
 SEPAY_API_KEY = 'ZMR2Y3H54KLIZSKG0YYST8AJWCPCPN0D7KAUUXTUETG6HTOQGXL3NJDORFXZWQB1'
@@ -249,6 +249,7 @@ FAVICON_PATH = STATIC_URL + 'images/favicon.ico'
 DEEPL_API_KEY = '893c70b4-e735-4e1c-b9cd-e27585166d17:fx'
 
 # DoiThe Configuration
-DOITHE_PARTNER_ID = "your_partner_id"
-DOITHE_PARTNER_KEY = "your_partner_key"
-DOITHE_API_URL = "https://api.doithe.vn/v1/card"
+DOITHE_PARTNER_ID = '2881917827'  # Dùng ID của API POST
+DOITHE_PARTNER_KEY = '919a81fcd35df8bf1d88e65381a82baa'
+DOITHE_API_URL = 'https://doithe1s.vn/chargingws/v2'  # URL API của DoiThe.vn
+DOITHE_CALLBACK_URL = 'http://127.0.0.1:8000/accounts/deposit/card-callback/'
