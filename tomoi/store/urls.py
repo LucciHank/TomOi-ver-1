@@ -33,6 +33,8 @@ urlpatterns = [
     path('payment/success/', views.payment_success, name='payment_success'),
     path('payment/failed/', views.payment_failed, name='payment_failed'),
     path('toggle-wishlist/', views.toggle_wishlist, name='toggle_wishlist'),
+    path('pay-with-balance/', views.pay_with_balance, name='pay_with_balance'),
+    path('verify-payment/', views.verify_payment, name='verify_payment'),
 
 
     # path('payment/paypal/', views.paypal_payment, name='paypal_payment'),

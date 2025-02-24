@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from .models import (
-    Order, PurchasedAccount, Product, ProductImage, 
+    Order, OrderItem, PurchasedAccount, Product, ProductImage, 
     Category, Banner, CartItem, BlogPost, ProductVariant, 
     VariantOption, Wishlist
 )
@@ -28,6 +28,12 @@ from django.views.decorators.http import require_http_methods, require_POST
 from django.db.models import Q
 import time
 from decimal import Decimal
+from django.db import transaction
+from accounts.vnpay import VNPay
+from payment.models import Transaction
+from django.contrib.auth.hashers import check_password
+from django.core.cache import cache
+import pyotp
 
 
 def dashboard(request):
@@ -124,7 +130,16 @@ def order_history(request):
 
 @login_required
 def payment_success(request):
-    return render(request, 'store/payment_success.html')
+    order_id = request.GET.get('order_id')
+    try:
+        order = Order.objects.get(id=order_id, user=request.user)
+        return render(request, 'store/payment_success.html', {
+            'order': order,
+            'countdown': 5  # Thêm biến đếm ngược
+        })
+    except Order.DoesNotExist:
+        messages.error(request, 'Không tìm thấy đơn hàng')
+        return redirect('store:cart')
 
 def payment_failed(request):
     return render(request, 'store/payment_failed.html')
@@ -571,3 +586,186 @@ def toggle_wishlist(request):
             'status': 'error',
             'message': str(e)
         }, status=400)
+
+@csrf_exempt 
+def vnpay_order_return(request):
+    """Xử lý kết quả trả về từ VNPay cho thanh toán đơn hàng"""
+    if request.method == 'GET':
+        vnpay = VNPay()
+        vnpay.responseData = request.GET.dict()
+
+        if vnpay.validate_response(settings.VNPAY_HASH_SECRET_KEY):
+            response_code = vnpay.responseData.get('vnp_ResponseCode')
+            amount = Decimal(int(vnpay.responseData.get('vnp_Amount', 0)) / 100)
+            order_id = vnpay.responseData.get('vnp_TxnRef')
+            
+            if response_code == '00':
+                try:
+                    with transaction.atomic():
+                        # Cập nhật trạng thái đơn hàng
+                        order = Order.objects.get(id=order_id)
+                        order.status = 'paid'
+                        order.save()
+                        
+                        # Lưu lịch sử giao dịch mua hàng
+                        Transaction.objects.create(
+                            user=request.user,
+                            order=order,
+                            amount=amount,
+                            transaction_id=f"T{int(time.time())}", # T = Transaction
+                            payment_method='vnpay',
+                            status='success',
+                            description='Thanh toán đơn hàng bằng VNPay'
+                        )
+                        
+                        return render(request, 'accounts/success.html', {
+                            'title': 'Thanh toán thành công!',
+                            'message': f'Đơn hàng #{order.id} đã được thanh toán thành công'
+                        })
+                except Exception as e:
+                    print(f"Error processing order: {str(e)}")
+                    return render(request, 'accounts/success.html', {
+                        'title': 'Lỗi!',
+                        'message': 'Có lỗi xảy ra khi xử lý đơn hàng'
+                    })
+            else:
+                return render(request, 'accounts/success.html', {
+                    'title': 'Thất bại!', 
+                    'message': 'Giao dịch thất bại hoặc bị hủy'
+                })
+        else:
+            return render(request, 'accounts/success.html', {
+                'title': 'Lỗi!',
+                'message': 'Chữ ký không hợp lệ'
+            })
+    
+    return redirect('store:cart')
+
+def verify_2fa(user, auth_type, auth_value):
+    """Xác thực 2FA"""
+    if auth_type == 'password':
+        return user.check_password(auth_value)
+    elif auth_type == '2fa':
+        if user.two_factor_method == 'password':
+            return check_password(auth_value, user.two_factor_password)
+        elif user.two_factor_method in ['email', 'google']:
+            if user.two_factor_method == 'email':
+                stored_otp = cache.get(f'email_otp_{user.id}')
+                return stored_otp and stored_otp == auth_value
+            elif user.two_factor_method == 'google':
+                totp = pyotp.TOTP(user.google_auth_secret)
+                return totp.verify(auth_value)
+    return False
+
+@login_required
+@require_POST
+def pay_with_balance(request):
+    """Thanh toán đơn hàng bằng số dư"""
+    try:
+        data = json.loads(request.body)
+        cart_items = CartItem.objects.filter(user=request.user)
+        cart_total = Decimal(sum(item.quantity * item.product.price for item in cart_items))
+        auth_type = data.get('auth_type')
+        auth_value = data.get('auth_value')
+        
+        # Kiểm tra số dư
+        if request.user.balance < cart_total:
+            return JsonResponse({
+                'success': False,
+                'message': 'Số dư không đủ để thanh toán'
+            })
+            
+        # Xác thực mật khẩu/2FA
+        if auth_type == 'password':
+            if not request.user.check_password(auth_value):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Mật khẩu không chính xác'
+                })
+        elif auth_type == '2fa':
+            if not verify_2fa(request.user, auth_type, auth_value):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Mã xác thực không chính xác'
+                })
+                
+        # Tạo đơn hàng
+        with transaction.atomic():
+            order = Order.objects.create(
+                user=request.user,
+                total_amount=cart_total,
+                payment_method='balance',
+                status='paid'  # Đặt trạng thái là đã thanh toán
+            )
+            
+            # Tạo chi tiết đơn hàng
+            for item in cart_items:
+                OrderItem.objects.create(
+                    order=order,
+                    product=item.product,
+                    quantity=item.quantity,
+                    price=item.product.price,
+                    variant=item.variant if hasattr(item, 'variant') else None,
+                    duration=item.duration if hasattr(item, 'duration') else None,
+                    upgrade_email=item.upgrade_email if hasattr(item, 'upgrade_email') else None
+                )
+            
+            # Trừ số dư
+            request.user.balance -= cart_total
+            request.user.save()
+            
+            # Lưu lịch sử giao dịch
+            Transaction.objects.create(
+                user=request.user,
+                order=order,
+                amount=cart_total,
+                transaction_id=f"T{int(time.time())}",
+                payment_method='balance',
+                status='success',
+                description='Thanh toán đơn hàng bằng số dư'
+            )
+            
+            # Xóa giỏ hàng
+            cart_items.delete()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Thanh toán thành công',
+                'order_id': order.id
+            })
+            
+    except Exception as e:
+        print(f"Error processing payment: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': 'Có lỗi xảy ra khi xử lý thanh toán'
+        })
+
+@login_required
+def verify_payment(request):
+    """Hiển thị trang xác thực thanh toán"""
+    # Lấy thông tin 2FA của user
+    has_2fa = bool(request.user.two_factor_method)
+    two_factor_type = request.user.two_factor_method if has_2fa else None
+    
+    # Lấy tổng tiền giỏ hàng
+    cart_items = CartItem.objects.filter(user=request.user)
+    cart_total = sum(item.quantity * item.product.price for item in cart_items)  # Sửa cách tính tổng tiền
+    
+    # Kiểm tra số dư
+    if request.user.balance < cart_total:
+        messages.error(request, 'Số dư không đủ để thanh toán')
+        return redirect('store:cart')
+        
+    # Kiểm tra giỏ hàng trống
+    if not cart_items.exists():
+        messages.error(request, 'Giỏ hàng trống')
+        return redirect('store:cart')
+    
+    context = {
+        'has_2fa': has_2fa,
+        'two_factor_type': two_factor_type,
+        'cart_total': cart_total
+    }
+    
+    return render(request, 'store/verify_payment.html', context)

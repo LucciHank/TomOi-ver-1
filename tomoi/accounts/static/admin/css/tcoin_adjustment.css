@@ -1,0 +1,52 @@
+.adjustment-forms {
+    margin-bottom: 30px;
+}
+
+.balance-adjustment,
+.tcoin-adjustment {
+    margin-bottom: 15px;
+}
+
+.balance-adjustment input,
+.tcoin-adjustment input {
+    width: 150px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.balance-description input,
+.tcoin-description input {
+    width: 300px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.history-sections {
+    margin-top: 30px;
+}
+
+.balance-history,
+.tcoin-history {
+    margin-bottom: 30px;
+}
+
+.help {
+    color: #666;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+/* Style cho bảng lịch sử */
+.inline-group {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.inline-group h2 {
+    margin-top: 0;
+    color: #333;
+} 

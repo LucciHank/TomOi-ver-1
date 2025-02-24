@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+<div class="container">
+    <!-- Progress Steps -->
+    <div class="checkout-steps" style="display: flex; justify-content: space-between; align-items: center; padding: 30px 30px; background: white; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02); width: 100%; position: relative; z-index: 1; border-radius: 8px; margin-bottom: 30px;">
+        <div class="step" style="display: flex; align-items: center; position: relative; flex: 1; justify-content: center;">
+            <div class="step-circle" style="width: 35px; height: 35px; border: 2px solid #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; margin-right: 12px; background: white; color: #666;">1</div>
+            <span style="font-size: 16px; font-weight: 500; color: #666;">Giỏ hàng</span>
+            <div class="step-line" style="position: absolute; right: -30%; width: 60%; height: 2px; background: #ddd; transform: translateY(-50%); top: 50%;"></div>
+        </div>
+        <div class="step active" style="display: flex; align-items: center; position: relative; flex: 1; justify-content: center;">
+            <div class="step-circle" style="width: 35px; height: 35px; border: 2px solid #df2626; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; margin-right: 12px; background: #df2626; color: white;">2</div>
+            <span style="font-size: 16px; font-weight: 500; color: #df2626;">Xác thực</span>
+            <div class="step-line" style="position: absolute; right: -30%; width: 60%; height: 2px; background: #ddd; transform: translateY(-50%); top: 50%;"></div>
+        </div>
+        <div class="step" style="display: flex; align-items: center; position: relative; flex: 1; justify-content: center;">
+            <div class="step-circle" style="width: 35px; height: 35px; border: 2px solid #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; margin-right: 12px; background: white; color: #666;">3</div>
+            <span style="font-size: 16px; font-weight: 500; color: #666;">Hoàn thành</span>
+        </div>
+    </div>
+
+    <div class="verify-payment-container" style="max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
+        <div class="verify-form">
+            <h3 style="text-align: center; color: #333; margin-bottom: 20px; font-size: 24px;">Xác thực thanh toán</h3>
+            <p style="text-align: center; font-size: 18px; margin-bottom: 30px;">
+                Tổng tiền: <strong style="color: #df2626;">{{ cart_total|floatformat:0|intcomma }}đ</strong>
+            </p>
+            
+            {% if not has_2fa %}
+            <!-- Form nhập mật khẩu thông thường -->
+            <div style="text-align: center; margin-bottom: 20px;">
+                <p style="color: #666;">Hình thức: <strong>Mật khẩu đăng nhập</strong></p>
+                <p style="color: #666;">Vui lòng nhập mật khẩu tài khoản của bạn để xác nhận giao dịch</p>
+            </div>
+            <form id="password-form" class="auth-form">
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <input type="password" class="form-control" id="password" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px;">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; background: #df2626; border: none; border-radius: 6px; color: white; font-weight: 600; font-size: 16px;">Xác nhận thanh toán</button>
+            </form>
+            {% else %}
+            <!-- Form nhập mật khẩu cấp 2/OTP -->
+            <div style="text-align: center; margin-bottom: 20px;">
+                <p style="color: #666;">Hình thức: <strong>
+                    {% if two_factor_method == 'password' %}Mật khẩu cấp 2
+                    {% elif two_factor_method == 'email' %}OTP qua Email
+                    {% else %}Google Authenticator{% endif %}
+                </strong></p>
+                
+                {% if two_factor_method == 'password' %}
+                <p style="color: #666;">Vui lòng nhập mật khẩu cấp 2 mà bạn đã tạo để giao dịch</p>
+                <p style="color: #999; font-size: 14px; margin-top: 10px;">
+                    * Nếu bạn quên mật khẩu cấp 2, vui lòng liên hệ Admin để được hỗ trợ
+                </p>
+                {% elif two_factor_method == 'email' %}
+                <p style="color: #666;">Vui lòng kiểm tra tin nhắn của bạn, chúng tôi đã gửi 1 mã xác thực gồm 6 số</p>
+                {% else %}
+                <p style="color: #666;">Vui lòng mở ứng dụng <strong>Google Authenticator</strong> và nhập mã OTP gồm 6 số:</p>
+                <p style="color: #999; font-size: 14px; margin-top: 10px;">
+                    * Nếu bạn mất quyền truy cập Google Authenticator, vui lòng liên hệ Admin để được hỗ trợ
+                </p>
+                {% endif %}
+            </div>
+            
+            <form id="2fa-form" class="auth-form">
+                {% if two_factor_method == 'password' %}
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <input type="password" class="form-control" id="2fa-password" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px;">
+                </div>
+                {% else %}
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <div class="otp-inputs" style="display: flex; gap: 10px; justify-content: center;">
+                        {% for i in '123456'|make_list %}
+                        <input type="text" maxlength="1" class="otp-input" required style="width: 50px; height: 50px; text-align: center; border: 1px solid #ddd; border-radius: 6px; font-size: 20px; font-weight: 600;">
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; background: #df2626; border: none; border-radius: 6px; color: white; font-weight: 600; font-size: 16px;">Xác nhận thanh toán</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Rest of the JavaScript code remains the same -->
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.auth-form');
+    
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // Show loading
+        Swal.fire({
+            title: 'Đang xử lý',
+            text: 'Vui lòng chờ trong giây lát...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        let authValue;
+        {% if not has_2fa %}
+            authValue = document.getElementById('password').value;
+            authType = 'password';
+        {% else %}
+            {% if two_factor_method == 'password' %}
+                authValue = document.getElementById('2fa-password').value;
+            {% else %}
+                // Ghép các số từ các ô input OTP thành một chuỗi
+                const otpInputs = Array.from(document.querySelectorAll('.otp-input'));
+                authValue = otpInputs.map(input => input.value.trim()).join('');
+                
+                // Kiểm tra OTP có đủ 6 số không
+                if (authValue.length !== 6 || !/^\d+$/.test(authValue)) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: 'Vui lòng nhập đủ 6 số OTP'
+                    });
+                    return;
+                }
+                
+                console.log('OTP Value:', authValue); // Debug log
+            {% endif %}
+            authType = '2fa';
+        {% endif %}
+
+        try {
+            const response = await fetch("{% url 'store:pay_with_balance' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    cart_total: '{{ cart_total }}',
+                    auth_type: authType,
+                    auth_value: authValue
+                })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                window.location.href = "{% url 'store:payment_success' %}?order_id=" + data.order_id;
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: data.message
+                });
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Có lỗi xảy ra khi xử lý thanh toán'
+            });
+        }
+    });
+
+    // Setup OTP inputs
+    {% if has_2fa and two_factor_method != 'password' %}
+    const otpInputs = document.querySelectorAll('.otp-input');
+    
+    otpInputs.forEach((input, index) => {
+        // Chỉ cho phép nhập số
+        input.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^\d]/g, '');
+            
+            if (e.target.value && index < otpInputs.length - 1) {
+                otpInputs[index + 1].focus();
+            }
+        });
+
+        // Xử lý phím Backspace
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                otpInputs[index - 1].focus();
+            }
+        });
+
+        // Xử lý paste
+        input.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pastedData = e.clipboardData.getData('text').replace(/[^\d]/g, '').split('');
+            
+            otpInputs.forEach((input, i) => {
+                if (pastedData[i]) {
+                    input.value = pastedData[i];
+                }
+            });
+            
+            if (pastedData.length > 0) {
+                otpInputs[Math.min(pastedData.length, otpInputs.length) - 1].focus();
+            }
+        });
+    });
+    {% endif %}
+});
+</script>
+{% endblock %} 

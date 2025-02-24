@@ -55,4 +55,6 @@ urlpatterns = [
     path('tcoin/', views.tcoin_view, name='tcoin'),
     path('deposit/create-payment/', views.create_payment, name='create_payment'),
     path('deposit/vnpay-return/', views.vnpay_return, name='vnpay_return'),
+    path('deposit/vnpay-deposit-return/', views.vnpay_deposit_return, name='vnpay_deposit_return'),
+    path('payment/vnpay-order-return/', views.vnpay_order_return, name='vnpay_order_return'),
 ]

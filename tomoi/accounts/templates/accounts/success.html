@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="success-container">
+    <div class="success-content">
+        <div class="success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h2 class="success-title">{{ title }}</h2>
+        <p class="success-message">{{ message }}</p>
+        <div class="countdown">
+            Tự động chuyển về trang chủ sau <span id="timer">5</span> giây
+        </div>
+    </div>
+</div>
+
+<style>
+.success-container {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.success-content {
+    text-align: center;
+    padding: 40px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+.success-icon {
+    font-size: 80px;
+    color: #28a745;
+    margin-bottom: 20px;
+}
+
+.success-title {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.success-message {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.countdown {
+    color: #888;
+    font-size: 14px;
+}
+</style>
+
+<script>
+let timeLeft = 5;
+const timerElement = document.getElementById('timer');
+
+const countdown = setInterval(() => {
+    timeLeft--;
+    timerElement.textContent = timeLeft;
+    
+    if (timeLeft <= 0) {
+        clearInterval(countdown);
+        window.location.href = '/';
+    }
+}, 1000);
+</script>
+{% endblock %} 

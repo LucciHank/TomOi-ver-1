@@ -50,8 +50,11 @@ import logging
 import uuid
 from django.db import transaction
 from collections import OrderedDict
-from urllib.parse import urlencode
+from urllib.parse import urlencode, quote_plus
 import hmac
+import urllib.parse
+from accounts.vnpay import VNPay
+from decimal import Decimal
 
 logger = logging.getLogger(__name__)
 
@@ -881,16 +884,19 @@ def payment_history(request):
 
 @login_required
 def order_history(request):
+    # Lấy lịch sử mua hàng (không còn dùng transaction_type)
     purchase_transactions = Transaction.objects.filter(
         user=request.user,
-        transaction_type='purchase'
+        order__isnull=False  # Chỉ lấy các giao dịch có liên kết với đơn hàng
     ).order_by('-created_at')
     
+    # Lấy lịch sử nạp tiền
     deposit_transactions = Transaction.objects.filter(
         user=request.user,
-        transaction_type='deposit'
+        order__isnull=True,  # Các giao dịch nạp tiền không có order
+        payment_method__in=['vnpay', 'momo', 'card']  # Các phương thức nạp tiền
     ).order_by('-created_at')
-    
+
     context = {
         'purchase_transactions': purchase_transactions,
         'deposit_transactions': deposit_transactions
@@ -1806,7 +1812,7 @@ def deposit_view(request):
             # Xử lý theo từng phương thức thanh toán
             if payment_method == 'vnpay':
                 # Tạo URL thanh toán VNPay
-                vnpay_url = create_vnpay_url(deposit)
+                vnpay_url = create_vnpay_url(request, amount)
                 return JsonResponse({
                     'success': True,
                     'redirect_url': vnpay_url
@@ -2023,117 +2029,339 @@ def create_payment(request):
     try:
         data = json.loads(request.body)
         amount = int(data.get('amount', 0))
-        
+        payment_method = data.get('payment_method')
+
         if amount < 10000:
             return JsonResponse({
                 'success': False,
-                'message': 'Số tiền tối thiểu là 10.000đ'
+                'message': 'Số tiền nạp tối thiểu là 10.000đ'
             })
 
-        # Tạo mã giao dịch unique
-        txn_ref = f"VNP{int(time.time())}"
-        
-        # Tạo URL thanh toán VNPay
-        vnp_params = {
-            'vnp_Version': '2.1.0',
-            'vnp_Command': 'pay',
-            'vnp_TmnCode': settings.VNPAY_TMN_CODE,
-            'vnp_Amount': amount * 100,  # Nhân 100 vì VNPay tính theo xu
-            'vnp_CurrCode': 'VND',
-            'vnp_TxnRef': txn_ref,
-            'vnp_OrderInfo': f'Nap tien tai khoan {request.user.username}',
-            'vnp_OrderType': 'billpayment',
-            'vnp_Locale': 'vn',
-            'vnp_ReturnUrl': request.build_absolute_uri(reverse('accounts:vnpay_return')),
-            'vnp_IpAddr': get_client_ip(request),
-            'vnp_CreateDate': datetime.now().strftime('%Y%m%d%H%M%S')
-        }
+        if payment_method == 'vnpay':
+            try:
+                # Tạo mã giao dịch unique
+                txn_ref = f"VNP{int(time.time())}"
 
-        # Tạo chữ ký
-        vnp_params = OrderedDict(sorted(vnp_params.items()))
-        hash_data = '&'.join([f'{k}={v}' for k, v in vnp_params.items()])
-        vnp_params['vnp_SecureHash'] = hmac.new(
-            settings.VNPAY_HASH_SECRET_KEY.encode(),
-            hash_data.encode(),
-            hashlib.sha512
-        ).hexdigest()
+                # Tạo instance của VNPay
+                vnpay = VNPay()
+                
+                # Cấu hình các tham số theo thứ tự alphabet
+                vnpay.requestData = {
+                    'vnp_Amount': str(amount * 100),
+                    'vnp_BankCode': 'NCB',
+                    'vnp_Command': 'pay',
+                    'vnp_CreateDate': datetime.now().strftime('%Y%m%d%H%M%S'),
+                    'vnp_CurrCode': 'VND',
+                    'vnp_IpAddr': get_client_ip(request),
+                    'vnp_Locale': 'vn',
+                    'vnp_OrderInfo': f'Nap tien tai khoan {request.user.username}',
+                    'vnp_OrderType': 'billpayment',
+                    'vnp_TmnCode': settings.VNPAY_TMN_CODE,
+                    'vnp_TxnRef': txn_ref,
+                    'vnp_Version': '2.1.0'
+                }
 
-        # Tạo URL thanh toán
-        vnpay_payment_url = f"{settings.VNPAY_PAYMENT_URL}?{urlencode(vnp_params)}"
+                # Tạo URL thanh toán với is_deposit=True
+                payment_url = vnpay.get_payment_url(
+                    settings.VNPAY_PAYMENT_URL,
+                    settings.VNPAY_HASH_SECRET_KEY,
+                    is_deposit=True
+                )
 
-        # Lưu thông tin giao dịch
-        Deposit.objects.create(
-            user=request.user,
-            amount=amount,
-            transaction_id=txn_ref,
-            payment_method='vnpay',
-            status='pending'
-        )
+                # Lưu thông tin giao dịch
+                Deposit.objects.create(
+                    user=request.user,
+                    amount=amount,
+                    transaction_id=txn_ref,
+                    payment_method='vnpay',
+                    status='pending'
+                )
 
-        return JsonResponse({
-            'success': True,
-            'payment_url': vnpay_payment_url
-        })
+                return JsonResponse({
+                    'success': True,
+                    'payment_url': payment_url
+                })
 
-    except Exception as e:
-        print(f"Error creating payment: {str(e)}")
+            except Exception as e:
+                print(f"Error creating VNPay URL: {str(e)}")
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Lỗi tạo URL thanh toán: {str(e)}'
+                })
+
+    except json.JSONDecodeError:
         return JsonResponse({
             'success': False,
-            'message': str(e)
+            'message': 'Dữ liệu không hợp lệ'
         })
+
+    return JsonResponse({
+        'success': False,
+        'message': 'Phương thức không được hỗ trợ'
+    })
 
 @csrf_exempt
 def vnpay_return(request):
-    """Xử lý kết quả trả về từ VNPay"""
+    """Xử lý kết quả trả về từ VNPay cho nạp tiền"""
     if request.method == 'GET':
-        # Lấy các tham số trả về từ VNPay
-        vnp_params = request.GET
+        vnpay = VNPay()
+        vnpay.responseData = request.GET.dict()
 
-        # Tạo chuỗi hash để kiểm tra
-        vnp_params_copy = vnp_params.copy()
-        vnp_secure_hash = vnp_params_copy.pop('vnp_SecureHash', '')
-        
-        # Sắp xếp các tham số theo thứ tự a-z
-        sorted_params = sorted(vnp_params_copy.items())
-        hash_data = '&'.join([f"{k}={v}" for k, v in sorted_params])
-        
-        # Tạo chữ ký để so sánh
-        secure_hash = hmac.new(
-            settings.VNPAY_HASH_SECRET_KEY.encode(),
-            hash_data.encode(),
-            hashlib.sha512
-        ).hexdigest()
-
-        # So sánh chữ ký
-        if secure_hash == vnp_secure_hash:
-            # Kiểm tra kết quả giao dịch
-            if vnp_params.get('vnp_ResponseCode') == '00':
-                # Giao dịch thành công
-                amount = int(vnp_params.get('vnp_Amount', 0)) / 100  # Chuyển từ xu sang đồng
-                txn_ref = vnp_params.get('vnp_TxnRef')
-                
-                # Cập nhật số dư tài khoản
+        if vnpay.validate_response(settings.VNPAY_HASH_SECRET_KEY):
+            response_code = vnpay.responseData.get('vnp_ResponseCode')
+            amount = Decimal(int(vnpay.responseData.get('vnp_Amount', 0)) / 100)
+            
+            if response_code == '00':
                 try:
-                    user = request.user
-                    user.balance += amount
-                    user.save()
-                    
-                    # Lưu lịch sử giao dịch
-                    Deposit.objects.create(
-                        user=user,
-                        amount=amount,
-                        transaction_id=txn_ref,
-                        payment_method='vnpay',
-                        status='success'
-                    )
-                    
-                    messages.success(request, f'Nạp tiền thành công: {amount:,}đ')
+                    with transaction.atomic():
+                        # Cập nhật số dư
+                        user = request.user
+                        user.balance += amount
+                        user.save()
+                        
+                        # Tạo lịch sử nạp tiền
+                        Transaction.objects.create(
+                            user=user,
+                            amount=amount,
+                            transaction_id=f"NT{int(time.time())}",  # NT = Nạp Tiền
+                            payment_method='vnpay',
+                            status='success',
+                            description=f'Nạp {amount:,}đ qua VNPay'
+                        )
+                        
+                        return render(request, 'accounts/deposit_success.html', {
+                            'amount': amount,
+                            'user': user
+                        })
                 except Exception as e:
-                    messages.error(request, 'Có lỗi xảy ra khi cập nhật số dư')
-                    print(f"Error updating balance: {str(e)}")
+                    print(f"Error processing deposit: {str(e)}")
+                    return redirect('accounts:deposit')
+            else:
+                return redirect('accounts:deposit')
+        else:
+            return redirect('accounts:deposit')
+    
+    return redirect('accounts:deposit')
+
+def get_client_ip(request):
+    """Lấy IP của client"""
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+def create_vnpay_url(request, amount):
+    """Tạo URL thanh toán VNPay"""
+    # Tạo mã giao dịch unique
+    txn_ref = f"VNP{int(time.time())}"
+    
+    # Tạo các tham số cho VNPay
+    vnp_params = {
+        'vnp_Version': '2.1.0',
+        'vnp_Command': 'pay',
+        'vnp_TmnCode': settings.VNPAY_TMN_CODE,
+        'vnp_Amount': str(amount * 100),  # Số tiền * 100
+        'vnp_CurrCode': 'VND',
+        'vnp_TxnRef': txn_ref,
+        'vnp_OrderInfo': f'Nap tien tai khoan {request.user.username}',
+        'vnp_OrderType': 'billpayment',
+        'vnp_Locale': 'vn',
+        'vnp_ReturnUrl': settings.VNPAY_RETURN_URL,
+        'vnp_IpAddr': get_client_ip(request),
+        'vnp_CreateDate': datetime.now().strftime('%Y%m%d%H%M%S'),
+        'vnp_BankCode': 'NCB'
+    }
+
+    # Sắp xếp các tham số theo thứ tự a-z
+    vnp_params = OrderedDict(sorted(vnp_params.items()))
+
+    # Tạo chuỗi hash data theo đúng format của VNPay
+    hash_data = ""
+    i = 0
+    for key, value in vnp_params.items():
+        if i == 1:
+            hash_data += '&' + urlencode({key: value})
+        else:
+            hash_data += urlencode({key: value})
+            i = 1
+
+    # Tạo secure hash
+    secure_hash = hmac.new(
+        bytes(settings.VNPAY_HASH_SECRET_KEY, 'utf-8'),
+        bytes(hash_data, 'utf-8'),
+        hashlib.sha512
+    ).hexdigest()
+
+    # Thêm secure hash vào params
+    vnp_params['vnp_SecureHash'] = secure_hash
+
+    # Tạo URL thanh toán
+    query_string = ""
+    i = 0
+    for key, value in vnp_params.items():
+        if i == 1:
+            query_string += '&' + urlencode({key: value})
+        else:
+            query_string += urlencode({key: value})
+            i = 1
+
+    payment_url = f"{settings.VNPAY_PAYMENT_URL}?{query_string}"
+
+    # Debug log
+    print("Hash Data:", hash_data)
+    print("Secure Hash:", secure_hash)
+    print("Payment URL:", payment_url)
+
+    # Lưu thông tin giao dịch
+    Deposit.objects.create(
+        user=request.user,
+        amount=amount,
+        transaction_id=txn_ref,
+        payment_method='vnpay',
+        status='pending'
+    )
+
+    return payment_url
+
+@csrf_exempt
+def vnpay_deposit_return(request):
+    """Xử lý kết quả trả về từ VNPay cho nạp tiền"""
+    if request.method == 'GET':
+        vnpay = VNPay()
+        vnpay.responseData = request.GET.dict()
+
+        if vnpay.validate_response(settings.VNPAY_HASH_SECRET_KEY):
+            response_code = vnpay.responseData.get('vnp_ResponseCode')
+            amount = Decimal(int(vnpay.responseData.get('vnp_Amount', 0)) / 100)
+            txn_ref = vnpay.responseData.get('vnp_TxnRef')
+            
+            if response_code == '00':
+                try:
+                    with transaction.atomic():
+                        # Cập nhật số dư
+                        user = request.user
+                        user.balance += amount
+                        user.save()
+                        
+                        # Tạo lịch sử giao dịch nạp tiền
+                        Transaction.objects.create(
+                            user=user,
+                            amount=amount,
+                            transaction_id=f"NT{int(time.time())}",  # NT = Nạp Tiền
+                            payment_method='vnpay',
+                            status='success',
+                            description=f'Nạp {amount:,}đ qua VNPay'
+                        )
+                        
+                        return render(request, 'accounts/deposit_success.html', {
+                            'amount': amount,
+                            'user': user
+                        })
+                        
+                except Exception as e:
+                    print(f"Error processing deposit: {str(e)}")
+                    return redirect('accounts:deposit')
+            else:
+                return redirect('accounts:deposit')
+        else:
+            return redirect('accounts:deposit')
+    
+    return redirect('accounts:deposit')
+
+@csrf_exempt 
+def vnpay_order_return(request):
+    """Xử lý kết quả trả về từ VNPay cho thanh toán đơn hàng"""
+    if request.method == 'GET':
+        vnpay = VNPay()
+        vnpay.responseData = request.GET.dict()
+
+        if vnpay.validate_response(settings.VNPAY_HASH_SECRET_KEY):
+            response_code = vnpay.responseData.get('vnp_ResponseCode')
+            amount = int(vnpay.responseData.get('vnp_Amount', 0)) / 100
+            order_id = vnpay.responseData.get('vnp_TxnRef')
+            
+            if response_code == '00':
+                try:
+                    with transaction.atomic():
+                        # Cập nhật trạng thái đơn hàng
+                        order = Order.objects.get(id=order_id)
+                        order.status = 'paid'
+                        order.save()
+                        
+                        # Lưu lịch sử giao dịch mua hàng
+                        Transaction.objects.create(
+                            user=request.user,
+                            order=order,
+                            amount=amount,
+                            transaction_id=f"T{int(time.time())}", # T = Transaction
+                            payment_method='vnpay',
+                            status='success'
+                        )
+                        
+                        return render(request, 'accounts/success.html', {
+                            'title': 'Thanh toán thành công!',
+                            'message': f'Đơn hàng #{order.id} đã được thanh toán thành công'
+                        })
+                except Exception as e:
+                    print(f"Error processing order: {str(e)}")
+                    messages.error(request, 'Có lỗi xảy ra khi xử lý đơn hàng')
             else:
                 messages.error(request, 'Giao dịch thất bại hoặc bị hủy')
         else:
             messages.error(request, 'Chữ ký không hợp lệ')
     
-    return redirect('accounts:deposit')
+    return redirect('store:cart')
+
+def verify_2fa(user, auth_type, auth_value):
+    """Xác thực 2FA"""
+    try:
+        if auth_type == 'password':
+            return user.check_password(auth_value)
+        elif auth_type == '2fa':
+            if user.two_factor_method == 'password':
+                return check_password(auth_value, user.two_factor_password)
+            elif user.two_factor_method == 'google':
+                # Debug logs
+                print(f"Verifying Google OTP for user: {user.username}")
+                print(f"Input OTP: {auth_value}")
+                print(f"User two_factor_method: {user.two_factor_method}")
+                print(f"User two_factor_secret: {user.two_factor_secret}")
+                
+                # Kiểm tra secret key tồn tại
+                if not user.two_factor_secret:  # Sửa từ ga_secret_key thành two_factor_secret
+                    print("No 2FA secret key found")
+                    return False
+
+                try:
+                    # Đảm bảo auth_value là string và loại bỏ khoảng trắng
+                    auth_value = str(auth_value).strip()
+                    
+                    # Tạo TOTP object với secret key của user
+                    totp = pyotp.TOTP(user.two_factor_secret)  # Sửa từ ga_secret_key thành two_factor_secret
+                    
+                    # Lấy mã OTP hiện tại để debug
+                    current_otp = totp.now()
+                    print(f"Current OTP: {current_otp}")
+                    print(f"Input OTP: {auth_value}")
+                    
+                    # Verify với valid_window=1 (chấp nhận mã trước và sau 30 giây)
+                    is_valid = totp.verify(auth_value, valid_window=1)
+                    
+                    print(f"OTP verification result: {is_valid}")
+                    return is_valid
+                    
+                except Exception as e:
+                    print(f"Error verifying TOTP: {str(e)}")
+                    return False
+                    
+            elif user.two_factor_method == 'email':
+                stored_otp = cache.get(f'email_otp_{user.id}')
+                return stored_otp and stored_otp == auth_value
+                
+    except Exception as e:
+        print(f"Error in verify_2fa: {str(e)}")
+        return False
+        
+    return False

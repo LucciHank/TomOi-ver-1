@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load custom_filters %}
+{% load humanize %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'store/css/cart.css' %}">
@@ -268,6 +269,152 @@
 .empty-cart-message .btn {
     padding: 10px 30px;
     font-size: 16px;
+}
+
+.checkout-steps {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 30px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    width: 1270px;
+    position: relative;
+    z-index: 1;
+    border-radius: 8px;
+    left: 15px;
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: 0;
+    flex: 0 0 auto;
+}
+
+.step:first-child {
+    margin-right: auto;
+    margin-left: 50px;
+}
+
+.step:last-child {
+    margin-left: auto;
+    margin-right: 50px;
+}
+
+.step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: -300px;
+    top: 50%;
+    width: 230px;
+    height: 2px;
+    background: #ddd;
+    transform: translateY(-50%);
+}
+
+.step-circle {
+    width: 35px;
+    height: 35px;
+    border: 2px solid #ddd;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-right: 12px;
+    background: white;
+    color: #666;
+}
+
+.step span {
+    font-size: 16px;
+    font-weight: 500;
+    color: #666;
+    white-space: nowrap;
+}
+
+.step.active .step-circle {
+    background: #df2626;
+    border-color: #df2626;
+    color: white;
+}
+
+.step.active span {
+    color: #df2626;
+    font-weight: 600;
+}
+
+.step.completed .step-circle {
+    background: #df2626;
+    border-color: #df2626;
+    color: white;
+}
+
+.step.completed span {
+    color: #df2626;
+}
+
+@media (max-width: 992px) {
+    .step:not(:last-child)::after {
+        right: -150px;
+        width: 100px;
+    }
+    
+    .step:first-child {
+        margin-left: 20px;
+    }
+    
+    .step:last-child {
+        margin-right: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .checkout-steps {
+        padding: 20px 15px;
+    }
+    
+    .step:not(:last-child)::after {
+        right: -70px;
+        width: 50px;
+    }
+    
+    .step span {
+        font-size: 14px;
+    }
+    
+    .step:first-child {
+        margin-left: 10px;
+    }
+    
+    .step:last-child {
+        margin-right: 10px;
+    }
+}
+
+.otp-inputs {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.otp-input {
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 18px;
+}
+
+/* Ẩn arrows trên input number */
+.otp-input::-webkit-outer-spin-button,
+.otp-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 </style>
 {% endblock %}
@@ -546,10 +693,20 @@
             </div>
   
                     <div class="payment-buttons">
-                        <button class="btn-payment btn-balance">
-                            <i class="fas fa-wallet"></i>
-                            Thanh toán bằng số dư ({{ user.balance|format_price }})
-                        </button>
+                        <div class="payment-methods">
+                            <!-- Các phương thức thanh toán khác -->
+                            
+                            <!-- Button thanh toán bằng số dư -->
+                            <button 
+                                id="pay-with-balance-btn" 
+                                class="btn-payment btn-balance w-100"
+                                onclick="window.location.href='{% url 'store:verify_payment' %}'"
+                                data-balance="{{ request.user.balance }}"
+                            >
+                                <i class="fas fa-wallet"></i>
+                                Thanh toán bằng số dư ({{ request.user.balance|intcomma }}đ)
+                            </button>
+                        </div>
                         <div class="or-divider">
                             <span>HOẶC</span>
                         </div>
@@ -581,6 +738,12 @@
         </div>
       </div>
     </div>
+
+<!-- Thêm vào phần tổng tiền -->
+<div id="cart-total" data-total="{{ cart_total }}" style="display: none;"></div>
+
+<!-- Thêm vào phần số dư -->
+<div id="user-balance" data-balance="{{ request.user.balance }}" style="display: none;"></div>
 {% endblock %}
 
 {% block extra_js %}

@@ -36,57 +36,34 @@ class InstallmentTransaction(models.Model):
         db_table = 'installment_transactions'
 
 class Transaction(models.Model):
-    PAYMENT_METHODS = [
-        ('vnpay', 'VNPAY'),
-        ('tcoin', 'TCoin'),
+    PAYMENT_METHODS = (
+        ('balance', 'Số dư'),
+        ('vnpay', 'VNPay'),
         ('momo', 'MoMo'),
-        ('paypal', 'PayPal')
-    ]
+        ('card', 'Thẻ cào'),
+    )
     
-    STATUS_CHOICES = [
-        ('pending', 'Chờ thanh toán'),
-        ('processing', 'Chờ xử lý'),
-        ('completed', 'Hoàn thành'),
-        ('failed', 'Lỗi'),
-        ('cancelled', 'Huỷ')
-    ]
+    STATUS_CHOICES = (
+        ('pending', 'Chờ xử lý'),
+        ('success', 'Thành công'),
+        ('failed', 'Thất bại'),
+    )
 
-    TRANSACTION_TYPES = [
-        ('purchase', 'Mua hàng'),
-        ('deposit', 'Nạp tiền')
-    ]
-
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    transaction_id = models.CharField(max_length=20, unique=True)
+    user = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
+    order = models.ForeignKey('store.Order', on_delete=models.SET_NULL, null=True, blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=0)
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS)
+    transaction_id = models.CharField(max_length=100, unique=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPES)
+    description = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    error_message = models.TextField(blank=True, null=True)
-
-    def save(self, *args, **kwargs):
-        if not self.transaction_id:
-            # Lấy số cuối cùng từ transaction_id gần nhất
-            last_transaction = Transaction.objects.order_by('-transaction_id').first()
-            if last_transaction and len(last_transaction.transaction_id) >= 12:
-                last_number = int(last_transaction.transaction_id[5:11])
-                next_number = str(last_number + 1).zfill(6)
-            else:
-                next_number = '012345'
-
-            # Tạo transaction_id mới
-            now = datetime.now()
-            self.transaction_id = f"T{now.strftime('%y%m')}{next_number}{now.strftime('%d')}"
-
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"{self.transaction_id} - {self.amount}đ"
 
     class Meta:
         ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.amount}đ - {self.get_status_display()}"
 
 class TransactionItem(models.Model):
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, related_name='items')

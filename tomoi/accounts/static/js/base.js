@@ -12,7 +12,7 @@ function updateCartDropdown(cartItems) {
     }
 
     if (emptyCart) emptyCart.style.display = 'none';
-
+    
     if (cartItemsContainer) {
         cartItemsContainer.innerHTML = cartItems.map(item => `
             <div class="cart-item" data-id="${item.id}" data-stock="${item.stock}">
@@ -93,9 +93,9 @@ window.translateText = async function(text, targetLang) {
         }
 
         const response = await fetch('/accounts/translate/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
                 'X-CSRFToken': csrfToken
             },
             body: JSON.stringify({

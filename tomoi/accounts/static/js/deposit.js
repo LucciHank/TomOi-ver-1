@@ -1,7 +1,59 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('depositForm');
+    const submitBtn = document.getElementById('submitBtn');
     const amountInput = document.getElementById('amount');
-    
+
+    if (submitBtn) {
+        submitBtn.addEventListener('click', async function() {
+            try {
+                submitBtn.disabled = true;
+                
+                const amount = amountInput.value.replace(/[,.]/g, '');
+                const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+
+                if (parseInt(amount) < 10000) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: 'Số tiền nạp tối thiểu là 10.000đ'
+                    });
+                    return;
+                }
+
+                if (paymentMethod === 'vnpay') {
+                    const response = await fetch('/accounts/deposit/create-payment/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        body: JSON.stringify({
+                            amount: parseInt(amount),
+                            payment_method: 'vnpay'
+                        })
+                    });
+
+                    const data = await response.json();
+                    console.log('Response:', data);
+
+                    if (data.success && data.payment_url) {
+                        window.location.href = data.payment_url;
+                    } else {
+                        throw new Error(data.message || 'Có lỗi xảy ra khi tạo thanh toán');
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: error.message || 'Không thể kết nối đến cổng thanh toán'
+                });
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+    }
+
     // Format số tiền khi nhập
     if (amountInput) {
         amountInput.addEventListener('input', function() {
@@ -87,68 +139,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     title: 'Lỗi',
                     text: error.message || 'Có lỗi xảy ra, vui lòng thử lại sau'
                 });
-            }
-        });
-    }
-
-    // Xử lý form chính
-    if (form) {
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            console.log('Form submitted');
-            
-            // Lấy số tiền và phương thức thanh toán
-            const amount = parseInt(amountInput.value.replace(/[^\d]/g, ''));
-            const method = document.querySelector('input[name="paymentMethod"]:checked').value;
-            
-            console.log('Amount:', amount);
-            console.log('Method:', method);
-            console.log('CSRF Token:', document.querySelector('[name=csrfmiddlewaretoken]').value);
-
-            // Validate số tiền
-            if (!amount || amount < 10000) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi',
-                    text: 'Số tiền nạp tối thiểu là 10.000đ'
-                });
-                return;
-            }
-
-            // Xử lý thanh toán VNPay
-            if (method === 'vnpay') {
-                try {
-                    console.log('Sending request to create payment...');
-                    const response = await fetch('/accounts/deposit/create-payment/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                        },
-                        body: JSON.stringify({
-                            amount: amount,
-                            payment_method: 'vnpay'
-                        })
-                    });
-
-                    console.log('Response received');
-                    const data = await response.json();
-                    console.log('Response data:', data);
-                    
-                    if (data.success && data.payment_url) {
-                        console.log('Redirecting to:', data.payment_url);
-                        window.location.href = data.payment_url;
-                    } else {
-                        throw new Error(data.message || 'Có lỗi xảy ra khi tạo thanh toán');
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Lỗi',
-                        text: error.message || 'Không thể kết nối đến cổng thanh toán'
-                    });
-                }
             }
         });
     }

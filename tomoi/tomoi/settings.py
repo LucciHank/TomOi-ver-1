@@ -216,11 +216,15 @@ VNPAY_CLIENT_ID = 'tomoi.vn'
 VNPAY_USERNAME = 'tomoivn2024@gmail.com'
 VNPAY_PASSWORD = 'Hanh2004@'
 VNPAY_CLIENT_SECRET = '890-'
-VNPAY_TMN_CODE = "TOMOI001"  # Mã website của bạn đăng ký trên VNPay
+VNPAY_TMN_CODE = "B2RG0YSD"  # Mã website test của VNPay sandbox
 VNPAY_HASH_SECRET = 'S500OYUZE6YZRFNMC2LFQZZXMXATAJKK'
-VNPAY_HASH_SECRET_KEY = "OQXFQTTVXLKPJXKZBVIRTXKUUKCQVZTO"  # Chuỗi bí mật
-VNPAY_PAYMENT_URL = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"  # URL thanh toán của VNPay
-VNPAY_RETURN_URL = "http://127.0.0.1:8000/accounts/deposit/vnpay-return/"  # URL nhận kết quả trả về
+VNPAY_HASH_SECRET_KEY = "S500OYUZE6YZRFNMC2LFQZZXMXATAJKK"  # Chuỗi bí mật test
+VNPAY_PAYMENT_URL = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"  # URL sandbox
+VNPAY_RETURN_URL = "http://127.0.0.1:8000/accounts/deposit/vnpay-return/"
+
+# VNPay URLs
+VNPAY_RETURN_URL_DEPOSIT = "http://127.0.0.1:8000/accounts/deposit/vnpay-deposit-return/"
+VNPAY_RETURN_URL_ORDER = "http://127.0.0.1:8000/accounts/payment/vnpay-order-return/"
 
 # SePay Configuration
 SEPAY_API_KEY = 'ZMR2Y3H54KLIZSKG0YYST8AJWCPCPN0D7KAUUXTUETG6HTOQGXL3NJDORFXZWQB1'

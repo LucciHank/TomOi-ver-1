@@ -2,7 +2,29 @@
 {% load static %}
 {% load custom_filters %}
 
+{% block extra_css %}
+<link href="{% static 'css/deposit.css' %}" rel="stylesheet"/>
+{% endblock %}
+
 {% block content %}
+<!-- Progress Steps -->
+<div class="checkout-steps" style="display: flex; justify-content: space-between; align-items: center; padding: 30px 30px; background: white; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02); width: 100%; position: relative; z-index: 1; border-radius: 8px; margin-bottom: 30px;">
+    <div class="step active" style="display: flex; align-items: center; position: relative; flex: 1; justify-content: center;">
+        <div class="step-circle" style="width: 35px; height: 35px; border: 2px solid #df2626; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; margin-right: 12px; background: #df2626; color: white;">1</div>
+        <span style="font-size: 16px; font-weight: 500; color: #df2626;">Nạp tiền</span>
+        <div class="step-line" style="position: absolute; right: -30%; width: 60%; height: 2px; background: #ddd; transform: translateY(-50%); top: 50%;"></div>
+    </div>
+    <div class="step" style="display: flex; align-items: center; position: relative; flex: 1; justify-content: center;">
+        <div class="step-circle" style="width: 35px; height: 35px; border: 2px solid #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; margin-right: 12px; background: white; color: #666;">2</div>
+        <span style="font-size: 16px; font-weight: 500; color: #666;">Thanh toán</span>
+        <div class="step-line" style="position: absolute; right: -30%; width: 60%; height: 2px; background: #ddd; transform: translateY(-50%); top: 50%;"></div>
+    </div>
+    <div class="step" style="display: flex; align-items: center; position: relative; flex: 1; justify-content: center;">
+        <div class="step-circle" style="width: 35px; height: 35px; border: 2px solid #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; margin-right: 12px; background: white; color: #666;">3</div>
+        <span style="font-size: 16px; font-weight: 500; color: #666;">Hoàn thành</span>
+    </div>
+</div>
+
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -11,14 +33,14 @@
                     <h4 class="card-title mb-4">Nạp tiền vào ví</h4>
                     
                     <!-- Form chính -->
-                    <form id="depositForm" method="post">
+                    <form id="depositForm">
                         {% csrf_token %}
                         
                         <!-- Amount Input -->
                         <div class="mb-4">
                             <label class="form-label">Số tiền nạp</label>
                             <div class="input-group">
-                                <input type="text" class="form-control" id="amount" value="100,000" required>
+                                <input type="text" class="form-control" id="amount" name="amount" value="100,000" required>
                                 <span class="input-group-text">VNĐ</span>
                             </div>
                             <div class="form-text">Số tiền tối thiểu: 10.000đ</div>
@@ -51,14 +73,16 @@
                             <div class="deposit-method mb-4">
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="paymentMethod" id="cardPayment" value="card">
-                                    <label class="form-check-label d-flex align-items-center" for="cardPayment" data-bs-toggle="modal" data-bs-target="#cardModal">
+                                    <label class="form-check-label d-flex align-items-center" for="cardPayment">
                                         <i class="fas fa-credit-card fa-2x"></i>
                                         <span class="ms-2">Nạp thẻ cào</span>
                                     </label>
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-primary w-100">Nạp tiền</button>
+                            <button type="button" class="btn btn-primary btn-lg w-100" id="submitBtn">
+                                <i class="fas fa-wallet me-2"></i>Nạp tiền
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -171,4 +195,142 @@
         </div>
     </div>
 </div>
+
+<!-- Script xử lý VNPay return -->
+<script>
+// Kiểm tra URL có chứa kết quả từ VNPay không
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.has('vnp_ResponseCode')) {
+    const responseCode = urlParams.get('vnp_ResponseCode');
+    const amount = parseInt(urlParams.get('vnp_Amount') || 0);
+    
+    if (responseCode === '00') {
+        // Cập nhật progress bar sang bước hoàn thành
+        document.querySelectorAll('.step').forEach(step => {
+            step.classList.add('active');
+        });
+        
+        // Cập nhật số dư và hiển thị thông báo thành công
+        const userBalance = document.getElementById('user-balance');
+        if (userBalance) {
+            const currentBalance = parseInt(userBalance.textContent.replace(/\D/g, ''));
+            userBalance.textContent = (currentBalance + amount).toLocaleString() + 'đ';
+        }
+        
+        Swal.fire({
+            icon: 'success',
+            title: 'Thành công!',
+            text: `Nạp tiền thành công: ${amount.toLocaleString()}đ`,
+            showConfirmButton: true
+        });
+    } else if (urlParams.has('error')) {
+        // Reset progress bar về bước 1
+        document.querySelectorAll('.step').forEach((step, index) => {
+            if (index > 0) step.classList.remove('active');
+        });
+        
+        // Hiển thị thông báo lỗi tương ứng
+        const errorMessages = {
+            'update_failed': 'Có lỗi xảy ra khi cập nhật số dư',
+            'payment_failed': 'Giao dịch thất bại hoặc bị hủy',
+            'invalid_signature': 'Chữ ký không hợp lệ'
+        };
+        
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi!',
+            text: errorMessages[urlParams.get('error')] || 'Có lỗi xảy ra',
+            showConfirmButton: true
+        });
+    }
+    
+    // Xóa query params khỏi URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+}
+</script>
+
+<!-- CSS cho progress bar -->
+<style>
+.progress-container {
+    margin-bottom: 2rem;
+}
+
+.progress-bar {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin: 0 auto;
+    max-width: 720px;
+    padding: 0 20px;
+}
+
+.progress-bar::before {
+    content: "";
+    background-color: #ddd;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    height: 4px;
+    width: 100%;
+    z-index: 1;
+}
+
+.progress-bar .step {
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
+
+.step-icon {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ddd;
+    border-radius: 50%;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+    color: #fff;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.step.active .step-icon {
+    background-color: #e50914;
+}
+
+.step-text {
+    font-size: 14px;
+    color: #777;
+    margin-top: 10px;
+    font-weight: 500;
+}
+
+.step.active .step-text {
+    color: #e50914;
+}
+
+/* Thêm line kết nối giữa các step */
+.progress-bar .step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 17px;
+    left: 50%;
+    width: 100%;
+    height: 4px;
+    background: #ddd;
+    z-index: 1;
+}
+
+.progress-bar .step.active:not(:last-child)::after {
+    background: #e50914;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/deposit.js' %}"></script>
 {% endblock %} 

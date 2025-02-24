@@ -1,7 +1,11 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.html import format_html
-from .models import CustomUser, AccountType, TCoin, CardTransaction
+from .models import CustomUser, AccountType, TCoin, CardTransaction, TCoinHistory, BalanceHistory
+from django.urls import reverse
+from django.contrib import messages
+from django.shortcuts import redirect
+from django import forms
 
 @admin.register(AccountType)
 class AccountTypeAdmin(admin.ModelAdmin):
@@ -54,6 +58,45 @@ class CardTransactionAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'serial', 'request_id')
     readonly_fields = ('created_at', 'updated_at')
 
+class TCoinAdjustmentForm(forms.Form):
+    tcoin = forms.IntegerField(label='Số TCoin mới')
+    description = forms.CharField(
+        label='Hoạt động',
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'Admin cập nhật'})
+    )
+
+class BalanceAdjustmentForm(forms.Form):
+    balance = forms.DecimalField(label='Số dư mới')
+    description = forms.CharField(
+        label='Lý do thay đổi',
+        required=True,
+        widget=forms.TextInput(attrs={'placeholder': 'Nhập lý do thay đổi số dư'})
+    )
+
+class BalanceHistoryInline(admin.TabularInline):
+    model = BalanceHistory
+    fk_name = 'user'
+    extra = 0
+    readonly_fields = ('amount', 'balance_after', 'description', 'created_by', 'created_at')
+    can_delete = False
+    ordering = ('-created_at',)
+    max_num = 0
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+class TCoinHistoryInline(admin.TabularInline):
+    model = TCoinHistory
+    extra = 0
+    readonly_fields = ('amount', 'activity_type', 'description', 'created_at')
+    can_delete = False
+    ordering = ('-created_at',)
+    max_num = 0
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
     list_display = (
@@ -67,8 +110,10 @@ class CustomUserAdmin(UserAdmin):
         'phone_display',
         'date_joined',
         'user_type_display',
+        'two_factor_method',
+        'remove_2fa_button',
     )
-    list_filter = ('is_active', 'account_label', 'user_type', 'groups', 'status')
+    list_filter = ('is_active', 'account_label', 'user_type', 'groups', 'status', 'two_factor_method')
     search_fields = ('username', 'email', 'first_name', 'last_name', 'phone_number')
     ordering = ('-date_joined',)
     
@@ -92,6 +137,10 @@ class CustomUserAdmin(UserAdmin):
         ('Số dư & TCoin', {
             'fields': ('balance', 'tcoin'),
             'description': 'Quản lý số dư và TCoin của tài khoản',
+        }),
+        ('Bảo mật', {
+            'fields': ('two_factor_method', 'two_factor_password', 'google_auth_secret'),
+            'description': 'Quản lý xác thực 2 lớp',
         }),
         ('Phân quyền nâng cao', {
             'fields': ('is_staff', 'is_superuser', 'groups', 'user_permissions'),
@@ -261,16 +310,18 @@ class CustomUserAdmin(UserAdmin):
         return [fs for fs in fieldsets if fs[0] != 'Phân quyền nâng cao']
 
     def save_model(self, request, obj, form, change):
-        if not change:  # Nếu là tạo mới
-            # Lấy hoặc tạo loại tài khoản mặc định
-            default_type, _ = AccountType.objects.get_or_create(
-                code='retail',
-                defaults={
-                    'name': 'Khách bán lẻ',
-                    'color_code': '#666666'
-                }
+        if change and 'tcoin' in form.changed_data:
+            old_tcoin = CustomUser.objects.get(pk=obj.pk).tcoin
+            tcoin_change = obj.tcoin - old_tcoin
+            
+            # Tạo lịch sử giao dịch TCoin
+            description = request.POST.get('description', 'Admin cập nhật')
+            TCoinHistory.objects.create(
+                user=obj,
+                amount=tcoin_change,
+                activity_type='admin',
+                description=description
             )
-            obj.account_label = default_type
             
         super().save_model(request, obj, form, change)
 
@@ -312,5 +363,93 @@ class CustomUserAdmin(UserAdmin):
                 }
             )
     make_suspended.short_description = "Đánh dấu là Ngừng hoạt động"
+
+    def remove_2fa_button(self, obj):
+        if obj.two_factor_method:
+            url = reverse('admin:remove_2fa', args=[obj.pk])
+            return format_html(
+                '<a class="button" href="{}" onclick="return confirm(\'Bạn có chắc chắn muốn gỡ bỏ xác thực 2 lớp cho tài khoản này?\');">'
+                'Gỡ xác thực 2 lớp</a>', 
+                url
+            )
+        return "Chưa bật 2FA"
+    remove_2fa_button.short_description = 'Gỡ 2FA'
+
+    def get_urls(self):
+        from django.urls import path
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                '<int:user_id>/remove-2fa/',
+                self.admin_site.admin_view(self.remove_2fa_view),
+                name='remove_2fa',
+            ),
+        ]
+        return custom_urls + urls
+    
+    def remove_2fa_view(self, request, user_id):
+        try:
+            user = CustomUser.objects.get(id=user_id)
+            # Gỡ bỏ tất cả thông tin 2FA
+            user.two_factor_method = None
+            user.two_factor_password = None
+            user.google_auth_secret = None
+            user.save()
+            
+            self.message_user(
+                request,
+                f'Đã gỡ bỏ xác thực 2 lớp cho tài khoản {user.username}',
+                messages.SUCCESS
+            )
+        except CustomUser.DoesNotExist:
+            self.message_user(
+                request,
+                'Không tìm thấy tài khoản',
+                messages.ERROR
+            )
+        
+        return redirect('admin:accounts_customuser_changelist')
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+        user = self.get_object(request, object_id)
+
+        # Xử lý form điều chỉnh số dư
+        if request.method == 'POST' and 'balance' in request.POST:
+            balance_form = BalanceAdjustmentForm(request.POST)
+            if balance_form.is_valid():
+                old_balance = user.balance
+                new_balance = balance_form.cleaned_data['balance']
+                balance_change = new_balance - old_balance
+                description = balance_form.cleaned_data['description']
+                
+                # Cập nhật số dư
+                user.balance = new_balance
+                user.save()
+                
+                # Tạo lịch sử
+                BalanceHistory.objects.create(
+                    user=user,
+                    amount=balance_change,
+                    balance_after=new_balance,
+                    description=description,
+                    created_by=request.user
+                )
+                
+                self.message_user(request, f'Đã cập nhật số dư thành công. Thay đổi: {balance_change:+,}đ')
+                return redirect('admin:accounts_customuser_change', object_id)
+        else:
+            balance_form = BalanceAdjustmentForm(initial={'balance': user.balance})
+            
+        extra_context['balance_form'] = balance_form
+        return super().change_view(request, object_id, form_url, extra_context)
+
+    inlines = [BalanceHistoryInline, TCoinHistoryInline]
+
+    class Media:
+        css = {
+            'all': ('admin/css/tcoin_adjustment.css',)
+        }
+        js = ('admin/js/tcoin_adjustment.js',)
 
 admin.site.register(CustomUser, CustomUserAdmin)

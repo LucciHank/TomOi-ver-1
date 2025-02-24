@@ -1,0 +1,62 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block field_sets %}
+{{ block.super }}
+
+<div class="adjustment-forms">
+    {% if balance_form %}
+    <fieldset class="module aligned">
+        <h2>Điều chỉnh số dư</h2>
+        <div class="form-row">
+            <div class="balance-adjustment">
+                <label for="id_balance">Số dư mới:</label>
+                {{ balance_form.balance }}
+            </div>
+            <div class="balance-description">
+                <label for="id_description">Lý do thay đổi:</label>
+                {{ balance_form.description }}
+                <p class="help">Vui lòng nhập lý do thay đổi số dư</p>
+            </div>
+        </div>
+    </fieldset>
+    {% endif %}
+
+    {% if tcoin_form %}
+    <fieldset class="module aligned">
+        <h2>Điều chỉnh TCoin</h2>
+        <div class="form-row">
+            <div class="tcoin-adjustment">
+                <label for="id_tcoin">Số TCoin mới:</label>
+                {{ tcoin_form.tcoin }}
+            </div>
+            <div class="tcoin-description">
+                <label for="id_description">Hoạt động:</label>
+                {{ tcoin_form.description }}
+                <p class="help">Để trống sẽ hiển thị "Admin cập nhật"</p>
+            </div>
+        </div>
+    </fieldset>
+    {% endif %}
+</div>
+
+<div class="history-sections">
+    <div class="balance-history">
+        <h2>Lịch sử thay đổi số dư</h2>
+        {% for inline_admin_formset in inline_admin_formsets %}
+            {% if inline_admin_formset.opts.model_name == 'balancehistory' %}
+                {% include inline_admin_formset.opts.template %}
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <div class="tcoin-history">
+        <h2>Lịch sử thay đổi TCoin</h2>
+        {% for inline_admin_formset in inline_admin_formsets %}
+            {% if inline_admin_formset.opts.model_name == 'tcoinhistory' %}
+                {% include inline_admin_formset.opts.template %}
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

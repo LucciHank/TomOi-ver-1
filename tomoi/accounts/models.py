@@ -157,7 +157,7 @@ class CustomUser(AbstractUser):
     two_factor_method = models.CharField(
         max_length=20,
         choices=[
-            ('password', 'Password'),
+            ('password', 'Mật khẩu cấp 2'),
             ('email', 'Email OTP'),
             ('google', 'Google Authenticator')
         ],
@@ -166,6 +166,7 @@ class CustomUser(AbstractUser):
     )
     two_factor_secret = models.CharField(max_length=100, null=True, blank=True)  # For Google Auth
     two_factor_password = models.CharField(max_length=128, null=True, blank=True)  # For password 2FA
+    google_auth_secret = models.CharField(max_length=32, null=True, blank=True)  # Thêm field này
     
     # 2FA settings
     require_2fa_purchase = models.BooleanField(default=False)
@@ -387,3 +388,19 @@ class CardTransaction(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.amount}đ - {self.get_status_display()}"
+
+class BalanceHistory(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=0)  # Số tiền thay đổi
+    balance_after = models.DecimalField(max_digits=10, decimal_places=0)  # Số dư sau khi thay đổi
+    description = models.CharField(max_length=255)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='balance_adjustments')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Lịch sử số dư'
+        verbose_name_plural = 'Lịch sử số dư'
+
+    def __str__(self):
+        return f"{self.user.username} - {self.amount:+,}đ - {self.created_at}"

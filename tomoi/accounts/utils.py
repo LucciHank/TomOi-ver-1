@@ -5,6 +5,8 @@ import hmac
 import urllib.parse
 from django.conf import settings
 from datetime import datetime
+from django.core.cache import cache
+import pyotp
 
 def mask_email(email):
     """
@@ -136,3 +138,17 @@ def process_card_payment(card_info):
             'status': 0,
             'message': str(e)
         } 
+
+def verify_otp(user, otp_value):
+    """Xác thực mã OTP"""
+    if user.two_factor_type == 'email':
+        # Kiểm tra OTP email từ cache hoặc session
+        stored_otp = cache.get(f'email_otp_{user.id}')
+        return stored_otp and stored_otp == otp_value
+        
+    elif user.two_factor_type == 'google':
+        # Xác thực OTP từ Google Authenticator
+        totp = pyotp.TOTP(user.google_auth_secret)
+        return totp.verify(otp_value)
+        
+    return False 

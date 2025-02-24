@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+<div class="container">
+    <!-- Progress Steps -->
+    <div class="checkout-steps" style="display: flex; justify-content: space-between; align-items: center; padding: 30px 30px; background: white; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02); width: 100%; position: relative; z-index: 1; border-radius: 8px; margin-bottom: 30px;">
+        <div class="step" style="display: flex; align-items: center; position: relative; flex: 1; justify-content: center;">
+            <div class="step-circle" style="width: 35px; height: 35px; border: 2px solid #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; margin-right: 12px; background: white; color: #666;">1</div>
+            <span style="font-size: 16px; font-weight: 500; color: #666;">Nạp tiền</span>
+            <div class="step-line" style="position: absolute; right: -30%; width: 60%; height: 2px; background: #ddd; transform: translateY(-50%); top: 50%;"></div>
+        </div>
+        <div class="step" style="display: flex; align-items: center; position: relative; flex: 1; justify-content: center;">
+            <div class="step-circle" style="width: 35px; height: 35px; border: 2px solid #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; margin-right: 12px; background: white; color: #666;">2</div>
+            <span style="font-size: 16px; font-weight: 500; color: #666;">Thanh toán</span>
+            <div class="step-line" style="position: absolute; right: -30%; width: 60%; height: 2px; background: #ddd; transform: translateY(-50%); top: 50%;"></div>
+        </div>
+        <div class="step active" style="display: flex; align-items: center; position: relative; flex: 1; justify-content: center;">
+            <div class="step-circle" style="width: 35px; height: 35px; border: 2px solid #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; margin-right: 12px; background: #28a745; color: white;">3</div>
+            <span style="font-size: 16px; font-weight: 500; color: #28a745;">Hoàn thành</span>
+        </div>
+    </div>
+
+    <!-- Success Message -->
+    <div class="success-container" style="max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; padding: 40px; text-align: center; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
+        <div class="success-icon" style="margin-bottom: 30px;">
+            <i class="fas fa-check-circle" style="font-size: 80px; color: #28a745;"></i>
+        </div>
+        <h2 style="color: #28a745; margin-bottom: 20px; font-size: 28px;">Nạp tiền thành công!</h2>
+        <div class="amount-info" style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+            <p style="font-size: 18px; color: #333; margin-bottom: 10px;">
+                Số tiền nạp: <strong style="color: #df2626; font-size: 24px;">{{ amount|floatformat:0|intcomma }}đ</strong>
+            </p>
+            <p style="font-size: 16px; color: #666;">
+                Số dư hiện tại: <strong>{{ user.balance|floatformat:0|intcomma }}đ</strong>
+            </p>
+        </div>
+        <p id="countdown" style="font-size: 16px; color: #666; margin-bottom: 30px;">
+            Tự động chuyển về trang chủ sau <span id="timer" style="font-weight: bold; color: #df2626;">5</span> giây
+        </p>
+        <a href="{% url 'store:home' %}" class="btn" style="display: inline-block; padding: 12px 30px; background: #df2626; color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">
+            Về trang chủ ngay
+        </a>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let timeLeft = 5;
+    const timerElement = document.getElementById('timer');
+    
+    const countdown = setInterval(function() {
+        timeLeft--;
+        timerElement.textContent = timeLeft;
+        
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            window.location.href = '{% url "store:home" %}';
+        }
+    }, 1000);
+});
+</script>
+{% endblock %} 
