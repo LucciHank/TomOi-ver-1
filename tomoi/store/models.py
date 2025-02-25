@@ -284,84 +284,58 @@ class Banner(models.Model):
 class CartItem(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     session_key = models.CharField(max_length=40, null=True, blank=True)
-    product = models.ForeignKey('Product', on_delete=models.CASCADE)
-    variant = models.ForeignKey('ProductVariant', on_delete=models.CASCADE, null=True, blank=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, null=True, blank=True)
+    quantity = models.IntegerField(default=1)
     duration = models.IntegerField(null=True, blank=True)
     upgrade_email = models.EmailField(null=True, blank=True)
     account_username = models.CharField(max_length=255, null=True, blank=True)
-    account_password = models.CharField(max_length=255, null=True, blank=True)
-    quantity = models.PositiveIntegerField(default=1)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
-    def to_dict(self):
-        item_dict = {
-            'id': self.id,
-            'product_id': self.product.id,
-            'name': self.product.name,
-            'quantity': self.quantity,
-            'stock': self.product.stock,
-            'price': float(self.total_price()),
-            'image': self.product.get_primary_image().url if self.product.get_primary_image() else None,
-        }
+    def get_price(self):
+        """Lấy giá của variant và duration tương ứng"""
+        try:
+            if self.variant and self.duration:
+                # Lấy giá từ VariantOption tương ứng với variant và duration
+                variant_option = self.variant.options.get(duration=self.duration)
+                return variant_option.price
+            elif self.variant:
+                # Nếu không có duration, lấy giá nhỏ nhất của variant
+                return self.variant.options.order_by('price').first().price
+            else:
+                # Nếu không có variant, lấy giá của product
+                return self.product.price
+        except Exception:
+            # Nếu có lỗi, trả về 0
+            return 0
 
-        # Thêm thông tin variant nếu có
-        if self.variant:
-            item_dict.update({
-                'variant_id': self.variant.id,
-                'variant_name': self.variant.name,
-            })
-
-        # Thêm thông tin duration nếu có
-        if self.duration:
-            item_dict['duration'] = self.duration
-
-        # Thêm thông tin upgrade_email nếu có
-        if self.upgrade_email:
-            item_dict['upgrade_email'] = self.upgrade_email
-
-        return item_dict
-
-    def total_price(self):
-        if self.variant and self.duration:
-            try:
-                option = self.variant.options.get(duration=self.duration)
-                return self.quantity * option.price
-            except VariantOption.DoesNotExist:
-                return 0
-        return self.quantity * self.product.price
+    def get_total_price(self):
+        """Tính tổng giá của item dựa trên variant, số lượng và thời hạn"""
+        unit_price = self.get_price()
+        return unit_price * self.quantity
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name}"
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'product', 'variant', 'duration', 'upgrade_email'],
-                condition=models.Q(user__isnull=False),
-                name='unique_user_product_variant'
-            ),
-            models.UniqueConstraint(
-                fields=['session_key', 'product', 'variant', 'duration', 'upgrade_email'],
-                condition=models.Q(session_key__isnull=False),
-                name='unique_session_product_variant'
-            )
+        unique_together = [
+            ('user', 'product', 'variant', 'duration', 'upgrade_email'),
+            ('session_key', 'product', 'variant', 'duration', 'upgrade_email')
         ]
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=1)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
+    product_name = models.CharField(max_length=255)
+    variant_name = models.CharField(max_length=255, null=True, blank=True)
+    quantity = models.IntegerField(default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    variant = models.ForeignKey('ProductVariant', on_delete=models.SET_NULL, null=True, blank=True)
     duration = models.IntegerField(null=True, blank=True)
     upgrade_email = models.EmailField(null=True, blank=True)
-    
-    def __str__(self):
-        return f"{self.quantity}x {self.product.name} in Order #{self.order.id}"
+    account_username = models.CharField(max_length=255, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-    def total_price(self):
-        return self.price * self.quantity
+    def __str__(self):
+        return f"{self.product_name} - {self.order.id}"
 
 class BlogPost(models.Model):
     title = models.CharField(max_length=200)

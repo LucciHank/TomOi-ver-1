@@ -95,66 +95,47 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-function updateQuantity(itemId, quantity) {
-    const csrfToken = getCookie('csrftoken');
-    
+// Xử lý cập nhật số lượng sản phẩm
+function updateCartItem(itemId, action, value = null) {
+    let data = {
+        'item_id': itemId,
+        'action': action
+    };
+
+    if (value !== null) {
+        data.quantity = parseInt(value);
+    }
+
     fetch('/cart/update/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': csrfToken,
+            'X-CSRFToken': getCookie('csrftoken')
         },
-        body: JSON.stringify({
-            itemId: itemId,
-            quantity: quantity
-        })
+        body: JSON.stringify(data)
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Cập nhật UI
-            updateCartUI(data);
+            location.reload();
         } else {
-            throw new Error(data.error || 'Có lỗi xảy ra');
+            Swal.fire({
+                title: 'Lỗi',
+                text: data.message || 'Có lỗi xảy ra',
+                icon: 'error'
+            });
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        Swal.fire({
-            title: 'Lỗi',
-            text: error.message,
-            icon: 'error'
-        });
     });
 }
 
-function updateCartUI(data) {
-    // Cập nhật số lượng
-    updateCartCount(data.total_items);
-    
-    // Cập nhật tổng tiền
-    const totalAmount = document.querySelector('.total-amount');
-    if (totalAmount) {
-        totalAmount.textContent = formatPrice(data.total_amount);
-    }
-    
-    // Cập nhật tạm tính
-    const subtotal = document.querySelector('.summary-details .summary-row:first-child span:last-child');
-    if (subtotal) {
-        subtotal.textContent = formatPrice(data.total_amount);
-    }
-    
-    // Cập nhật tổng thanh toán
-    const finalAmount = document.querySelector('.summary-details .total-row span:last-child');
-    if (finalAmount) {
-        finalAmount.textContent = formatPrice(data.total_amount);
-    }
-}
-
+// Xử lý xóa sản phẩm
 function removeCartItem(itemId) {
     Swal.fire({
-        title: 'Xác nhận xóa?',
-        text: "Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?",
+        title: 'Xác nhận xóa',
+        text: 'Bạn có chắc muốn xóa sản phẩm này?',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Xóa',
@@ -167,55 +148,158 @@ function removeCartItem(itemId) {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCookie('csrftoken')
                 },
-                body: JSON.stringify({ id: itemId })
+                body: JSON.stringify({
+                    'item_id': itemId
+                })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Xóa phần tử khỏi DOM
-                    const cartItem = document.querySelector(`.cart-item[data-id="${itemId}"]`);
-                    if (cartItem) {
-                        cartItem.remove();
-                    }
-                    
-                    // Cập nhật UI
-                    updateCartCount(data.total_items);
-                    
-                    // Cập nhật tổng tiền
-                    const totalAmount = document.querySelector('.total-amount');
-                    if (totalAmount) {
-                        totalAmount.textContent = formatPrice(data.total_amount);
-                    }
-
-                    // Nếu giỏ hàng trống
-                    if (data.total_items === 0) {
-                        const cartDropdown = document.querySelector('.cart-dropdown-content');
-                        if (cartDropdown) {
-                            cartDropdown.innerHTML = '<div class="empty-cart">Giỏ hàng trống</div>';
-                        }
-                    }
+                    location.reload();
                 }
             });
         }
     });
 }
 
-// Helper functions
-function updateCartCount(count) {
-    const badge = document.querySelector('.cart-count-badge');
-    if (badge) {
-        badge.textContent = count;
-        badge.style.display = count > 0 ? 'flex' : 'none';
-    }
-}
+// Xử lý toggle và submit các form promo
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle promo sections
+    const promoHeaders = document.querySelectorAll('.promo-header');
+    promoHeaders.forEach(header => {
+        header.addEventListener('click', function() {
+            const targetId = this.dataset.target;
+            const targetInput = document.getElementById(targetId);
+            
+            // Đóng tất cả các section khác
+            document.querySelectorAll('.promo-input').forEach(input => {
+                if (input.id !== targetId) {
+                    input.style.display = 'none';
+                }
+            });
+            
+            // Toggle section hiện tại
+            if (targetInput) {
+                targetInput.style.display = 
+                    targetInput.style.display === 'none' ? 'block' : 'none';
+            }
+        });
+    });
 
-function updateTotalAmount(amount) {
-    const totalAmount = document.querySelector('.total-amount');
-    if (totalAmount) {
-        totalAmount.textContent = formatPrice(amount);
+    // Xử lý TCoin
+    const tcoinForm = document.getElementById('tcoinForm');
+    if (tcoinForm) {
+        tcoinForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const amount = document.getElementById('tcoinAmount').value;
+            
+            fetch('/accounts/apply-tcoin/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    amount: parseInt(amount)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    Swal.fire('Lỗi', data.message, 'error');
+                }
+            });
+        });
     }
-}
 
+    // Xử lý mã giới thiệu
+    const referralForm = document.getElementById('referralForm');
+    if (referralForm) {
+        referralForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const code = document.getElementById('referralCode').value;
+            
+            fetch('/accounts/apply-referral/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    code: code
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    Swal.fire('Lỗi', data.message, 'error');
+                }
+            });
+        });
+    }
+
+    // Xử lý mã giảm giá
+    const voucherForm = document.getElementById('voucherForm');
+    if (voucherForm) {
+        voucherForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const code = document.getElementById('voucherCode').value;
+            
+            fetch('/accounts/apply-voucher/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    code: code
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    Swal.fire('Lỗi', data.message, 'error');
+                }
+            });
+        });
+    }
+
+    // Xử lý tặng quà
+    const giftForm = document.getElementById('giftForm');
+    if (giftForm) {
+        giftForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('giftEmail').value;
+            
+            fetch('/accounts/apply-gift/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    email: email
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    Swal.fire('Lỗi', data.message, 'error');
+                }
+            });
+        });
+    }
+});
+
+// Helper function to get CSRF token
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -278,7 +362,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
 
-            updateQuantity(itemId, newQty);
+            updateCartItem(itemId, 'update', newQty);
         }
     });
 

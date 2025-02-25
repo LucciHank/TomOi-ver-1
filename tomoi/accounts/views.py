@@ -31,7 +31,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from .decorators import admin_required, staff_required
 from django.views.decorators.http import require_POST, require_http_methods
 from payment.models import Transaction  # Import Transaction từ payment.models
-from store.models import Wishlist, Category  # Import Wishlist và Category từ store.models
+from store.models import Wishlist, Category, Order, OrderItem, CartItem  # Import Wishlist và Category từ store.models, thêm Order và OrderItem, CartItem
 import pyotp
 import qrcode
 import base64
@@ -55,6 +55,10 @@ import hmac
 import urllib.parse
 from accounts.vnpay import VNPay
 from decimal import Decimal
+from payment.vnpay import VnPay  # Thêm import VnPay
+from payment.models import Transaction, TransactionItem
+from django.utils.html import strip_tags
+from payment.utils import send_payment_confirmation_email
 
 logger = logging.getLogger(__name__)
 
@@ -2272,47 +2276,31 @@ def vnpay_deposit_return(request):
 
 @csrf_exempt 
 def vnpay_order_return(request):
-    """Xử lý kết quả trả về từ VNPay cho thanh toán đơn hàng"""
-    if request.method == 'GET':
-        vnpay = VNPay()
-        vnpay.responseData = request.GET.dict()
+    try:
+        logger.info("Processing VNPAY return")
+        # Chuyển QueryDict sang dict thường
+        vnp_response = dict(request.GET.items())
+        
+        # Khởi tạo VNPay và kiểm tra tính hợp lệ của response
+        vnpay = VnPay()
+        if vnpay.validate_response(vnp_response):
+            # Lấy các tham số cần thiết
+            vnp_response_code = vnp_response.get('vnp_ResponseCode')
+            vnp_transaction_status = vnp_response.get('vnp_TransactionStatus')
 
-        if vnpay.validate_response(settings.VNPAY_HASH_SECRET_KEY):
-            response_code = vnpay.responseData.get('vnp_ResponseCode')
-            amount = int(vnpay.responseData.get('vnp_Amount', 0)) / 100
-            order_id = vnpay.responseData.get('vnp_TxnRef')
-            
-            if response_code == '00':
-                try:
-                    with transaction.atomic():
-                        # Cập nhật trạng thái đơn hàng
-                        order = Order.objects.get(id=order_id)
-                        order.status = 'paid'
-                        order.save()
-                        
-                        # Lưu lịch sử giao dịch mua hàng
-                        Transaction.objects.create(
-                            user=request.user,
-                            order=order,
-                            amount=amount,
-                            transaction_id=f"T{int(time.time())}", # T = Transaction
-                            payment_method='vnpay',
-                            status='success'
-                        )
-                        
-                        return render(request, 'accounts/success.html', {
-                            'title': 'Thanh toán thành công!',
-                            'message': f'Đơn hàng #{order.id} đã được thanh toán thành công'
-                        })
-                except Exception as e:
-                    print(f"Error processing order: {str(e)}")
-                    messages.error(request, 'Có lỗi xảy ra khi xử lý đơn hàng')
+            if vnp_response_code == '00' and vnp_transaction_status == '00':
+                logger.info("Payment successful, redirecting to success page")
+                return redirect('store:payment_success')
             else:
-                messages.error(request, 'Giao dịch thất bại hoặc bị hủy')
+                logger.info("Payment failed, redirecting to failed page")
+                return redirect('store:payment_failed')
         else:
-            messages.error(request, 'Chữ ký không hợp lệ')
-    
-    return redirect('store:cart')
+            logger.error("Invalid VNPAY response")
+            return redirect('store:payment_failed')
+            
+    except Exception as e:
+        logger.error(f"Error in vnpay_order_return: {str(e)}")
+        return redirect('store:payment_failed')
 
 def verify_2fa(user, auth_type, auth_value):
     """Xác thực 2FA"""
@@ -2365,3 +2353,132 @@ def verify_2fa(user, auth_type, auth_value):
         return False
         
     return False
+
+@login_required
+@require_POST
+def apply_tcoin(request):
+    try:
+        data = json.loads(request.body)
+        tcoin_amount = int(data.get('amount', 0))
+        
+        # Kiểm tra số TCoin hợp lệ
+        if tcoin_amount <= 0:
+            return JsonResponse({
+                'success': False,
+                'message': 'Vui lòng nhập số TCoin hợp lệ'
+            })
+            
+        # Kiểm tra số dư TCoin
+        if tcoin_amount > request.user.tcoin:
+            return JsonResponse({
+                'success': False,
+                'message': 'Số TCoin không đủ'
+            })
+            
+        # Lấy giỏ hàng hiện tại
+        cart_total = request.session.get('cart_total', 0)
+        
+        # Tính giá trị TCoin
+        tcoin_value = tcoin_amount * 100  # 1 TCoin = 100đ
+        if tcoin_value > cart_total:
+            return JsonResponse({
+                'success': False,
+                'message': 'Số TCoin vượt quá giá trị đơn hàng'
+            })
+            
+        # Lưu thông tin vào session
+        request.session['used_tcoin'] = tcoin_amount
+        request.session['tcoin_discount'] = tcoin_value
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Đã áp dụng {tcoin_amount} TCoin',
+            'tcoin_discount': tcoin_value
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        })
+
+@login_required
+@require_POST
+def apply_referral(request):
+    try:
+        data = json.loads(request.body)
+        code = data.get('code')
+        
+        # Kiểm tra mã giới thiệu
+        if not code:
+            return JsonResponse({
+                'success': False,
+                'message': 'Vui lòng nhập mã giới thiệu'
+            })
+            
+        # TODO: Thêm logic xử lý mã giới thiệu
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Đã áp dụng mã giới thiệu'
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        })
+
+@login_required
+@require_POST
+def apply_voucher(request):
+    try:
+        data = json.loads(request.body)
+        code = data.get('code')
+        
+        # Kiểm tra mã giảm giá
+        if not code:
+            return JsonResponse({
+                'success': False,
+                'message': 'Vui lòng nhập mã giảm giá'
+            })
+            
+        # TODO: Thêm logic xử lý mã giảm giá
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Đã áp dụng mã giảm giá'
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        })
+
+@login_required
+@require_POST
+def apply_gift(request):
+    try:
+        data = json.loads(request.body)
+        email = data.get('email')
+        
+        # Kiểm tra email
+        if not email:
+            return JsonResponse({
+                'success': False,
+                'message': 'Vui lòng nhập email người nhận'
+            })
+            
+        # TODO: Thêm logic xử lý tặng quà
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Đã lưu thông tin người nhận quà'
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        })

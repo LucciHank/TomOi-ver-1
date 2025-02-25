@@ -40,3 +40,170 @@ Error in qr_payment: UNIQUE constraint failed: transactions.order_id
 Failed to send payment confirmation email: Invalid filter: 'intcomma'
 Sent payment confirmation email for transaction T250274882211
 Sent payment confirmation email for transaction T250274882419
+Error in vnpay_payment: Transaction() got unexpected keyword arguments: 'transaction_type'
+Error in vnpay_payment: Transaction() got unexpected keyword arguments: 'transaction_type'
+Error in vnpay_payment: Transaction() got unexpected keyword arguments: 'transaction_type'
+Error in vnpay_payment: Transaction() got unexpected keyword arguments: 'transaction_type'
+Error in vnpay_payment: Transaction() got unexpected keyword arguments: 'transaction_type'
+Error in vnpay_payment: Transaction() got unexpected keyword arguments: 'transaction_type'
+Error in vnpay_payment: Transaction() got unexpected keyword arguments: 'transaction_type'
+Error in vnpay_payment: Transaction() got unexpected keyword arguments: 'transaction_type'
+Error in vnpay_payment: Transaction() got unexpected keyword arguments: 'transaction_type'
+Error in vnpay_payment: Transaction() got unexpected keyword arguments: 'transaction_type'
+Error in vnpay_payment: UNIQUE constraint failed: payment_transaction.transaction_id
+Error in vnpay_payment: UNIQUE constraint failed: payment_transaction.transaction_id
+Error in vnpay_payment: UNIQUE constraint failed: payment_transaction.transaction_id
+Error in vnpay_payment: UNIQUE constraint failed: payment_transaction.transaction_id
+Error in vnpay_payment: 'CartItem' object has no attribute 'get_price'
+Error in vnpay_payment: 'CartItem' object has no attribute 'get_price'
+Error in vnpay_payment: 'CartItem' object has no attribute 'get_price'
+Error in vnpay_payment: VnPay.get_payment_url() takes 2 positional arguments but 3 were given
+Error in vnpay_payment: VnPay.get_payment_url() takes 2 positional arguments but 3 were given
+Error in vnpay_payment: VnPay.get_payment_url() takes 2 positional arguments but 3 were given
+Error in vnpay_order_payment: 'Settings' object has no attribute 'VNPAY_ORDER_RETURN_URL'
+Error in vnpay_order_payment: 'Settings' object has no attribute 'VNPAY_ORDER_RETURN_URL'
+Error in vnpay_order_payment: VnPay.get_payment_url() takes 2 positional arguments but 3 were given
+Error in vnpay_order_payment: VnPay.get_payment_url() takes 2 positional arguments but 3 were given
+Error in vnpay_order_payment: Expecting value: line 1 column 1 (char 0)
+Error in vnpay_order_payment: Expecting value: line 1 column 1 (char 0)
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 59542
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /product/1/ HTTP/1.1" 200 74896
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"POST /cart/add/ HTTP/1.1" 200 82
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/ HTTP/1.1" 200 79037
+"GET /static/images/vnpay-logo.png HTTP/1.1" 404 1877
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"POST /payment/vnpay-order/ HTTP/1.1" 200 577
+"POST /payment/vnpay-order/ HTTP/1.1" 200 577
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/tomoi/settings.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /accounts/payment/vnpay-order-return/?vnp_Amount=5000000&vnp_BankCode=NCB&vnp_BankTranNo=VNP14821196&vnp_CardType=ATM&vnp_OrderInfo=Thanh+toan+don+hang+ORDER20250225114951&vnp_PayDate=20250225115146&vnp_ResponseCode=00&vnp_TmnCode=B2RG0YSD&vnp_TransactionNo=14821196&vnp_TransactionStatus=00&vnp_TxnRef=ORDER20250225114951&vnp_SecureHash=31968748744c14a23dd0bfa1a4f456cb8dc438628ba67f74b9015ff49fa93ce1a99d954a549c77f62bbd90744410a8e8b4873f8eced2a84097da375b34756f56 HTTP/1.1" 302 0
+"GET /payment/success/ HTTP/1.1" 302 0
+"GET /cart/ HTTP/1.1" 200 76006
+"GET /media/avatars/Firefly_20250220094241.png HTTP/1.1" 200 469690
+"GET /static/images/vnpay-logo.png HTTP/1.1" 404 1877
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/urls.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/views.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/urls.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/urls.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 59542
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /static/js/base.js HTTP/1.1" 304 0
+"GET /media/products/Anh_man_hinh_2023-11-27_luc_18.25.19.png HTTP/1.1" 200 1588225
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /product/1/ HTTP/1.1" 200 74896
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"POST /cart/add/ HTTP/1.1" 200 82
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/ HTTP/1.1" 200 79037
+"GET /static/images/vnpay-logo.png HTTP/1.1" 404 1877
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"POST /payment/vnpay-order/ HTTP/1.1" 200 577
+"GET /accounts/payment/vnpay-order-return/?vnp_Amount=5000000&vnp_BankCode=NCB&vnp_BankTranNo=VNP14821202&vnp_CardType=ATM&vnp_OrderInfo=Thanh+toan+don+hang+ORDER20250225115716&vnp_PayDate=20250225115735&vnp_ResponseCode=00&vnp_TmnCode=B2RG0YSD&vnp_TransactionNo=14821202&vnp_TransactionStatus=00&vnp_TxnRef=ORDER20250225115716&vnp_SecureHash=fa109955d73930523e3e20a8117b78625bb659e254bd3a23156bd510c0679b04f1df71a6e8552635c8915cf2fd1e8eff031519dde7c121b6cdadcb2aab252697 HTTP/1.1" 302 0
+"GET /payment/success/ HTTP/1.1" 200 53779
+"GET /static/store/css/checkout-steps.css HTTP/1.1" 200 1376
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET / HTTP/1.1" 200 59542
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/ HTTP/1.1" 200 90470
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/order-history/ HTTP/1.1" 200 67141
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 200 82160
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/tcoin/ HTTP/1.1" 200 76472
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36

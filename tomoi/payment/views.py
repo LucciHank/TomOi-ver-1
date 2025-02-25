@@ -18,6 +18,7 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from decimal import Decimal
+import uuid
 
 logger = logging.getLogger(__name__)
 
@@ -377,87 +378,127 @@ def process_successful_payment(transaction):
 
 @login_required
 def vnpay_payment(request):
+    """Xử lý thanh toán VNPAY cho nạp tiền"""
     if request.method == 'POST':
         try:
-            # Lấy amount từ POST data
-            amount = request.POST.get('amount')
+            data = json.loads(request.body)
+            amount = data.get('amount')
             
-            # Kiểm tra amount có tồn tại không
-            if not amount:
-                messages.error(request, 'Số tiền không hợp lệ')
-                return redirect('store:cart')
+            # Tạo transaction_id duy nhất cho nạp tiền
+            transaction_id = f"DEP{timezone.now().strftime('%Y%m%d%H%M%S')}{uuid.uuid4().hex[:8]}"
             
-            # Chuyển đổi amount từ string sang decimal
-            try:
-                amount = Decimal(amount)
-            except:
-                messages.error(request, 'Số tiền không hợp lệ')
-                return redirect('store:cart')
-
-            # Tạo transaction
+            # Tạo transaction mới
             transaction = Transaction.objects.create(
                 user=request.user,
-                amount=amount,
+                amount=Decimal(amount),
+                payment_method='vnpay',
+                transaction_id=transaction_id,
+                status='pending',
+                transaction_type='deposit'  # Đánh dấu là nạp tiền
+            )
+
+            # Tạo URL thanh toán VNPAY
+            vnp = VnPay()
+            vnp_params = {
+                'vnp_Version': '2.1.0',
+                'vnp_Command': 'pay',
+                'vnp_TmnCode': settings.VNPAY_TMN_CODE,
+                'vnp_Amount': str(int(Decimal(amount) * 100)),
+                'vnp_CreateDate': datetime.now().strftime('%Y%m%d%H%M%S'),
+                'vnp_CurrCode': 'VND',
+                'vnp_IpAddr': get_client_ip(request),
+                'vnp_Locale': 'vn',
+                'vnp_OrderInfo': f'Nap tien {transaction_id}',
+                'vnp_OrderType': 'deposit',  # Đánh dấu là nạp tiền
+                'vnp_ReturnUrl': settings.VNPAY_DEPOSIT_RETURN_URL,  # URL return riêng cho nạp tiền
+                'vnp_TxnRef': transaction_id,
+            }
+
+            payment_url = vnp.get_payment_url(settings.VNPAY_PAYMENT_URL, vnp_params)
+            return JsonResponse({
+                'success': True,
+                'payment_url': payment_url
+            })
+
+        except Exception as e:
+            logger.error(f"Error in vnpay_payment: {str(e)}")
+            return JsonResponse({
+                'success': False,
+                'message': 'Có lỗi xảy ra trong quá trình xử lý'
+            })
+
+    return JsonResponse({
+        'success': False,
+        'message': 'Phương thức không được hỗ trợ'
+    })
+
+@login_required
+def vnpay_order_payment(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            amount = data.get('amount')
+            transaction_id = data.get('order_id')
+
+            # Tạo transaction mới
+            trans = Transaction.objects.create(
+                user=request.user,
+                amount=Decimal(amount),
+                transaction_id=transaction_id,
                 payment_method='vnpay',
                 status='pending',
-                transaction_type='purchase'
+                transaction_type='order'
             )
 
             # Lưu cart items vào transaction items
             cart_items = CartItem.objects.filter(user=request.user)
             for cart_item in cart_items:
-                # Lấy thông tin variant và duration từ cart item
-                variant = cart_item.variant
-                variant_name = variant.name if variant else None
-                duration = cart_item.duration
-                
-                # Lấy thông tin email/username
-                upgrade_email = cart_item.upgrade_email.strip() if cart_item.upgrade_email else None
-                account_username = cart_item.account_username.strip() if cart_item.account_username else None
-                
                 TransactionItem.objects.create(
-                    transaction=transaction,
+                    transaction=trans,
                     product_name=cart_item.product.name,
-                    variant_name=variant_name,  # Lưu trực tiếp tên variant
-                    duration=duration,  # Lưu số tháng
+                    variant_name=cart_item.variant.name if cart_item.variant else None,
                     quantity=cart_item.quantity,
-                    price=cart_item.total_price(),
-                    subtotal=cart_item.total_price(),
-                    upgrade_email=upgrade_email,
-                    account_username=account_username
+                    price=cart_item.get_price(),
+                    duration=cart_item.duration,
+                    upgrade_email=cart_item.upgrade_email,
+                    account_username=cart_item.account_username
                 )
 
-            # Tạo thông tin thanh toán VNPAY
+            # Tạo URL thanh toán VNPAY
             vnp = VnPay()
             vnp.requestData = {
                 'vnp_Version': '2.1.0',
                 'vnp_Command': 'pay',
                 'vnp_TmnCode': settings.VNPAY_TMN_CODE,
-                'vnp_Amount': str(int(amount * 100)),
+                'vnp_Amount': str(int(Decimal(amount) * 100)),
                 'vnp_CreateDate': datetime.now().strftime('%Y%m%d%H%M%S'),
                 'vnp_CurrCode': 'VND',
                 'vnp_IpAddr': get_client_ip(request),
                 'vnp_Locale': 'vn',
-                'vnp_OrderInfo': f'Thanh toan don hang {transaction.transaction_id}',
-                'vnp_OrderType': 'billpayment',
-                'vnp_ReturnUrl': settings.VNPAY_RETURN_URL,
-                'vnp_TxnRef': transaction.transaction_id,
+                'vnp_OrderInfo': f'Thanh toan don hang {transaction_id}',
+                'vnp_OrderType': 'order',
+                'vnp_ReturnUrl': settings.VNPAY_ORDER_RETURN_URL,
+                'vnp_TxnRef': transaction_id,
             }
 
-            # Tạo URL thanh toán
-            payment_url = vnp.get_payment_url(settings.VNPAY_PAYMENT_URL)
-            
-            # Xóa giỏ hàng sau khi tạo transaction
-            cart_items.delete()
-            
-            return redirect(payment_url)
-            
+            payment_url = vnp.get_payment_url(settings.VNPAY_PAYMENT_URL, settings.VNPAY_ORDER_RETURN_URL)
+
+            return JsonResponse({
+                'code': '00',
+                'payment_url': payment_url
+            })
+
         except Exception as e:
-            logger.error(f"Error in vnpay_payment: {str(e)}")
-            messages.error(request, 'Có lỗi xảy ra, vui lòng thử lại sau')
-            return redirect('store:cart')
-    
-    return redirect('store:cart')
+            logger.error(f"Error in vnpay_order_payment: {str(e)}")
+            return JsonResponse({
+                'code': '99',
+                'message': 'Có lỗi xảy ra trong quá trình xử lý'
+            })
+
+    return JsonResponse({
+        'code': '99',
+        'message': 'Phương thức không được hỗ trợ'
+    })
 
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')

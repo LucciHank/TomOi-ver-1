@@ -57,4 +57,8 @@ urlpatterns = [
     path('deposit/vnpay-return/', views.vnpay_return, name='vnpay_return'),
     path('deposit/vnpay-deposit-return/', views.vnpay_deposit_return, name='vnpay_deposit_return'),
     path('payment/vnpay-order-return/', views.vnpay_order_return, name='vnpay_order_return'),
+    path('apply-tcoin/', views.apply_tcoin, name='apply_tcoin'),
+    path('apply-referral/', views.apply_referral, name='apply_referral'),
+    path('apply-voucher/', views.apply_voucher, name='apply_voucher'),
+    path('apply-gift/', views.apply_gift, name='apply_gift'),
 ]

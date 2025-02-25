@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Transaction, TransactionItem
+from .models import Transaction, TransactionItem, InstallmentTransaction
 from django.utils.html import format_html
 from django.urls import reverse
 from django.db.models import Sum
@@ -7,14 +7,20 @@ from django.db.models import Sum
 class TransactionItemInline(admin.TabularInline):
     model = TransactionItem
     extra = 0
-    readonly_fields = ('product_name', 'quantity', 'price', 'subtotal')
+    readonly_fields = ['product_name', 'variant_name', 'quantity', 'price']
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
+    
+    def has_add_permission(self, request, obj=None):
+        return False
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
     list_display = ('transaction_id', 'user', 'amount', 'payment_method', 'status', 'created_at')
     list_filter = ('status', 'payment_method', 'created_at')
     search_fields = ('transaction_id', 'user__username')
-    readonly_fields = ('transaction_id', 'created_at', 'updated_at')
+    readonly_fields = ('transaction_id', 'user', 'amount', 'payment_method', 'created_at')
     ordering = ('-created_at',)
     inlines = [TransactionItemInline]
     
@@ -70,4 +76,27 @@ class TransactionAdmin(admin.ModelAdmin):
         }
         
         response.context_data.update(metrics)
-        return response 
+        return response
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+    
+    def has_add_permission(self, request, obj=None):
+        return False
+
+@admin.register(InstallmentTransaction)
+class InstallmentTransactionAdmin(admin.ModelAdmin):
+    list_display = ['order_reference', 'user', 'amount', 'status', 'created_at']
+    list_filter = ['status', 'created_at']
+    search_fields = ['order_reference', 'user__username']
+    readonly_fields = [
+        'order_reference', 'user', 'amount', 'total_amount', 
+        'recurring_amount', 'number_of_installments', 'frequency',
+        'issuer_code', 'scheme', 'vnpay_transaction_id', 'created_at'
+    ]
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
+    
+    def has_add_permission(self, request, obj=None):
+        return False 

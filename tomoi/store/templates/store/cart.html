@@ -11,88 +11,127 @@
 {% block page_css %}
 <style>
 .cart-page {
+    background: #f8f9fa;
+    min-height: 100vh;
     padding: 30px 0;
 }
 
 .cart-container {
-    display: flex;
-    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-.cart-items-section {
-    flex: 0 0 70%;
-}
-
-.cart-summary-section {
-    flex: 0 0 30%;
-}
-
-.cart-item-card {
+.cart-items-container {
     background: white;
     border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 15px;
-    display: flex;
-    gap: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    padding: 24px;
+    margin-bottom: 20px;
 }
 
-.cart-item-image {
+.cart-item {
+    display: flex;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+}
+
+.cart-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.item-image {
     width: 120px;
-    height: 80px;
+    height: 120px;
     border-radius: 8px;
     overflow: hidden;
+    margin-right: 20px;
 }
 
-.cart-item-image img {
+.item-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-.cart-item-details {
+.item-details {
     flex: 1;
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
 }
 
-.cart-item-info h3 {
-    font-size: 16px;
-    margin-bottom: 8px;
-}
-
-.price-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.item-header {
     margin-bottom: 10px;
 }
 
-.new-price {
-    color: #df2626;
+.item-name {
+    font-size: 18px;
     font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
 }
 
-.old-price {
+.item-price {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.current-price {
+    font-size: 20px;
+    font-weight: 600;
+    color: #e50914;
+}
+
+.original-price {
+    font-size: 16px;
     color: #999;
     text-decoration: line-through;
 }
 
 .discount-badge {
-    background: #fef2f2;
-    color: #df2626;
+    background: #e50914;
+    color: white;
     padding: 2px 8px;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 14px;
 }
 
-.cart-item-controls {
+.item-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.item-options > div {
+    background: #f8f9fa;
+    padding: 5px 12px;
+    border-radius: 6px;
+}
+
+.item-options .label {
+    color: #666;
+    margin-right: 5px;
+}
+
+.item-options .value {
+    color: #333;
+    font-weight: 500;
+}
+
+.item-actions {
     display: flex;
     align-items: center;
-    gap: 15px;
+    justify-content: space-between;
 }
 
-.quantity-controls {
+.quantity-control {
     display: flex;
     align-items: center;
     border: 1px solid #ddd;
@@ -100,14 +139,19 @@
     overflow: hidden;
 }
 
-.btn-quantity {
+.qty-btn {
     border: none;
     background: #f8f9fa;
-    padding: 8px 12px;
+    padding: 8px 15px;
     cursor: pointer;
+    transition: background 0.2s;
 }
 
-.quantity-input {
+.qty-btn:hover {
+    background: #e9ecef;
+}
+
+.quantity-control input {
     width: 50px;
     text-align: center;
     border: none;
@@ -116,61 +160,99 @@
     padding: 8px 0;
 }
 
-.btn-remove {
-    background: #df2626;
-    color: white;
+.remove-btn {
     border: none;
-    width: 35px;
-    height: 35px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: none;
+    color: #dc3545;
+    padding: 8px;
+    cursor: pointer;
+    transition: color 0.2s;
 }
 
+.remove-btn:hover {
+    color: #c82333;
+}
+
+/* Cart Summary Styles */
 .cart-summary {
     background: white;
     border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    padding: 24px;
+    position: sticky;
+    top: 20px;
 }
 
-.promo-section {
+.cart-summary h5 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.promo-sections {
     margin-bottom: 20px;
 }
 
-.promo-toggle {
-    color: #2563eb;
+.promo-section {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.promo-header {
+    padding: 15px;
+    background: #fff;
     cursor: pointer;
-    margin-bottom: 10px;
     display: flex;
     align-items: center;
-    gap: 5px;
+    justify-content: space-between;
+    transition: all 0.3s ease;
 }
 
-.promo-input {
+.promo-header:hover {
+    background: #f8f9fa;
+}
+
+.promo-header i.fa-chevron-down {
+    transition: transform 0.3s ease;
+}
+
+.promo-header.active i.fa-chevron-down {
+    transform: rotate(180deg);
+}
+
+.promo-content {
+    padding: 15px;
+    border-top: 1px solid #dee2e6;
     display: none;
-    margin-top: 10px;
+    background: #fff;
 }
 
-.promo-input.active {
+.promo-content.active {
+    display: block;
+}
+
+.input-group {
     display: flex;
+    gap: 10px;
 }
 
-.promo-input input {
+.input-group .form-control {
     flex: 1;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    margin-right: 10px;
+    border-radius: 4px;
 }
 
-.btn-apply {
-    background: #2563eb;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 6px;
+.input-group .btn {
+    border-radius: 4px;
+    padding: 8px 20px;
+}
+
+.text-muted {
+    display: block;
+    margin-top: 8px;
+    font-size: 0.875rem;
 }
 
 .summary-details {
@@ -181,72 +263,86 @@
 .summary-row {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 10px;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
 }
 
-.total-row {
-    font-size: 18px;
+.summary-row:last-child {
+    border-bottom: none;
+    font-size: 20px;
     font-weight: 600;
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid #eee;
+    color: #e50914;
 }
 
-.payment-buttons {
+/* Payment Buttons */
+.payment-methods {
     margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
 }
 
 .btn-payment {
     width: 100%;
     padding: 12px;
     border: none;
-    border-radius: 6px;
-    font-weight: 600;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-weight: 500;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .btn-balance {
-    background: #16a34a;
+    background: #e50914;
+    color: white;
+}
+
+.btn-vnpay {
+    background: #0066cc;
     color: white;
 }
 
 .btn-banking {
-    background: #0284c7;
+    background: #28a745;
     color: white;
 }
 
 .btn-momo {
-    background: #c026d3;
+    background: #ae2070;
     color: white;
 }
 
 .or-divider {
     text-align: center;
-    margin: 15px 0;
     position: relative;
+    margin: 20px 0;
+}
+
+.or-divider::before,
+.or-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 45%;
+    height: 1px;
+    background: #ddd;
 }
 
 .or-divider::before {
-    content: '';
-    position: absolute;
     left: 0;
+}
+
+.or-divider::after {
     right: 0;
-    top: 50%;
-    height: 1px;
-    background: #ddd;
 }
 
 .or-divider span {
     background: white;
     padding: 0 10px;
     color: #666;
-    position: relative;
+    font-size: 14px;
 }
 
 .empty-cart-message {
@@ -416,6 +512,58 @@
     -webkit-appearance: none;
     margin: 0;
 }
+
+.promo-header i:not(.fa-chevron-down) {
+    color: #df2626;
+}
+
+/* Thêm style cho TCoin icon */
+.tcoin-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+/* Style cho divider */
+.divider {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.divider-line {
+    flex: 1;
+    height: 1px;
+    background-color: #dee2e6;
+}
+
+.divider-text {
+    padding: 0 15px;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.item-total {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+}
+
+.item-total span:first-child {
+    color: #666;
+}
+
+.total-price {
+    font-size: 18px;
+    font-weight: 600;
+    color: #e50914;
+}
 </style>
 {% endblock %}
 
@@ -568,64 +716,62 @@
             <div class="col-md-8">
                 <div class="cart-items-container">
                     {% for item in cart_items %}
-                    <div class="cart-item" data-id="{{ item.id }}" data-stock="{{ item.product.stock }}">
+                    <div class="cart-item">
                         <div class="item-image">
-                            {% if item.product.get_primary_image %}
-                                <img src="{{ item.product.get_primary_image.url }}" alt="{{ item.product.name }}">
+                            {% if item.product.images.first %}
+                                <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}">
                             {% else %}
-                                <img src="{% static 'images/no-image.png' %}" alt="No image">
+                                <img src="{% static 'images/placeholder.png' %}" alt="{{ item.product.name }}">
                             {% endif %}
                         </div>
-                        <div class="item-content">
-                            <div class="item-info">
-                                <h3 class="item-name">{{ item.product.name }}</h3>
-                                
-                                <!-- Giá và % giảm -->
-                                <div class="item-price-wrapper">
-                                    <span class="current-price">{{ item.product.price|format_price }}</span>
-                                    {% if item.product.old_price %}
-                                        <span class="old-price">{{ item.product.old_price|format_price }}</span>
-                                        <span class="discount-badge">-{{ item.product.get_discount_percentage }}%</span>
+                        <div class="item-details">
+                            <div class="item-header">
+                                <h5 class="item-name">{{ item.product.name }}</h5>
+                                <div class="item-price">
+                                    <span class="current-price">{{ item.get_price|floatformat:0|intcomma }}đ</span>
+                                    {% if item.variant.original_price %}
+                                        <span class="original-price">{{ item.variant.original_price|floatformat:0|intcomma }}đ</span>
+                                        <span class="discount-badge">-{{ item.variant.get_discount_percentage }}%</span>
                                     {% endif %}
                                 </div>
+                            </div>
 
-                                <!-- Thông tin variant -->
+                            <div class="item-options">
                                 {% if item.variant %}
                                 <div class="variant-info">
-                                    <span class="info-label">Gói:</span>
-                                    <span class="info-value">{{ item.variant.name }} ({{ item.duration }} tháng)</span>
+                                    <span class="label">Gói:</span>
+                                    <span class="value">{{ item.variant.name }}</span>
                                 </div>
                                 {% endif %}
-
-                                <!-- Thông tin tài khoản/email -->
+                                {% if item.duration %}
+                                <div class="duration-info">
+                                    <span class="label">Thời hạn:</span>
+                                    <span class="value">{{ item.duration }} tháng</span>
+                                </div>
+                                {% endif %}
                                 {% if item.upgrade_email %}
-                                <div class="account-info">
-                                    <span class="info-label">Email:</span>
-                                    <span class="info-value">{{ item.upgrade_email }}</span>
+                                <div class="email-info">
+                                    <span class="label">Email:</span>
+                                    <span class="value">{{ item.upgrade_email }}</span>
                                 </div>
                                 {% endif %}
-                                
-                                {% if item.account_username %}
-                                <div class="account-info">
-                                    <span class="info-label">Tài khoản:</span>
-                                    <span class="info-value">{{ item.account_username }}</span>
-                                    {% if item.account_password %}
-                                    <span class="info-label ml-3">Mật khẩu:</span>
-                                    <span class="info-value">{{ item.account_password }}</span>
-                                    {% endif %}
-                                </div>
-                                {% endif %}
+                            </div>
 
-                                <div class="item-controls">
-                                    <div class="quantity-controls">
-                                        <button class="quantity-btn minus">-</button>
-                                        <input type="number" class="quantity-input" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}">
-                                        <button class="quantity-btn plus">+</button>
-                                    </div>
-                                    <button class="remove-btn" data-id="{{ item.id }}">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                        </div>
+                            <div class="item-total">
+                                <span>Tổng:</span>
+                                <span class="total-price">{{ item.get_total_price|floatformat:0|intcomma }}đ</span>
+                            </div>
+
+                            <div class="item-actions">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-id="{{ item.id }}" data-action="decrease">-</button>
+                                    <input type="number" value="{{ item.quantity }}" min="1" max="99" 
+                                           class="quantity-input" data-id="{{ item.id }}">
+                                    <button class="quantity-btn plus" data-id="{{ item.id }}" data-action="increase">+</button>
+                                </div>
+                                <button class="remove-btn" data-id="{{ item.id }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                       </div>
                       </div>
                     </div>
@@ -642,95 +788,125 @@
             <!-- Thanh toán bên phải -->
             <div class="col-md-4">
                 <div class="cart-summary">
-                    <div class="promo-section">
-                        <div class="promo-item">
-                            <div class="promo-header" data-target="referral-input">
+                    <h5>Tổng thanh toán</h5>
+                    
+                    <!-- Promo Sections -->
+                    <div class="promo-sections">
+                        <!-- TCoin Section -->
+                        <div class="promo-section">
+                            <div class="promo-header" onclick="togglePromoSection('tcoin')">
+                                <img src="{% static 'images/tcoin.png' %}" alt="TCoin" class="tcoin-icon">
+                                <span>Sử dụng TCoin (Có {{ user.tcoin }} TCoin)</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div id="tcoin-section" class="promo-content">
+                                <div class="input-group">
+                                    <input type="number" id="tcoinAmount" class="form-control" 
+                                           placeholder="Nhập số TCoin muốn sử dụng" 
+                                           min="0" max="{{ user.tcoin }}">
+                                    <button class="btn btn-primary" onclick="applyTCoin()">Áp dụng</button>
+                                </div>
+                                <small class="text-muted">1 TCoin = 100đ</small>
+                            </div>
+                        </div>
+
+                        <!-- Referral Section -->
+                        <div class="promo-section">
+                            <div class="promo-header" onclick="togglePromoSection('referral')">
                                 <i class="fas fa-user-plus"></i>
                                 <span>Bạn có mã giới thiệu?</span>
+                                <i class="fas fa-chevron-down"></i>
                             </div>
-                            <div class="promo-input" id="referral-input">
-                                <input type="text" placeholder="Nhập mã giới thiệu">
-                                <button class="btn-apply">Áp dụng</button>
+                            <div id="referral-section" class="promo-content">
+                                <div class="input-group">
+                                    <input type="text" id="referralCode" class="form-control" 
+                                           placeholder="Nhập mã giới thiệu">
+                                    <button class="btn btn-primary" onclick="applyReferral()">Áp dụng</button>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="promo-item">
-                            <div class="promo-header" data-target="voucher-input">
+                        <!-- Voucher Section -->
+                        <div class="promo-section">
+                            <div class="promo-header" onclick="togglePromoSection('voucher')">
                                 <i class="fas fa-ticket-alt"></i>
                                 <span>Bạn có mã giảm giá?</span>
+                                <i class="fas fa-chevron-down"></i>
                             </div>
-                            <div class="promo-input" id="voucher-input">
-                                <input type="text" placeholder="Nhập mã giảm giá">
-                                <button class="btn-apply">Áp dụng</button>
+                            <div id="voucher-section" class="promo-content">
+                                <div class="input-group">
+                                    <input type="text" id="voucherCode" class="form-control" 
+                                           placeholder="Nhập mã giảm giá">
+                                    <button class="btn btn-primary" onclick="applyVoucher()">Áp dụng</button>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="promo-item">
-                            <div class="promo-header" data-target="gift-input">
+                        <!-- Gift Section -->
+                        <div class="promo-section">
+                            <div class="promo-header" onclick="togglePromoSection('gift')">
                                 <i class="fas fa-gift"></i>
                                 <span>Bạn muốn tặng cho bạn bè?</span>
+                                <i class="fas fa-chevron-down"></i>
                             </div>
-                            <div class="promo-input" id="gift-input">
-                                <input type="email" placeholder="Nhập email người nhận">
-                                <button class="btn-apply">Áp dụng</button>
+                            <div id="gift-section" class="promo-content">
+                                <div class="input-group">
+                                    <input type="email" id="giftEmail" class="form-control" 
+                                           placeholder="Nhập email người nhận">
+                                    <button class="btn btn-primary" onclick="applyGift()">Xác nhận</button>
+                                </div>
                 </div>
               </div>
             </div>
   
+                    <!-- Summary Details -->
                     <div class="summary-details">
                         <div class="summary-row">
                             <span>Tạm tính</span>
-                            <span>{{ total_amount|format_price }}</span>
-                        </div>
-                        <div class="summary-row">
-                            <span>Voucher giảm giá</span>
-                            <span>-{{ discount_amount|format_price }}</span>
-                        </div>
-                        <div class="summary-row total-row">
-                            <span>Tổng thanh toán</span>
-                            <span>{{ final_amount|format_price }}</span>
-                        </div>
+                            <span>{{ cart_total|floatformat:0|intcomma }}đ</span>
             </div>
   
-                    <div class="payment-buttons">
-                        <div class="payment-methods">
-                            <!-- Các phương thức thanh toán khác -->
-                            
-                            <!-- Button thanh toán bằng số dư -->
-                            <button 
-                                id="pay-with-balance-btn" 
-                                class="btn-payment btn-balance w-100"
-                                onclick="window.location.href='{% url 'store:verify_payment' %}'"
-                                data-balance="{{ request.user.balance }}"
-                            >
-                                <i class="fas fa-wallet"></i>
-                                Thanh toán bằng số dư ({{ request.user.balance|intcomma }}đ)
-                            </button>
+                        <!-- TCoin Discount -->
+                        {% if request.session.tcoin_discount %}
+                        <div class="summary-row tcoin-discount">
+                            <span>
+                                <img src="{% static 'accounts/images/tcoin.png' %}" alt="TCoin" class="tcoin-icon">
+                                Sử dụng TCoin ({{ request.session.used_tcoin }} TCoin)
+                            </span>
+                            <span>-{{ request.session.tcoin_discount|floatformat:0|intcomma }}đ</span>
                         </div>
-                        <div class="or-divider">
-                            <span>HOẶC</span>
+          {% endif %}
+                        
+                        <div class="summary-row">
+                            <span>Voucher giảm giá</span>
+                            <span>-{{ discount_amount|default:"0"|intcomma }}đ</span>
                         </div>
-                        <!-- VNPAY Button -->
-                        <form action="{% url 'payment:vnpay_payment' %}" method="POST" class="w-100">
-                            {% csrf_token %}
-                            <input type="hidden" name="amount" value="{{ final_amount }}">
-                            <button type="submit" class="btn-payment btn-vnpay w-100">
-                                <i class="fas fa-qrcode"></i>
-                                Thanh toán qua VNPAY
-                            </button>
-                        </form>
-                        <!-- Mobile Banking Button -->
-                        <form action="{% url 'payment:qr_payment' %}" method="POST" class="w-100">
-                            {% csrf_token %}
-                            <input type="hidden" name="amount" value="{{ final_amount|floatformat:0 }}">
-                            <button type="submit" class="btn-payment btn-banking w-100">
-                                <i class="fas fa-mobile-alt"></i>
-                                Thanh toán siêu tốc qua Mobile Banking
-                            </button>
-                        </form>
-                        <button class="btn-payment btn-momo">
-                            <i class="fas fa-mobile-alt"></i>
-                            Thanh toán qua MoMo
+                        
+                        <!-- Thêm div này để lưu final amount -->
+                        <div id="finalAmount" style="display:none;">{{ final_amount }}</div>
+                        
+                        <div class="summary-row total">
+                            <span>Tổng thanh toán</span>
+                            <span>{{ final_amount|floatformat:0|intcomma }}đ</span>
+                        </div>
+                    </div>
+
+                    <!-- Payment Methods -->
+                    <div class="payment-methods">
+                        <button class="btn-payment btn-balance" onclick="payWithBalance()">
+                            <i class="fas fa-wallet"></i>
+                            Thanh toán bằng số dư ({{ user.balance|floatformat:0|intcomma }}đ)
+                        </button>
+                        
+                        <div class="divider">
+                            <span class="divider-line"></span>
+                            <span class="divider-text">HOẶC</span>
+                            <span class="divider-line"></span>
+                        </div>
+
+                        <button type="button" class="btn-payment btn-vnpay" onclick="payWithVNPay(event)">
+                            <img src="{% static 'images/vnpay-logo.png' %}" alt="VNPAY">
+                            <span>Thanh toán qua VNPAY</span>
                         </button>
                     </div>
                 </div>
@@ -748,4 +924,248 @@
 
 {% block extra_js %}
 <script src="{% static 'store/js/cart.js' %}"></script>
+<script>
+function payWithBalance() {
+    const userBalance = {{ user.balance|floatformat:0 }};
+    const totalAmount = {{ final_amount|floatformat:0 }};
+
+    if (userBalance < totalAmount) {
+        Swal.fire({
+            title: 'Số dư không đủ',
+            text: 'Số dư còn lại của bạn không đủ để thực hiện giao dịch, vui lòng nạp thêm tiền',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Nạp tiền',
+            cancelButtonText: 'Hủy',
+            confirmButtonColor: '#e50914'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "{% url 'accounts:deposit' %}";
+            }
+        });
+        return;
+    }
+
+    window.location.href = "{% url 'store:pay_with_balance' %}";
+}
+
+function togglePromoSection(section) {
+    const content = document.getElementById(`${section}-section`);
+    const header = content.previousElementSibling;
+    
+    // Đóng tất cả các section khác
+    document.querySelectorAll('.promo-content').forEach(el => {
+        if (el.id !== `${section}-section`) {
+            el.classList.remove('active');
+            el.previousElementSibling.classList.remove('active');
+        }
+    });
+    
+    // Toggle section hiện tại
+    content.classList.toggle('active');
+    header.classList.toggle('active');
+}
+
+// Thêm hàm xử lý TCoin
+function applyTCoin() {
+    const tcoinAmount = parseInt(document.getElementById('tcoinAmount').value);
+    const maxTcoin = {{ user.tcoin }};
+    
+    if (isNaN(tcoinAmount) || tcoinAmount < 0) {
+        Swal.fire('Lỗi', 'Vui lòng nhập số TCoin hợp lệ', 'error');
+        return;
+    }
+    
+    if (tcoinAmount > maxTcoin) {
+        Swal.fire('Lỗi', 'Bạn không đủ TCoin', 'error');
+        return;
+    }
+    
+    // Gọi API để áp dụng TCoin
+    fetch('/accounts/apply-tcoin/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            amount: tcoinAmount
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            Swal.fire('Lỗi', data.message, 'error');
+        }
+    });
+}
+
+// Thêm các hàm xử lý khác
+function applyReferral() {
+    // Xử lý mã giới thiệu
+}
+
+function applyVoucher() {
+    // Xử lý mã giảm giá  
+}
+
+function applyGift() {
+    // Xử lý tặng quà
+}
+
+// Xử lý cập nhật số lượng
+document.querySelectorAll('.quantity-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const itemId = this.dataset.id;
+        const action = this.dataset.action;
+        
+        fetch('{% url "store:update_cart" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                item_id: itemId,
+                action: action
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                Swal.fire('Lỗi', data.message || 'Có lỗi xảy ra', 'error');
+            }
+        });
+    });
+});
+
+// Xử lý input số lượng
+document.querySelectorAll('.quantity-input').forEach(input => {
+    input.addEventListener('change', function() {
+        const itemId = this.dataset.id;
+        const newQuantity = parseInt(this.value);
+        
+        if (isNaN(newQuantity) || newQuantity < 1) {
+            this.value = 1;
+            return;
+        }
+        
+        fetch('{% url "store:update_cart" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                item_id: itemId,
+                action: 'set',
+                quantity: newQuantity
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                Swal.fire('Lỗi', data.message || 'Có lỗi xảy ra', 'error');
+                this.value = this.defaultValue;
+            }
+        });
+    });
+});
+
+// Xử lý xóa sản phẩm
+document.querySelectorAll('.remove-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const itemId = this.dataset.id;
+        
+        Swal.fire({
+            title: 'Xác nhận xóa',
+            text: 'Bạn có chắc muốn xóa sản phẩm này?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Xóa',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('{% url "store:remove_from_cart" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        item_id: itemId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    }
+                });
+            }
+        });
+    });
+});
+
+function payWithVNPay(event) {
+    event.preventDefault();
+
+    // Lấy giá trị final_amount từ context Django
+    const totalAmount = {{ final_amount|floatformat:0 }};
+    
+    // Tạo transaction_id
+    const now = new Date();
+    const transaction_id = `ORDER${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
+
+    // Hiển thị loading
+    Swal.fire({
+        title: 'Đang xử lý',
+        text: 'Vui lòng chờ trong giây lát...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    fetch('/payment/vnpay-order/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            amount: totalAmount,
+            order_id: transaction_id
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        Swal.close();
+        if (data.code === '00' && data.payment_url) {
+            window.location.href = data.payment_url;
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: data.message || 'Có lỗi xảy ra khi tạo thanh toán'
+            });
+        }
+    })
+    .catch(error => {
+        Swal.close();
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: 'Có lỗi xảy ra khi kết nối đến server'
+        });
+    });
+}
+</script>
 {% endblock %}

@@ -11,14 +11,25 @@ class VnPay:
         self.vnp_TmnCode = settings.VNPAY_TMN_CODE
         self.vnp_HashSecret = settings.VNPAY_HASH_SECRET_KEY
         self.vnp_Url = settings.VNPAY_PAYMENT_URL
-        self.vnp_ReturnUrl = settings.VNPAY_RETURN_URL
         self.requestData = {}
 
-    def get_payment_url(self, payment_url):
+    def get_payment_url(self, payment_url, return_url):
+        # Thêm các tham số bắt buộc
+        self.requestData['vnp_Version'] = self.vnp_Version
+        self.requestData['vnp_Command'] = self.vnp_Command
+        self.requestData['vnp_TmnCode'] = self.vnp_TmnCode
+        self.requestData['vnp_ReturnUrl'] = return_url
+        self.requestData['vnp_CreateDate'] = datetime.now().strftime('%Y%m%d%H%M%S')
+        self.requestData['vnp_CurrCode'] = 'VND'
+        self.requestData['vnp_IpAddr'] = '127.0.0.1'
+        self.requestData['vnp_Locale'] = 'vn'
+
+        # Sắp xếp các tham số theo thứ tự a-z
         input_data = sorted(self.requestData.items())
+        
+        # Tạo chuỗi query
         query_string = ''
         seq = 0
-        
         for key, val in input_data:
             if seq == 1:
                 query_string = query_string + "&" + key + '=' + urllib.parse.quote_plus(str(val))
@@ -26,7 +37,10 @@ class VnPay:
                 seq = 1
                 query_string = key + '=' + urllib.parse.quote_plus(str(val))
 
+        # Tạo chữ ký
         hash_value = self._hmacsha512(self.vnp_HashSecret, query_string)
+        
+        # Trả về URL thanh toán hoàn chỉnh
         return payment_url + "?" + query_string + '&vnp_SecureHash=' + hash_value
 
     def validate_response(self, response_data):

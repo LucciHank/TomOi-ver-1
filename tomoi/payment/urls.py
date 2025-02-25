@@ -13,4 +13,5 @@ urlpatterns = [
     path('installment-ipn/', views.installment_ipn, name='installment_ipn'),
     path('qr-payment/', views.qr_payment, name='qr_payment'),
     path('check-status/<str:order_id>/', views.check_payment_status, name='check_payment_status'),
+    path('vnpay-order/', views.vnpay_order_payment, name='vnpay_order_payment'),
 ] 

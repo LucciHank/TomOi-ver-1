@@ -37,8 +37,7 @@ class InstallmentTransaction(models.Model):
 
 class Transaction(models.Model):
     PAYMENT_METHODS = (
-        ('balance', 'Số dư'),
-        ('vnpay', 'VNPay'),
+        ('vnpay', 'VNPAY'),
         ('momo', 'MoMo'),
         ('card', 'Thẻ cào'),
     )
@@ -49,6 +48,11 @@ class Transaction(models.Model):
         ('failed', 'Thất bại'),
     )
 
+    TRANSACTION_TYPES = (
+        ('purchase', 'Mua hàng'),
+        ('deposit', 'Nạp tiền'),
+    )
+
     user = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
     order = models.ForeignKey('store.Order', on_delete=models.SET_NULL, null=True, blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=0)
@@ -56,6 +60,7 @@ class Transaction(models.Model):
     transaction_id = models.CharField(max_length=100, unique=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     description = models.CharField(max_length=255, null=True, blank=True)
+    transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPES, default='purchase')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -66,15 +71,17 @@ class Transaction(models.Model):
         return f"{self.user.username} - {self.amount}đ - {self.get_status_display()}"
 
 class TransactionItem(models.Model):
-    transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, related_name='items')
+    transaction = models.ForeignKey(Transaction, related_name='items', on_delete=models.CASCADE)
     product_name = models.CharField(max_length=255)
     variant_name = models.CharField(max_length=255, null=True, blank=True)
+    quantity = models.IntegerField(default=1)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     duration = models.IntegerField(null=True, blank=True)
-    quantity = models.IntegerField()
-    price = models.DecimalField(max_digits=12, decimal_places=2)
-    subtotal = models.DecimalField(max_digits=12, decimal_places=2)
     upgrade_email = models.EmailField(null=True, blank=True)
     account_username = models.CharField(max_length=255, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.product_name} - {self.transaction.id}"
 
     class Meta:
         db_table = 'transaction_items' 
