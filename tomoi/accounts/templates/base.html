@@ -10,6 +10,7 @@
   <meta name="csrf-token" content="{{ csrf_token }}">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="format-detection" content="telephone=no">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="author" content="Đỗ Hoàng Anh">
   <meta name="keywords" content="netflix, prime, disney, hbo, hulu, apple tv, amazon prime, disney plus, hbo max, apple tv+, amazon prime video, disney+,
@@ -597,8 +598,8 @@
             <input type="password" class="form-control" id="newPassword" name="new_password" required>
           </div>
           <div class="mb-3">
-            <label for="confirmPassword" class="form-label">Xác nhận mật khẩu</label>
-            <input type="password" class="form-control" id="confirmPassword" name="confirm_password" required>
+            <label for="resetConfirmPassword" class="form-label">Xác nhận mật khẩu</label>
+            <input type="password" name="confirm_password" id="resetConfirmPassword" class="form-control" required>
           </div>
           <button type="submit" class="btn btn-primary w-100">Đặt lại mật khẩu</button>
         </form>
@@ -647,7 +648,7 @@
           <div class="mb-3">
             <label class="form-label">Nhập lại mật khẩu</label>
             <div class="input-group">
-              <input type="password" name="confirm_password" id="confirmPassword" class="form-control" required>
+              <input type="password" name="confirm_password" id="registerConfirmPassword" class="form-control" required>
               <button class="btn btn-outline-secondary toggle-password" type="button">
                 <i class="fas fa-eye"></i>
               </button>
@@ -972,7 +973,7 @@ document.getElementById('resetPasswordForm').addEventListener('submit', function
     e.preventDefault();
     
     const newPassword = document.getElementById('newPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
+    const confirmPassword = document.getElementById('resetConfirmPassword').value;
     const email = document.getElementById('displayEmail').textContent;
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
@@ -1331,6 +1332,73 @@ function applyTheme(theme) {
 // Áp dụng theme đã lưu khi tải trang
 const savedTheme = localStorage.getItem('theme') || 'light';
 applyTheme(savedTheme);
+
+// Thêm script để xử lý giỏ hàng
+document.addEventListener('DOMContentLoaded', function() {
+    // Load giỏ hàng khi trang tải xong
+    loadCartItems();
+
+    // Lắng nghe sự kiện thêm vào giỏ hàng
+    document.addEventListener('cartUpdated', function() {
+        loadCartItems(); // Reload giỏ hàng khi có thay đổi
+    });
+
+    // Xử lý nút thêm vào giỏ hàng
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', async function(e) {
+            e.preventDefault();
+            
+            const productId = this.dataset.productId;
+            try {
+                const response = await fetch('/cart/add/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        quantity: 1
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    // Cập nhật giỏ hàng dropdown
+                    updateCartDropdown(data.cart_items);
+                    
+                    // Hiển thị thông báo thành công
+                    Swal.fire({
+                        icon: 'success',
+                        text: 'Đã thêm sản phẩm vào giỏ hàng',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    });
+});
+
+// Thêm hàm getCookie nếu chưa có
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
   </script>
 </body>
 </html>

@@ -357,32 +357,30 @@ def checkout(request):
 @require_http_methods(["GET"])
 def cart_api(request):
     try:
-        if request.user.is_authenticated:
-            cart_items = CartItem.objects.filter(user=request.user)
-        else:
-            cart_items = CartItem.objects.filter(session_key=request.session.session_key)
-
-        items = [{
-            'id': item.id,  # ID của CartItem, không phải Product ID
-            'product_id': item.product.id,
-            'name': item.product.name,
-            'price': float(item.total_price()),
-            'quantity': item.quantity,
-            'image': item.product.get_primary_image().url if item.product.get_primary_image() else None,
-            'stock': item.product.stock,
-            'variant_name': item.variant.name if item.variant else None,
-            'duration': item.duration
-        } for item in cart_items]
-
+        cart_items = CartItem.objects.filter(user=request.user)
+        items_data = []
+        
+        for item in cart_items:
+            items_data.append({
+                'id': item.id,
+                'name': item.product.name,
+                'price': float(item.product.price),
+                'quantity': item.quantity,
+                'stock': item.product.stock,
+                'image': item.product.get_primary_image().url if item.product.get_primary_image() else None,
+                'variant_name': item.variant.name if hasattr(item, 'variant') and item.variant else None,
+                'duration': item.duration if hasattr(item, 'duration') else None
+            })
+        
         return JsonResponse({
-            'cart_items': items,
-            'total_items': sum(item['quantity'] for item in items)
+            'success': True,
+            'cart_items': items_data
         })
     except Exception as e:
         return JsonResponse({
-            'cart_items': [],
-            'total_items': 0
-        })
+            'success': False,
+            'error': str(e)
+        }, status=500)
 
 def paypal_webhook(request):
     data = json.loads(request.body)
@@ -440,54 +438,70 @@ def category_detail(request, slug):
     }
     return render(request, 'store/category_detail.html', context)
 
-@login_required
+@require_http_methods(["POST"])
 def update_cart(request):
     try:
         data = json.loads(request.body)
         item_id = data.get('item_id')
+        quantity = int(data.get('quantity', 1))  # Convert to int with default 1
         action = data.get('action')
-        quantity = data.get('quantity')
 
         cart_item = CartItem.objects.get(id=item_id, user=request.user)
-        
-        if action == 'increase':
-            cart_item.quantity += 1
-        elif action == 'decrease':
-            if cart_item.quantity > 1:
-                cart_item.quantity -= 1
-            else:
-                cart_item.delete()
-                return JsonResponse({'success': True})
-        elif action == 'set':
-            if quantity and int(quantity) > 0:
-                cart_item.quantity = int(quantity)
-            else:
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Số lượng không hợp lệ'
-                })
-                
-        cart_item.save()
-        
-        # Tính lại tổng giỏ hàng
-        cart_total = sum(item.get_total_price() for item in CartItem.objects.filter(user=request.user))
-        
+        product = cart_item.product
+
+        # Kiểm tra stock
+        if not product.stock:  # Nếu stock là None
+            return JsonResponse({
+                'success': False,
+                'message': 'Sản phẩm đã hết hàng'
+            })
+
+        # Kiểm tra số lượng hợp lệ
+        if quantity > product.stock:
+            return JsonResponse({
+                'success': False,
+                'message': f'Chỉ còn {product.stock} sản phẩm trong kho'
+            })
+
+        if quantity < 1:
+            cart_item.delete()
+        else:
+            cart_item.quantity = quantity
+            cart_item.save()
+
+        # Lấy lại danh sách giỏ hàng mới
+        cart_items = CartItem.objects.filter(user=request.user)
+        items_data = [{
+            'id': item.id,
+            'name': item.product.name,
+            'price': float(item.product.price),
+            'quantity': item.quantity,
+            'stock': item.product.stock or 0,  # Default 0 if None
+            'image': item.product.get_primary_image().url if item.product.get_primary_image() else None,
+            'total_price': float(item.get_total_price())
+        } for item in cart_items]
+
+        cart_total = sum(item.get_total_price() for item in cart_items)
+        total_items = sum(item.quantity for item in cart_items)
+
         return JsonResponse({
             'success': True,
+            'cart_items': items_data,
             'cart_total': cart_total,
-            'item_total': cart_item.get_total_price()
+            'total_items': total_items
         })
-        
+
     except CartItem.DoesNotExist:
         return JsonResponse({
             'success': False,
             'message': 'Sản phẩm không tồn tại trong giỏ hàng'
         })
     except Exception as e:
+        print(f"Error updating cart: {str(e)}")  # Log lỗi
         return JsonResponse({
             'success': False,
-            'message': str(e)
-        })
+            'message': 'Có lỗi xảy ra khi cập nhật giỏ hàng'
+        }, status=400)
 
 def get_cart_count(request):
     user = request.user if request.user.is_authenticated else None

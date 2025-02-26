@@ -13,7 +13,7 @@ from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.utils.crypto import get_random_string
 from .forms import CustomUserCreationForm, CustomUserChangeForm, CustomPasswordResetForm, CustomSetPasswordForm
 from django.conf import settings
-from accounts.models import CustomUser, LoginHistory, Deposit, TCoinHistory, DailyCheckin, CardTransaction
+from accounts.models import CustomUser, LoginHistory, Deposit, TCoinHistory, DailyCheckin, CardTransaction, TCoin
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.contrib import messages
@@ -60,6 +60,7 @@ from payment.models import Transaction, TransactionItem
 from django.utils.html import strip_tags
 from payment.utils import send_payment_confirmation_email
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db import models
 
 logger = logging.getLogger(__name__)
 
@@ -878,57 +879,27 @@ def toggle_user_status(request):
         'message': 'Phương thức không hợp lệ'
     })
 
-@login_required
+@login_required 
 def payment_history(request):
-    # Lấy tất cả giao dịch liên quan đến số dư - SỬA LẠI TRUY VẤN
+    # Lấy tất cả giao dịch liên quan đến số dư
     transactions = Transaction.objects.filter(
         user=request.user
-    ).order_by('-created_at')  # Lấy tất cả giao dịch không lọc theo type
+    ).order_by('-created_at')
     
-    # Lọc giao dịch nếu có
-    transaction_id = request.GET.get('transaction_id')
-    payment_method = request.GET.get('payment_method')
-    status = request.GET.get('status')
-    date_from = request.GET.get('date_from')
-    date_to = request.GET.get('date_to')
-    amount_min = request.GET.get('amount_min')
-    amount_max = request.GET.get('amount_max')
+    # Lấy tổng số TCoin của user từ TCoinHistory
+    total_tcoin = TCoinHistory.objects.filter(
+        user=request.user
+    ).aggregate(total=models.Sum('amount'))['total'] or 0
     
-    if transaction_id:
-        transactions = transactions.filter(transaction_id__icontains=transaction_id)
-    
-    if payment_method:
-        transactions = transactions.filter(payment_method=payment_method)
-    
-    if status:
-        transactions = transactions.filter(status=status)
-    
-    if date_from:
-        transactions = transactions.filter(created_at__gte=date_from)
-    
-    if date_to:
-        transactions = transactions.filter(created_at__lte=date_to)
-    
-    if amount_min:
-        transactions = transactions.filter(amount__gte=amount_min)
-    
-    if amount_max:
-        transactions = transactions.filter(amount__lte=amount_max)
-    
-    # Phân trang
-    paginator = Paginator(transactions, 10)  # 10 giao dịch mỗi trang
-    page = request.GET.get('page')
-    
-    try:
-        transactions = paginator.page(page)
-    except PageNotAnInteger:
-        transactions = paginator.page(1)
-    except EmptyPage:
-        transactions = paginator.page(paginator.num_pages)
+    # Debug để kiểm tra
+    print(f"User: {request.user.username}")
+    print(f"Total TCoin: {total_tcoin}")
+    print(f"TCoin histories: {TCoinHistory.objects.filter(user=request.user).values('amount')}")
     
     context = {
-        'transactions': transactions,  # Đổi tên biến để khớp với template
-        'user': request.user
+        'transactions': transactions,
+        'user': request.user,
+        'tcoin_balance': total_tcoin  # Sử dụng tổng số TCoin
     }
     
     return render(request, 'accounts/payment_history.html', context)
