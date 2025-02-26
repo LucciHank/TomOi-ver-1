@@ -38,7 +38,6 @@ class InstallmentTransaction(models.Model):
 class Transaction(models.Model):
     PAYMENT_METHODS = (
         ('vnpay', 'VNPAY'),
-        ('momo', 'MoMo'),
         ('card', 'Thẻ cào'),
     )
     

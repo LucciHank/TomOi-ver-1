@@ -220,7 +220,6 @@ class Order(models.Model):
     PAYMENT_METHODS = (
         ('balance', 'Số dư'),
         ('vnpay', 'VNPay'),
-        ('momo', 'MoMo'),
     )
     
     user = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE, related_name='store_orders')

@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='transaction',
             name='payment_method',
-            field=models.CharField(choices=[('balance', 'Số dư'), ('vnpay', 'VNPay'), ('momo', 'MoMo'), ('card', 'Thẻ cào')], max_length=20),
+            field=models.CharField(choices=[('balance', 'Số dư'), ('vnpay', 'VNPay'), ('card', 'Thẻ cào')], max_length=20),
         ),
         migrations.AlterField(
             model_name='transaction',

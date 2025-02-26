@@ -41,7 +41,6 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 choices=[
                     ("vnpay", "VNPAY"),
-                    ("momo", "MoMo"),
                     ("banking", "Mobile Banking"),
                     ("balance", "Số dư"),
                 ],

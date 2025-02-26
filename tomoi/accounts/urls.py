@@ -61,4 +61,5 @@ urlpatterns = [
     path('apply-referral/', views.apply_referral, name='apply_referral'),
     path('apply-voucher/', views.apply_voucher, name='apply_voucher'),
     path('apply-gift/', views.apply_gift, name='apply_gift'),
+    path('api/transaction/<int:transaction_id>/', views.get_transaction_detail, name='transaction_detail'),
 ]

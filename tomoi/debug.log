@@ -207,3 +207,2438 @@ Watching for file changes with StatReloader
 "GET /cart/api/ HTTP/1.1" 200 36
 "GET /cart/api/ HTTP/1.1" 200 36
 "GET /cart/api/ HTTP/1.1" 200 36
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 59542
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /static/js/base.js HTTP/1.1" 304 0
+"GET /static/css/security.css?v=1.1 HTTP/1.1" 304 0
+"GET /media/avatars/Firefly_20250220094241.png HTTP/1.1" 304 0
+"GET /static/accounts/js/base.js?v=1.2 HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/ HTTP/1.1" 200 90470
+"GET /static/js/user_info.js HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/order-history/ HTTP/1.1" 200 67141
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET / HTTP/1.1" 200 59542
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /product/1/ HTTP/1.1" 200 74896
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /api/get-price/?variant_id=1&duration=3 HTTP/1.1" 200 75
+"GET /api/get-price/?variant_id=1&duration=3 HTTP/1.1" 200 75
+"POST /cart/add/ HTTP/1.1" 200 82
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/ HTTP/1.1" 200 82368
+"GET /static/images/tcoin.png HTTP/1.1" 304 0
+"GET /static/store/js/cart.js HTTP/1.1" 304 0
+"GET /static/images/vnpay-logo.png HTTP/1.1" 404 1877
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"POST /cart/update/ HTTP/1.1" 200 65
+"GET /cart/ HTTP/1.1" 200 82368
+"GET /static/images/vnpay-logo.png HTTP/1.1" 404 1877
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"POST /payment/vnpay-order/ HTTP/1.1" 200 578
+"GET /accounts/payment/vnpay-order-return/?vnp_Amount=35000000&vnp_BankCode=NCB&vnp_BankTranNo=VNP14822571&vnp_CardType=ATM&vnp_OrderInfo=Thanh+toan+don+hang+ORDER20250226131531&vnp_PayDate=20250226131621&vnp_ResponseCode=00&vnp_TmnCode=B2RG0YSD&vnp_TransactionNo=14822571&vnp_TransactionStatus=00&vnp_TxnRef=ORDER20250226131531&vnp_SecureHash=470e427e80fd3867825810ca7189c91c50a2aa75cd36e1823e8a4244695f70090e0b6d8ca6ba9ceffd82c33de934ab415b25c0fe2bbc5df90d25c1b4c712188e HTTP/1.1" 302 0
+"GET /payment/success/ HTTP/1.1" 200 53779
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET / HTTP/1.1" 200 59542
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/ HTTP/1.1" 200 90470
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 200 82667
+"GET /static/js/payment_history.js HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 200 82667
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/ HTTP/1.1" 200 90470
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/order-history/ HTTP/1.1" 200 67141
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 200 82667
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/templatetags/account_filters.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py changed, reloading.
+Watching for file changes with StatReloader
+Internal Server Error: /accounts/user-info/payment-history/
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py", line 923, in payment_history
+    return render(request, 'accounts/payment_history.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/backends/django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 295, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 862, in do_for
+    nodelist_loop = parser.parse(
+                    ^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 489, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 487, in parse
+    filter_expression = self.compile_filter(token.contents)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 605, in compile_filter
+    return FilterExpression(token, self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 701, in __init__
+    filter_func = parser.find_filter(filter_name)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 611, in find_filter
+    raise TemplateSyntaxError("Invalid filter: '%s'" % filter_name)
+django.template.exceptions.TemplateSyntaxError: Invalid filter: 'intcomma'
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 500 284573
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 10855
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/payment/models.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/payment/models.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 200 81903
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?page=2 HTTP/1.1" 200 78229
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?page=2 HTTP/1.1" 200 78229
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?page=1 HTTP/1.1" 200 81903
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/tcoin/ HTTP/1.1" 200 76672
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"POST /accounts/tcoin/ HTTP/1.1" 200 73
+"GET /accounts/tcoin/ HTTP/1.1" 200 77696
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/order-history/ HTTP/1.1" 200 67141
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 200 81903
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/payment/models.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/tomoi/settings.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/tomoi/settings.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 200 78626
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/tcoin/ HTTP/1.1" 200 77696
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/tcoin/ HTTP/1.1" 200 77696
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/security/ HTTP/1.1" 200 106597
+"GET /static/js/security.js HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 200 78626
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/security/ HTTP/1.1" 200 106597
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 200 78626
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/security/ HTTP/1.1" 200 106597
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 200 78626
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?date_from=&date_to=&payment_method=&status=pending HTTP/1.1" 200 78704
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?date_from=&date_to=&payment_method=&status=processing HTTP/1.1" 200 57912
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?date_from=&date_to=&payment_method=&status=completed HTTP/1.1" 200 58681
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?date_from=&date_to=&payment_method=&status= HTTP/1.1" 200 78626
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?date_from=&date_to=&payment_method=vnpay&status= HTTP/1.1" 200 78626
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?date_from=&date_to=&payment_method=momo&status= HTTP/1.1" 200 57912
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?date_from=&date_to=&payment_method=card&status= HTTP/1.1" 200 57912
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?date_from=&date_to=&payment_method=vnpay&status= HTTP/1.1" 200 78626
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?date_from=&date_to=&payment_method=vnpay&status= HTTP/1.1" 200 78626
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/order-history/ HTTP/1.1" 200 67141
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 200 78626
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/security/ HTTP/1.1" 200 106597
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 200 78626
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 200 78626
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/urls.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py changed, reloading.
+Watching for file changes with StatReloader
+Internal Server Error: /accounts/user-info/payment-history/
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py", line 935, in payment_history
+    return render(request, 'accounts/payment_history.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/backends/django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 295, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 228, in do_block
+    raise TemplateSyntaxError(
+django.template.exceptions.TemplateSyntaxError: 'block' tag with name 'extra_js' appears more than once
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 500 195138
+Internal Server Error: /accounts/user-info/payment-history/
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py", line 935, in payment_history
+    return render(request, 'accounts/payment_history.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/urls/base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/urls/resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'referral' not found. 'referral' is not a valid view function or pattern name.
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 500 189320
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 200 69531
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?transaction_id=&status=&date_from=&date_to=&payment_method=&amount_min=&amount_max= HTTP/1.1" 200 69531
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?transaction_id=&status=&date_from=&date_to=&payment_method=&amount_min=&amount_max= HTTP/1.1" 200 69531
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/order-history/ HTTP/1.1" 200 67141
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/security/ HTTP/1.1" 200 106597
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/order-history/ HTTP/1.1" 200 67141
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 200 69531
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py changed, reloading.
+Watching for file changes with StatReloader
+Internal Server Error: /accounts/user-info/payment-history/
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 510, in parse
+    compile_func = self.tags[command]
+                   ~~~~~~~~~^^^^^^^^^
+KeyError: 'url_replace'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py", line 934, in payment_history
+    return render(request, 'accounts/payment_history.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/backends/django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 295, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 962, in do_if
+    nodelist = parser.parse(("elif", "else", "endif"))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 962, in do_if
+    nodelist = parser.parse(("elif", "else", "endif"))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 512, in parse
+    self.invalid_block_tag(token, command, parse_until)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 563, in invalid_block_tag
+    raise self.error(
+django.template.exceptions.TemplateSyntaxError: Invalid block tag on line 303: 'url_replace', expected 'elif', 'else' or 'endif'. Did you forget to register or load this tag?
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 500 261423
+Internal Server Error: /accounts/user-info/payment-history/
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 1035, in find_library
+    return parser.libraries[name]
+           ~~~~~~~~~~~~~~~~^^^^^^
+KeyError: 'pagination_tags'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py", line 934, in payment_history
+    return render(request, 'accounts/payment_history.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/backends/django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 295, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 1097, in load
+    lib = find_library(parser, name)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 1037, in find_library
+    raise TemplateSyntaxError(
+django.template.exceptions.TemplateSyntaxError: 'pagination_tags' is not a registered tag library. Must be one of:
+account_filters
+admin_interface_tags
+admin_list
+admin_modify
+admin_urls
+cache
+cart_tags
+custom_filters
+humanize
+i18n
+l10n
+log
+static
+tz
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 500 239622
+Internal Server Error: /accounts/user-info/payment-history/
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 1035, in find_library
+    return parser.libraries[name]
+           ~~~~~~~~~~~~~~~~^^^^^^
+KeyError: 'pagination_tags'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py", line 934, in payment_history
+    return render(request, 'accounts/payment_history.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/backends/django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 295, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 1097, in load
+    lib = find_library(parser, name)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 1037, in find_library
+    raise TemplateSyntaxError(
+django.template.exceptions.TemplateSyntaxError: 'pagination_tags' is not a registered tag library. Must be one of:
+account_filters
+admin_interface_tags
+admin_list
+admin_modify
+admin_urls
+cache
+cart_tags
+custom_filters
+humanize
+i18n
+l10n
+log
+static
+tz
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 500 239622
+Internal Server Error: /accounts/user-info/payment-history/
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 1035, in find_library
+    return parser.libraries[name]
+           ~~~~~~~~~~~~~~~~^^^^^^
+KeyError: 'pagination_tags'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py", line 934, in payment_history
+    return render(request, 'accounts/payment_history.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/backends/django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 295, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 1097, in load
+    lib = find_library(parser, name)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 1037, in find_library
+    raise TemplateSyntaxError(
+django.template.exceptions.TemplateSyntaxError: 'pagination_tags' is not a registered tag library. Must be one of:
+account_filters
+admin_interface_tags
+admin_list
+admin_modify
+admin_urls
+cache
+cart_tags
+custom_filters
+humanize
+i18n
+l10n
+log
+static
+tz
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 500 239622
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/templatetags/account_filters.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/templatetags/account_filters.py changed, reloading.
+Watching for file changes with StatReloader
+Internal Server Error: /accounts/user-info/payment-history/
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py", line 934, in payment_history
+    return render(request, 'accounts/payment_history.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 243, in render
+    nodelist.append(node.render_annotated(context))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1067, in render
+    output = self.filter_expression.resolve(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 745, in resolve
+    new_obj = func(obj, *arg_vals)
+              ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/templatetags/account_filters.py", line 76, in abs
+    return abs(float(value))
+           ^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/templatetags/account_filters.py", line 76, in abs
+    return abs(float(value))
+           ^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/templatetags/account_filters.py", line 76, in abs
+    return abs(float(value))
+           ^^^^^^^^^^^^^^^^^
+  [Previous line repeated 930 more times]
+RecursionError: maximum recursion depth exceeded
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 500 3343062
+Internal Server Error: /accounts/user-info/payment-history/
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py", line 934, in payment_history
+    return render(request, 'accounts/payment_history.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 243, in render
+    nodelist.append(node.render_annotated(context))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1067, in render
+    output = self.filter_expression.resolve(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 745, in resolve
+    new_obj = func(obj, *arg_vals)
+              ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/templatetags/account_filters.py", line 76, in abs
+    return abs(float(value))
+           ^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/templatetags/account_filters.py", line 76, in abs
+    return abs(float(value))
+           ^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/templatetags/account_filters.py", line 76, in abs
+    return abs(float(value))
+           ^^^^^^^^^^^^^^^^^
+  [Previous line repeated 930 more times]
+RecursionError: maximum recursion depth exceeded
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 500 3343062
+"GET / HTTP/1.1" 200 59542
+"GET /static/store/css/home.css HTTP/1.1" 304 0
+"GET /static/store/js/home.js HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/ HTTP/1.1" 200 90470
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+Internal Server Error: /accounts/user-info/payment-history/
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py", line 934, in payment_history
+    return render(request, 'accounts/payment_history.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 243, in render
+    nodelist.append(node.render_annotated(context))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1067, in render
+    output = self.filter_expression.resolve(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 745, in resolve
+    new_obj = func(obj, *arg_vals)
+              ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/templatetags/account_filters.py", line 76, in abs
+    return abs(float(value))
+           ^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/templatetags/account_filters.py", line 76, in abs
+    return abs(float(value))
+           ^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/templatetags/account_filters.py", line 76, in abs
+    return abs(float(value))
+           ^^^^^^^^^^^^^^^^^
+  [Previous line repeated 930 more times]
+RecursionError: maximum recursion depth exceeded
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 500 3342911
+"GET /accounts/user-info/order-history/ HTTP/1.1" 200 67141
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/ HTTP/1.1" 200 82368
+"GET /static/images/vnpay-logo.png HTTP/1.1" 404 1877
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"POST /accounts/apply-tcoin/ HTTP/1.1" 200 112
+"POST /accounts/apply-tcoin/ HTTP/1.1" 200 112
+"POST /payment/vnpay-order/ HTTP/1.1" 200 578
+"POST /accounts/apply-tcoin/ HTTP/1.1" 200 112
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/templatetags/account_filters.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /accounts/payment/vnpay-order-return/?vnp_Amount=35000000&vnp_BankCode=NCB&vnp_BankTranNo=VNP14822734&vnp_CardType=ATM&vnp_OrderInfo=Thanh+toan+don+hang+ORDER20250226144015&vnp_PayDate=20250226144054&vnp_ResponseCode=00&vnp_TmnCode=B2RG0YSD&vnp_TransactionNo=14822734&vnp_TransactionStatus=00&vnp_TxnRef=ORDER20250226144015&vnp_SecureHash=729930338e0513b11e4f0a5375600fa2f1c0ebef1677e7df90f6fe30d6304a01d76ba108d8453fe30339961ac017433b015cb57561aaf1f81f7a610a42e85aea HTTP/1.1" 302 0
+"GET /payment/success/ HTTP/1.1" 200 53779
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET / HTTP/1.1" 200 59542
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/ HTTP/1.1" 200 90470
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+Internal Server Error: /accounts/user-info/payment-history/
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py", line 934, in payment_history
+    return render(request, 'accounts/payment_history.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/backends/django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 295, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 862, in do_for
+    nodelist_loop = parser.parse(
+                    ^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 489, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 487, in parse
+    filter_expression = self.compile_filter(token.contents)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 605, in compile_filter
+    return FilterExpression(token, self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 701, in __init__
+    filter_func = parser.find_filter(filter_name)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 611, in find_filter
+    raise TemplateSyntaxError("Invalid filter: '%s'" % filter_name)
+django.template.exceptions.TemplateSyntaxError: Invalid filter: 'absolute'
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 500 290744
+Internal Server Error: /accounts/user-info/payment-history/
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py", line 934, in payment_history
+    return render(request, 'accounts/payment_history.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/backends/django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 295, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 862, in do_for
+    nodelist_loop = parser.parse(
+                    ^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 489, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 487, in parse
+    filter_expression = self.compile_filter(token.contents)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 605, in compile_filter
+    return FilterExpression(token, self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 701, in __init__
+    filter_func = parser.find_filter(filter_name)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 611, in find_filter
+    raise TemplateSyntaxError("Invalid filter: '%s'" % filter_name)
+django.template.exceptions.TemplateSyntaxError: Invalid filter: 'absolute'
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 500 290881
+Internal Server Error: /accounts/user-info/payment-history/
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py", line 934, in payment_history
+    return render(request, 'accounts/payment_history.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/backends/django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 295, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 862, in do_for
+    nodelist_loop = parser.parse(
+                    ^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 489, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 487, in parse
+    filter_expression = self.compile_filter(token.contents)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 605, in compile_filter
+    return FilterExpression(token, self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 701, in __init__
+    filter_func = parser.find_filter(filter_name)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 611, in find_filter
+    raise TemplateSyntaxError("Invalid filter: '%s'" % filter_name)
+django.template.exceptions.TemplateSyntaxError: Invalid filter: 'absolute'
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 500 290881
+"GET /accounts/settings/ HTTP/1.1" 200 58644
+"GET /static/js/settings.js HTTP/1.1" 304 0
+"GET /static/images/flags/vi.png HTTP/1.1" 304 0
+"GET /static/images/flags/en.png HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/wishlist/ HTTP/1.1" 200 61294
+"GET /static/js/wishlist.js HTTP/1.1" 304 0
+"GET /static/css/security.css HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /product/1/ HTTP/1.1" 200 74896
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /accounts/user-info/ HTTP/1.1" 200 90470
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+Internal Server Error: /accounts/user-info/payment-history/
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py", line 934, in payment_history
+    return render(request, 'accounts/payment_history.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/backends/django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 295, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 862, in do_for
+    nodelist_loop = parser.parse(
+                    ^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 489, in parse
+    raise self.error(token, e)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 487, in parse
+    filter_expression = self.compile_filter(token.contents)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 605, in compile_filter
+    return FilterExpression(token, self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 701, in __init__
+    filter_func = parser.find_filter(filter_name)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 611, in find_filter
+    raise TemplateSyntaxError("Invalid filter: '%s'" % filter_name)
+django.template.exceptions.TemplateSyntaxError: Invalid filter: 'absolute'
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 500 290744
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 200 92792
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/deposit/ HTTP/1.1" 200 64325
+"GET /static/js/deposit.js HTTP/1.1" 304 0
+"GET /static/images/vnpay.png HTTP/1.1" 404 1862
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/tcoin/ HTTP/1.1" 200 77696
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/api/transaction/48/ HTTP/1.1" 200 174
+"GET /accounts/api/transaction/47/ HTTP/1.1" 200 174
+"GET /accounts/api/transaction/46/ HTTP/1.1" 200 173
+"GET /accounts/api/transaction/39/ HTTP/1.1" 200 173
+"GET /accounts/user-info/payment-history/?page=2 HTTP/1.1" 200 92957
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?page=1 HTTP/1.1" 200 92792
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?page=2 HTTP/1.1" 200 92957
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?transaction_id=&date_from=&date_to=&payment_method=balance&amount_min=&amount_max=&status= HTTP/1.1" 200 77588
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?transaction_id=&date_from=&date_to=&payment_method=balance&amount_min=&amount_max=&status= HTTP/1.1" 200 77588
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?transaction_id=&date_from=&date_to=&payment_method=balance&amount_min=&amount_max=&status= HTTP/1.1" 200 77588
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?transaction_id=&date_from=&date_to=&payment_method=&amount_min=&amount_max=&status= HTTP/1.1" 200 93352
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?transaction_id=&date_from=&date_to=&payment_method=&amount_min=&amount_max=&status=&page=2 HTTP/1.1" 200 93629
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?transaction_id=&date_from=&date_to=&payment_method=&amount_min=&amount_max=&status=&page=3 HTTP/1.1" 200 93251
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?transaction_id=&date_from=2025-02-26&date_to=2025-02-26&payment_method=&amount_min=&amount_max=&status= HTTP/1.1" 200 70115
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?transaction_id=&date_from=2025-02-25&date_to=2025-02-26&payment_method=&amount_min=&amount_max=&status= HTTP/1.1" 200 92578
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?transaction_id=&date_from=2025-02-25&date_to=2025-02-26&payment_method=&amount_min=&amount_max=&status=&page=2 HTTP/1.1" 200 92903
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?transaction_id=&date_from=2025-02-25&date_to=2025-02-26&payment_method=&amount_min=&amount_max=&status=&page=3 HTTP/1.1" 200 90222
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?transaction_id=&date_from=2025-02-25&date_to=2025-02-26&payment_method=&amount_min=&amount_max=&status=&page=1 HTTP/1.1" 200 92578
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?transaction_id=&date_from=2025-02-25&date_to=2025-02-26&payment_method=&amount_min=&amount_max=&status= HTTP/1.1" 200 92578
+"GET /accounts/user-info/payment-history/?transaction_id=&date_from=2025-02-25&date_to=2025-02-26&payment_method=&amount_min=&amount_max=&status= HTTP/1.1" 200 92578
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?transaction_id=&date_from=2025-02-25&date_to=2025-02-26&payment_method=&amount_min=&amount_max=&status= HTTP/1.1" 200 92578
+"GET /static/js/translations.js HTTP/1.1" 200 7427
+"GET /static/css/security.css?v=1.1 HTTP/1.1" 200 11996
+"GET /static/store/css/home.css?v=1.1 HTTP/1.1" 200 18137
+"GET /static/js/base.js HTTP/1.1" 200 8806
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 200 41601
+"GET /media/avatars/Firefly_20250220094241.png HTTP/1.1" 200 469690
+"GET /static/accounts/js/base.js?v=1.2 HTTP/1.1" 200 28342
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /static/images/favicon.ico HTTP/1.1" 404 1868
+"GET /accounts/user-info/payment-history/?transaction_id=&date_from=2025-02-25&date_to=2025-02-27&payment_method=&amount_min=&amount_max=&status= HTTP/1.1" 200 93026
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/api/transaction/48/ HTTP/1.1" 200 174
+"GET /accounts/api/transaction/48/ HTTP/1.1" 200 174
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/models.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /accounts/user-info/payment-history/?transaction_id=&date_from=2025-02-25&date_to=2025-02-27&payment_method=&amount_min=&amount_max=&status= HTTP/1.1" 200 91805
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/tcoin/ HTTP/1.1" 200 77696
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/api/transaction/42/ HTTP/1.1" 200 173
+"GET /accounts/user-info/payment-history/?date_from=&date_to=&transaction_id=&payment_method=&status=&amount_min=&amount_max= HTTP/1.1" 200 92107
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/api/transaction/48/ HTTP/1.1" 200 174
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/payment/models.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/payment/migrations/0002_remove_transaction_description_and_more.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/payment/migrations/0006_alter_transaction_payment_method_and_more.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/payment/migrations/0006_alter_transaction_payment_method_and_more.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/payment/migrations/0007_remove_transaction_error_message_and_more.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/payment/migrations/0008_transaction_transaction_type_and_more.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/models.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/migrations/0005_order_payment_method_order_updated_at_and_more.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+"GET /accounts/user-info/payment-history/?date_from=&date_to=&transaction_id=&payment_method=&status=&amount_min=&amount_max= HTTP/1.1" 200 94848
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?date_from=&date_to=&transaction_id=&payment_method=&status=completed&amount_min=&amount_max= HTTP/1.1" 200 74627
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?date_from=&date_to=&transaction_id=&payment_method=&status=&amount_min=&amount_max= HTTP/1.1" 200 94848
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/user-info/payment-history/?date_from=&date_to=&transaction_id=&payment_method=&status=&amount_min=&amount_max= HTTP/1.1" 200 93762
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/tcoin/ HTTP/1.1" 200 77696
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/api/transaction/48/ HTTP/1.1" 200 174
+"GET /accounts/api/transaction/46/ HTTP/1.1" 200 173
+"GET /accounts/user-info/payment-history/?date_from=&date_to=&transaction_id=&payment_method=&status=&amount_min=&amount_max= HTTP/1.1" 200 93902
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /cart/api/ HTTP/1.1" 200 36
+"GET /accounts/api/transaction/48/ HTTP/1.1" 200 174
+Internal Server Error: /accounts/user-info/payment-history/
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 883, in _resolve_lookup
+    current = current[bit]
+              ~~~~~~~^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/utils/functional.py", line 253, in inner
+    return func(_wrapped, *args)
+           ^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'CustomUser' object is not subscriptable
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 893, in _resolve_lookup
+    current = getattr(current, bit)
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/utils/functional.py", line 253, in inner
+    return func(_wrapped, *args)
+           ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'CustomUser' object has no attribute 'tcoin_amount'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 899, in _resolve_lookup
+    current = current[int(bit)]
+                      ^^^^^^^^
+ValueError: invalid literal for int() with base 10: 'tcoin_amount'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py", line 934, in payment_history
+    return render(request, 'accounts/payment_history.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1067, in render
+    output = self.filter_expression.resolve(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 739, in resolve
+    arg_vals.append(arg.resolve(context))
+                    ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 850, in resolve
+    value = self._resolve_lookup(context)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 906, in _resolve_lookup
+    raise VariableDoesNotExist(
+django.template.base.VariableDoesNotExist: Failed lookup for key [tcoin_amount] in <SimpleLazyObject: <CustomUser: admin (admin@gmail.com)>>
+"GET /accounts/user-info/payment-history/?date_from=&date_to=&transaction_id=&payment_method=&status=&amount_min=&amount_max= HTTP/1.1" 500 221168
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 10855
+Internal Server Error: /accounts/user-info/payment-history/
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 883, in _resolve_lookup
+    current = current[bit]
+              ~~~~~~~^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/utils/functional.py", line 253, in inner
+    return func(_wrapped, *args)
+           ^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'CustomUser' object is not subscriptable
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 893, in _resolve_lookup
+    current = getattr(current, bit)
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/utils/functional.py", line 253, in inner
+    return func(_wrapped, *args)
+           ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'CustomUser' object has no attribute 'tcoin_amount'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 899, in _resolve_lookup
+    current = current[int(bit)]
+                      ^^^^^^^^
+ValueError: invalid literal for int() with base 10: 'tcoin_amount'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py", line 934, in payment_history
+    return render(request, 'accounts/payment_history.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1067, in render
+    output = self.filter_expression.resolve(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 739, in resolve
+    arg_vals.append(arg.resolve(context))
+                    ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 850, in resolve
+    value = self._resolve_lookup(context)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 906, in _resolve_lookup
+    raise VariableDoesNotExist(
+django.template.base.VariableDoesNotExist: Failed lookup for key [tcoin_amount] in <SimpleLazyObject: <CustomUser: admin (admin@gmail.com)>>
+"GET /accounts/user-info/payment-history/?date_from=&date_to=&transaction_id=&payment_method=&status=&amount_min=&amount_max= HTTP/1.1" 500 221168
+Internal Server Error: /accounts/user-info/payment-history/
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 883, in _resolve_lookup
+    current = current[bit]
+              ~~~~~~~^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/utils/functional.py", line 253, in inner
+    return func(_wrapped, *args)
+           ^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'CustomUser' object is not subscriptable
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 893, in _resolve_lookup
+    current = getattr(current, bit)
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/utils/functional.py", line 253, in inner
+    return func(_wrapped, *args)
+           ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'CustomUser' object has no attribute 'tcoin_amount'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 899, in _resolve_lookup
+    current = current[int(bit)]
+                      ^^^^^^^^
+ValueError: invalid literal for int() with base 10: 'tcoin_amount'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py", line 934, in payment_history
+    return render(request, 'accounts/payment_history.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1067, in render
+    output = self.filter_expression.resolve(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 739, in resolve
+    arg_vals.append(arg.resolve(context))
+                    ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 850, in resolve
+    value = self._resolve_lookup(context)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 906, in _resolve_lookup
+    raise VariableDoesNotExist(
+django.template.base.VariableDoesNotExist: Failed lookup for key [tcoin_amount] in <SimpleLazyObject: <CustomUser: admin (admin@gmail.com)>>
+"GET /accounts/user-info/payment-history/?date_from=&date_to=&transaction_id=&payment_method=&status=&amount_min=&amount_max= HTTP/1.1" 500 221168
+Internal Server Error: /accounts/user-info/payment-history/
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 883, in _resolve_lookup
+    current = current[bit]
+              ~~~~~~~^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/utils/functional.py", line 253, in inner
+    return func(_wrapped, *args)
+           ^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'CustomUser' object is not subscriptable
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 893, in _resolve_lookup
+    current = getattr(current, bit)
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/utils/functional.py", line 253, in inner
+    return func(_wrapped, *args)
+           ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'CustomUser' object has no attribute 'tcoin_amount'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 899, in _resolve_lookup
+    current = current[int(bit)]
+                      ^^^^^^^^
+ValueError: invalid literal for int() with base 10: 'tcoin_amount'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py", line 934, in payment_history
+    return render(request, 'accounts/payment_history.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1067, in render
+    output = self.filter_expression.resolve(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 739, in resolve
+    arg_vals.append(arg.resolve(context))
+                    ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 850, in resolve
+    value = self._resolve_lookup(context)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 906, in _resolve_lookup
+    raise VariableDoesNotExist(
+django.template.base.VariableDoesNotExist: Failed lookup for key [tcoin_amount] in <SimpleLazyObject: <CustomUser: admin (admin@gmail.com)>>
+"GET /accounts/user-info/payment-history/?date_from=&date_to=&transaction_id=&payment_method=&status=&amount_min=&amount_max= HTTP/1.1" 500 221168
+Internal Server Error: /accounts/user-info/payment-history/
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 883, in _resolve_lookup
+    current = current[bit]
+              ~~~~~~~^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/utils/functional.py", line 253, in inner
+    return func(_wrapped, *args)
+           ^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'CustomUser' object is not subscriptable
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 893, in _resolve_lookup
+    current = getattr(current, bit)
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/utils/functional.py", line 253, in inner
+    return func(_wrapped, *args)
+           ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'CustomUser' object has no attribute 'tcoin_amount'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 899, in _resolve_lookup
+    current = current[int(bit)]
+                      ^^^^^^^^
+ValueError: invalid literal for int() with base 10: 'tcoin_amount'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/accounts/views.py", line 934, in payment_history
+    return render(request, 'accounts/payment_history.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1067, in render
+    output = self.filter_expression.resolve(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 739, in resolve
+    arg_vals.append(arg.resolve(context))
+                    ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 850, in resolve
+    value = self._resolve_lookup(context)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 906, in _resolve_lookup
+    raise VariableDoesNotExist(
+django.template.base.VariableDoesNotExist: Failed lookup for key [tcoin_amount] in <SimpleLazyObject: <CustomUser: admin (admin@gmail.com)>>
+"GET /accounts/user-info/payment-history/?date_from=&date_to=&transaction_id=&payment_method=&status=&amount_min=&amount_max= HTTP/1.1" 500 221168

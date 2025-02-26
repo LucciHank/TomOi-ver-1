@@ -68,3 +68,20 @@ def format_price(value):
         return f"{int(value):,}đ".replace(',', '.')
     except (ValueError, TypeError):
         return value 
+
+@register.filter
+def abs(value):
+    """Trả về giá trị tuyệt đối của số"""
+    try:
+        return abs(float(value))
+    except (ValueError, TypeError):
+        return value 
+
+@register.simple_tag
+def url_replace(request, field, value):
+    """
+    Template tag dùng cho phân trang để giữ lại các tham số GET khi chuyển trang
+    """
+    dict_ = request.GET.copy()
+    dict_[field] = value
+    return dict_.urlencode() 

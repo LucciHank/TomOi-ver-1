@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
             model_name="transaction",
             name="payment_method",
             field=models.CharField(
-                choices=[("vnpay", "VNPAY"), ("momo", "MoMo"), ("card", "Thẻ cào")],
+                choices=[("vnpay", "VNPAY"), ("card", "Thẻ cào")],
                 max_length=20,
             ),
         ),

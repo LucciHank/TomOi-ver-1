@@ -59,6 +59,7 @@ from payment.vnpay import VnPay  # Thêm import VnPay
 from payment.models import Transaction, TransactionItem
 from django.utils.html import strip_tags
 from payment.utils import send_payment_confirmation_email
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 logger = logging.getLogger(__name__)
 
@@ -879,11 +880,57 @@ def toggle_user_status(request):
 
 @login_required
 def payment_history(request):
-    transactions = Transaction.objects.filter(user=request.user).order_by('-created_at')
+    # Lấy tất cả giao dịch liên quan đến số dư - SỬA LẠI TRUY VẤN
+    transactions = Transaction.objects.filter(
+        user=request.user
+    ).order_by('-created_at')  # Lấy tất cả giao dịch không lọc theo type
+    
+    # Lọc giao dịch nếu có
+    transaction_id = request.GET.get('transaction_id')
+    payment_method = request.GET.get('payment_method')
+    status = request.GET.get('status')
+    date_from = request.GET.get('date_from')
+    date_to = request.GET.get('date_to')
+    amount_min = request.GET.get('amount_min')
+    amount_max = request.GET.get('amount_max')
+    
+    if transaction_id:
+        transactions = transactions.filter(transaction_id__icontains=transaction_id)
+    
+    if payment_method:
+        transactions = transactions.filter(payment_method=payment_method)
+    
+    if status:
+        transactions = transactions.filter(status=status)
+    
+    if date_from:
+        transactions = transactions.filter(created_at__gte=date_from)
+    
+    if date_to:
+        transactions = transactions.filter(created_at__lte=date_to)
+    
+    if amount_min:
+        transactions = transactions.filter(amount__gte=amount_min)
+    
+    if amount_max:
+        transactions = transactions.filter(amount__lte=amount_max)
+    
+    # Phân trang
+    paginator = Paginator(transactions, 10)  # 10 giao dịch mỗi trang
+    page = request.GET.get('page')
+    
+    try:
+        transactions = paginator.page(page)
+    except PageNotAnInteger:
+        transactions = paginator.page(1)
+    except EmptyPage:
+        transactions = paginator.page(paginator.num_pages)
+    
     context = {
-        'user': request.user,
-        'transactions': transactions
+        'transactions': transactions,  # Đổi tên biến để khớp với template
+        'user': request.user
     }
+    
     return render(request, 'accounts/payment_history.html', context)
 
 @login_required
@@ -898,7 +945,7 @@ def order_history(request):
     deposit_transactions = Transaction.objects.filter(
         user=request.user,
         order__isnull=True,  # Các giao dịch nạp tiền không có order
-        payment_method__in=['vnpay', 'momo', 'card']  # Các phương thức nạp tiền
+        payment_method__in=['vnpay', 'card']  # Các phương thức nạp tiền
     ).order_by('-created_at')
 
     context = {
@@ -2229,6 +2276,24 @@ def create_vnpay_url(request, amount):
 
     return payment_url
 
+import random
+from datetime import datetime
+
+def generate_deposit_transaction_id():
+    """Tạo mã giao dịch nạp tiền theo định dạng NT + năm + tháng + 6 số ngẫu nhiên + ngày"""
+    now = datetime.now()
+    year = now.strftime("%Y")
+    month = now.strftime("%m")
+    day = now.strftime("%d")
+    
+    # Tạo 6 số ngẫu nhiên
+    random_digits = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+    
+    # Ghép mã theo định dạng
+    transaction_id = f"NT{year}{month}{random_digits}{day}"
+    
+    return transaction_id
+
 @csrf_exempt
 def vnpay_deposit_return(request):
     """Xử lý kết quả trả về từ VNPay cho nạp tiền"""
@@ -2253,9 +2318,9 @@ def vnpay_deposit_return(request):
                         Transaction.objects.create(
                             user=user,
                             amount=amount,
-                            transaction_id=f"NT{int(time.time())}",  # NT = Nạp Tiền
+                            transaction_id=generate_deposit_transaction_id(),  # Sử dụng hàm mới
                             payment_method='vnpay',
-                            status='success',
+                            status='completed',
                             description=f'Nạp {amount:,}đ qua VNPay'
                         )
                         
@@ -2482,3 +2547,23 @@ def apply_gift(request):
             'success': False,
             'message': str(e)
         })
+
+# API endpoint để lấy chi tiết giao dịch
+@login_required
+def get_transaction_detail(request, transaction_id):
+    try:
+        transaction = Transaction.objects.get(id=transaction_id, user=request.user)
+        
+        data = {
+            'id': transaction.id,
+            'transaction_id': transaction.transaction_id,
+            'created_at': transaction.created_at.strftime('%d/%m/%Y %H:%M'),
+            'payment_method': transaction.payment_method,
+            'amount': float(transaction.amount),
+            'status': transaction.status,
+            'description': transaction.description
+        }
+        
+        return JsonResponse(data)
+    except Transaction.DoesNotExist:
+        return JsonResponse({'error': 'Không tìm thấy giao dịch'}, status=404)

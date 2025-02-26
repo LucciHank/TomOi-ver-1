@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='transaction',
             name='payment_method',
-            field=models.CharField(choices=[('vnpay', 'VNPAY'), ('tcoin', 'TCoin'), ('momo', 'MoMo'), ('paypal', 'PayPal')], max_length=20),
+            field=models.CharField(choices=[('vnpay', 'VNPAY'), ('tcoin', 'TCoin'), ('paypal', 'PayPal')], max_length=20),
         ),
         migrations.AlterField(
             model_name='transaction',

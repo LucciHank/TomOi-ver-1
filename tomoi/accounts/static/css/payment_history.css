@@ -1,8 +1,25 @@
+.balance-cards {
+    display: flex;
+    gap: 16px;
+    margin: 24px 0;
+}
+
 .balance-box {
-    cursor: pointer !important;
-    position: relative !important;
-    overflow: hidden !important;
-    transition: all 0.3s ease !important;
+    flex: 1;
+    padding: 24px;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    border: none;
+    position: relative;
+    overflow: hidden;
 }
 
 .balance-box::before {
@@ -22,8 +39,8 @@
 }
 
 .balance-box:hover {
-    transform: translateY(-4px) !important;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
 .balance-box:active {
@@ -101,4 +118,123 @@
     height: 38px !important;
     margin-top: 29px !important;
     /* = label height + margin-bottom */
+}
+
+/* Cập nhật CSS cho text-danger và text-success */
+.text-danger {
+    color: #df2626 !important;
+    font-weight: 500 !important;
+}
+
+.text-success {
+    color: #28a745 !important;
+    font-weight: 500 !important;
+}
+
+/* Cập nhật style cho badge */
+.badge {
+    font-weight: 500 !important;
+    padding: 6px 10px !important;
+    border-radius: 4px !important;
+    font-size: 0.8rem !important;
+}
+
+/* Style cho phân trang */
+.pagination {
+    margin-bottom: 0 !important;
+}
+
+.page-item.active .page-link {
+    background-color: #df2626 !important;
+    border-color: #df2626 !important;
+}
+
+.page-link {
+    color: #df2626 !important;
+}
+
+.page-item.active .page-link {
+    color: white !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .balance-cards {
+        flex-direction: column;
+    }
+    
+    .balance-box {
+        min-height: 150px;
+    }
+}
+
+/* CSS cho modal chi tiết giao dịch */
+.transaction-details .detail-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-bottom: 4px;
+}
+
+.transaction-details .detail-value {
+    font-size: 1rem;
+    color: #212529;
+}
+
+/* CSS cho card tiêu đề */
+.card-title {
+    font-size: 1.5rem !important;
+    font-weight: 600 !important;
+    margin-bottom: 1.5rem !important;
+}
+
+/* Focus styles cho filter inputs */
+.form-control:focus, 
+.form-select:focus {
+    border-color: rgba(223, 38, 38, 0.4);
+    box-shadow: 0 0 0 0.25rem rgba(223, 38, 38, 0.25);
+}
+
+.balance-icon {
+    font-size: 32px;
+    color: #e50914;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    background: rgba(229, 9, 20, 0.1);
+    border-radius: 50%;
+}
+
+.balance-icon.tcoin {
+    color: #fd7e14;
+    background: rgba(253, 126, 20, 0.1);
+}
+
+.balance-title {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 16px;
+}
+
+.balance-amount {
+    font-size: 24px;
+    font-weight: bold;
+    color: #e50914;
+    margin-bottom: 16px;
+}
+
+.balance-action {
+    margin-top: 16px;
+}
+
+.balance-action a {
+    text-decoration: none;
+    color: #e50914;
+    font-weight: 500;
+}
+
+.balance-action a:hover {
+    text-decoration: underline;
 }

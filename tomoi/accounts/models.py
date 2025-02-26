@@ -2,6 +2,8 @@ from django.contrib.auth.models import AbstractUser, Group, Permission, BaseUser
 from django.db import models
 from django.utils.html import format_html
 from django.contrib.auth.hashers import check_password
+import random
+from datetime import datetime
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, username, email, password=None, **extra_fields):
@@ -404,3 +406,18 @@ class BalanceHistory(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.amount:+,}đ - {self.created_at}"
+
+def generate_deposit_transaction_id():
+    """Tạo mã giao dịch nạp tiền theo định dạng NT + năm + tháng + 6 số ngẫu nhiên + ngày"""
+    now = datetime.now()
+    year = now.strftime("%Y")
+    month = now.strftime("%m")
+    day = now.strftime("%d")
+    
+    # Tạo 6 số ngẫu nhiên
+    random_digits = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+    
+    # Ghép mã theo định dạng
+    transaction_id = f"NT{year}{month}{random_digits}{day}"
+    
+    return transaction_id

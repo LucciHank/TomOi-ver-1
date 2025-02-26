@@ -59,7 +59,6 @@ window.TRANSLATIONS = {
         'detailed_status': 'Trạng thái chi tiết',
         'all_methods': 'Tất cả phương thức',
         'bank_transfer': 'Chuyển khoản',
-        'momo_wallet': 'Ví MoMo',
         'vnpay': 'VNPay',
         'no_transactions': 'Chưa có giao dịch nào',
 
@@ -161,7 +160,7 @@ window.TRANSLATIONS = {
         'detailed_status': 'Detailed Status',
         'all_methods': 'All Methods',
         'bank_transfer': 'Bank Transfer',
-        'momo_wallet': 'MoMo Wallet',
+
         'vnpay': 'VNPay',
         'no_transactions': 'No transactions yet',
 
