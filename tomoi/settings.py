@@ -1,4 +1,8 @@
+DEBUG = True
+
 MIDDLEWARE = [
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     ...
     'accounts.middleware.EmailVerificationMiddleware',
     ...

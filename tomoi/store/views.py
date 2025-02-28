@@ -3,7 +3,7 @@ from django.conf import settings
 from .models import (
     Order, OrderItem, PurchasedAccount, Product, ProductImage, 
     Category, Banner, CartItem, BlogPost, ProductVariant, 
-    VariantOption, Wishlist
+    VariantOption, Wishlist, SearchHistory
 )
 from accounts.models import CustomUser
 from django.contrib.auth.decorators import login_required
@@ -25,7 +25,7 @@ from django.utils.crypto import get_random_string
 from django.urls import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods, require_POST
-from django.db.models import Q
+from django.db.models import Q, Count
 import time
 from decimal import Decimal
 from django.db import transaction
@@ -791,3 +791,166 @@ def verify_payment(request):
     }
     
     return render(request, 'store/verify_payment.html', context)
+
+def trending_suggestions(request):
+    """API endpoint for trending searches and recent products"""
+    print("Trending suggestions endpoint called")
+    try:
+        # Get trending searches
+        trending = SearchHistory.objects.values('keyword') \
+            .annotate(count=Count('id')) \
+            .order_by('-count')[:5]
+        
+        # Get recently updated products - bỏ filter is_active
+        recent_products = Product.objects.order_by('-updated_at')[:3]
+        
+        suggestions = []
+        
+        # Add trending searches
+        for item in trending:
+            suggestions.append({
+                'type': 'trending',
+                'keyword': item['keyword'],
+                'count': item['count'],
+                'icon': 'fas fa-fire'
+            })
+        
+        # Add recent products
+        for product in recent_products:
+            suggestions.append({
+                'type': 'product',
+                'keyword': product.name,
+                'url': reverse('store:product_detail', args=[product.id]),
+                'icon': 'fas fa-clock'
+            })
+        
+        return JsonResponse({'suggestions': suggestions})
+    except Exception as e:
+        print(f"Error in trending_suggestions: {str(e)}")
+        return JsonResponse({'error': str(e)}, status=500)
+
+def search_suggestions(request):
+    """API endpoint for search suggestions"""
+    print("Search suggestions endpoint called")
+    try:
+        query = request.GET.get('q', '').strip()
+        
+        if len(query) < 1:
+            return JsonResponse({'suggestions': []})
+        
+        # Search products
+        products = Product.objects.filter(
+            Q(name__icontains=query) | 
+            Q(description__icontains=query),
+            is_active=True
+        )[:5]
+        
+        # Save search history if query is meaningful
+        if len(query) >= 2:
+            SearchHistory.objects.create(
+                user=request.user if request.user.is_authenticated else None,
+                keyword=query,
+                ip_address=request.META.get('REMOTE_ADDR'),
+                user_agent=request.META.get('HTTP_USER_AGENT')
+            )
+        
+        suggestions = []
+        for product in products:
+            try:
+                image_url = product.get_main_image_url()
+            except:
+                image_url = '/static/images/default-product.jpg'
+                
+            suggestions.append({
+                'type': 'product',
+                'name': product.name,
+                'image': image_url,
+                'price': str(product.price),
+                'url': reverse('store:product_detail', args=[product.id])
+            })
+        
+        return JsonResponse({'suggestions': suggestions})
+    except Exception as e:
+        print(f"Error in search_suggestions: {str(e)}")
+        return JsonResponse({'error': str(e)}, status=500)
+
+def search_products(request):
+    query = request.GET.get('q', '')
+    category = request.GET.get('category')
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    sort = request.GET.get('sort', 'newest')
+    
+    products = Product.objects.all()
+    
+    if query:
+        products = products.filter(
+            Q(name__icontains=query) |
+            Q(description__icontains=query)
+        )
+    
+    if category:
+        products = products.filter(category__slug=category)
+        
+    if min_price:
+        products = products.filter(price__gte=min_price)
+        
+    if max_price:
+        products = products.filter(price__lte=max_price)
+        
+    if sort == 'bestseller':
+        products = products.order_by('-sold_count')
+    elif sort == 'price_asc':
+        products = products.order_by('price')
+    elif sort == 'price_desc':
+        products = products.order_by('-price')
+    elif sort == 'name_asc':
+        products = products.order_by('name')
+    elif sort == 'name_desc':
+        products = products.order_by('-name')
+    else:  # newest
+        products = products.order_by('-created_at')
+        
+    categories = Category.objects.all()
+    
+    context = {
+        'products': products,
+        'categories': categories,
+        'query': query,
+        'selected_category': category,
+        'min_price': min_price,
+        'max_price': max_price,
+        'sort': sort
+    }
+    
+    return render(request, 'store/search_product.html', context)
+
+def trending_searches(request):
+    trending = SearchHistory.objects.values('keyword') \
+        .annotate(count=Count('id')) \
+        .order_by('-count')[:5]
+    
+    # Get recently updated products
+    recent_products = Product.objects.order_by('-updated_at')[:3]
+    
+    suggestions = []
+    
+    # Add trending searches
+    for item in trending:
+        suggestions.append({
+            'type': 'trending',
+            'keyword': item['keyword'],
+            'count': item['count'],
+            'icon': 'fas fa-fire'
+        })
+    
+    # Add recent products
+    for product in recent_products:
+        suggestions.append({
+            'type': 'product',
+            'keyword': product.name,
+            'url': reverse('store:product_detail', args=[product.id]),
+            'icon': 'fas fa-clock'
+        })
+    
+    return JsonResponse({'suggestions': suggestions})

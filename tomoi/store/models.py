@@ -52,6 +52,7 @@ class Product(models.Model):
     )
     is_featured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     requires_email = models.BooleanField(
         default=False,
         verbose_name="Yêu cầu Email",
@@ -65,6 +66,7 @@ class Product(models.Model):
     is_cross_sale = models.BooleanField(default=False)
     cross_sale_products = models.ManyToManyField('self', blank=True)
     cross_sale_discount = models.IntegerField(default=0, help_text="Phần trăm giảm giá khi mua kèm")
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
@@ -127,6 +129,13 @@ class Product(models.Model):
                 last_id = 1
             self.product_code = f'{prefix}{last_id:06d}'
         super().save(*args, **kwargs)
+
+    def get_main_image_url(self):
+        main_image = self.images.filter(is_primary=True).first()
+        if main_image:
+            return main_image.image.url
+        # Trả về ảnh mặc định nếu không có ảnh chính
+        return '/static/images/default-product.jpg'
 
 
 # Mô hình hình ảnh sản phẩm (ProductImage)
@@ -369,3 +378,18 @@ class Wishlist(models.Model):
 
     class Meta:
         unique_together = ('user', 'product')
+
+class SearchHistory(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    keyword = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Lịch sử tìm kiếm'
+        verbose_name_plural = 'Lịch sử tìm kiếm'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.keyword} - {self.created_at.strftime('%d/%m/%Y %H:%M')}"

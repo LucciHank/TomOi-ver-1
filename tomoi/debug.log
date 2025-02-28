@@ -4233,3 +4233,2342 @@ Watching for file changes with StatReloader
 "GET /cart/api/ HTTP/1.1" 200 467
 "GET /cart/api/ HTTP/1.1" 200 467
 "GET /cart/api/ HTTP/1.1" 200 467
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 61999
+"GET /static/css/security.css?v=1.1 HTTP/1.1" 304 0
+"GET /static/store/css/home.css?v=1.1 HTTP/1.1" 304 0
+"GET /static/store/css/home.css HTTP/1.1" 304 0
+"GET /static/js/base.js HTTP/1.1" 200 16013
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 200 40040
+"GET /static/js/translations.js HTTP/1.1" 200 7355
+"GET /media/avatars/Firefly_20250220094241.png HTTP/1.1" 304 0
+"GET /static/accounts/js/base.js?v=1.2 HTTP/1.1" 304 0
+"GET /static/store/js/home.js HTTP/1.1" 304 0
+"GET /media/products/Anh_man_hinh_2023-11-27_luc_18.25.19.png HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"POST /cart/update/ HTTP/1.1" 200 105
+"POST /cart/update/ HTTP/1.1" 200 105
+"GET /cart/api/ HTTP/1.1" 200 467
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 62359
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 200 40936
+"GET /static/js/base.js HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q= HTTP/1.1" 200 57416
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /static/store/css/search.css HTTP/1.1" 200 1812
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q=Netflix HTTP/1.1" 200 57430
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /static/store/css/search.css HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q=spotify HTTP/1.1" 200 56895
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /search/?q=spotify HTTP/1.1" 200 58097
+"GET /static/js/base.js HTTP/1.1" 304 0
+"GET /static/store/css/search.css HTTP/1.1" 200 4277
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 200 40871
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET / HTTP/1.1" 200 62359
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q= HTTP/1.1" 200 58618
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /static/store/css/search.css HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q= HTTP/1.1" 200 58618
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q= HTTP/1.1" 200 58618
+"GET /static/store/css/search.css HTTP/1.1" 304 0
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /static/js/base.js HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q= HTTP/1.1" 200 58618
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q= HTTP/1.1" 200 58618
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/views.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/models.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/views.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/admin.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+"GET /search/?q= HTTP/1.1" 200 58629
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /static/js/base.js HTTP/1.1" 304 0
+"GET /static/store/css/search.css HTTP/1.1" 200 4657
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET / HTTP/1.1" 200 62359
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q= HTTP/1.1" 200 58629
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q= HTTP/1.1" 200 58629
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 200 40871
+"GET /static/css/security.css?v=1.1 HTTP/1.1" 200 11996
+"GET /static/store/css/home.css?v=1.1 HTTP/1.1" 200 18137
+"GET /static/store/css/search.css HTTP/1.1" 200 4657
+"GET /static/js/base.js HTTP/1.1" 200 16013
+"GET /static/js/translations.js HTTP/1.1" 200 7355
+"GET /media/avatars/Firefly_20250220094241.png HTTP/1.1" 200 469690
+"GET /static/accounts/js/base.js?v=1.2 HTTP/1.1" 200 28342
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /media/products/Anh_man_hinh_2023-11-27_luc_18.25.19.png HTTP/1.1" 200 1588225
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /static/images/favicon.ico HTTP/1.1" 404 1868
+"GET /search/?q=blue HTTP/1.1" 200 58091
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q= HTTP/1.1" 200 58629
+"GET /static/store/css/search.css HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q= HTTP/1.1" 200 58629
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET / HTTP/1.1" 200 62359
+"GET /static/store/js/home.js HTTP/1.1" 304 0
+"GET /media/products/Anh_man_hinh_2023-11-27_luc_18.25.19.png HTTP/1.1" 304 0
+"GET /static/store/css/home.css HTTP/1.1" 304 0
+"GET /static/store/css/home.css?v=1.1 HTTP/1.1" 304 0
+"GET /static/css/security.css?v=1.1 HTTP/1.1" 304 0
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 200 40871
+"GET /static/js/base.js HTTP/1.1" 200 16013
+"GET /static/js/translations.js HTTP/1.1" 200 7355
+"GET /media/avatars/Firefly_20250220094241.png HTTP/1.1" 304 0
+"GET /static/accounts/js/base.js?v=1.2 HTTP/1.1" 200 28342
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+Not Found: /apple-touch-icon-precomposed.png
+"GET /apple-touch-icon-precomposed.png HTTP/1.1" 404 11465
+Not Found: /apple-touch-icon.png
+"GET /apple-touch-icon.png HTTP/1.1" 404 11429
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /static/images/favicon.ico HTTP/1.1" 404 1868
+"GET /search/?q=netflix HTTP/1.1" 200 58643
+"GET /static/store/css/search.css HTTP/1.1" 200 4657
+"GET /media/avatars/Firefly_20250220094241.png HTTP/1.1" 200 469690
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /product/1/ HTTP/1.1" 200 77713
+"GET /static/store/css/product_detail.css HTTP/1.1" 304 0
+"GET /media/products/Anh_man_hinh_2023-11-27_luc_18.25.19.png HTTP/1.1" 200 1588225
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /media/products/Anh_man_hinh_2023-11-27_luc_18.25.19.png HTTP/1.1" 200 1588225
+"GET /cart/api/ HTTP/1.1" 200 467
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/urls.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /search/?q=netflix HTTP/1.1" 200 59101
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 200 40844
+"GET /static/store/css/search.css HTTP/1.1" 200 5731
+"GET /static/js/base.js HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET / HTTP/1.1" 200 62353
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /media/products/Anh_man_hinh_2023-11-27_luc_18.25.19.png HTTP/1.1" 200 1588225
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET / HTTP/1.1" 200 62353
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET / HTTP/1.1" 200 62353
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /media/products/Anh_man_hinh_2023-11-27_luc_18.25.19.png HTTP/1.1" 200 1588225
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /product/1/ HTTP/1.1" 200 77707
+"GET /media/products/Anh_man_hinh_2023-11-27_luc_18.25.19.png HTTP/1.1" 200 1588225
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /api/get-price/?variant_id=1&duration=1 HTTP/1.1" 200 74
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /media/products/Anh_man_hinh_2023-11-27_luc_18.25.19.png HTTP/1.1" 200 1588225
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q=netflix HTTP/1.1" 200 59101
+"GET /static/store/css/search.css HTTP/1.1" 304 0
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /static/store/css/search.css HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /media/products/Anh_man_hinh_2023-11-27_luc_18.25.19.png HTTP/1.1" 200 1588225
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/templatetags/custom_filters.py changed, reloading.
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 62355
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 200 40844
+"GET /static/js/base.js HTTP/1.1" 304 0
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /search/?q=netflix HTTP/1.1" 200 59402
+"GET /static/store/css/search.css HTTP/1.1" 200 6261
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET / HTTP/1.1" 200 62355
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 200 41602
+"GET /static/store/css/home.css?v=1.1 HTTP/1.1" 200 18137
+"GET /static/css/security.css?v=1.1 HTTP/1.1" 200 11996
+"GET /static/store/css/home.css HTTP/1.1" 200 18137
+"GET /static/js/base.js HTTP/1.1" 200 16013
+"GET /static/js/translations.js HTTP/1.1" 200 7355
+"GET /media/avatars/Firefly_20250220094241.png HTTP/1.1" 200 469690
+"GET /static/accounts/js/base.js?v=1.2 HTTP/1.1" 200 28342
+"GET /static/store/js/home.js HTTP/1.1" 200 14088
+"GET /media/products/Anh_man_hinh_2023-11-27_luc_18.25.19.png HTTP/1.1" 200 1588225
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /static/images/favicon.ico HTTP/1.1" 404 1868
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET / HTTP/1.1" 200 62355
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /search/?q=netflix HTTP/1.1" 200 59402
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /static/store/css/search.css HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q=netflix HTTP/1.1" 200 59410
+"GET /static/store/css/search.css HTTP/1.1" 304 0
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 200 41830
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET / HTTP/1.1" 200 62363
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET / HTTP/1.1" 200 62363
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 200 41830
+"GET /static/css/security.css?v=1.1 HTTP/1.1" 200 11996
+"GET /static/js/base.js HTTP/1.1" 200 16013
+"GET /static/js/translations.js HTTP/1.1" 200 7355
+"GET /static/store/css/home.css?v=1.1 HTTP/1.1" 200 18137
+"GET /static/store/css/home.css HTTP/1.1" 200 18137
+"GET /media/avatars/Firefly_20250220094241.png HTTP/1.1" 200 469690
+"GET /static/accounts/js/base.js?v=1.2 HTTP/1.1" 200 28342
+"GET /static/store/js/home.js HTTP/1.1" 200 14088
+"GET /media/products/Anh_man_hinh_2023-11-27_luc_18.25.19.png HTTP/1.1" 200 1588225
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /static/images/favicon.ico HTTP/1.1" 404 1868
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q=netflix HTTP/1.1" 200 59410
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET / HTTP/1.1" 200 65671
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /static/js/base.js HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11774
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=a HTTP/1.1" 404 11751
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11774
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=netflix HTTP/1.1" 404 11757
+"GET /search/?q=netflix HTTP/1.1" 200 62718
+"GET /static/store/css/search.css HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11774
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11774
+"GET / HTTP/1.1" 200 65671
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11774
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=n HTTP/1.1" 404 11751
+"GET / HTTP/1.1" 200 65671
+"GET /static/store/css/home.css HTTP/1.1" 200 18137
+"GET /static/js/base.js HTTP/1.1" 200 16013
+"GET /static/js/translations.js HTTP/1.1" 200 7355
+"GET /static/css/security.css?v=1.1 HTTP/1.1" 200 11996
+"GET /static/store/css/home.css?v=1.1 HTTP/1.1" 200 18137
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 200 41636
+"GET /media/avatars/Firefly_20250220094241.png HTTP/1.1" 200 469690
+"GET /static/accounts/js/base.js?v=1.2 HTTP/1.1" 200 28342
+"GET /static/store/js/home.js HTTP/1.1" 200 14088
+"GET /media/products/Anh_man_hinh_2023-11-27_luc_18.25.19.png HTTP/1.1" 200 1588225
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /static/images/favicon.ico HTTP/1.1" 404 1868
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11774
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=ne HTTP/1.1" 404 11752
+"GET /cart/api/ HTTP/1.1" 200 467
+"POST /cart/update/ HTTP/1.1" 200 105
+"POST /cart/update/ HTTP/1.1" 200 105
+"GET / HTTP/1.1" 200 62175
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 200 41642
+"GET /static/js/base.js HTTP/1.1" 304 0
+"GET /static/images/logo.png HTTP/1.1" 404 1859
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11774
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=h HTTP/1.1" 404 11751
+"GET / HTTP/1.1" 200 65665
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 200 41836
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11774
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=n HTTP/1.1" 404 11751
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=net HTTP/1.1" 404 11753
+"GET /search/?q=net HTTP/1.1" 200 62704
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /static/store/css/search.css HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q=net HTTP/1.1" 200 62704
+"GET /static/css/security.css?v=1.1 HTTP/1.1" 200 11996
+"GET /static/store/css/search.css HTTP/1.1" 200 6261
+"GET /static/store/css/home.css?v=1.1 HTTP/1.1" 200 18137
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 200 41836
+"GET /static/js/base.js HTTP/1.1" 200 16013
+"GET /static/js/translations.js HTTP/1.1" 200 7355
+"GET /media/avatars/Firefly_20250220094241.png HTTP/1.1" 200 469690
+"GET /static/accounts/js/base.js?v=1.2 HTTP/1.1" 200 28342
+"GET /static/images/favicon.ico HTTP/1.1" 404 1868
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11774
+"GET / HTTP/1.1" 200 65665
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET / HTTP/1.1" 200 65665
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET / HTTP/1.1" 200 65665
+"GET /cart/api/ HTTP/1.1" 200 467
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11774
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=ne HTTP/1.1" 404 11752
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=net HTTP/1.1" 404 11753
+"GET /search/?q=net HTTP/1.1" 200 62704
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q=net HTTP/1.1" 200 62704
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11774
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11774
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=net HTTP/1.1" 404 11753
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=netf HTTP/1.1" 404 11754
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/views.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/views.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/urls.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/views.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/views.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 65665
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 65665
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11777
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=n HTTP/1.1" 404 11754
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=ne HTTP/1.1" 404 11755
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=net HTTP/1.1" 404 11756
+"GET /search/?q=net HTTP/1.1" 200 62704
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11777
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=n HTTP/1.1" 404 11754
+"GET /search/?q=n HTTP/1.1" 200 62700
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /static/store/css/search.css HTTP/1.1" 304 0
+"GET /static/js/base.js HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11777
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=net HTTP/1.1" 404 11756
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=netf HTTP/1.1" 404 11757
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 65665
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11777
+Watching for file changes with StatReloader
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11777
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=n HTTP/1.1" 404 11754
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=ne HTTP/1.1" 404 11755
+"GET / HTTP/1.1" 200 65665
+"GET /static/store/css/home.css HTTP/1.1" 200 18137
+"GET /static/css/security.css?v=1.1 HTTP/1.1" 200 11996
+"GET /static/js/base.js HTTP/1.1" 200 16013
+"GET /static/js/translations.js HTTP/1.1" 200 7355
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 200 41836
+"GET /static/store/css/home.css?v=1.1 HTTP/1.1" 200 18137
+"GET /media/avatars/Firefly_20250220094241.png HTTP/1.1" 200 469690
+"GET /static/accounts/js/base.js?v=1.2 HTTP/1.1" 200 28342
+"GET /static/store/js/home.js HTTP/1.1" 200 14088
+"GET /media/products/Anh_man_hinh_2023-11-27_luc_18.25.19.png HTTP/1.1" 200 1588225
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /static/images/favicon.ico HTTP/1.1" 404 1868
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11777
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=n HTTP/1.1" 404 11754
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=ne HTTP/1.1" 404 11755
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 65665
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11777
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=1 HTTP/1.1" 404 11754
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11777
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=n HTTP/1.1" 404 11754
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=ne HTTP/1.1" 404 11755
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=net HTTP/1.1" 404 11756
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=netflix HTTP/1.1" 404 11760
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/urls.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET / HTTP/1.1" 200 65665
+"GET /static/store/css/home.css?v=1.1 HTTP/1.1" 200 18137
+"GET /static/store/css/home.css HTTP/1.1" 200 18137
+"GET /static/js/base.js HTTP/1.1" 200 16013
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 200 41836
+"GET /static/js/translations.js HTTP/1.1" 200 7355
+"GET /static/css/security.css?v=1.1 HTTP/1.1" 200 11996
+"GET /media/avatars/Firefly_20250220094241.png HTTP/1.1" 200 469690
+"GET /static/accounts/js/base.js?v=1.2 HTTP/1.1" 200 28342
+"GET /static/store/js/home.js HTTP/1.1" 200 14088
+"GET /media/products/Anh_man_hinh_2023-11-27_luc_18.25.19.png HTTP/1.1" 200 1588225
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11777
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /static/images/favicon.ico HTTP/1.1" 404 1868
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=n HTTP/1.1" 404 11754
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=ne HTTP/1.1" 404 11755
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/views.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 65665
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET / HTTP/1.1" 200 65665
+"GET /static/js/translations.js HTTP/1.1" 200 7355
+"GET /static/store/css/home.css?v=1.1 HTTP/1.1" 200 18137
+"GET /static/css/security.css?v=1.1 HTTP/1.1" 200 11996
+"GET /static/js/base.js HTTP/1.1" 200 16013
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 200 41836
+"GET /static/store/css/home.css HTTP/1.1" 200 18137
+"GET /media/avatars/Firefly_20250220094241.png HTTP/1.1" 200 469690
+"GET /static/store/js/home.js HTTP/1.1" 200 14088
+"GET /static/accounts/js/base.js?v=1.2 HTTP/1.1" 200 28342
+"GET /media/products/Anh_man_hinh_2023-11-27_luc_18.25.19.png HTTP/1.1" 200 1588225
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /static/images/favicon.ico HTTP/1.1" 404 1868
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11777
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=ne HTTP/1.1" 404 11755
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=net HTTP/1.1" 404 11756
+"GET / HTTP/1.1" 200 65665
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11777
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=n HTTP/1.1" 404 11754
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=ne HTTP/1.1" 404 11755
+"GET / HTTP/1.1" 200 65665
+"GET /static/store/css/home.css?v=1.1 HTTP/1.1" 200 18137
+"GET /static/store/css/home.css HTTP/1.1" 200 18137
+"GET /static/js/translations.js HTTP/1.1" 200 7355
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 200 41836
+"GET /static/js/base.js HTTP/1.1" 200 16013
+"GET /static/css/security.css?v=1.1 HTTP/1.1" 200 11996
+"GET /media/avatars/Firefly_20250220094241.png HTTP/1.1" 200 469690
+"GET /static/accounts/js/base.js?v=1.2 HTTP/1.1" 200 28342
+"GET /static/store/js/home.js HTTP/1.1" 200 14088
+"GET /media/products/Anh_man_hinh_2023-11-27_luc_18.25.19.png HTTP/1.1" 200 1588225
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11777
+"GET /static/images/favicon.ico HTTP/1.1" 404 1868
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=net HTTP/1.1" 404 11756
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=netflix HTTP/1.1" 404 11760
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=netflix HTTP/1.1" 404 11760
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET / HTTP/1.1" 200 65718
+"GET /static/store/css/home.css HTTP/1.1" 200 18137
+"GET /static/js/translations.js HTTP/1.1" 200 7355
+"GET /static/store/css/home.css?v=1.1 HTTP/1.1" 200 18137
+"GET /static/css/security.css?v=1.1 HTTP/1.1" 200 11996
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 200 41836
+"GET /static/js/base.js HTTP/1.1" 200 16013
+"GET /media/avatars/Firefly_20250220094241.png HTTP/1.1" 200 469690
+"GET /static/store/js/search.js HTTP/1.1" 200 8520
+"GET /static/store/js/home.js HTTP/1.1" 200 14088
+"GET /static/accounts/js/base.js?v=1.2 HTTP/1.1" 200 28342
+"GET /media/products/Anh_man_hinh_2023-11-27_luc_18.25.19.png HTTP/1.1" 200 1588225
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+- Broken pipe from ('127.0.0.1', 61221)
+- Broken pipe from ('127.0.0.1', 56778)
+- Broken pipe from ('127.0.0.1', 61222)
+- Broken pipe from ('127.0.0.1', 61224)
+"GET / HTTP/1.1" 200 65718
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /static/images/favicon.ico HTTP/1.1" 404 1868
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET / HTTP/1.1" 200 65718
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+Internal Server Error: /api/search-suggestions/trending/
+"GET /api/search-suggestions/trending/ HTTP/1.1" 500 348
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11777
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+Internal Server Error: /api/search-suggestions/
+"GET /api/search-suggestions/?q=1 HTTP/1.1" 500 348
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=1 HTTP/1.1" 404 11754
+Internal Server Error: /api/search-suggestions/trending/
+"GET /api/search-suggestions/trending/ HTTP/1.1" 500 348
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11777
+Internal Server Error: /api/search-suggestions/
+"GET /api/search-suggestions/?q=ne HTTP/1.1" 500 348
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=ne HTTP/1.1" 404 11755
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 65718
+"GET /static/store/js/search.js HTTP/1.1" 200 7500
+"GET / HTTP/1.1" 200 65718
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET / HTTP/1.1" 200 65718
+"GET /static/css/security.css?v=1.1 HTTP/1.1" 200 11996
+"GET /static/js/translations.js HTTP/1.1" 200 7355
+"GET /static/store/css/home.css?v=1.1 HTTP/1.1" 200 18137
+"GET /static/store/css/home.css HTTP/1.1" 200 18137
+"GET /static/js/base.js HTTP/1.1" 200 16013
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 200 41836
+"GET /media/avatars/Firefly_20250220094241.png HTTP/1.1" 200 469690
+"GET /static/accounts/js/base.js?v=1.2 HTTP/1.1" 200 28342
+"GET /static/store/js/home.js HTTP/1.1" 200 14088
+"GET /static/store/js/search.js HTTP/1.1" 200 7500
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /media/products/Anh_man_hinh_2023-11-27_luc_18.25.19.png HTTP/1.1" 200 1588225
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+Internal Server Error: /api/search-suggestions/trending/
+"GET /api/search-suggestions/trending/ HTTP/1.1" 500 349
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11777
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /static/images/favicon.ico HTTP/1.1" 404 1868
+"GET /cart/api/ HTTP/1.1" 200 467
+Internal Server Error: /api/search-suggestions/
+"GET /api/search-suggestions/?q=n HTTP/1.1" 500 67
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=n HTTP/1.1" 404 11754
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=ne HTTP/1.1" 404 11755
+Internal Server Error: /api/search-suggestions/
+"GET /api/search-suggestions/?q=ne HTTP/1.1" 500 67
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/models.py changed, reloading.
+Watching for file changes with StatReloader
+/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/views.py changed, reloading.
+Watching for file changes with StatReloader
+Internal Server Error: /
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/sqlite3/base.py", line 354, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: store_product.updated_at
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/views.py", line 52, in home
+    return render(request, 'store/home.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 199, in render
+    len_values = len(values)
+                 ^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/models/query.py", line 382, in __len__
+    self._fetch_all()
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/models/query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/models/sql/compiler.py", line 1574, in execute_sql
+    cursor.execute(sql, params)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/sqlite3/base.py", line 354, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: store_product.updated_at
+"GET / HTTP/1.1" 500 228235
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 11696
+Internal Server Error: /
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/sqlite3/base.py", line 354, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: store_product.updated_at
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/views.py", line 52, in home
+    return render(request, 'store/home.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 199, in render
+    len_values = len(values)
+                 ^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/models/query.py", line 382, in __len__
+    self._fetch_all()
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/models/query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/models/sql/compiler.py", line 1574, in execute_sql
+    cursor.execute(sql, params)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/sqlite3/base.py", line 354, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: store_product.updated_at
+"GET / HTTP/1.1" 500 228235
+Internal Server Error: /
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/sqlite3/base.py", line 354, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: store_product.updated_at
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/views.py", line 52, in home
+    return render(request, 'store/home.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 199, in render
+    len_values = len(values)
+                 ^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/models/query.py", line 382, in __len__
+    self._fetch_all()
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/models/query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/models/sql/compiler.py", line 1574, in execute_sql
+    cursor.execute(sql, params)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/sqlite3/base.py", line 354, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: store_product.updated_at
+"GET / HTTP/1.1" 500 228372
+"GET /admin HTTP/1.1" 301 0
+"GET /admin/ HTTP/1.1" 200 26916
+"GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2810
+"GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2804
+"GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+"GET /static/admin/css/responsive.css HTTP/1.1" 200 17972
+"GET /static/admin/css/base.css HTTP/1.1" 200 22092
+"GET /static/css/volt.css HTTP/1.1" 200 550891
+"GET /static/admin/js/theme.js HTTP/1.1" 200 1653
+"GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+"GET /static/admin/img/icon-no.svg HTTP/1.1" 200 560
+"GET /static/admin/img/icon-yes.svg HTTP/1.1" 200 436
+"GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+"GET /static/admin/img/icon-deletelink.svg HTTP/1.1" 200 392
+"GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+"GET /admin/accounts/customuser/add/ HTTP/1.1" 200 27382
+"GET /static/admin/css/forms.css HTTP/1.1" 200 8794
+"GET /static/admin/css/tcoin_adjustment.css HTTP/1.1" 200 792
+"GET /static/admin/js/tcoin_adjustment.js HTTP/1.1" 200 627
+"GET /static/admin/css/unusable_password_field.css HTTP/1.1" 200 663
+"GET /static/admin/js/jquery.init.js HTTP/1.1" 200 347
+"GET /static/admin/js/core.js HTTP/1.1" 200 6208
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /static/admin/css/widgets.css HTTP/1.1" 200 11564
+"GET /static/admin/js/actions.js HTTP/1.1" 200 8076
+"GET /static/admin/js/inlines.js HTTP/1.1" 200 15526
+"GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 9097
+"GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1531
+"GET /static/admin/js/prepopulate_init.js HTTP/1.1" 200 586
+"GET /static/admin/js/urlify.js HTTP/1.1" 200 7887
+"GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 285314
+"GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 325171
+"GET /static/admin/js/change_form.js HTTP/1.1" 200 606
+"GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 200 581
+"GET /static/admin/js/unusable_password_field.js HTTP/1.1" 200 1480
+Internal Server Error: /cart/
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 883, in _resolve_lookup
+    current = current[bit]
+              ~~~~~~~^^^^^
+TypeError: 'CartItem' object is not subscriptable
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/models/fields/related_descriptors.py", line 239, in __get__
+    rel_obj = self.field.get_cached_value(instance)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/models/fields/mixins.py", line 37, in get_cached_value
+    return instance._state.fields_cache[self.cache_name]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+KeyError: 'product'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/sqlite3/base.py", line 354, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: store_product.updated_at
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hanhhlanhchanh/TomOi-ver-1/tomoi/store/views.py", line 174, in cart_view
+    return render(request, 'store/cart.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 243, in render
+    nodelist.append(node.render_annotated(context))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 320, in render
+    match = condition.eval(context)
+            ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/defaulttags.py", line 886, in eval
+    return self.value.resolve(context, ignore_failures=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 718, in resolve
+    obj = self.var.resolve(context)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 850, in resolve
+    value = self._resolve_lookup(context)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/template/base.py", line 893, in _resolve_lookup
+    current = getattr(current, bit)
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/models/fields/related_descriptors.py", line 257, in __get__
+    rel_obj = self.get_object(instance)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/models/fields/related_descriptors.py", line 220, in get_object
+    return qs.get(self.field.get_reverse_related_filter(instance))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/models/query.py", line 645, in get
+    num = len(clone)
+          ^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/models/query.py", line 382, in __len__
+    self._fetch_all()
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/models/query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/models/sql/compiler.py", line 1574, in execute_sql
+    cursor.execute(sql, params)
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/django/db/backends/sqlite3/base.py", line 354, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: store_product.updated_at
+"GET /cart/ HTTP/1.1" 500 291462
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 65718
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /static/js/base.js HTTP/1.1" 304 0
+"GET /static/store/js/search.js HTTP/1.1" 304 0
+"GET /media/avatars/Firefly_20250220094241.png HTTP/1.1" 200 469690
+"GET /media/products/Anh_man_hinh_2023-11-27_luc_18.25.19.png HTTP/1.1" 200 1588225
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11777
+"GET /api/search-suggestions/trending/ HTTP/1.1" 200 188
+"GET /api/search-suggestions/?q=a HTTP/1.1" 200 19
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=a HTTP/1.1" 404 11754
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11777
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=ne HTTP/1.1" 404 11755
+"GET /api/search-suggestions/?q=ne HTTP/1.1" 200 152
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11777
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=net HTTP/1.1" 404 11756
+"GET /api/search-suggestions/?q=net HTTP/1.1" 200 152
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/ HTTP/1.1" 200 88486
+"GET /static/images/tcoin.png HTTP/1.1" 304 0
+"GET /static/images/vnpay-logo.png HTTP/1.1" 404 1877
+"GET /static/store/js/cart.js HTTP/1.1" 200 12596
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"POST /payment/vnpay-order/ HTTP/1.1" 200 578
+"GET /accounts/payment/vnpay-order-return/?vnp_Amount=20000000&vnp_BankCode=VNPAY&vnp_CardType=QRCODE&vnp_OrderInfo=Thanh+toan+don+hang+ORDER20250228155841&vnp_PayDate=20250228155841&vnp_ResponseCode=24&vnp_TmnCode=B2RG0YSD&vnp_TransactionNo=0&vnp_TransactionStatus=02&vnp_TxnRef=ORDER20250228155841&vnp_SecureHash=0acfb080d37e5c36a2eed14877094c1139f8cc50dd7ca65117f2bcfbbe410c1635ad5748d7bd6ef03b5b6b35827b6de455bd4a77e823fef830a58a6da99e33d9 HTTP/1.1" 302 0
+"GET /payment/failed/ HTTP/1.1" 200 59619
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET / HTTP/1.1" 200 65718
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /accounts/user-info/ HTTP/1.1" 200 96644
+"GET /static/js/user_info.js HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /accounts/user-info/order-history/ HTTP/1.1" 200 73244
+"GET /static/js/order-history.js HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 200 156177
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /accounts/deposit/ HTTP/1.1" 200 70499
+"GET /static/js/deposit.js HTTP/1.1" 304 0
+"GET /static/images/vnpay.png HTTP/1.1" 404 1862
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"POST /accounts/deposit/create-payment/ HTTP/1.1" 200 133
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/ HTTP/1.1" 200 88486
+"GET /static/images/vnpay-logo.png HTTP/1.1" 404 1877
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"POST /payment/vnpay-order/ HTTP/1.1" 200 578
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET / HTTP/1.1" 200 65718
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /accounts/user-info/ HTTP/1.1" 200 96644
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /accounts/user-info/order-history/ HTTP/1.1" 200 73244
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /accounts/user-info/payment-history/ HTTP/1.1" 200 157964
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /accounts/tcoin/ HTTP/1.1" 200 84070
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"POST /accounts/tcoin/ HTTP/1.1" 200 73
+"GET /accounts/tcoin/ HTTP/1.1" 200 85094
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /accounts/tcoin/ HTTP/1.1" 200 85094
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /accounts/tcoin/ HTTP/1.1" 200 85094
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET / HTTP/1.1" 200 65718
+"GET /static/store/js/search.js HTTP/1.1" 304 0
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+Not Found: /store/api/search-suggestions/trending/
+"GET /store/api/search-suggestions/trending/ HTTP/1.1" 404 11777
+"GET /api/search-suggestions/trending/ HTTP/1.1" 200 263
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=netflix HTTP/1.1" 404 11760
+"GET /api/search-suggestions/?q=netflix HTTP/1.1" 200 152
+"GET /search/?q=undefined HTTP/1.1" 200 62221
+"GET /static/store/css/search.css HTTP/1.1" 304 0
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=netflix HTTP/1.1" 404 11760
+"GET /api/search-suggestions/?q=netflix HTTP/1.1" 200 152
+"GET /search/?q=netflix HTTP/1.1" 200 62799
+"GET /static/images/default-product.jpg HTTP/1.1" 404 1892
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+Not Found: /store/api/search-suggestions/
+"GET /store/api/search-suggestions/?q=netfli HTTP/1.1" 404 11759
+"GET /api/search-suggestions/?q=netfli HTTP/1.1" 200 152
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q=netflix&category=gii-tri&min_price=0&max_price=10000000&sort=newest HTTP/1.1" 200 62799
+"GET /static/images/default-product.jpg HTTP/1.1" 404 1892
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q=netflix&min_price=0&max_price=10000000&sort=newest HTTP/1.1" 200 62799
+"GET /static/images/default-product.jpg HTTP/1.1" 404 1892
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q=netflix&min_price=0&max_price=10000000&sort=newest HTTP/1.1" 200 62799
+"GET /static/images/default-product.jpg HTTP/1.1" 404 1892
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q=netflix&min_price=1500000&max_price=10000000&sort=newest HTTP/1.1" 200 62217
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q=netflix&min_price=0&max_price=10000000&sort=newest HTTP/1.1" 200 62799
+"GET /static/images/default-product.jpg HTTP/1.1" 404 1892
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q=netflix&category=gii-tri&min_price=0&max_price=10000000&sort=newest HTTP/1.1" 200 62799
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /static/store/js/search.js HTTP/1.1" 304 0
+"GET /static/images/default-product.jpg HTTP/1.1" 404 1892
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q=netflix&min_price=0&max_price=10000000&sort=newest HTTP/1.1" 200 62799
+"GET /static/images/default-product.jpg HTTP/1.1" 404 1892
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q=netflix&category=gii-tri&min_price=0&max_price=10000000&sort=newest HTTP/1.1" 200 62799
+"GET /static/images/default-product.jpg HTTP/1.1" 404 1892
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q=netflix&min_price=0&max_price=10000000&sort=newest HTTP/1.1" 200 62799
+"GET /static/images/default-product.jpg HTTP/1.1" 404 1892
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q=netflix&min_price=100000&max_price=10000000&sort=newest HTTP/1.1" 200 62217
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q=netflix&min_price=0&max_price=10000000&sort=newest HTTP/1.1" 200 62799
+"GET /static/images/default-product.jpg HTTP/1.1" 404 1892
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /search/?q=netflix HTTP/1.1" 200 62799
+"GET /static/images/default-product.jpg HTTP/1.1" 404 1892
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467

@@ -150,44 +150,159 @@ body .nav-link {
   /* Đẩy footer xuống dưới cùng */
 }
 
-.search-bar {
-  flex-grow: 1;
-  max-width: 500px;
-  margin-left: auto;
+/* Search Container & Suggestions */
+.search-container {
   position: relative;
+  flex: 1;
+  max-width: 600px;
+  margin: 0 15px;
+  z-index: 1000;
+  /* Đảm bảo suggestions hiển thị trên các elements khác */
 }
 
-.search-bar input {
-  width: 100%;
-  padding: 10px 20px;
+.search-form {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 2px solid #df2626;
   border-radius: 50px;
+  overflow: hidden;
+}
+
+.search-input {
+  flex: 1;
+  padding: 10px 20px;
   border: none;
   outline: none;
-  box-shadow: none;
+  font-size: 14px;
+  width: 100%;
 }
 
-.search-bar button {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: #fee2e2;
+.search-button {
+  background: #df2626;
   border: none;
-  border-radius: 50%;
-  width: 35px;
-  height: 35px;
+  padding: 10px 20px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.search-button:hover {
+  background: #c41e1e;
+}
+
+/* Search Suggestions */
+.search-suggestions {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 1000;
+  border: 1px solid #eee;
+  display: none;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.2s ease-out;
+}
+
+/* Khi suggestions được hiển thị */
+.search-suggestions.show {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Xóa animation cũ */
+.search-suggestions {
+  animation: none;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  text-decoration: none;
+  color: #333;
+  transition: background-color 0.2s;
+  border-bottom: 1px solid #eee;
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:hover {
+  background-color: #f8f9fa;
+}
+
+.suggestion-item i {
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-right: 12px;
+  font-size: 14px;
 }
 
-.search-bar button i {
-  color: #c0392b;
-  transition: transform 0.1s ease;
+.suggestion-item.trending i {
+  color: #ff6b6b;
 }
 
-.search-bar button i:hover {
-  transform: scale(1.15);
+.suggestion-item.product i {
+  color: #4dabf7;
+}
+
+.suggestion-item img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-right: 12px;
+}
+
+.suggestion-info {
+  flex: 1;
+}
+
+.suggestion-name {
+  font-size: 14px;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.suggestion-price {
+  font-size: 14px;
+  color: #df2626;
+  font-weight: 500;
+}
+
+.suggestion-item small {
+  margin-left: auto;
+  color: #666;
+  font-size: 12px;
+}
+
+/* Thêm animation cho suggestions */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.search-suggestions {
+  animation: fadeIn 0.2s ease-out;
 }
 
 /* Thay đổi selector hover */
@@ -1880,7 +1995,6 @@ h6 {
   justify-content: flex-start !important;
   height: 80px !important;
   align-items: center !important;
-  height: 100% !important;
 }
 
 .cart-item .item-info {
@@ -2188,37 +2302,37 @@ h6 {
 }
 
 .cart-item .item-controls button {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
-    line-height: 1.5;
-    border-radius: 0.2rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  border-radius: 0.2rem;
 }
 
 .cart-item .item-controls .btn-outline-danger {
-    color: #dc3545;
-    border-color: #dc3545;
+  color: #dc3545;
+  border-color: #dc3545;
 }
 
 .cart-item .item-controls .btn-outline-danger:hover {
-    color: #fff;
-    background-color: #dc3545;
-    border-color: #dc3545;
+  color: #fff;
+  background-color: #dc3545;
+  border-color: #dc3545;
 }
 
 .cart-item .quantity-controls .btn {
-    padding: 0.25rem 0.5rem;
-    min-width: 30px;
+  padding: 0.25rem 0.5rem;
+  min-width: 30px;
 }
 
 .cart-item .quantity {
-    font-size: 0.875rem;
-    font-weight: 600;
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
 .cart-item .fa-trash-alt {
-    font-size: 0.875rem;
+  font-size: 0.875rem;
 }
 
 .cart-item .quantity-controls .fas {
-    font-size: 0.75rem;
+  font-size: 0.75rem;
 }

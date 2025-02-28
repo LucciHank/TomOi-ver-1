@@ -34,9 +34,8 @@ def mask_email(email):
 
 @register.filter
 def format_price(value):
-    """Format giá tiền theo định dạng Việt Nam"""
     try:
-        return f"{int(value):,}đ".replace(',', '.')
+        return "{:,.0f}₫".format(float(value))
     except (ValueError, TypeError):
         return value
 

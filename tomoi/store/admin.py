@@ -3,7 +3,7 @@ from django import forms
 from django.db import models
 from .models import (
     Category, Product, ProductImage, ProductVariant, 
-    VariantOption, Order, Banner, ProductLabel, BlogPost
+    VariantOption, Order, Banner, ProductLabel, BlogPost, SearchHistory
 )
 from django.utils.text import slugify
 
@@ -131,3 +131,11 @@ class BlogPostAdmin(admin.ModelAdmin):
                 'django_ckeditor_5/dist/styles.css',
             ]
         }
+
+@admin.register(SearchHistory)
+class SearchHistoryAdmin(admin.ModelAdmin):
+    list_display = ('keyword', 'user', 'created_at', 'ip_address')
+    list_filter = ('created_at',)
+    search_fields = ('keyword', 'user__username', 'ip_address')
+    readonly_fields = ('created_at', 'ip_address', 'user_agent')
+    date_hierarchy = 'created_at'

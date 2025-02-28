@@ -280,11 +280,19 @@
       </div>
 
         <!-- Search bar -->
-        <div class="search-bar">
-            <input placeholder="Tìm kiếm sản phẩm..." type="text"/>
-            <button type="button">
+        <div class="search-container">
+            <form action="{% url 'store:search_products' %}" method="GET" class="search-form">
+                <input type="text" 
+                       name="q" 
+                       class="search-input" 
+                       placeholder="Tìm kiếm sản phẩm..."
+                       value="{{ request.GET.q|default:'' }}"
+                       autocomplete="off">
+                <button type="submit" class="search-button">
                 <i class="fas fa-search"></i>
             </button>
+            </form>
+            <div class="search-suggestions"></div>
         </div>
         <ul class="navbar-nav ms-auto">
 
@@ -1398,8 +1406,100 @@ function getCookie(name) {
         }
     }
     return cookieValue;
+  }
+
+// Search Suggestions
+const searchInput = document.querySelector('.search-input');
+const suggestionsContainer = document.querySelector('.search-suggestions');
+let debounceTimer;
+
+// Show trending on focus
+searchInput.addEventListener('focus', function() {
+    console.log('Search input focused'); // Debug log
+    if (!this.value.trim()) {
+        fetch('/store/api/search-suggestions/trending/')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Trending data:', data); // Debug log
+                showSuggestions(data.suggestions);
+            })
+            .catch(error => console.error('Error fetching trending:', error));
+    }
+});
+
+// Handle input
+searchInput.addEventListener('input', function() {
+    clearTimeout(debounceTimer);
+    const query = this.value.trim();
+    
+    if (query.length < 1) {
+        fetch('/store/api/search-suggestions/trending/')
+            .then(response => response.json())
+            .then(data => {
+                showSuggestions(data.suggestions);
+            })
+            .catch(error => console.error('Error fetching trending:', error));
+        return;
+    }
+    
+    debounceTimer = setTimeout(() => {
+        fetch(`/store/api/search-suggestions/?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                showSuggestions(data.suggestions);
+            })
+            .catch(error => console.error('Error fetching suggestions:', error));
+    }, 300);
+});
+
+function showSuggestions(suggestions) {
+    console.log('Showing suggestions:', suggestions); // Debug log
+    if (suggestions && suggestions.length > 0) {
+        suggestionsContainer.innerHTML = suggestions.map(item => {
+            if (item.type === 'trending' || item.type === 'product') {
+                return `
+                    <a href="/store/search/?q=${encodeURIComponent(item.keyword)}" 
+                       class="suggestion-item ${item.type}">
+                        <i class="${item.icon}"></i>
+                        <span>${item.keyword}</span>
+                        ${item.count ? `<small>${item.count} lượt tìm</small>` : ''}
+                    </a>
+                `;
+            } else {
+                return `
+                    <a href="${item.url}" class="suggestion-item">
+                        <img src="${item.image}" alt="${item.name}">
+                        <div class="suggestion-info">
+                            <div class="suggestion-name">${item.name}</div>
+                            <div class="suggestion-price">${formatPrice(item.price)}</div>
+                        </div>
+                    </a>
+                `;
+            }
+        }).join('');
+        
+        suggestionsContainer.classList.add('show');
+    } else {
+        suggestionsContainer.classList.remove('show');
+    }
 }
+
+// Close suggestions when clicking outside
+document.addEventListener('click', function(e) {
+    if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+        suggestionsContainer.classList.remove('show');
+    }
+});
+
+// Format price helper function
+function formatPrice(price) {
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND'
+    }).format(price);
+  }
   </script>
+  <script src="{% static 'store/js/search.js' %}"></script>
 </body>
 </html>
 

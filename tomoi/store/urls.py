@@ -5,6 +5,11 @@ from django.conf.urls.static import static
 
 app_name = 'store'
 urlpatterns = [
+    # API endpoints first
+    path('api/search-suggestions/trending/', views.trending_suggestions, name='trending_suggestions'),
+    path('api/search-suggestions/', views.search_suggestions, name='search_suggestions'),
+    
+    # Other URLs
     path('', views.home, name='home'),  # Trang chủ
     path('list/', views.product_list, name='product_list'),
     path('product/<int:product_id>/', views.product_detail, name='product_detail'),
@@ -35,8 +40,7 @@ urlpatterns = [
     path('toggle-wishlist/', views.toggle_wishlist, name='toggle_wishlist'),
     path('pay-with-balance/', views.pay_with_balance, name='pay_with_balance'),
     path('verify-payment/', views.verify_payment, name='verify_payment'),
-
-
+    path('search/', views.search_products, name='search_products'),
     # path('payment/paypal/', views.paypal_payment, name='paypal_payment'),
     # path('payment/execute/', views.payment_execute, name='payment_execute'),
 ] 
