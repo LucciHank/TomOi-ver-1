@@ -1,0 +1,195 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Quản lý khách hàng{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="row">
+    <div class="col-sm-6 col-md-3">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <span class="h6 font-semibold text-muted text-sm d-block mb-2">Tổng khách hàng</span>
+                        <span class="h3 font-bold mb-0">{{ total_customers }}</span>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon icon-shape bg-primary text-white text-lg rounded-circle">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-sm-6 col-md-3">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <span class="h6 font-semibold text-muted text-sm d-block mb-2">Khách hàng mới</span>
+                        <span class="h3 font-bold mb-0">{{ new_customers }}</span>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon icon-shape bg-info text-white text-lg rounded-circle">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <span class="badge bg-{{ customer_trend_color }}">
+                        <i class="fas fa-{{ customer_trend_icon }} me-1"></i>
+                        {{ customer_growth }}%
+                    </span>
+                    <span class="text-muted text-sm ms-2">so với tháng trước</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-md-3">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <span class="h6 font-semibold text-muted text-sm d-block mb-2">Giá trị TB/KH</span>
+                        <span class="h3 font-bold mb-0">{{ avg_customer_value|floatformat:0 }}đ</span>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon icon-shape bg-success text-white text-lg rounded-circle">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-md-3">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <span class="h6 font-semibold text-muted text-sm d-block mb-2">Tỷ lệ quay lại</span>
+                        <span class="h3 font-bold mb-0">{{ retention_rate }}%</span>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon icon-shape bg-warning text-white text-lg rounded-circle">
+                            <i class="fas fa-redo"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Danh sách khách hàng -->
+<div class="card border-0 shadow mt-4">
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h2 class="fs-5 fw-bold mb-0">Danh sách khách hàng</h2>
+            </div>
+            <div class="col-auto">
+                <!-- Bộ lọc -->
+                <div class="btn-group">
+                    <select class="form-select form-select-sm" id="filterGroup">
+                        <option value="">Tất cả nhóm</option>
+                        <option value="vip">VIP</option>
+                        <option value="regular">Thường xuyên</option>
+                        <option value="new">Mới</option>
+                    </select>
+                    <input type="text" class="form-control form-control-sm ms-2" id="searchCustomers" 
+                           placeholder="Tìm kiếm khách hàng...">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table align-items-center table-flush">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">Khách hàng</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Số điện thoại</th>
+                    <th scope="col">Đơn hàng</th>
+                    <th scope="col">Tổng chi tiêu</th>
+                    <th scope="col">Nhóm</th>
+                    <th scope="col">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for customer in customers %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <img src="{{ customer.get_avatar_url }}" class="avatar rounded-circle me-3">
+                            <div>
+                                <span class="fw-bold">{{ customer.get_full_name }}</span><br>
+                                <small class="text-muted">Tham gia: {{ customer.date_joined|date:"d/m/Y" }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ customer.email }}</td>
+                    <td>{{ customer.phone|default:"-" }}</td>
+                    <td>{{ customer.orders.count }}</td>
+                    <td>{{ customer.total_spent|floatformat:0 }}đ</td>
+                    <td>
+                        <span class="badge bg-{{ customer.get_group_color }}">
+                            {{ customer.get_group_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-gray-800" data-bs-toggle="modal" 
+                                    data-bs-target="#editCustomerModal" data-customer-id="{{ customer.id }}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <a href="{% url 'dashboard:customer_detail' customer.id %}" class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer">
+        {% include 'dashboard/components/pagination.html' with page_obj=customers %}
+    </div>
+</div>
+
+<!-- Edit Customer Modal -->
+{% include 'dashboard/customers/modals/edit_customer.html' %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Xử lý tìm kiếm realtime
+$('#searchCustomers').on('keyup', function() {
+    var searchTerm = $(this).val().toLowerCase();
+    $('tbody tr').each(function() {
+        var text = $(this).text().toLowerCase();
+        $(this).toggle(text.indexOf(searchTerm) > -1);
+    });
+});
+
+// Xử lý filter nhóm
+$('#filterGroup').on('change', function() {
+    var group = $(this).val();
+    if (group === '') {
+        $('tbody tr').show();
+    } else {
+        $('tbody tr').each(function() {
+            var customerGroup = $(this).find('td:eq(5)').text().trim().toLowerCase();
+            $(this).toggle(customerGroup.includes(group));
+        });
+    }
+});
+</script>
+{% endblock %} 

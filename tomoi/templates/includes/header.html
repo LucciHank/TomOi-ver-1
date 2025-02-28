@@ -1,0 +1,16 @@
+<!-- Tìm phần menu navigation -->
+<ul class="navbar-nav">
+    <!-- Các menu item khác -->
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'blog:index' %}">Tin tức</a>
+    </li>
+    
+    <!-- Thêm liên kết đến dashboard, chỉ hiển thị cho staff -->
+    {% if user.is_authenticated and user.is_staff %}
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'dashboard:home' %}">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+    </li>
+    {% endif %}
+</ul> 

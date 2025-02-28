@@ -1,0 +1,41 @@
+<div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">Chỉnh sửa người dùng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editUserForm" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Họ tên</label>
+                        <input type="text" class="form-control" name="full_name" id="editFullName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email" id="editEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Vai trò</label>
+                        <select class="form-select" name="role" id="editRole">
+                            <option value="user">Người dùng</option>
+                            <option value="staff">Nhân viên</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="is_active" id="editStatus">
+                            <label class="form-check-label">Kích hoạt tài khoản</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link text-gray ms-auto" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div> 

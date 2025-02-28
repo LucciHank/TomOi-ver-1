@@ -8,7 +8,7 @@ from .models import (
 from accounts.models import CustomUser
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
-from .utils import send_payment_confirmation_email
+from .utils import send_payment_confirmation_email, get_client_ip
 from django.contrib import messages
 import json
 from django.http import JsonResponse
@@ -34,6 +34,7 @@ from payment.models import Transaction
 from django.contrib.auth.hashers import check_password
 from django.core.cache import cache
 import pyotp
+from django.templatetags.static import static
 
 
 def dashboard(request):
@@ -431,10 +432,22 @@ def paypal_webhook(request):
 
 def category_detail(request, slug):
     category = get_object_or_404(Category, slug=slug)
-    products = Product.objects.filter(category=category)
+    products = Product.objects.filter(
+        category=category,
+        is_active=True
+    ).order_by('brand', 'duration')  # Sắp xếp theo brand và duration
+    
+    # Nhóm sản phẩm theo brand
+    products_by_brand = {}
+    for product in products:
+        brand = product.get_brand_display()  # Lấy tên hiển thị của brand
+        if brand not in products_by_brand:
+            products_by_brand[brand] = []
+        products_by_brand[brand].append(product)
+    
     context = {
         'category': category,
-        'products': products
+        'products_by_brand': products_by_brand,
     }
     return render(request, 'store/category_detail.html', context)
 
@@ -794,15 +807,14 @@ def verify_payment(request):
 
 def trending_suggestions(request):
     """API endpoint for trending searches and recent products"""
-    print("Trending suggestions endpoint called")
     try:
         # Get trending searches
         trending = SearchHistory.objects.values('keyword') \
             .annotate(count=Count('id')) \
-            .order_by('-count')[:5]
+            .order_by('-count')[:3]
         
-        # Get recently updated products - bỏ filter is_active
-        recent_products = Product.objects.order_by('-updated_at')[:3]
+        # Get recently updated products
+        recent_products = Product.objects.filter(is_active=True).order_by('-updated_at')[:3]
         
         suggestions = []
         
@@ -815,60 +827,70 @@ def trending_suggestions(request):
                 'icon': 'fas fa-fire'
             })
         
-        # Add recent products
+        # Add recent products with full details
         for product in recent_products:
-            suggestions.append({
-                'type': 'product',
-                'keyword': product.name,
-                'url': reverse('store:product_detail', args=[product.id]),
-                'icon': 'fas fa-clock'
-            })
+            try:
+                image_url = None
+                if product.images.filter(is_primary=True).exists():
+                    image_url = product.images.filter(is_primary=True).first().image.url
+                elif product.images.exists():
+                    image_url = product.images.first().image.url
+                else:
+                    image_url = static('store/images/default-product.jpg')
+
+                suggestions.append({
+                    'type': 'product',
+                    'name': product.name,
+                    'image': image_url,
+                    'price': str(product.price),
+                    'url': reverse('store:product_detail', args=[product.id])
+                })
+            except Exception as e:
+                print(f"Error processing product {product.id}: {str(e)}")
+                continue
         
         return JsonResponse({'suggestions': suggestions})
     except Exception as e:
         print(f"Error in trending_suggestions: {str(e)}")
         return JsonResponse({'error': str(e)}, status=500)
 
+@require_http_methods(["GET"])
 def search_suggestions(request):
-    """API endpoint for search suggestions"""
-    print("Search suggestions endpoint called")
     try:
         query = request.GET.get('q', '').strip()
-        
-        if len(query) < 1:
+        if not query:
             return JsonResponse({'suggestions': []})
-        
-        # Search products
+
         products = Product.objects.filter(
             Q(name__icontains=query) | 
             Q(description__icontains=query),
             is_active=True
-        )[:5]
-        
-        # Save search history if query is meaningful
-        if len(query) >= 2:
-            SearchHistory.objects.create(
-                user=request.user if request.user.is_authenticated else None,
-                keyword=query,
-                ip_address=request.META.get('REMOTE_ADDR'),
-                user_agent=request.META.get('HTTP_USER_AGENT')
-            )
-        
+        ).distinct()[:5]
+
         suggestions = []
         for product in products:
             try:
-                image_url = product.get_main_image_url()
-            except:
-                image_url = '/static/images/default-product.jpg'
-                
-            suggestions.append({
-                'type': 'product',
-                'name': product.name,
-                'image': image_url,
-                'price': str(product.price),
-                'url': reverse('store:product_detail', args=[product.id])
-            })
-        
+                # Thêm ảnh mặc định nếu không có ảnh
+                image_url = None
+                if product.images.filter(is_primary=True).exists():
+                    image_url = product.images.filter(is_primary=True).first().image.url
+                elif product.images.exists():
+                    image_url = product.images.first().image.url
+                else:
+                    image_url = static('store/images/default-product.jpg')
+
+                suggestion = {
+                    'type': 'product',
+                    'name': product.name,
+                    'image': image_url,
+                    'price': str(product.price),
+                    'url': reverse('store:product_detail', args=[product.id])
+                }
+                suggestions.append(suggestion)
+            except Exception as e:
+                print(f"Error processing product {product.id}: {str(e)}")
+                continue
+
         return JsonResponse({'suggestions': suggestions})
     except Exception as e:
         print(f"Error in search_suggestions: {str(e)}")

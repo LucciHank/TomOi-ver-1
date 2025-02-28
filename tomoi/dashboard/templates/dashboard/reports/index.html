@@ -1,0 +1,297 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Báo cáo thống kê{% endblock %}
+
+{% block page_title %}Báo cáo thống kê{% endblock %}
+{% block page_subtitle %}Phân tích dữ liệu kinh doanh{% endblock %}
+
+{% block content %}
+<!-- Thống kê tổng quan -->
+<div class="row">
+    <div class="col-12 col-xl-8">
+        <div class="card border-0 shadow mb-4">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fs-5 fw-bold mb-0">Doanh thu theo thời gian</h2>
+                    </div>
+                    <div class="col-auto">
+                        <div class="btn-group">
+                            <select class="form-select form-select-sm" id="revenueType">
+                                <option value="daily">Theo ngày</option>
+                                <option value="weekly">Theo tuần</option>
+                                <option value="monthly">Theo tháng</option>
+                            </select>
+                            <select class="form-select form-select-sm ms-2" id="revenuePeriod">
+                                <option value="7">7 ngày</option>
+                                <option value="30">30 ngày</option>
+                                <option value="90">90 ngày</option>
+                                <option value="365">365 ngày</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Thống kê đơn hàng -->
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fs-5 fw-bold mb-0">Thống kê đơn hàng</h2>
+                    </div>
+                    <div class="col-auto">
+                        <select class="form-select form-select-sm" id="orderPeriod">
+                            <option value="7">7 ngày qua</option>
+                            <option value="30">30 ngày qua</option>
+                            <option value="90">90 ngày qua</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table align-items-center">
+                        <thead class="thead-light">
+                            <tr>
+                                <th scope="col">Trạng thái</th>
+                                <th scope="col">Số lượng</th>
+                                <th scope="col">Tỷ lệ</th>
+                                <th scope="col">Doanh thu</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for status in order_stats %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-{{ status.color }}">
+                                        {{ status.name }}
+                                    </span>
+                                </td>
+                                <td>{{ status.count }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="me-2">{{ status.percentage }}%</span>
+                                        <div class="progress w-100">
+                                            <div class="progress-bar bg-{{ status.color }}" 
+                                                 role="progressbar" style="width: {{ status.percentage }}%">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ status.revenue|floatformat:0 }}đ</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+        <!-- Top sản phẩm bán chạy -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-header">
+                <h2 class="fs-5 fw-bold mb-0">Top sản phẩm bán chạy</h2>
+            </div>
+            <div class="card-body">
+                {% for product in top_products %}
+                <div class="d-flex align-items-center justify-content-between {% if not forloop.last %}mb-3{% endif %}">
+                    <div class="d-flex align-items-center">
+                        <img src="{{ product.image.url }}" class="avatar rounded me-3">
+                        <div>
+                            <h6 class="mb-0">{{ product.name }}</h6>
+                            <small class="text-muted">Đã bán: {{ product.sold }}</small>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="h6 mb-0">{{ product.revenue|floatformat:0 }}đ</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Phân bố khách hàng -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-header">
+                <h2 class="fs-5 fw-bold mb-0">Phân bố khách hàng</h2>
+            </div>
+            <div class="card-body">
+                <canvas id="customerChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Phương thức thanh toán -->
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <h2 class="fs-5 fw-bold mb-0">Phương thức thanh toán</h2>
+            </div>
+            <div class="card-body">
+                <canvas id="paymentChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Biểu đồ doanh thu
+var ctx = document.getElementById('revenueChart').getContext('2d');
+var revenueChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ dates|safe }},
+        datasets: [
+            {
+                label: 'Doanh thu',
+                data: {{ revenue_data }},
+                borderColor: '#0d6efd',
+                tension: 0.1
+            },
+            {
+                label: 'Lợi nhuận',
+                data: {{ profit_data }},
+                borderColor: '#198754',
+                tension: 0.1
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        interaction: {
+            intersect: false,
+            mode: 'index'
+        },
+        plugins: {
+            legend: {
+                position: 'top'
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let label = context.dataset.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        label += context.parsed.y.toLocaleString('vi-VN') + 'đ';
+                        return label;
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return value.toLocaleString('vi-VN') + 'đ';
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Biểu đồ phân bố khách hàng
+var customerCtx = document.getElementById('customerChart').getContext('2d');
+var customerChart = new Chart(customerCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ customer_labels|safe }},
+        datasets: [{
+            data: {{ customer_data }},
+            backgroundColor: {{ customer_colors|safe }}
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Biểu đồ phương thức thanh toán
+var paymentCtx = document.getElementById('paymentChart').getContext('2d');
+var paymentChart = new Chart(paymentCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ payment_labels|safe }},
+        datasets: [{
+            data: {{ payment_data }},
+            backgroundColor: {{ payment_colors|safe }}
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Xử lý thay đổi loại và khoảng thời gian biểu đồ doanh thu
+$('#revenueType, #revenuePeriod').on('change', function() {
+    var type = $('#revenueType').val();
+    var period = $('#revenuePeriod').val();
+    
+    $.get('{% url "dashboard:get_revenue_data" %}', {
+        type: type,
+        period: period
+    }).done(function(response) {
+        revenueChart.data.labels = response.dates;
+        revenueChart.data.datasets[0].data = response.revenue_data;
+        revenueChart.data.datasets[1].data = response.profit_data;
+        revenueChart.update();
+    });
+});
+
+// Xử lý thay đổi khoảng thời gian thống kê đơn hàng
+$('#orderPeriod').on('change', function() {
+    var period = $(this).val();
+    $.get('{% url "dashboard:get_order_stats" %}', {
+        period: period
+    }).done(function(response) {
+        // Cập nhật bảng thống kê
+        var tbody = $('tbody');
+        tbody.empty();
+        
+        response.stats.forEach(function(status) {
+            tbody.append(`
+                <tr>
+                    <td>
+                        <span class="badge bg-${status.color}">
+                            ${status.name}
+                        </span>
+                    </td>
+                    <td>${status.count}</td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <span class="me-2">${status.percentage}%</span>
+                            <div class="progress w-100">
+                                <div class="progress-bar bg-${status.color}" 
+                                     role="progressbar" style="width: ${status.percentage}%">
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${status.revenue.toLocaleString('vi-VN')}đ</td>
+                </tr>
+            `);
+        });
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,231 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}#{{ ticket.id }} - {{ ticket.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 col-xl-8">
+        <!-- Thông tin ticket -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fs-5 fw-bold mb-0">#{{ ticket.id }} - {{ ticket.title }}</h2>
+                    </div>
+                    <div class="col-auto">
+                        <div class="btn-group">
+                            {% if ticket.status != 'closed' %}
+                            <button class="btn btn-sm btn-success" onclick="closeTicket({{ ticket.id }})">
+                                <i class="fas fa-check me-2"></i>Đóng ticket
+                            </button>
+                            {% endif %}
+                            <button class="btn btn-sm btn-gray-800" data-bs-toggle="modal" data-bs-target="#assignTicketModal">
+                                <i class="fas fa-user-plus me-2"></i>Phân công
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Người gửi</label>
+                            <div class="d-flex align-items-center">
+                                <img src="{{ ticket.user.get_avatar_url }}" class="avatar-sm rounded-circle me-2">
+                                <div>
+                                    <h6 class="mb-0">{{ ticket.user.get_full_name }}</h6>
+                                    <small class="text-muted">{{ ticket.user.email }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ngày tạo</label>
+                            <p class="mb-0">{{ ticket.created_at|date:"d/m/Y H:i" }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Trạng thái</label>
+                            <select class="form-select" id="ticketStatus" onchange="updateStatus({{ ticket.id }}, this.value)">
+                                <option value="new" {% if ticket.status == 'new' %}selected{% endif %}>Mới</option>
+                                <option value="processing" {% if ticket.status == 'processing' %}selected{% endif %}>Đang xử lý</option>
+                                <option value="resolved" {% if ticket.status == 'resolved' %}selected{% endif %}>Đã giải quyết</option>
+                                <option value="closed" {% if ticket.status == 'closed' %}selected{% endif %}>Đã đóng</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mức độ ưu tiên</label>
+                            <select class="form-select" id="ticketPriority" onchange="updatePriority({{ ticket.id }}, this.value)">
+                                <option value="low" {% if ticket.priority == 'low' %}selected{% endif %}>Thấp</option>
+                                <option value="medium" {% if ticket.priority == 'medium' %}selected{% endif %}>Trung bình</option>
+                                <option value="high" {% if ticket.priority == 'high' %}selected{% endif %}>Cao</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Nội dung</label>
+                    <div class="p-3 bg-gray-100 rounded">
+                        {{ ticket.content|linebreaks }}
+                    </div>
+                </div>
+
+                {% if ticket.attachments.exists %}
+                <div class="mb-4">
+                    <label class="form-label">File đính kèm</label>
+                    <div class="list-group">
+                        {% for attachment in ticket.attachments.all %}
+                        <a href="{{ attachment.file.url }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-paperclip me-2"></i>{{ attachment.filename }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Phản hồi -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-body">
+                <h5 class="mb-4">Phản hồi ({{ ticket.replies.count }})</h5>
+                
+                {% for reply in ticket.replies.all %}
+                <div class="d-flex mb-4">
+                    <img src="{{ reply.user.get_avatar_url }}" class="avatar-md rounded-circle me-3">
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center mb-2">
+                            <h6 class="mb-0 me-2">{{ reply.user.get_full_name }}</h6>
+                            <small class="text-muted">{{ reply.created_at|timesince }} trước</small>
+                        </div>
+                        <div class="p-3 bg-gray-100 rounded mb-2">
+                            {{ reply.content|linebreaks }}
+                        </div>
+                        {% if reply.attachments.exists %}
+                        <div class="list-group">
+                            {% for attachment in reply.attachments.all %}
+                            <a href="{{ attachment.file.url }}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-paperclip me-2"></i>{{ attachment.filename }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- Form phản hồi -->
+                <form action="{% url 'dashboard:ticket_reply' ticket.id %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Phản hồi của bạn</label>
+                        <textarea class="form-control" name="content" rows="4" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">File đính kèm (nếu có)</label>
+                        <input type="file" class="form-control" name="attachments" multiple>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Gửi phản hồi</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+        <!-- Thông tin xử lý -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-body">
+                <h5 class="mb-4">Thông tin xử lý</h5>
+                <div class="mb-3">
+                    <label class="form-label">Người xử lý</label>
+                    {% if ticket.assigned_to %}
+                    <div class="d-flex align-items-center">
+                        <img src="{{ ticket.assigned_to.get_avatar_url }}" class="avatar-sm rounded-circle me-2">
+                        <div>
+                            <h6 class="mb-0">{{ ticket.assigned_to.get_full_name }}</h6>
+                            <small class="text-muted">{{ ticket.assigned_to.email }}</small>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0">Chưa phân công</p>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Thời gian xử lý</label>
+                    <p class="mb-0">{{ ticket.get_resolution_time }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lịch sử hoạt động -->
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <h5 class="mb-4">Lịch sử hoạt động</h5>
+                <div class="timeline">
+                    {% for activity in ticket.activities.all %}
+                    <div class="timeline-item">
+                        <div class="d-flex mb-3">
+                            <div class="icon-shape icon-sm bg-{{ activity.get_type_color }} text-white rounded-circle me-3">
+                                <i class="{{ activity.get_icon_class }}"></i>
+                            </div>
+                            <div>
+                                <p class="mb-0">{{ activity.description }}</p>
+                                <small class="text-muted">{{ activity.created_at|timesince }} trước</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assign Ticket Modal -->
+{% include 'dashboard/tickets/modals/assign_ticket.html' %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateStatus(ticketId, status) {
+    $.post('{% url "dashboard:update_ticket_status" %}', {
+        ticket_id: ticketId,
+        status: status,
+        csrfmiddlewaretoken: '{{ csrf_token }}'
+    }).done(function(response) {
+        if (response.success) {
+            location.reload();
+        }
+    });
+}
+
+function updatePriority(ticketId, priority) {
+    $.post('{% url "dashboard:update_ticket_priority" %}', {
+        ticket_id: ticketId,
+        priority: priority,
+        csrfmiddlewaretoken: '{{ csrf_token }}'
+    }).done(function(response) {
+        if (response.success) {
+            location.reload();
+        }
+    });
+}
+
+function closeTicket(ticketId) {
+    if (confirm('Bạn có chắc muốn đóng ticket này?')) {
+        $.post('{% url "dashboard:close_ticket" %}', {
+            ticket_id: ticketId,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        }).done(function(response) {
+            if (response.success) {
+                location.reload();
+            }
+        });
+    }
+}
+</script>
+{% endblock %} 

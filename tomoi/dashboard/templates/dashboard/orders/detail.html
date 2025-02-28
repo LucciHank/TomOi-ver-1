@@ -1,0 +1,541 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}#{{ order.order_number }} | Chi tiết đơn hàng{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 col-xl-8">
+        <!-- Thông tin đơn hàng -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fs-5 fw-bold mb-0">Đơn hàng #{{ order.order_number }}</h2>
+                    </div>
+                    <div class="col-auto">
+                        <div class="btn-group">
+                            {% if order.status == 'pending' %}
+                            <button class="btn btn-sm btn-success" onclick="updateStatus({{ order.id }}, 'processing')">
+                                <i class="fas fa-check me-2"></i>Xác nhận
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="cancelOrder({{ order.id }})">
+                                <i class="fas fa-times me-2"></i>Hủy
+                            </button>
+                            {% elif order.status == 'processing' %}
+                            <button class="btn btn-sm btn-primary" onclick="updateStatus({{ order.id }}, 'shipping')">
+                                <i class="fas fa-truck me-2"></i>Giao hàng
+                            </button>
+                            {% elif order.status == 'shipping' %}
+                            <button class="btn btn-sm btn-success" onclick="updateStatus({{ order.id }}, 'completed')">
+                                <i class="fas fa-check-circle me-2"></i>Hoàn thành
+                            </button>
+                            {% endif %}
+                            <button class="btn btn-sm btn-info" onclick="printOrder()">
+                                <i class="fas fa-print me-2"></i>In
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Khách hàng</label>
+                            <div class="d-flex align-items-center">
+                                <img src="{{ order.user.get_avatar_url }}" class="avatar rounded-circle me-3">
+                                <div>
+                                    <h6 class="mb-0">{{ order.user.get_full_name }}</h6>
+                                    <small class="text-muted">{{ order.user.email }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ngày đặt hàng</label>
+                            <p class="mb-0">{{ order.created_at|date:"d/m/Y H:i" }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Trạng thái</label>
+                            <span class="badge bg-{{ order.get_status_color }}">
+                                {{ order.get_status_display }}
+                            </span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phương thức thanh toán</label>
+                            <p class="mb-0">{{ order.get_payment_method_display }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Trạng thái thanh toán</label>
+                            <span class="badge bg-{{ order.get_payment_status_color }}">
+                                {{ order.get_payment_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thông tin giao hàng -->
+                <div class="mb-4">
+                    <h5 class="mb-3">Thông tin giao hàng</h5>
+                    <div class="p-3 bg-gray-100 rounded">
+                        <p class="mb-1"><strong>Người nhận:</strong> {{ order.shipping_name }}</p>
+                        <p class="mb-1"><strong>Số điện thoại:</strong> {{ order.shipping_phone }}</p>
+                        <p class="mb-1"><strong>Địa chỉ:</strong> {{ order.shipping_address }}</p>
+                        <p class="mb-0"><strong>Ghi chú:</strong> {{ order.note|default:"Không có" }}</p>
+                    </div>
+                </div>
+
+                <!-- Chi tiết sản phẩm -->
+                <div class="table-responsive">
+                    <table class="table align-items-center">
+                        <thead>
+                            <tr>
+                                <th scope="col">Sản phẩm</th>
+                                <th scope="col">Giá</th>
+                                <th scope="col">Số lượng</th>
+                                <th scope="col" class="text-end">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="{{ item.product.image.url }}" class="avatar rounded me-3">
+                                        <div>
+                                            <h6 class="mb-0">{{ item.product.name }}</h6>
+                                            <small class="text-muted">SKU: {{ item.product.sku }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ item.price|floatformat:0 }}đ</td>
+                                <td>{{ item.quantity }}</td>
+                                <td class="text-end">{{ item.total|floatformat:0 }}đ</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Tạm tính:</strong></td>
+                                <td class="text-end">{{ order.subtotal|floatformat:0 }}đ</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Phí vận chuyển:</strong></td>
+                                <td class="text-end">{{ order.shipping_fee|floatformat:0 }}đ</td>
+                            </tr>
+                            {% if order.discount %}
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Giảm giá:</strong></td>
+                                <td class="text-end">-{{ order.discount|floatformat:0 }}đ</td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Tổng cộng:</strong></td>
+                                <td class="text-end"><strong>{{ order.total_amount|floatformat:0 }}đ</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lịch sử đơn hàng -->
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <h2 class="fs-5 fw-bold mb-0">Lịch sử đơn hàng</h2>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    {% for history in order.history.all %}
+                    <div class="timeline-item">
+                        <div class="d-flex mb-3">
+                            <div class="icon-shape icon-sm bg-{{ history.get_type_color }} text-white rounded-circle me-3">
+                                <i class="{{ history.get_icon_class }}"></i>
+                            </div>
+                            <div>
+                                <p class="mb-0">{{ history.description }}</p>
+                                <small class="text-muted">{{ history.created_at|timesince }} trước</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+        <!-- Thông tin thanh toán -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-header">
+                <h2 class="fs-5 fw-bold mb-0">Thông tin thanh toán</h2>
+            </div>
+            <div class="card-body">
+                {% if order.payment %}
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Mã giao dịch</span>
+                    <span class="text-gray">{{ order.payment.transaction_id }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Phương thức</span>
+                    <span>{{ order.payment.get_method_display }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Số tiền</span>
+                    <span>{{ order.payment.amount|floatformat:0 }}đ</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Trạng thái</span>
+                    <span class="badge bg-{{ order.payment.get_status_color }}">
+                        {{ order.payment.get_status_display }}
+                    </span>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">Chưa có thông tin thanh toán</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Ghi chú nội bộ -->
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <h2 class="fs-5 fw-bold mb-0">Ghi chú nội bộ</h2>
+            </div>
+            <div class="card-body">
+                <form action="{% url 'dashboard:add_order_note' order.id %}" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <textarea class="form-control" name="note" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Thêm ghi chú</button>
+                </form>
+
+                <hr>
+
+                <div class="timeline mt-4">
+                    {% for note in order.notes.all %}
+                    <div class="timeline-item">
+                        <div class="d-flex mb-3">
+                            <img src="{{ note.user.get_avatar_url }}" class="avatar rounded-circle me-3">
+                            <div>
+                                <p class="mb-0">{{ note.content }}</p>
+                                <small class="text-muted">
+                                    {{ note.user.get_full_name }} - {{ note.created_at|timesince }} trước
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateStatus(orderId, status) {
+    if (confirm('Bạn có chắc muốn cập nhật trạng thái đơn hàng?')) {
+        $.post('{% url "dashboard:update_order_status" %}', {
+            order_id: orderId,
+            status: status,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        }).done(function(response) {
+            if (response.success) {
+                location.reload();
+            }
+        });
+    }
+}
+
+function cancelOrder(orderId) {
+    if (confirm('Bạn có chắc muốn hủy đơn hàng này?')) {
+        $.post('{% url "dashboard:cancel_order" %}', {
+            order_id: orderId,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        }).done(function(response) {
+            if (response.success) {
+                location.reload();
+            }
+        });
+    }
+}
+
+function printOrder() {
+    window.print();
+}
+</script>
+{% endblock %} 
+{% load static %}
+
+{% block title %}#{{ order.order_number }} | Chi tiết đơn hàng{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 col-xl-8">
+        <!-- Thông tin đơn hàng -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fs-5 fw-bold mb-0">Đơn hàng #{{ order.order_number }}</h2>
+                    </div>
+                    <div class="col-auto">
+                        <div class="btn-group">
+                            {% if order.status == 'pending' %}
+                            <button class="btn btn-sm btn-success" onclick="updateStatus({{ order.id }}, 'processing')">
+                                <i class="fas fa-check me-2"></i>Xác nhận
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="cancelOrder({{ order.id }})">
+                                <i class="fas fa-times me-2"></i>Hủy
+                            </button>
+                            {% elif order.status == 'processing' %}
+                            <button class="btn btn-sm btn-primary" onclick="updateStatus({{ order.id }}, 'shipping')">
+                                <i class="fas fa-truck me-2"></i>Giao hàng
+                            </button>
+                            {% elif order.status == 'shipping' %}
+                            <button class="btn btn-sm btn-success" onclick="updateStatus({{ order.id }}, 'completed')">
+                                <i class="fas fa-check-circle me-2"></i>Hoàn thành
+                            </button>
+                            {% endif %}
+                            <button class="btn btn-sm btn-info" onclick="printOrder()">
+                                <i class="fas fa-print me-2"></i>In
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Khách hàng</label>
+                            <div class="d-flex align-items-center">
+                                <img src="{{ order.user.get_avatar_url }}" class="avatar rounded-circle me-3">
+                                <div>
+                                    <h6 class="mb-0">{{ order.user.get_full_name }}</h6>
+                                    <small class="text-muted">{{ order.user.email }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ngày đặt hàng</label>
+                            <p class="mb-0">{{ order.created_at|date:"d/m/Y H:i" }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Trạng thái</label>
+                            <span class="badge bg-{{ order.get_status_color }}">
+                                {{ order.get_status_display }}
+                            </span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phương thức thanh toán</label>
+                            <p class="mb-0">{{ order.get_payment_method_display }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Trạng thái thanh toán</label>
+                            <span class="badge bg-{{ order.get_payment_status_color }}">
+                                {{ order.get_payment_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thông tin giao hàng -->
+                <div class="mb-4">
+                    <h5 class="mb-3">Thông tin giao hàng</h5>
+                    <div class="p-3 bg-gray-100 rounded">
+                        <p class="mb-1"><strong>Người nhận:</strong> {{ order.shipping_name }}</p>
+                        <p class="mb-1"><strong>Số điện thoại:</strong> {{ order.shipping_phone }}</p>
+                        <p class="mb-1"><strong>Địa chỉ:</strong> {{ order.shipping_address }}</p>
+                        <p class="mb-0"><strong>Ghi chú:</strong> {{ order.note|default:"Không có" }}</p>
+                    </div>
+                </div>
+
+                <!-- Chi tiết sản phẩm -->
+                <div class="table-responsive">
+                    <table class="table align-items-center">
+                        <thead>
+                            <tr>
+                                <th scope="col">Sản phẩm</th>
+                                <th scope="col">Giá</th>
+                                <th scope="col">Số lượng</th>
+                                <th scope="col" class="text-end">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="{{ item.product.image.url }}" class="avatar rounded me-3">
+                                        <div>
+                                            <h6 class="mb-0">{{ item.product.name }}</h6>
+                                            <small class="text-muted">SKU: {{ item.product.sku }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ item.price|floatformat:0 }}đ</td>
+                                <td>{{ item.quantity }}</td>
+                                <td class="text-end">{{ item.total|floatformat:0 }}đ</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Tạm tính:</strong></td>
+                                <td class="text-end">{{ order.subtotal|floatformat:0 }}đ</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Phí vận chuyển:</strong></td>
+                                <td class="text-end">{{ order.shipping_fee|floatformat:0 }}đ</td>
+                            </tr>
+                            {% if order.discount %}
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Giảm giá:</strong></td>
+                                <td class="text-end">-{{ order.discount|floatformat:0 }}đ</td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Tổng cộng:</strong></td>
+                                <td class="text-end"><strong>{{ order.total_amount|floatformat:0 }}đ</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lịch sử đơn hàng -->
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <h2 class="fs-5 fw-bold mb-0">Lịch sử đơn hàng</h2>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    {% for history in order.history.all %}
+                    <div class="timeline-item">
+                        <div class="d-flex mb-3">
+                            <div class="icon-shape icon-sm bg-{{ history.get_type_color }} text-white rounded-circle me-3">
+                                <i class="{{ history.get_icon_class }}"></i>
+                            </div>
+                            <div>
+                                <p class="mb-0">{{ history.description }}</p>
+                                <small class="text-muted">{{ history.created_at|timesince }} trước</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+        <!-- Thông tin thanh toán -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-header">
+                <h2 class="fs-5 fw-bold mb-0">Thông tin thanh toán</h2>
+            </div>
+            <div class="card-body">
+                {% if order.payment %}
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Mã giao dịch</span>
+                    <span class="text-gray">{{ order.payment.transaction_id }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Phương thức</span>
+                    <span>{{ order.payment.get_method_display }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Số tiền</span>
+                    <span>{{ order.payment.amount|floatformat:0 }}đ</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Trạng thái</span>
+                    <span class="badge bg-{{ order.payment.get_status_color }}">
+                        {{ order.payment.get_status_display }}
+                    </span>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">Chưa có thông tin thanh toán</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Ghi chú nội bộ -->
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <h2 class="fs-5 fw-bold mb-0">Ghi chú nội bộ</h2>
+            </div>
+            <div class="card-body">
+                <form action="{% url 'dashboard:add_order_note' order.id %}" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <textarea class="form-control" name="note" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Thêm ghi chú</button>
+                </form>
+
+                <hr>
+
+                <div class="timeline mt-4">
+                    {% for note in order.notes.all %}
+                    <div class="timeline-item">
+                        <div class="d-flex mb-3">
+                            <img src="{{ note.user.get_avatar_url }}" class="avatar rounded-circle me-3">
+                            <div>
+                                <p class="mb-0">{{ note.content }}</p>
+                                <small class="text-muted">
+                                    {{ note.user.get_full_name }} - {{ note.created_at|timesince }} trước
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateStatus(orderId, status) {
+    if (confirm('Bạn có chắc muốn cập nhật trạng thái đơn hàng?')) {
+        $.post('{% url "dashboard:update_order_status" %}', {
+            order_id: orderId,
+            status: status,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        }).done(function(response) {
+            if (response.success) {
+                location.reload();
+            }
+        });
+    }
+}
+
+function cancelOrder(orderId) {
+    if (confirm('Bạn có chắc muốn hủy đơn hàng này?')) {
+        $.post('{% url "dashboard:cancel_order" %}', {
+            order_id: orderId,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        }).done(function(response) {
+            if (response.success) {
+                location.reload();
+            }
+        });
+    }
+}
+
+function printOrder() {
+    window.print();
+}
+</script>
+{% endblock %} 

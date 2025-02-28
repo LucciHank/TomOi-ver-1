@@ -1,0 +1,125 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} | Chi tiết sản phẩm{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 col-xl-8">
+        <div class="card card-body border-0 shadow mb-4">
+            <h2 class="h5 mb-4">Thông tin sản phẩm</h2>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="text-center">
+                        <img src="{{ product.image.url }}" class="img-fluid rounded mb-3" alt="{{ product.name }}">
+                        <button class="btn btn-gray-800 btn-sm" data-bs-toggle="modal" data-bs-target="#uploadImageModal">
+                            <i class="fas fa-camera me-2"></i>Đổi ảnh
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-8 mb-3">
+                    <!-- Thông tin chi tiết sản phẩm -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <label>Tên sản phẩm</label>
+                                <input class="form-control" type="text" value="{{ product.name }}" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <label>SKU</label>
+                                <input class="form-control" type="text" value="{{ product.sku }}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Thêm các thông tin khác -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Thống kê bán hàng -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fs-5 fw-bold mb-0">Thống kê bán hàng</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Biểu đồ doanh số -->
+                <div class="chart-area">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+        <!-- Thông tin bổ sung -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-body">
+                <h2 class="h5 mb-4">Thông tin bổ sung</h2>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span>Trạng thái</span>
+                    <span class="badge bg-{{ product.get_status_color }}">
+                        {{ product.get_status_display }}
+                    </span>
+                </div>
+                <!-- Thêm các thông tin khác -->
+            </div>
+        </div>
+
+        <!-- Lịch sử cập nhật -->
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <h2 class="fs-5 fw-bold mb-0">Lịch sử cập nhật</h2>
+            </div>
+            <div class="card-body">
+                {% for history in product.history.all %}
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <h3 class="fs-6 mb-0">{{ history.get_change_message }}</h3>
+                        <small class="text-gray-500">{{ history.timestamp|timesince }} trước</small>
+                    </div>
+                    <div class="icon-shape icon-sm bg-light text-dark rounded-circle">
+                        <i class="{{ history.get_icon_class }}"></i>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center mb-0">Chưa có lịch sử cập nhật</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Biểu đồ doanh số
+var ctx = document.getElementById('salesChart').getContext('2d');
+var salesChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ sales_labels|safe }},
+        datasets: [{
+            label: 'Doanh số',
+            data: {{ sales_data }},
+            borderColor: '#0d6efd',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            }
+        }
+    }
+});
+</script>
+{% endblock %}
+{% endblock %} 

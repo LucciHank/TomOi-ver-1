@@ -1,0 +1,184 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Quản lý vai trò{% endblock %}
+
+{% block page_title %}Quản lý vai trò{% endblock %}
+{% block page_subtitle %}Quản lý vai trò và phân quyền người dùng{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 col-xl-8">
+        <!-- Danh sách vai trò -->
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fs-5 fw-bold mb-0">Danh sách vai trò</h2>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addRoleModal">
+                            <i class="fas fa-plus me-2"></i>Thêm vai trò
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table align-items-center table-flush">
+                        <thead class="thead-light">
+                            <tr>
+                                <th scope="col">Tên vai trò</th>
+                                <th scope="col">Mô tả</th>
+                                <th scope="col">Số người dùng</th>
+                                <th scope="col">Ngày tạo</th>
+                                <th scope="col">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for role in roles %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="icon icon-sm me-3">
+                                            <i class="fas fa-user-shield text-{{ role.color }}"></i>
+                                        </div>
+                                        <div>
+                                            <span class="fw-bold">{{ role.name }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ role.description }}</td>
+                                <td>{{ role.users.count }}</td>
+                                <td>{{ role.created_at|date:"d/m/Y" }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-gray-800" data-bs-toggle="modal"
+                                                data-bs-target="#editRoleModal" data-role-id="{{ role.id }}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        {% if not role.is_default %}
+                                        <button class="btn btn-sm btn-danger" onclick="deleteRole({{ role.id }})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+        <!-- Phân quyền -->
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <h2 class="fs-5 fw-bold mb-0">Phân quyền</h2>
+            </div>
+            <div class="card-body">
+                <form action="{% url 'dashboard:update_permissions' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Chọn vai trò</label>
+                        <select class="form-select" name="role" id="roleSelect">
+                            {% for role in roles %}
+                            <option value="{{ role.id }}">{{ role.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div id="permissionsList">
+                        {% for group in permission_groups %}
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-2">{{ group.name }}</h6>
+                            {% for permission in group.permissions %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" 
+                                       name="permissions" value="{{ permission.id }}"
+                                       id="perm{{ permission.id }}">
+                                <label class="form-check-label" for="perm{{ permission.id }}">
+                                    {{ permission.name }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Lưu thay đổi</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Role Modals -->
+{% include 'dashboard/users/modals/role_form.html' %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Load quyền của vai trò khi thay đổi select
+$('#roleSelect').on('change', function() {
+    var roleId = $(this).val();
+    $.get('{% url "dashboard:get_role_permissions" %}', {
+        role_id: roleId
+    }).done(function(response) {
+        if (response.success) {
+            // Reset tất cả checkbox
+            $('input[name="permissions"]').prop('checked', false);
+            
+            // Check các quyền của vai trò
+            response.permissions.forEach(function(permId) {
+                $('#perm' + permId).prop('checked', true);
+            });
+        }
+    });
+});
+
+function deleteRole(roleId) {
+    if (confirm('Bạn có chắc muốn xóa vai trò này? Tất cả người dùng thuộc vai trò này sẽ được chuyển về vai trò mặc định.')) {
+        $.post('{% url "dashboard:delete_role" %}', {
+            role_id: roleId,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        }).done(function(response) {
+            if (response.success) {
+                location.reload();
+            }
+        });
+    }
+}
+
+// Xử lý form thêm/sửa vai trò
+$('#addRoleModal, #editRoleModal').on('show.bs.modal', function(event) {
+    var button = $(event.relatedTarget);
+    var roleId = button.data('role-id');
+    var modal = $(this);
+    
+    if (roleId) {
+        // Load dữ liệu vai trò cần sửa
+        $.get('{% url "dashboard:get_role" %}', {
+            role_id: roleId
+        }).done(function(response) {
+            if (response.success) {
+                var role = response.role;
+                modal.find('input[name="name"]').val(role.name);
+                modal.find('textarea[name="description"]').val(role.description);
+                modal.find('input[name="color"]').val(role.color);
+                modal.find('form').attr('action', '/dashboard/users/roles/' + roleId + '/edit/');
+            }
+        });
+    }
+});
+
+// Load quyền của vai trò đầu tiên khi tải trang
+$(document).ready(function() {
+    $('#roleSelect').trigger('change');
+});
+</script>
+{% endblock %} 

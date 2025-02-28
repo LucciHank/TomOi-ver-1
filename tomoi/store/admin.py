@@ -27,14 +27,9 @@ class ProductVariantInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'price', 'stock', 'is_featured')
-    list_filter = (
-        'category', 
-        'is_featured',
-        'requires_email',
-        'requires_account_password'
-    )
-    search_fields = ('name',)
+    list_display = ['name', 'brand', 'duration', 'price', 'is_active']
+    list_filter = ['brand', 'duration', 'is_active']
+    search_fields = ['name', 'description']
     inlines = [ProductImageInline, ProductVariantInline]
     fieldsets = (
         ('Thông tin cơ bản', {
@@ -60,6 +55,17 @@ class ProductAdmin(admin.ModelAdmin):
         elif db_field.name == 'requires_account_password':
             field.label = 'Yêu cầu Tài khoản & Mật khẩu'
         return field
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields['features'].help_text = 'Nhập danh sách tính năng, mỗi dòng một tính năng'
+        return form
+
+    def save_model(self, request, obj, form, change):
+        # Xử lý features từ text thành list
+        if isinstance(obj.features, str):
+            obj.features = [f.strip() for f in obj.features.split('\n') if f.strip()]
+        super().save_model(request, obj, form, change)
 
     class Media:
         css = {

@@ -1,0 +1,73 @@
+<div class="modal fade" id="addCampaignModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">Thêm chiến dịch mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'dashboard:add_campaign' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tên chiến dịch</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Kênh marketing</label>
+                            <select class="form-select" name="channel" required>
+                                <option value="">-- Chọn kênh --</option>
+                                <option value="facebook">Facebook Ads</option>
+                                <option value="google">Google Ads</option>
+                                <option value="tiktok">TikTok Ads</option>
+                                <option value="email">Email Marketing</option>
+                                <option value="other">Khác</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Ngân sách</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" name="budget" required>
+                                <span class="input-group-text">đ</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Ngày bắt đầu</label>
+                            <input type="date" class="form-control" name="start_date" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Mục tiêu chuyển đổi</label>
+                            <input type="number" class="form-control" name="target_conversions">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Ngày kết thúc (không bắt buộc)</label>
+                            <input type="date" class="form-control" name="end_date">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Mô tả chiến dịch</label>
+                        <textarea class="form-control" name="description" rows="3"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="auto_optimization" id="autoOptimization">
+                            <label class="form-check-label" for="autoOptimization">Tự động tối ưu chiến dịch</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link text-gray ms-auto" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Tạo chiến dịch</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div> 

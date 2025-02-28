@@ -1,0 +1,175 @@
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm người dùng mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'dashboard:add_user' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Tên đăng nhập</label>
+                                <input type="text" class="form-control" name="username" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" name="email" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Họ</label>
+                                <input type="text" class="form-control" name="first_name">
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Tên</label>
+                                <input type="text" class="form-control" name="last_name">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Mật khẩu</label>
+                                <input type="password" class="form-control" name="password" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Xác nhận mật khẩu</label>
+                                <input type="password" class="form-control" name="confirm_password" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Số điện thoại</label>
+                                <input type="tel" class="form-control" name="phone">
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Vai trò</label>
+                                <select class="form-select" name="role" required>
+                                    {% for role in roles %}
+                                    <option value="{{ role.id }}">{{ role.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-group">
+                            <label class="form-label">Trạng thái</label>
+                            <select class="form-select" name="status">
+                                <option value="active">Hoạt động</option>
+                                <option value="inactive">Không hoạt động</option>
+                                <option value="blocked">Bị khóa</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Thêm người dùng</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chỉnh sửa người dùng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <!-- Giống form thêm nhưng không có trường mật khẩu -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Tên đăng nhập</label>
+                                <input type="text" class="form-control" name="username" required readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" name="email" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Họ</label>
+                                <input type="text" class="form-control" name="first_name">
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Tên</label>
+                                <input type="text" class="form-control" name="last_name">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Số điện thoại</label>
+                                <input type="tel" class="form-control" name="phone">
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Vai trò</label>
+                                <select class="form-select" name="role" required>
+                                    {% for role in roles %}
+                                    <option value="{{ role.id }}">{{ role.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-group">
+                            <label class="form-label">Trạng thái</label>
+                            <select class="form-select" name="status">
+                                <option value="active">Hoạt động</option>
+                                <option value="inactive">Không hoạt động</option>
+                                <option value="blocked">Bị khóa</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div> 

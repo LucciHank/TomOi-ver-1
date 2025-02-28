@@ -1,0 +1,195 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Chỉnh sửa trang{% endblock %}
+
+{% block page_title %}Chỉnh sửa trang{% endblock %}
+{% block page_subtitle %}{{ page.title }}{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+<style>
+    .note-editor {
+        margin-bottom: 20px;
+    }
+    .preview-container {
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        padding: 20px;
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fs-5 fw-bold mb-0">Thông tin trang</h2>
+                    </div>
+                    <div class="col-auto">
+                        <a href="{% url 'dashboard:content' %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-arrow-left me-2"></i>Quay lại
+                        </a>
+                        {% if page.is_published %}
+                        <a href="{{ page.get_absolute_url }}" target="_blank" class="btn btn-sm btn-info">
+                            <i class="fas fa-eye me-2"></i>Xem trang
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <form action="{% url 'dashboard:edit_page' page.id %}" method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tiêu đề <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="title" value="{{ page.title }}" required>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Slug <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="slug" value="{{ page.slug }}" required>
+                            <small class="text-muted">Slug sẽ được sử dụng trong URL, ví dụ: /pages/gioi-thieu</small>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Meta Title</label>
+                            <input type="text" class="form-control" name="meta_title" value="{{ page.meta_title }}">
+                            <small class="text-muted">Tiêu đề hiển thị trên kết quả tìm kiếm và tab trình duyệt</small>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Trạng thái</label>
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" name="is_published" id="is_published" {% if page.is_published %}checked{% endif %}>
+                                <label class="form-check-label" for="is_published">
+                                    Xuất bản
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Meta Description</label>
+                        <textarea class="form-control" name="meta_description" rows="2">{{ page.meta_description }}</textarea>
+                        <small class="text-muted">Mô tả hiển thị trên kết quả tìm kiếm, tối đa 160 ký tự</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Nội dung <span class="text-danger">*</span></label>
+                        <textarea id="summernote" name="content">{{ page.content }}</textarea>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary" id="previewBtn">
+                            <i class="fas fa-eye me-2"></i>Xem trước
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Lưu thay đổi
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xem trước -->
+<div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xem trước: {{ page.title }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="preview-container" id="previewContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Khởi tạo Summernote
+    $('#summernote').summernote({
+        height: 400,
+        toolbar: [
+            ['style', ['style']],
+            ['font', ['bold', 'underline', 'clear']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture', 'video']],
+            ['view', ['fullscreen', 'codeview', 'help']]
+        ],
+        callbacks: {
+            onImageUpload: function(files) {
+                // Xử lý upload hình ảnh
+                for (let i = 0; i < files.length; i++) {
+                    uploadImage(files[i]);
+                }
+            }
+        }
+    });
+    
+    // Xử lý upload hình ảnh
+    function uploadImage(file) {
+        let formData = new FormData();
+        formData.append('image', file);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        
+        $.ajax({
+            url: '/dashboard/content/upload-image/',
+            method: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(data) {
+                $('#summernote').summernote('insertImage', data.url);
+            }
+        });
+    }
+    
+    // Xử lý xem trước
+    $('#previewBtn').click(function() {
+        const content = $('#summernote').summernote('code');
+        $('#previewContent').html(content);
+        $('#previewModal').modal('show');
+    });
+    
+    // Tự động tạo slug từ tiêu đề
+    $('input[name="title"]').on('keyup', function() {
+        // Chỉ tạo slug nếu slug chưa được chỉnh sửa
+        if (!$('input[name="slug"]').data('edited')) {
+            const title = $(this).val();
+            const slug = title
+                .toLowerCase()
+                .replace(/[^\w\s-]/g, '')
+                .replace(/\s+/g, '-');
+            
+            $('input[name="slug"]').val(slug);
+        }
+    });
+    
+    // Đánh dấu slug đã được chỉnh sửa
+    $('input[name="slug"]').on('change', function() {
+        $(this).data('edited', true);
+    });
+});
+</script>
+{% endblock %} 

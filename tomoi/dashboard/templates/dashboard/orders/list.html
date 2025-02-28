@@ -1,0 +1,220 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Quản lý đơn hàng{% endblock %}
+
+{% block page_title %}Quản lý đơn hàng{% endblock %}
+{% block page_subtitle %}Xem và xử lý các đơn đặt hàng{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="row">
+    <div class="col-sm-6 col-md-3">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <span class="h6 font-semibold text-muted text-sm d-block mb-2">Tổng đơn hàng</span>
+                        <span class="h3 font-bold mb-0">{{ total_orders }}</span>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon icon-shape bg-primary text-white text-lg rounded-circle">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-sm-6 col-md-3">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <span class="h6 font-semibold text-muted text-sm d-block mb-2">Đơn chờ xử lý</span>
+                        <span class="h3 font-bold mb-0">{{ pending_orders }}</span>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon icon-shape bg-warning text-white text-lg rounded-circle">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-md-3">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <span class="h6 font-semibold text-muted text-sm d-block mb-2">Đơn hoàn thành</span>
+                        <span class="h3 font-bold mb-0">{{ completed_orders }}</span>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon icon-shape bg-success text-white text-lg rounded-circle">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-md-3">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <span class="h6 font-semibold text-muted text-sm d-block mb-2">Đơn hủy</span>
+                        <span class="h3 font-bold mb-0">{{ cancelled_orders }}</span>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon icon-shape bg-danger text-white text-lg rounded-circle">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Danh sách đơn hàng -->
+<div class="card border-0 shadow mt-4">
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h2 class="fs-5 fw-bold mb-0">Danh sách đơn hàng</h2>
+            </div>
+            <div class="col-auto">
+                <!-- Bộ lọc -->
+                <div class="btn-group">
+                    <select class="form-select form-select-sm" id="filterStatus">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="pending">Chờ xử lý</option>
+                        <option value="processing">Đang xử lý</option>
+                        <option value="shipping">Đang giao</option>
+                        <option value="completed">Hoàn thành</option>
+                        <option value="cancelled">Đã hủy</option>
+                    </select>
+                    <input type="text" class="form-control form-control-sm ms-2" id="searchOrders" 
+                           placeholder="Tìm kiếm đơn hàng...">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table align-items-center table-flush">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">Mã đơn</th>
+                    <th scope="col">Khách hàng</th>
+                    <th scope="col">Ngày đặt</th>
+                    <th scope="col">Tổng tiền</th>
+                    <th scope="col">Trạng thái</th>
+                    <th scope="col">Thanh toán</th>
+                    <th scope="col">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>
+                        <a href="{% url 'dashboard:order_detail' order.id %}" class="fw-bold">
+                            #{{ order.order_number }}
+                        </a>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <img src="{{ order.user.get_avatar_url }}" class="avatar rounded-circle me-3">
+                            <div>
+                                <span class="fw-bold">{{ order.user.get_full_name }}</span><br>
+                                <small class="text-muted">{{ order.user.email }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                    <td>{{ order.total_amount|floatformat:0 }}đ</td>
+                    <td>
+                        <span class="badge bg-{{ order.get_status_color }}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge bg-{{ order.get_payment_status_color }}">
+                            {{ order.get_payment_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-gray-800" data-bs-toggle="modal" 
+                                    data-bs-target="#updateStatusModal" data-order-id="{{ order.id }}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <a href="{% url 'dashboard:order_detail' order.id %}" class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            {% if order.status == 'pending' %}
+                            <button class="btn btn-sm btn-danger" onclick="cancelOrder({{ order.id }})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer">
+        {% include 'dashboard/components/pagination.html' with page_obj=orders %}
+    </div>
+</div>
+
+<!-- Update Status Modal -->
+{% include 'dashboard/orders/modals/update_status.html' %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Xử lý tìm kiếm realtime
+$('#searchOrders').on('keyup', function() {
+    var searchTerm = $(this).val().toLowerCase();
+    $('tbody tr').each(function() {
+        var text = $(this).text().toLowerCase();
+        $(this).toggle(text.indexOf(searchTerm) > -1);
+    });
+});
+
+// Xử lý filter trạng thái
+$('#filterStatus').on('change', function() {
+    var status = $(this).val();
+    if (status === '') {
+        $('tbody tr').show();
+    } else {
+        $('tbody tr').each(function() {
+            var orderStatus = $(this).find('td:eq(4)').text().trim().toLowerCase();
+            $(this).toggle(orderStatus.includes(status));
+        });
+    }
+});
+
+// Xử lý hủy đơn hàng
+function cancelOrder(orderId) {
+    if (confirm('Bạn có chắc muốn hủy đơn hàng này?')) {
+        $.post('{% url "dashboard:cancel_order" %}', {
+            order_id: orderId,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        }).done(function(response) {
+            if (response.success) {
+                location.reload();
+            }
+        });
+    }
+}
+</script>
+{% endblock %} 

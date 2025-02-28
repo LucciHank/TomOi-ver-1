@@ -1,0 +1,296 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Marketing Dashboard{% endblock %}
+
+{% block page_title %}Marketing Dashboard{% endblock %}
+{% block page_subtitle %}Theo dõi và phân tích hiệu quả marketing{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Thống kê tổng quan -->
+    <div class="col-12 col-sm-6 col-xl-3 mb-4">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h5 class="text-muted mb-2">Chiến dịch đang chạy</h5>
+                        <h3 class="mb-1">{{ active_campaigns }}</h3>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon-shape bg-primary text-white rounded">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <span class="text-success me-1">
+                        <i class="fas fa-arrow-up"></i> {{ campaign_growth }}%
+                    </span>
+                    <span class="text-muted">So với tháng trước</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3 mb-4">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h5 class="text-muted mb-2">Tổng lượt hiển thị</h5>
+                        <h3 class="mb-1">{{ total_impressions|default:0 }}</h3>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon-shape bg-info text-white rounded">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <span class="text-success me-1">
+                        <i class="fas fa-arrow-up"></i> {{ impression_growth }}%
+                    </span>
+                    <span class="text-muted">So với tháng trước</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3 mb-4">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h5 class="text-muted mb-2">Tổng lượt click</h5>
+                        <h3 class="mb-1">{{ total_clicks|default:0 }}</h3>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon-shape bg-warning text-white rounded">
+                            <i class="fas fa-mouse-pointer"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <span class="text-success me-1">
+                        <i class="fas fa-arrow-up"></i> {{ click_growth }}%
+                    </span>
+                    <span class="text-muted">So với tháng trước</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3 mb-4">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h5 class="text-muted mb-2">Tỷ lệ chuyển đổi</h5>
+                        <h3 class="mb-1">{{ conversion_rate|floatformat:2 }}%</h3>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon-shape bg-success text-white rounded">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <span class="text-success me-1">
+                        <i class="fas fa-arrow-up"></i> {{ conversion_growth }}%
+                    </span>
+                    <span class="text-muted">So với tháng trước</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Danh sách chiến dịch -->
+<div class="card border-0 shadow mb-4">
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h2 class="fs-5 fw-bold mb-0">Chiến dịch Marketing</h2>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addCampaignModal">
+                    <i class="fas fa-plus me-2"></i>Thêm chiến dịch
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-centered table-nowrap mb-0 rounded">
+                <thead class="thead-light">
+                    <tr>
+                        <th class="border-0">Tên chiến dịch</th>
+                        <th class="border-0">Loại</th>
+                        <th class="border-0">Ngày bắt đầu</th>
+                        <th class="border-0">Ngày kết thúc</th>
+                        <th class="border-0">Lượt hiển thị</th>
+                        <th class="border-0">Lượt click</th>
+                        <th class="border-0">CTR</th>
+                        <th class="border-0">Trạng thái</th>
+                        <th class="border-0">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for campaign in campaigns %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'dashboard:campaign_detail' campaign.id %}" class="fw-bold text-primary">
+                                {{ campaign.name }}
+                            </a>
+                        </td>
+                        <td>{{ campaign.get_type_display }}</td>
+                        <td>{{ campaign.start_date|date:"d/m/Y" }}</td>
+                        <td>{{ campaign.end_date|date:"d/m/Y" }}</td>
+                        <td>{{ campaign.impressions|default:0 }}</td>
+                        <td>{{ campaign.clicks|default:0 }}</td>
+                        <td>{{ campaign.ctr|floatformat:2 }}%</td>
+                        <td>
+                            {% if campaign.is_active %}
+                            <span class="badge bg-success">Đang chạy</span>
+                            {% else %}
+                            <span class="badge bg-danger">Dừng</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="btn btn-link text-dark dropdown-toggle dropdown-toggle-split m-0 p-0" 
+                                        data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <div class="dropdown-menu py-0">
+                                    <a href="{% url 'dashboard:campaign_detail' campaign.id %}" 
+                                       class="dropdown-item">
+                                        <i class="fas fa-eye me-2"></i>Chi tiết
+                                    </a>
+                                    <button class="dropdown-item"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editCampaignModal"
+                                            data-id="{{ campaign.id }}">
+                                        <i class="fas fa-edit me-2"></i>Chỉnh sửa
+                                    </button>
+                                    <div class="dropdown-divider my-0"></div>
+                                    <button class="dropdown-item text-danger"
+                                            onclick="deleteCampaign({{ campaign.id }})">
+                                        <i class="fas fa-trash-alt me-2"></i>Xóa
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center py-4">
+                            <i class="fas fa-bullhorn text-muted mb-2" style="font-size: 2rem;"></i>
+                            <p class="text-muted mb-0">Chưa có chiến dịch nào</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Biểu đồ thống kê -->
+<div class="row">
+    <div class="col-12 col-xl-8 mb-4">
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <h2 class="fs-5 fw-bold mb-0">Hiệu quả chiến dịch</h2>
+            </div>
+            <div class="card-body">
+                <canvas id="campaignChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-12 col-xl-4 mb-4">
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <h2 class="fs-5 fw-bold mb-0">Phân bổ ngân sách</h2>
+            </div>
+            <div class="card-body">
+                <canvas id="budgetChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Campaign Modals -->
+{% include 'dashboard/marketing/modals/campaign_form.html' %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Biểu đồ hiệu quả chiến dịch
+const campaignCtx = document.getElementById('campaignChart').getContext('2d');
+const campaignChart = new Chart(campaignCtx, {
+    type: 'line',
+    data: {
+        labels: {{ chart_labels|safe }},
+        datasets: [{
+            label: 'Lượt hiển thị',
+            data: {{ impression_data|safe }},
+            borderColor: '#0d6efd',
+            tension: 0.4
+        }, {
+            label: 'Lượt click',
+            data: {{ click_data|safe }},
+            borderColor: '#ffc107',
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top'
+            }
+        }
+    }
+});
+
+// Biểu đồ phân bổ ngân sách
+const budgetCtx = document.getElementById('budgetChart').getContext('2d');
+const budgetChart = new Chart(budgetCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ budget_labels|safe }},
+        datasets: [{
+            data: {{ budget_data|safe }},
+            backgroundColor: ['#0d6efd', '#ffc107', '#198754', '#dc3545']
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Xử lý xóa chiến dịch
+function deleteCampaign(campaignId) {
+    if (confirm('Bạn có chắc muốn xóa chiến dịch này?')) {
+        $.post('{% url "dashboard:delete_campaign" %}', {
+            campaign_id: campaignId,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        }).done(function(response) {
+            if (response.success) {
+                location.reload();
+            }
+        });
+    }
+}
+</script>
+{% endblock %} 

@@ -1,37 +1,29 @@
 // Search Suggestions
 document.addEventListener('DOMContentLoaded', function() {
+    const searchForm = document.querySelector('.search-form');
     const searchInput = document.querySelector('.search-input');
     const suggestionsContainer = document.querySelector('.search-suggestions');
     let debounceTimer;
 
-    // Debug logs
-    console.log('Search form:', document.querySelector('.search-form'));
-    console.log('Search input:', searchInput);
-    console.log('Suggestions container:', suggestionsContainer);
-    
-    if (!searchInput || !suggestionsContainer) {
-        console.error('Search elements not found!');
+    if (!searchForm || !searchInput || !suggestionsContainer) {
+        console.error('Required elements not found');
         return;
     }
 
-    // Show trending on focus
     searchInput.addEventListener('focus', function() {
-        console.log('Search input focused');
         if (!this.value.trim()) {
             fetch('/api/search-suggestions/trending/')
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
                     console.log('Trending data:', data);
-                    showSuggestions(data.suggestions);
+                    if (data && data.suggestions) {
+                        showSuggestions(data.suggestions);
+                    }
                 })
-                .catch(error => console.error('Error fetching trending:', error));
+                .catch(error => console.error('Error:', error));
         }
     });
 
-    // Handle input with debounce
     searchInput.addEventListener('input', function() {
         clearTimeout(debounceTimer);
         const query = this.value.trim();
@@ -43,17 +35,68 @@ document.addEventListener('DOMContentLoaded', function() {
         
         debounceTimer = setTimeout(() => {
             fetch(`/api/search-suggestions/?q=${encodeURIComponent(query)}`)
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
                     console.log('Search response:', data);
-                    showSuggestions(data.suggestions);
+                    if (data && data.suggestions) {
+                        showSuggestions(data.suggestions);
+                    }
                 })
-                .catch(error => console.error('Error fetching suggestions:', error));
+                .catch(error => console.error('Error:', error));
         }, 300);
     });
+
+    function showSuggestions(suggestions) {
+        if (!Array.isArray(suggestions) || suggestions.length === 0) {
+            suggestionsContainer.innerHTML = '<div class="no-results">Không tìm thấy kết quả</div>';
+            suggestionsContainer.classList.add('show');
+            return;
+        }
+
+        // Tách riêng trending và products
+        const trending = suggestions.filter(item => item.type === 'trending');
+        const products = suggestions.filter(item => item.type === 'product');
+
+        let html = '';
+
+        // Hiển thị trending nếu có
+        if (trending.length > 0) {
+            html += '<div class="suggestions-section trending">';
+            html += '<div class="section-title">Xu hướng tìm kiếm</div>';
+            html += trending.map(item => `
+                <a href="/search/?q=${encodeURIComponent(item.keyword)}" 
+                   class="suggestion-item trending">
+                    <i class="${item.icon}"></i>
+                    <span>${item.keyword}</span>
+                    ${item.count ? `<small>${item.count} lượt tìm</small>` : ''}
+                </a>
+            `).join('');
+            html += '</div>';
+        }
+
+        // Hiển thị products nếu có
+        if (products.length > 0) {
+            html += '<div class="suggestions-section products">';
+            html += '<div class="section-title">Sản phẩm gợi ý</div>';
+            html += products.map(item => `
+                <a href="${item.url}" class="suggestion-item product">
+                    <div class="suggestion-image">
+                        <img src="${item.image}" 
+                             alt="${item.name}"
+                             onerror="this.onerror=null; this.src='/static/store/images/default-product.jpg';">
+                    </div>
+                    <div class="suggestion-info">
+                        <div class="suggestion-name">${item.name}</div>
+                        <div class="suggestion-price">${formatPrice(item.price)}</div>
+                    </div>
+                </a>
+            `).join('');
+            html += '</div>';
+        }
+
+        suggestionsContainer.innerHTML = html;
+        suggestionsContainer.classList.add('show');
+    }
 
     // Close suggestions when clicking outside
     document.addEventListener('click', function(e) {
@@ -61,38 +104,6 @@ document.addEventListener('DOMContentLoaded', function() {
             suggestionsContainer.classList.remove('show');
         }
     });
-
-    function showSuggestions(suggestions) {
-        if (!suggestions || suggestions.length === 0) {
-            suggestionsContainer.classList.remove('show');
-            return;
-        }
-
-        suggestionsContainer.innerHTML = suggestions.map(item => {
-            if (item.type === 'trending' || item.type === 'product') {
-                return `
-                    <a href="/search/?q=${encodeURIComponent(item.keyword)}" 
-                       class="suggestion-item ${item.type}">
-                        <i class="${item.icon}"></i>
-                        <span>${item.keyword}</span>
-                        ${item.count ? `<small>${item.count} lượt tìm</small>` : ''}
-                    </a>
-                `;
-            } else {
-                return `
-                    <a href="${item.url}" class="suggestion-item">
-                        <img src="${item.image}" alt="${item.name}">
-                        <div class="suggestion-info">
-                            <div class="suggestion-name">${item.name}</div>
-                            <div class="suggestion-price">${formatPrice(item.price)}</div>
-                        </div>
-                    </a>
-                `;
-            }
-        }).join('');
-        
-        suggestionsContainer.classList.add('show');
-    }
 });
 
 // Price Range Slider
@@ -196,6 +207,7 @@ function applyFilters() {
 
 // Format price
 function formatPrice(price) {
+    if (!price) return '';
     return new Intl.NumberFormat('vi-VN', {
         style: 'currency',
         currency: 'VND'

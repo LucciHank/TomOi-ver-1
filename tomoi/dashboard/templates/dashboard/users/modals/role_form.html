@@ -1,0 +1,116 @@
+<!-- Add Role Modal -->
+<div class="modal fade" id="addRoleModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm vai trò mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'dashboard:add_role' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <div class="form-group">
+                            <label class="form-label">Tên vai trò</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-group">
+                            <label class="form-label">Mô tả</label>
+                            <textarea class="form-control" name="description" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-group">
+                            <label class="form-label">Màu hiển thị</label>
+                            <select class="form-select" name="color">
+                                <option value="primary">Xanh dương</option>
+                                <option value="success">Xanh lá</option>
+                                <option value="info">Xanh nhạt</option>
+                                <option value="warning">Vàng</option>
+                                <option value="danger">Đỏ</option>
+                                <option value="gray">Xám</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Quyền mặc định</label>
+                        <div id="defaultPermissions">
+                            {% for group in permission_groups %}
+                            <div class="mb-3">
+                                <h6 class="fw-bold mb-2">{{ group.name }}</h6>
+                                {% for permission in group.permissions %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" 
+                                           name="default_permissions" value="{{ permission.id }}"
+                                           id="defPerm{{ permission.id }}">
+                                    <label class="form-check-label" for="defPerm{{ permission.id }}">
+                                        {{ permission.name }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Thêm vai trò</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Role Modal -->
+<div class="modal fade" id="editRoleModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chỉnh sửa vai trò</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <div class="form-group">
+                            <label class="form-label">Tên vai trò</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-group">
+                            <label class="form-label">Mô tả</label>
+                            <textarea class="form-control" name="description" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-group">
+                            <label class="form-label">Màu hiển thị</label>
+                            <select class="form-select" name="color">
+                                <option value="primary">Xanh dương</option>
+                                <option value="success">Xanh lá</option>
+                                <option value="info">Xanh nhạt</option>
+                                <option value="warning">Vàng</option>
+                                <option value="danger">Đỏ</option>
+                                <option value="gray">Xám</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div> 

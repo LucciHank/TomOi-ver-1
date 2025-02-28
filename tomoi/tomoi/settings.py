@@ -84,6 +84,8 @@ INSTALLED_APPS = [
     'colorfield',
     'admin_interface',
     'django.contrib.humanize',
+    'blog',
+    'dashboard',
 ]
 
 MIDDLEWARE = [
@@ -96,6 +98,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'accounts.middleware.EmailVerificationMiddleware',
     'accounts.middleware.RequestBodyMiddleware',
+    'dashboard.middleware.AnalyticsMiddleware',
 ]
 
 ROOT_URLCONF = 'tomoi.urls'
@@ -261,3 +264,19 @@ DOITHE_PARTNER_ID = '2881917827'  # Dùng ID của API POST
 DOITHE_PARTNER_KEY = '919a81fcd35df8bf1d88e65381a82baa'
 DOITHE_API_URL = 'https://doithe1s.vn/chargingws/v2'  # URL API của DoiThe.vn
 DOITHE_CALLBACK_URL = 'http://127.0.0.1:8000/accounts/deposit/card-callback/'
+
+# Analytics settings
+ANALYTICS_SETTINGS = {
+    'EXCLUDE_PATHS': [
+        r'^/static/',
+        r'^/media/',
+        r'^/admin/',
+        r'^/api/',
+    ],
+    'EXCLUDE_USER_AGENTS': [
+        'bot',
+        'crawler',
+        'spider',
+    ],
+    'SESSION_TIMEOUT': 30 * 60,  # 30 minutes
+}

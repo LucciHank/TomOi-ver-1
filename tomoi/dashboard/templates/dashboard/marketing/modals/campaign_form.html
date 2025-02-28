@@ -1,0 +1,125 @@
+<!-- Add/Edit Campaign Modal -->
+<div class="modal fade" id="campaignModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Thêm chiến dịch mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="campaignForm" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Tên chiến dịch <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="name" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Loại chiến dịch <span class="text-danger">*</span></label>
+                                <select class="form-select" name="type" required>
+                                    <option value="">-- Chọn loại --</option>
+                                    <option value="email">Email Marketing</option>
+                                    <option value="social">Social Media</option>
+                                    <option value="display">Display Ads</option>
+                                    <option value="search">Search Ads</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Ngân sách (VNĐ)</label>
+                                <input type="number" class="form-control" name="budget" min="0">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Ngày bắt đầu <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" name="start_date" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Ngày kết thúc</label>
+                                <input type="date" class="form-control" name="end_date">
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="is_active" id="isActive" checked>
+                                    <label class="form-check-label" for="isActive">Kích hoạt chiến dịch</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label class="form-label">Mô tả chiến dịch</label>
+                                <textarea class="form-control" name="description" rows="3"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Mục tiêu</label>
+                                <textarea class="form-control" name="goals" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu chiến dịch</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Xử lý khi mở modal
+$('#campaignModal').on('show.bs.modal', function(event) {
+    const button = $(event.relatedTarget);
+    const campaignId = button.data('id');
+    
+    if (campaignId) {
+        $('#modalTitle').text('Chỉnh sửa chiến dịch');
+        // Load thông tin chiến dịch
+        $.get(`/dashboard/marketing/campaigns/${campaignId}/get/`, function(data) {
+            $('input[name="name"]').val(data.name);
+            $('select[name="type"]').val(data.type);
+            $('input[name="budget"]').val(data.budget);
+            $('input[name="start_date"]').val(data.start_date);
+            $('input[name="end_date"]').val(data.end_date);
+            $('textarea[name="description"]').val(data.description);
+            $('textarea[name="goals"]').val(data.goals);
+            $('#isActive').prop('checked', data.is_active);
+            
+            $('#campaignForm').attr('action', `/dashboard/marketing/campaigns/${campaignId}/edit/`);
+        });
+    } else {
+        $('#modalTitle').text('Thêm chiến dịch mới');
+        $('#campaignForm')[0].reset();
+        $('#campaignForm').attr('action', '/dashboard/marketing/campaigns/add/');
+    }
+});
+
+// Validate form trước khi submit
+$('#campaignForm').on('submit', function(e) {
+    e.preventDefault();
+    
+    const name = $('input[name="name"]').val().trim();
+    const type = $('select[name="type"]').val();
+    const startDate = $('input[name="start_date"]').val();
+    
+    if (!name || !type || !startDate) {
+        Swal.fire({
+            title: 'Lỗi',
+            text: 'Vui lòng điền đầy đủ thông tin bắt buộc',
+            icon: 'error'
+        });
+        return;
+    }
+    
+    // Submit form nếu hợp lệ
+    this.submit();
+});
+</script> 

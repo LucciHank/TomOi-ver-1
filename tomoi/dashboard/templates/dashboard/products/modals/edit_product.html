@@ -1,0 +1,65 @@
+<div class="modal fade" id="editProductModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">Chỉnh sửa sản phẩm</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editProductForm" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <!-- Các trường giống form thêm mới -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tên sản phẩm</label>
+                            <input type="text" class="form-control" name="name" id="editName" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">SKU</label>
+                            <input type="text" class="form-control" name="sku" id="editSku" required>
+                        </div>
+                    </div>
+
+                    <!-- Thêm các trường khác tương tự form thêm mới -->
+
+                    <div class="mb-3">
+                        <label class="form-label">Hình ảnh hiện tại</label>
+                        <div class="d-flex align-items-center">
+                            <img src="" id="currentImage" class="img-thumbnail me-3" style="height: 100px;">
+                            <div>
+                                <input type="file" class="form-control" name="image" accept="image/*">
+                                <small class="text-muted">Để trống nếu không muốn thay đổi ảnh</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link text-gray ms-auto" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Xử lý load dữ liệu khi mở modal edit
+$('#editProductModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var productId = button.data('product-id');
+    
+    // Gọi API lấy thông tin sản phẩm
+    $.get('{% url "dashboard:get_product" %}', {
+        product_id: productId
+    }).done(function(response) {
+        if (response.success) {
+            var product = response.product;
+            $('#editName').val(product.name);
+            $('#editSku').val(product.sku);
+            // Set các giá trị khác...
+            $('#currentImage').attr('src', product.image_url);
+            $('#editProductForm').attr('action', '/dashboard/products/' + productId + '/edit/');
+        }
+    });
+});
+</script> 

@@ -1,0 +1,230 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ campaign.name }} | Chi tiết chiến dịch{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 col-xl-8">
+        <!-- Thông tin chiến dịch -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fs-5 fw-bold mb-0">Thông tin chiến dịch</h2>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-sm btn-primary" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#campaignModal"
+                                data-id="{{ campaign.id }}">
+                            <i class="fas fa-edit me-2"></i>Chỉnh sửa
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-4">
+                            <h3 class="h4 mb-3">{{ campaign.name }}</h3>
+                            <p class="text-muted mb-0">{{ campaign.description }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Loại chiến dịch</label>
+                            <p>{{ campaign.get_type_display }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mục tiêu</label>
+                            <p>{{ campaign.goals|default:"Chưa có mục tiêu" }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Ngày bắt đầu</label>
+                            <p>{{ campaign.start_date|date:"d/m/Y" }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Ngày kết thúc</label>
+                            <p>{{ campaign.end_date|date:"d/m/Y"|default:"Không giới hạn" }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Trạng thái</label>
+                            <div>
+                                {% if campaign.status == 'active' %}
+                                <span class="badge bg-success">Đang chạy</span>
+                                {% elif campaign.status == 'scheduled' %}
+                                <span class="badge bg-info">Đã lên lịch</span>
+                                {% elif campaign.status == 'ended' %}
+                                <span class="badge bg-danger">Đã kết thúc</span>
+                                {% else %}
+                                <span class="badge bg-warning">Tạm dừng</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biểu đồ hiệu quả -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-header">
+                <h2 class="fs-5 fw-bold mb-0">Hiệu quả chiến dịch</h2>
+            </div>
+            <div class="card-body">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-12 col-xl-4">
+        <!-- Thống kê chi phí -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-header">
+                <h2 class="fs-5 fw-bold mb-0">Chi phí</h2>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h6 class="mb-0">Ngân sách</h6>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">{{ campaign.budget|floatformat:0 }}₫</h6>
+                    </div>
+                </div>
+                
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h6 class="mb-0">Đã chi tiêu</h6>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">{{ total_spent|floatformat:0 }}₫</h6>
+                    </div>
+                </div>
+                
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="mb-0">Còn lại</h6>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">{{ remaining_budget|floatformat:0 }}₫</h6>
+                    </div>
+                </div>
+                
+                <div class="progress mt-3">
+                    {% with spent_percent=total_spent|div:campaign.budget|mul:100 %}
+                    <div class="progress-bar bg-primary" 
+                         role="progressbar" 
+                         style="width: {{ spent_percent|floatformat:0 }}%"
+                         aria-valuenow="{{ spent_percent|floatformat:0 }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                        {{ spent_percent|floatformat:0 }}%
+                    </div>
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Thống kê hiệu quả -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-header">
+                <h2 class="fs-5 fw-bold mb-0">Hiệu quả</h2>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h6 class="mb-0">Lượt hiển thị</h6>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">{{ campaign.impressions }}</h6>
+                    </div>
+                </div>
+                
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h6 class="mb-0">Lượt click</h6>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">{{ campaign.clicks }}</h6>
+                    </div>
+                </div>
+                
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h6 class="mb-0">CTR</h6>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">{{ campaign.ctr|floatformat:2 }}%</h6>
+                    </div>
+                </div>
+                
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="mb-0">Tỷ lệ chuyển đổi</h6>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">{{ campaign.conversion_rate|floatformat:2 }}%</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Campaign Modal -->
+{% include 'dashboard/marketing/modals/campaign_form.html' %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Biểu đồ hiệu quả
+const ctx = document.getElementById('performanceChart').getContext('2d');
+const performanceChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ daily_stats.dates|safe }},
+        datasets: [{
+            label: 'Lượt hiển thị',
+            data: {{ daily_stats.impressions|safe }},
+            borderColor: '#0d6efd',
+            tension: 0.4
+        }, {
+            label: 'Lượt click',
+            data: {{ daily_stats.clicks|safe }},
+            borderColor: '#ffc107',
+            tension: 0.4
+        }, {
+            label: 'Chuyển đổi',
+            data: {{ daily_stats.conversions|safe }},
+            borderColor: '#198754',
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    precision: 0
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %} 

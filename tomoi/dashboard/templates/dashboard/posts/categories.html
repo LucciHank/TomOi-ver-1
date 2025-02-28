@@ -1,0 +1,152 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Quản lý danh mục bài viết{% endblock %}
+
+{% block page_title %}Quản lý danh mục{% endblock %}
+{% block page_subtitle %}Quản lý danh mục bài viết{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 col-xl-8">
+        <!-- Danh sách danh mục -->
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fs-5 fw-bold mb-0">Danh sách danh mục</h2>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#categoryModal">
+                            <i class="fas fa-plus me-2"></i>Thêm danh mục
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-centered table-nowrap mb-0 rounded">
+                        <thead class="thead-light">
+                            <tr>
+                                <th class="border-0 rounded-start">Tên danh mục</th>
+                                <th class="border-0">Slug</th>
+                                <th class="border-0">Số bài viết</th>
+                                <th class="border-0">Mô tả</th>
+                                <th class="border-0">Trạng thái</th>
+                                <th class="border-0 rounded-end">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category in categories %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas {{ category.icon|default:'fa-folder' }} text-primary me-3"></i>
+                                        <span class="fw-bold">{{ category.name }}</span>
+                                    </div>
+                                </td>
+                                <td>{{ category.slug }}</td>
+                                <td>{{ category.posts.count }}</td>
+                                <td>{{ category.description|truncatechars:50 }}</td>
+                                <td>
+                                    {% if category.is_active %}
+                                    <span class="badge bg-success">Hoạt động</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">Vô hiệu</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button class="btn btn-link text-dark dropdown-toggle dropdown-toggle-split m-0 p-0" 
+                                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-h"></i>
+                                        </button>
+                                        <div class="dropdown-menu py-0">
+                                            <button class="dropdown-item" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#categoryModal"
+                                                    data-id="{{ category.id }}"
+                                                    data-action="edit">
+                                                <i class="fas fa-edit me-2"></i>Chỉnh sửa
+                                            </button>
+                                            <div class="dropdown-divider my-0"></div>
+                                            <button class="dropdown-item text-danger" 
+                                                    onclick="deleteCategory({{ category.id }})">
+                                                <i class="fas fa-trash-alt me-2"></i>Xóa
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4">
+                                    <i class="fas fa-folder-open text-muted mb-2" style="font-size: 2rem;"></i>
+                                    <p class="text-muted mb-0">Chưa có danh mục nào</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Category Modal -->
+{% include 'dashboard/posts/modals/category_form.html' %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Xử lý xóa danh mục
+function deleteCategory(categoryId) {
+    Swal.fire({
+        title: 'Xác nhận xóa',
+        text: "Bạn có chắc muốn xóa danh mục này?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Xóa',
+        cancelButtonText: 'Hủy'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.post('{% url "dashboard:delete_category" %}', {
+                category_id: categoryId,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            }).done(function(response) {
+                if (response.success) {
+                    location.reload();
+                }
+            });
+        }
+    });
+}
+
+// Xử lý mở modal edit
+$('#categoryModal').on('show.bs.modal', function(event) {
+    const button = $(event.relatedTarget);
+    const action = button.data('action');
+    const categoryId = button.data('id');
+    
+    if (action === 'edit') {
+        $('#modalTitle').text('Chỉnh sửa danh mục');
+        // Load thông tin danh mục
+        $.get(`/dashboard/posts/categories/${categoryId}/get/`, function(data) {
+            $('input[name="name"]').val(data.name);
+            $('input[name="icon"]').val(data.icon);
+            $('textarea[name="description"]').val(data.description);
+            $('#isActive').prop('checked', data.is_active);
+            $('#categoryForm').attr('action', `/dashboard/posts/categories/${categoryId}/edit/`);
+        });
+    } else {
+        $('#modalTitle').text('Thêm danh mục mới');
+        $('#categoryForm')[0].reset();
+        $('#categoryForm').attr('action', '/dashboard/posts/categories/add/');
+    }
+});
+</script>
+{% endblock %} 

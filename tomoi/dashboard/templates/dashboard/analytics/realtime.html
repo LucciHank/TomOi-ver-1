@@ -1,0 +1,194 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load dashboard_filters %}
+
+{% block title %}Real-time Analytics{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Số người đang online -->
+    <div class="col-12 col-xl-4 mb-4">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fs-5 fw-bold mb-0">Đang online</h2>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon-shape bg-success text-white rounded-circle">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <h3 id="activeVisitors" class="display-3 text-success mb-1">0</h3>
+                    <p class="text-muted mb-0">người dùng</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lượt xem trang -->
+    <div class="col-12 col-xl-8 mb-4">
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <h2 class="fs-5 fw-bold mb-0">Lượt xem trang (5 phút gần nhất)</h2>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Trang</th>
+                                <th class="text-end">Lượt xem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pageviewsTable">
+                            <tr>
+                                <td colspan="2" class="text-center">Đang tải dữ liệu...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Biểu đồ lượt xem -->
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <h2 class="fs-5 fw-bold mb-0">Lượt xem theo thời gian thực</h2>
+            </div>
+            <div class="card-body">
+                <canvas id="realtimeChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Vị trí người dùng -->
+    <div class="col-12">
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fs-5 fw-bold mb-0">Vị trí người dùng</h2>
+                    </div>
+                    <div class="col-auto">
+                        <span id="totalLocations" class="badge bg-primary">0 vị trí</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="locationMap" style="height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+<script>
+// Khởi tạo biểu đồ realtime
+const ctx = document.getElementById('realtimeChart').getContext('2d');
+const realtimeChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: Array(30).fill(''),
+        datasets: [{
+            label: 'Lượt xem',
+            data: Array(30).fill(0),
+            borderColor: '#0d6efd',
+            tension: 0.4,
+            fill: false
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    precision: 0
+                }
+            }
+        },
+        animation: false
+    }
+});
+
+// Khởi tạo bản đồ
+const map = L.map('locationMap').setView([21.0285, 105.8542], 2);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+const markers = new L.LayerGroup().addTo(map);
+
+// Hàm cập nhật dữ liệu realtime
+function updateRealtimeData() {
+    // Cập nhật số người đang online
+    fetch('/dashboard/api/realtime/visitors/')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('activeVisitors').textContent = data.active_visitors;
+        });
+    
+    // Cập nhật lượt xem trang
+    fetch('/dashboard/api/realtime/pageviews/')
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById('pageviewsTable');
+            tbody.innerHTML = '';
+            
+            data.pageviews.forEach(page => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${page.url}</td>
+                        <td class="text-end">${page.views}</td>
+                    </tr>
+                `;
+            });
+            
+            // Cập nhật biểu đồ
+            realtimeChart.data.datasets[0].data.shift();
+            realtimeChart.data.datasets[0].data.push(
+                data.pageviews.reduce((sum, page) => sum + page.views, 0)
+            );
+            realtimeChart.update();
+        });
+    
+    // Cập nhật vị trí
+    fetch('/dashboard/api/realtime/locations/')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('totalLocations').textContent = 
+                `${data.total_locations} vị trí`;
+            
+            // Xóa markers cũ
+            markers.clearLayers();
+            
+            // Thêm markers mới
+            data.locations.forEach(ip => {
+                // Ở đây bạn cần thêm logic để chuyển IP thành tọa độ
+                // Tạm thời dùng tọa độ ngẫu nhiên để demo
+                const lat = Math.random() * 180 - 90;
+                const lng = Math.random() * 360 - 180;
+                
+                L.marker([lat, lng])
+                    .bindPopup(ip)
+                    .addTo(markers);
+            });
+        });
+}
+
+// Cập nhật dữ liệu mỗi 5 giây
+setInterval(updateRealtimeData, 5000);
+updateRealtimeData();
+</script>
+{% endblock %} 

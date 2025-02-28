@@ -1,0 +1,191 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Xem tổng quan về hoạt động của website{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Dashboard</h1>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Thống kê đơn hàng -->
+        <div class="col-md-3 mb-4">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Đơn hàng</h5>
+                    <h2 class="mb-0">{{ total_orders }}</h2>
+                    <p class="text-muted">{{ monthly_orders }} đơn trong tháng này</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Thống kê doanh thu -->
+        <div class="col-md-3 mb-4">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Doanh thu</h5>
+                    <h2 class="mb-0">{{ total_revenue|floatformat:0 }} đ</h2>
+                    <p class="text-muted">{{ monthly_revenue|floatformat:0 }} đ trong tháng này</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Thống kê khách hàng -->
+        <div class="col-md-3 mb-4">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Khách hàng</h5>
+                    <h2 class="mb-0">{{ total_customers }}</h2>
+                    <p class="text-muted">{{ new_customers }} khách mới trong tháng này</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Thống kê sản phẩm -->
+        <div class="col-md-3 mb-4">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Sản phẩm</h5>
+                    <h2 class="mb-0">{{ total_products }}</h2>
+                    <p class="text-muted">{{ low_stock_products.count }} sản phẩm sắp hết hàng</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Đơn hàng gần đây -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Đơn hàng gần đây</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Khách hàng</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                <tr>
+                                    <td>{{ order.id }}</td>
+                                    <td>{{ order.user.email }}</td>
+                                    <td>{{ order.total_amount|floatformat:0 }} đ</td>
+                                    <td>
+                                        <span class="badge bg-{% if order.status == 'completed' %}success{% elif order.status == 'pending' %}warning{% else %}secondary{% endif %}">
+                                            {{ order.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">Không có đơn hàng nào</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Ticket hỗ trợ gần đây -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Ticket hỗ trợ gần đây</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Tiêu đề</th>
+                                    <th>Người gửi</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ticket in recent_tickets %}
+                                <tr>
+                                    <td>{{ ticket.id }}</td>
+                                    <td>{{ ticket.title }}</td>
+                                    <td>{{ ticket.user.email }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if ticket.status == 'new' %}danger{% elif ticket.status == 'processing' %}warning{% elif ticket.status == 'resolved' %}success{% else %}secondary{% endif %}">
+                                            {{ ticket.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">Không có ticket nào</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Biểu đồ doanh thu
+var revenueData = {
+    labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
+    series: [
+        [{{ monthly_revenues|join:"," }}]
+    ]
+};
+
+new Chartist.Line('.ct-chart-sales-value', revenueData, {
+    low: 0,
+    showArea: true,
+    fullWidth: true,
+    plugins: [
+        Chartist.plugins.tooltip()
+    ],
+    axisY: {
+        low: 0,
+        scaleMinSpace: 50,
+        labelInterpolationFnc: function(value) {
+            return value.toLocaleString() + 'đ';
+        }
+    }
+});
+
+// Biểu đồ phân bố
+var distributionData = {
+    labels: [{% for item in distribution_data %}'{{ item.name }}',{% endfor %}],
+    series: [{% for item in distribution_data %}{{ item.value }},{% endfor %}]
+};
+
+new Chartist.Pie('.ct-chart-distribution', distributionData, {
+    donut: true,
+    donutWidth: 60,
+    startAngle: 270,
+    total: 200,
+    plugins: [
+        Chartist.plugins.tooltip()
+    ]
+});
+</script>
+{% endblock %} 

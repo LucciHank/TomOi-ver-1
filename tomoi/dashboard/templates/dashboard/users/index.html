@@ -1,0 +1,268 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Quản lý người dùng{% endblock %}
+
+{% block page_title %}Quản lý người dùng{% endblock %}
+{% block page_subtitle %}Quản lý tài khoản người dùng và phân quyền{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="row">
+    <div class="col-sm-6 col-md-3">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <span class="h6 font-semibold text-muted text-sm d-block mb-2">Tổng người dùng</span>
+                        <span class="h3 font-bold mb-0">{{ total_users }}</span>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon icon-shape bg-primary text-white text-lg rounded-circle">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-sm-6 col-md-3">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <span class="h6 font-semibold text-muted text-sm d-block mb-2">Người dùng mới</span>
+                        <span class="h3 font-bold mb-0">{{ new_users }}</span>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon icon-shape bg-info text-white text-lg rounded-circle">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <span class="badge bg-{{ user_trend_color }}">
+                        <i class="fas fa-{{ user_trend_icon }} me-1"></i>
+                        {{ user_growth }}%
+                    </span>
+                    <span class="text-muted text-sm ms-2">so với tháng trước</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-md-3">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <span class="h6 font-semibold text-muted text-sm d-block mb-2">Đang hoạt động</span>
+                        <span class="h3 font-bold mb-0">{{ active_users }}</span>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon icon-shape bg-success text-white text-lg rounded-circle">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-md-3">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <span class="h6 font-semibold text-muted text-sm d-block mb-2">Bị khóa</span>
+                        <span class="h3 font-bold mb-0">{{ blocked_users }}</span>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon icon-shape bg-danger text-white text-lg rounded-circle">
+                            <i class="fas fa-user-lock"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <!-- Danh sách người dùng -->
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fs-5 fw-bold mb-0">Danh sách người dùng</h2>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                            <i class="fas fa-plus me-2"></i>Thêm người dùng
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Bộ lọc -->
+                <div class="row g-2 mb-4">
+                    <div class="col-sm-3">
+                        <select class="form-select" id="filterRole">
+                            <option value="">Tất cả vai trò</option>
+                            <option value="admin">Admin</option>
+                            <option value="staff">Nhân viên</option>
+                            <option value="user">Người dùng</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-3">
+                        <select class="form-select" id="filterStatus">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="active">Đang hoạt động</option>
+                            <option value="inactive">Không hoạt động</option>
+                            <option value="blocked">Bị khóa</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" id="searchUsers" placeholder="Tìm kiếm người dùng...">
+                    </div>
+                </div>
+
+                <!-- Bảng danh sách -->
+                <div class="table-responsive">
+                    <table class="table align-items-center table-flush">
+                        <thead class="thead-light">
+                            <tr>
+                                <th scope="col">Người dùng</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Số điện thoại</th>
+                                <th scope="col">Vai trò</th>
+                                <th scope="col">Trạng thái</th>
+                                <th scope="col">Ngày tham gia</th>
+                                <th scope="col">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="{{ user.get_avatar_url }}" class="avatar rounded-circle me-3">
+                                        <div>
+                                            <span class="fw-bold">{{ user.get_full_name }}</span><br>
+                                            <small class="text-muted">@{{ user.username }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.phone|default:"-" }}</td>
+                                <td>
+                                    <span class="badge bg-{{ user.get_role_color }}">
+                                        {{ user.get_role_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ user.get_status_color }}">
+                                        {{ user.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>{{ user.date_joined|date:"d/m/Y" }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-gray-800" data-bs-toggle="modal"
+                                                data-bs-target="#editUserModal" data-user-id="{{ user.id }}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteUser({{ user.id }})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Phân trang -->
+                <div class="card-footer">
+                    {% include 'dashboard/components/pagination.html' with page_obj=users %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit User Modals -->
+{% include 'dashboard/users/modals/user_form.html' %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Xử lý tìm kiếm realtime
+$('#searchUsers').on('keyup', function() {
+    var searchTerm = $(this).val().toLowerCase();
+    $('tbody tr').each(function() {
+        var text = $(this).text().toLowerCase();
+        $(this).toggle(text.indexOf(searchTerm) > -1);
+    });
+});
+
+// Xử lý filter
+$('#filterRole, #filterStatus').on('change', function() {
+    filterUsers();
+});
+
+function filterUsers() {
+    var role = $('#filterRole').val();
+    var status = $('#filterStatus').val();
+    
+    $('tbody tr').each(function() {
+        var roleMatch = !role || $(this).find('td:eq(3)').text().trim().toLowerCase().includes(role);
+        var statusMatch = !status || $(this).find('td:eq(4)').text().trim().toLowerCase().includes(status);
+        $(this).toggle(roleMatch && statusMatch);
+    });
+}
+
+function deleteUser(userId) {
+    if (confirm('Bạn có chắc muốn xóa người dùng này?')) {
+        $.post('{% url "dashboard:delete_user" %}', {
+            user_id: userId,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        }).done(function(response) {
+            if (response.success) {
+                location.reload();
+            }
+        });
+    }
+}
+
+// Xử lý form thêm/sửa người dùng
+$('#addUserModal, #editUserModal').on('show.bs.modal', function(event) {
+    var button = $(event.relatedTarget);
+    var userId = button.data('user-id');
+    var modal = $(this);
+    
+    if (userId) {
+        // Load dữ liệu người dùng cần sửa
+        $.get('{% url "dashboard:get_user" %}', {
+            user_id: userId
+        }).done(function(response) {
+            if (response.success) {
+                var user = response.user;
+                modal.find('input[name="username"]').val(user.username);
+                modal.find('input[name="email"]').val(user.email);
+                modal.find('input[name="first_name"]').val(user.first_name);
+                modal.find('input[name="last_name"]').val(user.last_name);
+                modal.find('input[name="phone"]').val(user.phone);
+                modal.find('select[name="role"]').val(user.role);
+                modal.find('select[name="status"]').val(user.status);
+                modal.find('form').attr('action', '/dashboard/users/' + userId + '/edit/');
+            }
+        });
+    }
+});
+</script>
+{% endblock %} 

@@ -38,18 +38,38 @@ class ProductLabel(models.Model):
 
 # Mô hình sản phẩm (Product)
 class Product(models.Model):
+    DURATION_CHOICES = [
+        ('1_DAY', '1 ngày'),
+        ('1_WEEK', '1 tuần'),
+        ('1_MONTH', '1 tháng'),
+        ('3_MONTHS', '3 tháng'),
+        ('6_MONTHS', '6 tháng'),
+        ('12_MONTHS', '1 năm'),
+    ]
+
+    BRAND_CHOICES = [
+        ('netflix', 'Netflix'),
+        ('spotify', 'Spotify'),
+        ('youtube', 'YouTube'),
+        ('disney', 'Disney+'),
+        ('apple', 'Apple TV+'),
+        ('hbo', 'HBO GO'),
+    ]
+
     name = models.CharField(max_length=200)
-    product_code = models.CharField(max_length=50, unique=True, verbose_name='Mã sản phẩm')
-    price = models.DecimalField(max_digits=10, decimal_places=0)
-    old_price = models.DecimalField(max_digits=10, decimal_places=0, null=True, blank=True)
-    label = models.ForeignKey(ProductLabel, on_delete=models.SET_NULL, null=True, blank=True)
-    category = models.ForeignKey(Category, related_name="products", on_delete=models.CASCADE, null=True, blank=True)
-    stock = models.PositiveIntegerField(default=0)
+    brand = models.CharField(max_length=50, choices=BRAND_CHOICES)
+    duration = models.CharField(max_length=20, choices=DURATION_CHOICES)
     description = CKEditor5Field(
         'Mô tả', 
         config_name='default',
         blank=True
     )
+    price = models.DecimalField(max_digits=10, decimal_places=0)
+    old_price = models.DecimalField(max_digits=10, decimal_places=0, null=True, blank=True)
+    label = models.ForeignKey(ProductLabel, on_delete=models.SET_NULL, null=True, blank=True)
+    category = models.ForeignKey(Category, related_name="products", on_delete=models.CASCADE, null=True, blank=True)
+    stock = models.PositiveIntegerField(default=0)
+    features = models.JSONField(default=list)  # Lưu danh sách tính năng
     is_featured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -136,6 +156,21 @@ class Product(models.Model):
             return main_image.image.url
         # Trả về ảnh mặc định nếu không có ảnh chính
         return '/static/images/default-product.jpg'
+
+    def get_features(self):
+        """Trả về danh sách tính năng của sản phẩm"""
+        return self.features
+
+    def get_duration_display(self):
+        """Trả về text hiển thị thời hạn"""
+        return dict(self.DURATION_CHOICES).get(self.duration, self.duration)
+
+    @property
+    def discount(self):
+        """Tính % giảm giá"""
+        if self.old_price and self.old_price > self.price:
+            return int(((self.old_price - self.price) / self.old_price) * 100)
+        return None
 
 
 # Mô hình hình ảnh sản phẩm (ProductImage)

@@ -1,0 +1,276 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Quản lý Chatbot{% endblock %}
+
+{% block page_title %}Quản lý Chatbot{% endblock %}
+{% block page_subtitle %}Cấu hình và quản lý chatbot tự động{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Thống kê tổng quan -->
+    <div class="col-12 col-sm-6 col-xl-3 mb-4">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h5 class="text-muted mb-2">Tổng cuộc hội thoại</h5>
+                        <h3 class="mb-1">{{ total_conversations }}</h3>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon-shape bg-primary text-white rounded">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <span class="text-success me-1">
+                        <i class="fas fa-arrow-up"></i> {{ conversation_growth }}%
+                    </span>
+                    <span class="text-muted">So với tháng trước</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3 mb-4">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h5 class="text-muted mb-2">Tỷ lệ giải quyết</h5>
+                        <h3 class="mb-1">{{ resolution_rate }}%</h3>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon-shape bg-success text-white rounded">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <span class="text-success me-1">
+                        <i class="fas fa-arrow-up"></i> {{ resolution_growth }}%
+                    </span>
+                    <span class="text-muted">So với tháng trước</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3 mb-4">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h5 class="text-muted mb-2">Thời gian phản hồi</h5>
+                        <h3 class="mb-1">{{ avg_response_time }}s</h3>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon-shape bg-info text-white rounded">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <span class="text-danger me-1">
+                        <i class="fas fa-arrow-down"></i> {{ response_time_change }}%
+                    </span>
+                    <span class="text-muted">So với tháng trước</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3 mb-4">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h5 class="text-muted mb-2">Đánh giá tích cực</h5>
+                        <h3 class="mb-1">{{ positive_feedback }}%</h3>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon-shape bg-warning text-white rounded">
+                            <i class="fas fa-smile"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <span class="text-success me-1">
+                        <i class="fas fa-arrow-up"></i> {{ feedback_growth }}%
+                    </span>
+                    <span class="text-muted">So với tháng trước</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quản lý câu hỏi và trả lời -->
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fs-5 fw-bold mb-0">Quản lý câu hỏi và trả lời</h2>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addQAModal">
+                            <i class="fas fa-plus me-2"></i>Thêm mới
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Câu hỏi</th>
+                                <th>Trả lời</th>
+                                <th>Danh mục</th>
+                                <th>Lượt sử dụng</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for qa in qa_pairs %}
+                            <tr>
+                                <td>{{ qa.id }}</td>
+                                <td>{{ qa.question }}</td>
+                                <td>{{ qa.answer|truncatechars:50 }}</td>
+                                <td>{{ qa.category }}</td>
+                                <td>{{ qa.usage_count }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-primary edit-qa" 
+                                                data-id="{{ qa.id }}"
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#addQAModal">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger delete-qa"
+                                                data-id="{{ qa.id }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">Chưa có dữ liệu</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal thêm/sửa câu hỏi -->
+<div class="modal fade" id="addQAModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Thêm câu hỏi và trả lời</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="qaForm" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Câu hỏi <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="question" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Trả lời <span class="text-danger">*</span></label>
+                        <textarea class="form-control" name="answer" rows="5" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Danh mục</label>
+                        <select class="form-select" name="category">
+                            <option value="">-- Chọn danh mục --</option>
+                            <option value="general">Thông tin chung</option>
+                            <option value="product">Sản phẩm</option>
+                            <option value="payment">Thanh toán</option>
+                            <option value="shipping">Vận chuyển</option>
+                            <option value="return">Đổi trả</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Từ khóa (cách nhau bởi dấu phẩy)</label>
+                        <input type="text" class="form-control" name="keywords" placeholder="Ví dụ: thanh toán, ví điện tử, banking">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Xử lý sửa câu hỏi
+$('.edit-qa').on('click', function() {
+    const qaId = $(this).data('id');
+    
+    // Gọi API để lấy thông tin câu hỏi
+    $.get(`/dashboard/chatbot/qa/${qaId}/`, function(data) {
+        $('#modalTitle').text('Sửa câu hỏi và trả lời');
+        $('input[name="question"]').val(data.question);
+        $('textarea[name="answer"]').val(data.answer);
+        $('select[name="category"]').val(data.category);
+        $('input[name="keywords"]').val(data.keywords);
+        
+        $('#qaForm').attr('action', `/dashboard/chatbot/qa/${qaId}/edit/`);
+    });
+});
+
+// Xử lý thêm mới
+$('#addQAModal').on('show.bs.modal', function(e) {
+    if (!$(e.relatedTarget).hasClass('edit-qa')) {
+        $('#modalTitle').text('Thêm câu hỏi và trả lời');
+        $('#qaForm')[0].reset();
+        $('#qaForm').attr('action', '/dashboard/chatbot/qa/add/');
+    }
+});
+
+// Xử lý xóa câu hỏi
+$('.delete-qa').on('click', function() {
+    const qaId = $(this).data('id');
+    
+    Swal.fire({
+        title: 'Xác nhận xóa?',
+        text: "Bạn không thể hoàn tác hành động này!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Xóa',
+        cancelButtonText: 'Hủy'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.post(`/dashboard/chatbot/qa/${qaId}/delete/`, {
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            }).done(function(response) {
+                if (response.success) {
+                    location.reload();
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock %} 

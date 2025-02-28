@@ -1,0 +1,272 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Quản lý nội dung{% endblock %}
+
+{% block page_title %}Quản lý nội dung{% endblock %}
+{% block page_subtitle %}Quản lý các trang tĩnh và nội dung website{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Thống kê tổng quan -->
+    <div class="col-12 col-sm-6 col-xl-3 mb-4">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h5 class="text-muted mb-2">Tổng số trang</h5>
+                        <h3 class="mb-1">{{ total_pages }}</h3>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon-shape bg-primary text-white rounded">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <span class="text-success me-1">
+                        <i class="fas fa-arrow-up"></i> {{ page_growth }}%
+                    </span>
+                    <span class="text-muted">So với tháng trước</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3 mb-4">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h5 class="text-muted mb-2">Đã xuất bản</h5>
+                        <h3 class="mb-1">{{ published_pages }}</h3>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon-shape bg-success text-white rounded">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <span class="text-muted">
+                        {{ published_percentage }}% tổng số trang
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3 mb-4">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h5 class="text-muted mb-2">Lượt xem trang</h5>
+                        <h3 class="mb-1">{{ total_page_views }}</h3>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon-shape bg-info text-white rounded">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <span class="text-success me-1">
+                        <i class="fas fa-arrow-up"></i> {{ view_growth }}%
+                    </span>
+                    <span class="text-muted">So với tháng trước</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3 mb-4">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h5 class="text-muted mb-2">Cập nhật gần đây</h5>
+                        <h3 class="mb-1">{{ recent_updates }}</h3>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon-shape bg-warning text-white rounded">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <span class="text-muted">
+                        Trong 7 ngày qua
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quản lý trang -->
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fs-5 fw-bold mb-0">Quản lý trang</h2>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addPageModal">
+                            <i class="fas fa-plus me-2"></i>Thêm trang mới
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Tiêu đề</th>
+                                <th>Slug</th>
+                                <th>Ngày tạo</th>
+                                <th>Cập nhật</th>
+                                <th>Trạng thái</th>
+                                <th>Lượt xem</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for page in pages %}
+                            <tr>
+                                <td>{{ page.title }}</td>
+                                <td>{{ page.slug }}</td>
+                                <td>{{ page.created_at|date:"d/m/Y" }}</td>
+                                <td>{{ page.updated_at|date:"d/m/Y" }}</td>
+                                <td>
+                                    {% if page.is_published %}
+                                    <span class="badge bg-success">Đã xuất bản</span>
+                                    {% else %}
+                                    <span class="badge bg-warning">Bản nháp</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ page.views }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{% url 'dashboard:edit_page' page.id %}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button class="btn btn-sm btn-danger delete-page" 
+                                                data-id="{{ page.id }}"
+                                                data-title="{{ page.title }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        <a href="{% url 'page_detail' page.slug %}" target="_blank" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center">Chưa có trang nào</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal thêm trang -->
+<div class="modal fade" id="addPageModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm trang mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'dashboard:add_page' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tiêu đề <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="title" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Slug</label>
+                        <input type="text" class="form-control" name="slug" placeholder="Để trống để tự động tạo">
+                        <small class="text-muted">Slug sẽ được sử dụng trong URL, ví dụ: /pages/gioi-thieu</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Meta Title</label>
+                        <input type="text" class="form-control" name="meta_title">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Meta Description</label>
+                        <textarea class="form-control" name="meta_description" rows="2"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="is_published" id="is_published">
+                            <label class="form-check-label" for="is_published">
+                                Xuất bản ngay
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Tạo trang</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Xử lý xóa trang
+$('.delete-page').on('click', function() {
+    const pageId = $(this).data('id');
+    const pageTitle = $(this).data('title');
+    
+    Swal.fire({
+        title: 'Xác nhận xóa?',
+        text: `Bạn có chắc muốn xóa trang "${pageTitle}"?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Xóa',
+        cancelButtonText: 'Hủy'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.post(`/dashboard/content/pages/${pageId}/delete/`, {
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            }).done(function(response) {
+                if (response.success) {
+                    location.reload();
+                }
+            });
+        }
+    });
+});
+
+// Tự động tạo slug từ tiêu đề
+$('input[name="title"]').on('keyup', function() {
+    const title = $(this).val();
+    const slug = title
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-');
+    
+    $('input[name="slug"]').attr('placeholder', slug);
+});
+</script>
+{% endblock %} 

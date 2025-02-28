@@ -1,0 +1,39 @@
+<div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">Thêm người dùng mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'dashboard:add_user' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Họ tên</label>
+                        <input type="text" class="form-control" name="full_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu</label>
+                        <input type="password" class="form-control" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Vai trò</label>
+                        <select class="form-select" name="role">
+                            <option value="user">Người dùng</option>
+                            <option value="staff">Nhân viên</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link text-gray ms-auto" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Thêm người dùng</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div> 

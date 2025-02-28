@@ -1,0 +1,235 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ customer.get_full_name }} | Chi tiết khách hàng{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 col-xl-8">
+        <!-- Thông tin khách hàng -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fs-5 fw-bold mb-0">Thông tin khách hàng</h2>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-sm btn-gray-800" data-bs-toggle="modal" data-bs-target="#editCustomerModal"
+                                data-customer-id="{{ customer.id }}">
+                            <i class="fas fa-edit me-2"></i>Chỉnh sửa
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Họ tên</label>
+                            <p class="mb-0">{{ customer.get_full_name }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <p class="mb-0">{{ customer.email }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Số điện thoại</label>
+                            <p class="mb-0">{{ customer.phone|default:"Chưa cập nhật" }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Ngày tham gia</label>
+                            <p class="mb-0">{{ customer.date_joined|date:"d/m/Y" }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nhóm khách hàng</label>
+                            <span class="badge bg-{{ customer.get_group_color }}">
+                                {{ customer.get_group_display }}
+                            </span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Trạng thái</label>
+                            <span class="badge bg-{{ customer.get_status_color }}">
+                                {{ customer.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <div class="card bg-gray-100 border-0">
+                            <div class="card-body">
+                                <h6 class="text-uppercase text-muted mb-2">Tổng đơn hàng</h6>
+                                <span class="h2 mb-0">{{ customer.orders.count }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-gray-100 border-0">
+                            <div class="card-body">
+                                <h6 class="text-uppercase text-muted mb-2">Tổng chi tiêu</h6>
+                                <span class="h2 mb-0">{{ customer.total_spent|floatformat:0 }}đ</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-gray-100 border-0">
+                            <div class="card-body">
+                                <h6 class="text-uppercase text-muted mb-2">Giá trị TB/Đơn</h6>
+                                <span class="h2 mb-0">{{ customer.avg_order_value|floatformat:0 }}đ</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lịch sử đơn hàng -->
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <h2 class="fs-5 fw-bold mb-0">Lịch sử đơn hàng</h2>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-items-center table-flush">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Mã đơn</th>
+                            <th scope="col">Ngày đặt</th>
+                            <th scope="col">Tổng tiền</th>
+                            <th scope="col">Trạng thái</th>
+                            <th scope="col">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in customer.orders.all %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'dashboard:order_detail' order.id %}" class="fw-bold">
+                                    #{{ order.order_number }}
+                                </a>
+                            </td>
+                            <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>{{ order.total_amount|floatformat:0 }}đ</td>
+                            <td>
+                                <span class="badge bg-{{ order.get_status_color }}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'dashboard:order_detail' order.id %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+        <!-- Địa chỉ -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fs-5 fw-bold mb-0">Địa chỉ giao hàng</h2>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" 
+                                data-bs-target="#addAddressModal">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                {% for address in customer.addresses.all %}
+                <div class="mb-3 {% if not forloop.last %}border-bottom pb-3{% endif %}">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0">{{ address.name }}</h6>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-gray-800" data-bs-toggle="modal"
+                                    data-bs-target="#editAddressModal" data-address-id="{{ address.id }}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteAddress({{ address.id }})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="mb-1">{{ address.phone }}</p>
+                    <p class="mb-0 text-muted">{{ address.full_address }}</p>
+                    {% if address.is_default %}
+                    <span class="badge bg-primary mt-2">Mặc định</span>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <p class="text-muted mb-0">Chưa có địa chỉ nào</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Ghi chú -->
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <h2 class="fs-5 fw-bold mb-0">Ghi chú</h2>
+            </div>
+            <div class="card-body">
+                <form action="{% url 'dashboard:add_customer_note' customer.id %}" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <textarea class="form-control" name="note" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Thêm ghi chú</button>
+                </form>
+
+                <hr>
+
+                <div class="timeline mt-4">
+                    {% for note in customer.notes.all %}
+                    <div class="timeline-item">
+                        <div class="d-flex mb-3">
+                            <img src="{{ note.user.get_avatar_url }}" class="avatar rounded-circle me-3">
+                            <div>
+                                <p class="mb-0">{{ note.content }}</p>
+                                <small class="text-muted">
+                                    {{ note.user.get_full_name }} - {{ note.created_at|timesince }} trước
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Customer Modal -->
+{% include 'dashboard/customers/modals/edit_customer.html' %}
+
+<!-- Add/Edit Address Modals -->
+{% include 'dashboard/customers/modals/address_form.html' %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function deleteAddress(addressId) {
+    if (confirm('Bạn có chắc muốn xóa địa chỉ này?')) {
+        $.post('{% url "dashboard:delete_address" %}', {
+            address_id: addressId,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        }).done(function(response) {
+            if (response.success) {
+                location.reload();
+            }
+        });
+    }
+}
+</script>
+{% endblock %} 

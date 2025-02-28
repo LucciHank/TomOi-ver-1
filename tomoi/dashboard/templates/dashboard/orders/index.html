@@ -1,0 +1,357 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Quản lý đơn hàng{% endblock %}
+
+{% block page_title %}Quản lý đơn hàng{% endblock %}
+{% block page_subtitle %}Xem và xử lý các đơn đặt hàng{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="row">
+    <div class="col-sm-6 col-md-3">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <span class="h6 font-semibold text-muted text-sm d-block mb-2">Tổng đơn hàng</span>
+                        <span class="h3 font-bold mb-0">{{ total_orders }}</span>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon icon-shape bg-primary text-white text-lg rounded-circle">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <span class="badge bg-{{ order_trend_color }}">
+                        <i class="fas fa-{{ order_trend_icon }} me-1"></i>
+                        {{ order_growth }}%
+                    </span>
+                    <span class="text-muted text-sm ms-2">so với tháng trước</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-sm-6 col-md-3">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <span class="h6 font-semibold text-muted text-sm d-block mb-2">Doanh thu</span>
+                        <span class="h3 font-bold mb-0">{{ total_revenue|floatformat:0 }}đ</span>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon icon-shape bg-success text-white text-lg rounded-circle">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <span class="badge bg-{{ revenue_trend_color }}">
+                        <i class="fas fa-{{ revenue_trend_icon }} me-1"></i>
+                        {{ revenue_growth }}%
+                    </span>
+                    <span class="text-muted text-sm ms-2">so với tháng trước</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-md-3">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <span class="h6 font-semibold text-muted text-sm d-block mb-2">Đơn chờ xử lý</span>
+                        <span class="h3 font-bold mb-0">{{ pending_orders }}</span>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon icon-shape bg-warning text-white text-lg rounded-circle">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-md-3">
+        <div class="card border-0 shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <span class="h6 font-semibold text-muted text-sm d-block mb-2">Giá trị TB/Đơn</span>
+                        <span class="h3 font-bold mb-0">{{ avg_order_value|floatformat:0 }}đ</span>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon icon-shape bg-info text-white text-lg rounded-circle">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12 col-xl-8">
+        <!-- Danh sách đơn hàng -->
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fs-5 fw-bold mb-0">Danh sách đơn hàng</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Bộ lọc -->
+                <div class="row g-2 mb-4">
+                    <div class="col-sm-3">
+                        <select class="form-select" id="filterStatus">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="pending">Chờ xử lý</option>
+                            <option value="processing">Đang xử lý</option>
+                            <option value="shipping">Đang giao</option>
+                            <option value="completed">Hoàn thành</option>
+                            <option value="cancelled">Đã hủy</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-3">
+                        <select class="form-select" id="filterPayment">
+                            <option value="">Tất cả PTTT</option>
+                            <option value="cod">COD</option>
+                            <option value="bank">Chuyển khoản</option>
+                            <option value="momo">Ví MoMo</option>
+                            <option value="vnpay">VNPay</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" class="form-control" id="searchOrders" 
+                                   placeholder="Tìm kiếm đơn hàng...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-items-center table-flush">
+                        <thead class="thead-light">
+                            <tr>
+                                <th scope="col">Mã đơn</th>
+                                <th scope="col">Khách hàng</th>
+                                <th scope="col">Ngày đặt</th>
+                                <th scope="col">Tổng tiền</th>
+                                <th scope="col">Trạng thái</th>
+                                <th scope="col">Thanh toán</th>
+                                <th scope="col">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'dashboard:order_detail' order.id %}" class="fw-bold">
+                                        #{{ order.order_number }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="{{ order.user.get_avatar_url }}" class="avatar rounded-circle me-3">
+                                        <div>
+                                            <h6 class="mb-0">{{ order.user.get_full_name }}</h6>
+                                            <small class="text-muted">{{ order.user.email }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                                <td>{{ order.total_amount|floatformat:0 }}đ</td>
+                                <td>
+                                    <span class="badge bg-{{ order.get_status_color }}">
+                                        {{ order.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ order.get_payment_status_color }}">
+                                        {{ order.get_payment_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-gray-800" data-bs-toggle="modal" 
+                                                data-bs-target="#updateStatusModal" data-order-id="{{ order.id }}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <a href="{% url 'dashboard:order_detail' order.id %}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% if order.status == 'pending' %}
+                                        <button class="btn btn-sm btn-danger" onclick="cancelOrder({{ order.id }})">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer">
+                {% include 'dashboard/components/pagination.html' with page_obj=orders %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+        <!-- Biểu đồ doanh thu -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fs-5 fw-bold mb-0">Doanh thu theo thời gian</h2>
+                    </div>
+                    <div class="col-auto">
+                        <select class="form-select form-select-sm" id="revenuePeriod">
+                            <option value="7">7 ngày</option>
+                            <option value="30">30 ngày</option>
+                            <option value="90">90 ngày</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Biểu đồ phương thức thanh toán -->
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <h2 class="fs-5 fw-bold mb-0">Phương thức thanh toán</h2>
+            </div>
+            <div class="card-body">
+                <canvas id="paymentMethodChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update Status Modal -->
+{% include 'dashboard/orders/modals/update_status.html' %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Biểu đồ doanh thu
+var ctx = document.getElementById('revenueChart').getContext('2d');
+var revenueChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ dates|safe }},
+        datasets: [{
+            label: 'Doanh thu',
+            data: {{ revenue_data }},
+            borderColor: '#0d6efd',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return value.toLocaleString('vi-VN') + 'đ';
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Biểu đồ phương thức thanh toán
+var paymentCtx = document.getElementById('paymentMethodChart').getContext('2d');
+var paymentChart = new Chart(paymentCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ payment_labels|safe }},
+        datasets: [{
+            data: {{ payment_data }},
+            backgroundColor: {{ payment_colors|safe }}
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Xử lý tìm kiếm và lọc
+$('#searchOrders').on('keyup', function() {
+    var searchTerm = $(this).val().toLowerCase();
+    $('tbody tr').each(function() {
+        var text = $(this).text().toLowerCase();
+        $(this).toggle(text.indexOf(searchTerm) > -1);
+    });
+});
+
+$('#filterStatus, #filterPayment').on('change', function() {
+    filterOrders();
+});
+
+function filterOrders() {
+    var status = $('#filterStatus').val();
+    var payment = $('#filterPayment').val();
+    
+    $('tbody tr').each(function() {
+        var statusMatch = !status || $(this).find('td:eq(4)').text().trim().toLowerCase().includes(status);
+        var paymentMatch = !payment || $(this).find('td:eq(5)').text().trim().toLowerCase().includes(payment);
+        $(this).toggle(statusMatch && paymentMatch);
+    });
+}
+
+// Xử lý thay đổi khoảng thời gian biểu đồ
+$('#revenuePeriod').on('change', function() {
+    var period = $(this).val();
+    $.get('{% url "dashboard:get_revenue_data" %}', {
+        period: period
+    }).done(function(response) {
+        revenueChart.data.labels = response.dates;
+        revenueChart.data.datasets[0].data = response.data;
+        revenueChart.update();
+    });
+});
+
+function cancelOrder(orderId) {
+    if (confirm('Bạn có chắc muốn hủy đơn hàng này?')) {
+        $.post('{% url "dashboard:cancel_order" %}', {
+            order_id: orderId,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        }).done(function(response) {
+            if (response.success) {
+                location.reload();
+            }
+        });
+    }
+}
+</script>
+{% endblock %} 

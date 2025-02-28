@@ -1,0 +1,152 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ user.get_full_name }} | Chi tiết người dùng{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 col-xl-8">
+        <div class="card card-body border-0 shadow mb-4">
+            <h2 class="h5 mb-4">Thông tin chung</h2>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="avatar-upload text-center">
+                        <img src="{{ user.get_avatar_url }}" class="rounded-circle avatar-xl mb-3" alt="Avatar">
+                        <button class="btn btn-gray-800 btn-sm" data-bs-toggle="modal" data-bs-target="#uploadAvatarModal">
+                            <i class="fas fa-camera me-2"></i>Đổi ảnh
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-8 mb-3">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <label for="first_name">Họ</label>
+                                <input class="form-control" id="first_name" type="text" value="{{ user.first_name }}" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <label for="last_name">Tên</label>
+                                <input class="form-control" id="last_name" type="text" value="{{ user.last_name }}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input class="form-control" id="email" type="email" value="{{ user.email }}" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <label for="phone">Số điện thoại</label>
+                                <input class="form-control" id="phone" type="text" value="{{ user.phone }}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lịch sử đơn hàng -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fs-5 fw-bold mb-0">Lịch sử đơn hàng</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-items-center table-flush">
+                    <thead class="thead-light">
+                        <tr>
+                            <th class="border-bottom" scope="col">#</th>
+                            <th class="border-bottom" scope="col">Ngày đặt</th>
+                            <th class="border-bottom" scope="col">Sản phẩm</th>
+                            <th class="border-bottom" scope="col">Tổng tiền</th>
+                            <th class="border-bottom" scope="col">Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in user.orders.all %}
+                        <tr>
+                            <td>{{ order.id }}</td>
+                            <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>{{ order.items.count }} sản phẩm</td>
+                            <td>{{ order.total_price|floatformat:0 }}đ</td>
+                            <td>
+                                <span class="badge bg-{{ order.get_status_color }}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">Chưa có đơn hàng nào</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+        <!-- Thông tin tài khoản -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-body">
+                <h2 class="h5 mb-4">Thông tin tài khoản</h2>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span>Trạng thái</span>
+                    <span class="badge bg-{{ user.is_active|yesno:'success,danger' }}">
+                        {{ user.is_active|yesno:'Hoạt động,Đã khóa' }}
+                    </span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span>Vai trò</span>
+                    <span class="badge bg-{{ user.get_role_color }}">
+                        {{ user.get_role_display }}
+                    </span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span>Ngày tham gia</span>
+                    <span>{{ user.date_joined|date:"d/m/Y" }}</span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <span>Đăng nhập cuối</span>
+                    <span>{{ user.last_login|date:"d/m/Y H:i" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hoạt động gần đây -->
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fs-5 fw-bold mb-0">Hoạt động gần đây</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                {% for activity in user.activities.all|slice:":10" %}
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <h3 class="fs-6 mb-0">{{ activity.description }}</h3>
+                        <small class="text-gray-500">{{ activity.created_at|timesince }} trước</small>
+                    </div>
+                    <div class="icon-shape icon-sm bg-light text-dark rounded-circle">
+                        <i class="{{ activity.get_icon_class }}"></i>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center mb-0">Chưa có hoạt động nào</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

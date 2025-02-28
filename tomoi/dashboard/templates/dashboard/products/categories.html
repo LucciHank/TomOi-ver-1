@@ -1,0 +1,198 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Quản lý danh mục{% endblock %}
+
+{% block page_title %}Quản lý danh mục{% endblock %}
+{% block page_subtitle %}Quản lý danh mục sản phẩm{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 col-xl-8">
+        <!-- Danh sách danh mục -->
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fs-5 fw-bold mb-0">Danh sách danh mục</h2>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                            <i class="fas fa-plus me-2"></i>Thêm danh mục
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-items-center table-flush">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Tên danh mục</th>
+                            <th scope="col">Mô tả</th>
+                            <th scope="col">Số sản phẩm</th>
+                            <th scope="col">Trạng thái</th>
+                            <th scope="col">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category in categories %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if category.icon %}
+                                    <i class="{{ category.icon }} fa-lg text-primary me-3"></i>
+                                    {% endif %}
+                                    <div>
+                                        <h6 class="mb-0">{{ category.name }}</h6>
+                                        {% if category.parent %}
+                                        <small class="text-muted">{{ category.parent.name }}</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ category.description|truncatechars:50 }}</td>
+                            <td>{{ category.products.count }}</td>
+                            <td>
+                                <span class="badge bg-{{ category.get_status_color }}">
+                                    {{ category.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-gray-800" data-bs-toggle="modal"
+                                            data-bs-target="#editCategoryModal" data-category-id="{{ category.id }}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteCategory({{ category.id }})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer">
+                {% include 'dashboard/components/pagination.html' with page_obj=categories %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+        <!-- Thống kê danh mục -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-header">
+                <h2 class="fs-5 fw-bold mb-0">Thống kê danh mục</h2>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h6 class="mb-0">Tổng danh mục</h6>
+                        <small class="text-muted">Số lượng danh mục hiện có</small>
+                    </div>
+                    <div>
+                        <h4 class="mb-0">{{ total_categories }}</h4>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h6 class="mb-0">Danh mục hoạt động</h6>
+                        <small class="text-muted">Đang hiển thị trên website</small>
+                    </div>
+                    <div>
+                        <h4 class="mb-0">{{ active_categories }}</h4>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="mb-0">Danh mục ẩn</h6>
+                        <small class="text-muted">Đã tạm ẩn khỏi website</small>
+                    </div>
+                    <div>
+                        <h4 class="mb-0">{{ hidden_categories }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biểu đồ phân bố sản phẩm -->
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <h2 class="fs-5 fw-bold mb-0">Phân bố sản phẩm</h2>
+            </div>
+            <div class="card-body">
+                <canvas id="categoryDistributionChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Category Modal -->
+{% include 'dashboard/products/modals/category_form.html' %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Biểu đồ phân bố sản phẩm theo danh mục
+var ctx = document.getElementById('categoryDistributionChart').getContext('2d');
+var categoryChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ category_names|safe }},
+        datasets: [{
+            data: {{ category_products }},
+            backgroundColor: {{ category_colors|safe }}
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+function deleteCategory(categoryId) {
+    if (confirm('Bạn có chắc muốn xóa danh mục này? Tất cả sản phẩm trong danh mục sẽ bị ẩn.')) {
+        $.post('{% url "dashboard:delete_category" %}', {
+            category_id: categoryId,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        }).done(function(response) {
+            if (response.success) {
+                location.reload();
+            } else {
+                alert(response.error);
+            }
+        });
+    }
+}
+
+// Xử lý form thêm/sửa danh mục
+$('#addCategoryModal, #editCategoryModal').on('show.bs.modal', function(event) {
+    var button = $(event.relatedTarget);
+    var categoryId = button.data('category-id');
+    var modal = $(this);
+    
+    if (categoryId) {
+        // Load dữ liệu danh mục cần sửa
+        $.get('{% url "dashboard:get_category" %}', {
+            category_id: categoryId
+        }).done(function(response) {
+            if (response.success) {
+                var category = response.category;
+                modal.find('input[name="name"]').val(category.name);
+                modal.find('textarea[name="description"]').val(category.description);
+                modal.find('select[name="parent"]').val(category.parent_id);
+                modal.find('input[name="icon"]').val(category.icon);
+                modal.find('select[name="status"]').val(category.status);
+                modal.find('form').attr('action', '/dashboard/products/categories/' + categoryId + '/edit/');
+            }
+        });
+    }
+});
+</script>
+{% endblock %} 

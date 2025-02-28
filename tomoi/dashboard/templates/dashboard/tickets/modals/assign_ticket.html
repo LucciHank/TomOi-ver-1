@@ -1,0 +1,42 @@
+<div class="modal fade" id="assignTicketModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">Phân công xử lý ticket</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="assignTicketForm" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Chọn nhân viên</label>
+                        <select class="form-select" name="staff_id" required>
+                            <option value="">-- Chọn nhân viên --</option>
+                            {% for staff in staff_members %}
+                            <option value="{{ staff.id }}" {% if ticket.assigned_to.id == staff.id %}selected{% endif %}>
+                                {{ staff.get_full_name }} ({{ staff.get_role_display }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ghi chú</label>
+                        <textarea class="form-control" name="note" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link text-gray ms-auto" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Phân công</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+$('#assignTicketModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var ticketId = button.data('ticket-id');
+    $('#assignTicketForm').attr('action', '/dashboard/tickets/' + ticketId + '/assign/');
+});
+</script> 

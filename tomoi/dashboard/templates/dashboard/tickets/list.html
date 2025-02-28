@@ -1,0 +1,100 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Quản lý ticket{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Quản lý ticket</h1>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Ticket mới</h5>
+                    <h2 class="mb-0">{{ new_tickets }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Đang xử lý</h5>
+                    <h2 class="mb-0">{{ processing_tickets }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Đã giải quyết</h5>
+                    <h2 class="mb-0">{{ resolved_tickets }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card border-0 shadow">
+        <div class="card-header bg-white">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h5 class="mb-0">Danh sách ticket</h5>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tiêu đề</th>
+                            <th>Người gửi</th>
+                            <th>Ngày tạo</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ticket in tickets %}
+                        <tr>
+                            <td>{{ ticket.id }}</td>
+                            <td>{{ ticket.title }}</td>
+                            <td>{{ ticket.user.email }}</td>
+                            <td>{{ ticket.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <span class="badge bg-{% if ticket.status == 'new' %}danger{% elif ticket.status == 'processing' %}warning{% elif ticket.status == 'resolved' %}success{% else %}secondary{% endif %}">
+                                    {{ ticket.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'dashboard:ticket_detail' ticket.id %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'dashboard:reply_ticket' ticket.id %}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-reply"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">Không có ticket nào</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% if is_paginated %}
+            {% include 'dashboard/components/pagination.html' with page_obj=page_obj %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

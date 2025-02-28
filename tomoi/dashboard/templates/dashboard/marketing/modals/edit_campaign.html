@@ -1,0 +1,84 @@
+<div class="modal fade" id="editCampaignModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">Chỉnh sửa chiến dịch</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editCampaignForm" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <!-- Các trường giống form thêm mới -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tên chiến dịch</label>
+                            <input type="text" class="form-control" name="name" id="editName" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Kênh marketing</label>
+                            <select class="form-select" name="channel" id="editChannel" required>
+                                <option value="">-- Chọn kênh --</option>
+                                <option value="facebook">Facebook Ads</option>
+                                <option value="google">Google Ads</option>
+                                <option value="tiktok">TikTok Ads</option>
+                                <option value="email">Email Marketing</option>
+                                <option value="other">Khác</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Ngân sách</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" name="budget" id="editBudget" required>
+                                <span class="input-group-text">đ</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Trạng thái</label>
+                            <select class="form-select" name="status" id="editStatus">
+                                <option value="draft">Nháp</option>
+                                <option value="active">Đang chạy</option>
+                                <option value="paused">Tạm dừng</option>
+                                <option value="completed">Đã kết thúc</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Mô tả chiến dịch</label>
+                        <textarea class="form-control" name="description" id="editDescription" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link text-gray ms-auto" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Xử lý load dữ liệu khi mở modal edit
+$('#editCampaignModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var campaignId = button.data('campaign-id');
+    
+    // Gọi API lấy thông tin chiến dịch
+    $.get('{% url "dashboard:get_campaign" %}', {
+        campaign_id: campaignId
+    }).done(function(response) {
+        if (response.success) {
+            var campaign = response.campaign;
+            $('#editName').val(campaign.name);
+            $('#editChannel').val(campaign.channel);
+            $('#editBudget').val(campaign.budget);
+            $('#editStatus').val(campaign.status);
+            $('#editDescription').val(campaign.description);
+            $('#editCampaignForm').attr('action', '/dashboard/marketing/campaigns/' + campaignId + '/edit/');
+        }
+    });
+});
+</script> 

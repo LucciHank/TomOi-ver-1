@@ -18,3 +18,12 @@ def send_payment_confirmation_email(user, order):
         fail_silently=False,
     )
 
+def get_client_ip(request):
+    """Lấy IP của client từ request"""
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+

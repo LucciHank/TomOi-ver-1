@@ -1,0 +1,162 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ post.title }} | Chi tiết bài viết{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 col-xl-8">
+        <!-- Thông tin bài viết -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fs-5 fw-bold mb-0">Thông tin bài viết</h2>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-sm btn-primary" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#postFormModal"
+                                data-id="{{ post.id }}"
+                                data-action="edit">
+                            <i class="fas fa-edit me-2"></i>Chỉnh sửa
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h3 class="h4 mb-3">{{ post.title }}</h3>
+                        
+                        {% if post.thumbnail %}
+                        <div class="mb-3">
+                            <img src="{{ post.thumbnail.url }}" alt="{{ post.title }}" class="img-fluid rounded">
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mô tả ngắn</label>
+                            <p>{{ post.excerpt|default:"Chưa có mô tả" }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Nội dung</label>
+                            <div class="content-preview">
+                                {{ post.content|safe }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Danh mục</label>
+                            <p>
+                                <i class="fas {{ post.category.icon|default:'fa-folder' }} me-1"></i>
+                                {{ post.category.name }}
+                            </p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Tác giả</label>
+                            <p>{{ post.author.get_full_name }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Ngày tạo</label>
+                            <p>{{ post.created_at|date:"d/m/Y H:i" }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Cập nhật lần cuối</label>
+                            <p>{{ post.updated_at|date:"d/m/Y H:i" }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Trạng thái</label>
+                            <div>
+                                {% if post.is_active %}
+                                <span class="badge bg-success">Đã xuất bản</span>
+                                {% else %}
+                                <span class="badge bg-warning">Bản nháp</span>
+                                {% endif %}
+                                
+                                {% if post.is_featured %}
+                                <span class="badge bg-primary ms-1">Nổi bật</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Lượt xem</label>
+                            <p>{{ post.views }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-12 col-xl-4">
+        <!-- Thống kê bài viết -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-header">
+                <h2 class="fs-5 fw-bold mb-0">Thống kê</h2>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h6 class="mb-0">Lượt xem</h6>
+                        <span class="small text-muted">30 ngày qua</span>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">{{ monthly_views }}</h6>
+                    </div>
+                </div>
+                
+                <canvas id="viewsChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Post Form Modal -->
+{% include 'dashboard/posts/modals/post_form.html' %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Biểu đồ lượt xem
+const ctx = document.getElementById('viewsChart').getContext('2d');
+const viewsChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ dates|safe }},
+        datasets: [{
+            label: 'Lượt xem',
+            data: {{ views_data|safe }},
+            borderColor: '#0d6efd',
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    precision: 0
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %} 

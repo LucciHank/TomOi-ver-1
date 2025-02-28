@@ -1,0 +1,192 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Quản lý người dùng{% endblock %}
+
+{% block page_title %}Quản lý người dùng{% endblock %}
+{% block page_subtitle %}Quản lý và theo dõi thông tin người dùng{% endblock %}
+
+{% block page_actions %}
+<div class="btn-toolbar mb-2 mb-md-0">
+    <button type="button" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#addUserModal">
+        <i class="fas fa-plus me-2"></i> Thêm người dùng
+    </button>
+    <div class="btn-group ms-2">
+        <button type="button" class="btn btn-sm btn-gray-800" data-bs-toggle="dropdown">
+            <i class="fas fa-download me-2"></i> Xuất
+            <i class="fas fa-caret-down ms-1"></i>
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#">Excel</a></li>
+            <li><a class="dropdown-item" href="#">PDF</a></li>
+            <li><a class="dropdown-item" href="#">CSV</a></li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Quản lý người dùng</h1>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Tổng số người dùng</h5>
+                    <h2 class="mb-0">{{ total_users }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Người dùng đang hoạt động</h5>
+                    <h2 class="mb-0">{{ active_users }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Nhân viên</h5>
+                    <h2 class="mb-0">{{ staff_users }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card border-0 shadow">
+        <div class="card-header bg-white">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h5 class="mb-0">Danh sách người dùng</h5>
+                </div>
+                <div class="col-auto">
+                    <a href="#" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> Thêm người dùng
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Email</th>
+                            <th>Họ tên</th>
+                            <th>Ngày tham gia</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.get_full_name }}</td>
+                            <td>{{ user.date_joined|date:"d/m/Y" }}</td>
+                            <td>
+                                {% if user.is_active %}
+                                <span class="badge bg-success">Hoạt động</span>
+                                {% else %}
+                                <span class="badge bg-danger">Bị khóa</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'dashboard:user_detail' user.id %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'dashboard:edit_user' user.id %}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">Không có người dùng nào</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% if is_paginated %}
+            {% include 'dashboard/components/pagination.html' with page_obj=page_obj %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+{% include 'dashboard/users/modals/add_user.html' %}
+
+<!-- Edit User Modal -->
+{% include 'dashboard/users/modals/edit_user.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Xử lý tìm kiếm realtime
+$('#searchUsers').on('keyup', function() {
+    var searchTerm = $(this).val().toLowerCase();
+    $('tbody tr').each(function() {
+        var text = $(this).text().toLowerCase();
+        $(this).toggle(text.indexOf(searchTerm) > -1);
+    });
+});
+
+// Xử lý filter
+$('#filterStatus, #filterRole').on('change', function() {
+    var status = $('#filterStatus').val();
+    var role = $('#filterRole').val();
+    
+    $('tbody tr').each(function() {
+        var statusMatch = status === '' || $(this).find('td:eq(4)').text().toLowerCase().includes(status);
+        var roleMatch = role === '' || $(this).find('td:eq(3)').text().toLowerCase().includes(role);
+        $(this).toggle(statusMatch && roleMatch);
+    });
+});
+
+// Xử lý select all
+$('#selectAll').on('change', function() {
+    $('tbody input[type="checkbox"]').prop('checked', $(this).prop('checked'));
+});
+
+// Xử lý khóa/mở khóa user
+function lockUser(userId) {
+    if (confirm('Bạn có chắc muốn khóa người dùng này?')) {
+        $.post('{% url "dashboard:suspend_user" %}', {
+            user_id: userId,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        }).done(function(response) {
+            if (response.success) {
+                location.reload();
+            }
+        });
+    }
+}
+
+function unlockUser(userId) {
+    if (confirm('Bạn có chắc muốn mở khóa người dùng này?')) {
+        $.post('{% url "dashboard:unlock_user" %}', {
+            user_id: userId,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        }).done(function(response) {
+            if (response.success) {
+                location.reload();
+            }
+        });
+    }
+}
+</script>
+{% endblock %} 

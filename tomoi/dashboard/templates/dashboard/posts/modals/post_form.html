@@ -1,0 +1,159 @@
+<!-- Add/Edit Post Modal -->
+<div class="modal fade" id="postFormModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Thêm bài viết mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="postForm" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <!-- Thông tin chính -->
+                            <div class="mb-3">
+                                <label class="form-label">Tiêu đề <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="title" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Mô tả ngắn</label>
+                                <textarea class="form-control" name="excerpt" rows="3"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Nội dung <span class="text-danger">*</span></label>
+                                <textarea id="editor" name="content" class="form-control"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <!-- Thông tin phụ -->
+                            <div class="card border-0 shadow-sm mb-3">
+                                <div class="card-header bg-transparent">
+                                    <h6 class="mb-0">Thông tin xuất bản</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Danh mục</label>
+                                        <select class="form-select" name="category">
+                                            <option value="">-- Chọn danh mục --</option>
+                                            {% for category in categories %}
+                                            <option value="{{ category.id }}">{{ category.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Ảnh đại diện</label>
+                                        <input type="file" class="form-control" name="thumbnail" accept="image/*">
+                                        <div id="thumbnailPreview" class="mt-2 d-none">
+                                            <img src="" class="img-fluid rounded">
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" name="is_featured" id="isFeaturePost">
+                                            <label class="form-check-label" for="isFeaturePost">Bài viết nổi bật</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" name="is_active" id="isActivePost" checked>
+                                            <label class="form-check-label" for="isActivePost">Hiển thị bài viết</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Meta title</label>
+                                        <input type="text" class="form-control" name="meta_title">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Meta description</label>
+                                        <textarea class="form-control" name="meta_description" rows="3"></textarea>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Meta keywords</label>
+                                        <input type="text" class="form-control" name="meta_keywords" placeholder="Từ khóa cách nhau bởi dấu phẩy">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Khởi tạo CKEditor
+ClassicEditor
+    .create(document.querySelector('#editor'), {
+        toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'insertTable', 'mediaEmbed', '|', 'undo', 'redo'],
+        heading: {
+            options: [
+                { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+                { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+                { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' }
+            ]
+        }
+    })
+    .catch(error => {
+        console.error(error);
+    });
+
+// Preview ảnh đại diện
+$('input[name="thumbnail"]').change(function() {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            $('#thumbnailPreview').removeClass('d-none').find('img').attr('src', e.target.result);
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
+// Xử lý khi mở modal edit
+$('#postFormModal').on('show.bs.modal', function(event) {
+    const button = $(event.relatedTarget);
+    const isEdit = button.data('edit');
+    const postId = button.data('id');
+    
+    if (isEdit) {
+        $('#modalTitle').text('Chỉnh sửa bài viết');
+        // Load thông tin bài viết
+        $.get(`/dashboard/posts/${postId}/get/`, function(data) {
+            $('input[name="title"]').val(data.title);
+            $('textarea[name="excerpt"]').val(data.excerpt);
+            editor.setData(data.content);
+            $('select[name="category"]').val(data.category_id);
+            $('#isFeaturePost').prop('checked', data.is_featured);
+            $('#isActivePost').prop('checked', data.is_active);
+            // ... set các trường khác
+            
+            if (data.thumbnail) {
+                $('#thumbnailPreview').removeClass('d-none').find('img').attr('src', data.thumbnail);
+            }
+            
+            $('#postForm').attr('action', `/dashboard/posts/${postId}/edit/`);
+        });
+    } else {
+        $('#modalTitle').text('Thêm bài viết mới');
+        $('#postForm')[0].reset();
+        $('#thumbnailPreview').addClass('d-none');
+        $('#postForm').attr('action', '/dashboard/posts/add/');
+    }
+});
+</script> 
