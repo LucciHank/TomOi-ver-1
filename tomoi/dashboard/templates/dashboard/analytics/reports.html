@@ -1,0 +1,327 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Thống kê & Báo cáo{% endblock %}
+
+{% block page_title %}Thống kê & Báo cáo{% endblock %}
+{% block page_subtitle %}Phân tích dữ liệu và xuất báo cáo{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fas fa-calendar me-1"></i>
+                        Khoảng thời gian
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-outline-secondary btn-sm date-range-btn active" data-range="7">7 ngày</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm date-range-btn" data-range="30">30 ngày</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm date-range-btn" data-range="90">90 ngày</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm date-range-btn" data-range="custom">Tùy chỉnh</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form id="reportForm" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="start_date" class="form-label">Từ ngày</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date" value="{{ start_date|date:'Y-m-d' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="end_date" class="form-label">Đến ngày</label>
+                            <input type="date" class="form-control" id="end_date" name="end_date" value="{{ end_date|date:'Y-m-d' }}">
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary me-2">Áp dụng</button>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown">
+                                    <i class="fas fa-download me-1"></i>Xuất báo cáo
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                                    <li><a class="dropdown-item" href="#" onclick="exportReport('excel')">Excel</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="exportReport('csv')">CSV</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="exportReport('pdf')">PDF</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">{{ total_orders }}</h5>
+                            <div class="small">Tổng đơn hàng</div>
+                        </div>
+                        <div>
+                            <i class="fas fa-shopping-cart fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">{{ total_revenue|floatformat:0 }}₫</h5>
+                            <div class="small">Tổng doanh thu</div>
+                        </div>
+                        <div>
+                            <i class="fas fa-money-bill-wave fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">{{ total_accounts_sold }}</h5>
+                            <div class="small">Tài khoản đã bán</div>
+                        </div>
+                        <div>
+                            <i class="fas fa-user-check fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">{{ avg_order_value|floatformat:0 }}₫</h5>
+                            <div class="small">Giá trị TB/đơn</div>
+                        </div>
+                        <div>
+                            <i class="fas fa-chart-line fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-bar me-1"></i>
+                    Doanh thu theo thời gian
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-pie me-1"></i>
+                    Phân bố theo danh mục
+                </div>
+                <div class="card-body">
+                    <canvas id="categoriesChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-fire me-1"></i>
+                    Sản phẩm bán chạy nhất
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th>Danh mục</th>
+                                    <th>Số lượng đã bán</th>
+                                    <th>Doanh thu</th>
+                                    <th>Tỷ lệ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in top_products %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'dashboard:product_detail' product.id %}">
+                                            {{ product.name }}
+                                        </a>
+                                    </td>
+                                    <td>{{ product.category.name }}</td>
+                                    <td>{{ product.sales_count }}</td>
+                                    <td>{{ product.sales_revenue|floatformat:0 }}₫</td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar" role="progressbar" 
+                                                 style="width: {{ product.percentage }}%" 
+                                                 aria-valuenow="{{ product.percentage }}" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100">
+                                                {{ product.percentage }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">Không có dữ liệu</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+$(document).ready(function() {
+    // Biểu đồ doanh thu
+    const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+    const revenueChart = new Chart(revenueCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ revenue_dates|safe }},
+            datasets: [{
+                label: 'Doanh thu',
+                data: {{ revenue_data|safe }},
+                backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                borderColor: 'rgba(0, 123, 255, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString('vi-VN') + '₫';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.raw.toLocaleString('vi-VN') + '₫';
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Biểu đồ phân bố danh mục
+    const categoriesCtx = document.getElementById('categoriesChart').getContext('2d');
+    const categoriesChart = new Chart(categoriesCtx, {
+        type: 'pie',
+        data: {
+            labels: {{ category_names|safe }},
+            datasets: [{
+                data: {{ category_data|safe }},
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 159, 64, 0.7)',
+                    'rgba(199, 199, 199, 0.7)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.raw;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return context.label + ': ' + percentage + '%';
+                        }
+                    }
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+    
+    // Xử lý nút khoảng thời gian
+    $('.date-range-btn').click(function() {
+        $('.date-range-btn').removeClass('active');
+        $(this).addClass('active');
+        
+        const range = $(this).data('range');
+        
+        if (range !== 'custom') {
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - range);
+            
+            $('#start_date').val(formatDate(startDate));
+            $('#end_date').val(formatDate(endDate));
+            
+            $('#reportForm').submit();
+        }
+    });
+});
+
+function formatDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function exportReport(format) {
+    const startDate = document.getElementById('start_date').value;
+    const endDate = document.getElementById('end_date').value;
+    
+    let url = `{% url 'dashboard:export_report' %}?format=${format}`;
+    if (startDate) url += `&start_date=${startDate}`;
+    if (endDate) url += `&end_date=${endDate}`;
+    
+    window.location.href = url;
+}
+</script>
+{% endblock %} 
+{% endblock %} 

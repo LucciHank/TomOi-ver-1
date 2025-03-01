@@ -2,199 +2,87 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Dashboard{% endblock %} - TomOi Admin</title>
-
-    <!-- Favicon -->
-    <link rel="apple-touch-icon" sizes="120x120" href="{% static 'assets/img/favicon/apple-touch-icon.png' %}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/img/favicon/favicon-32x32.png' %}">
-
-    <!-- Volt CSS -->
-    <link type="text/css" href="{% static 'css/volt.css' %}" rel="stylesheet">
-
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Custom CSS -->
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
-        }
-        
-        .sidebar {
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 100;
-            padding: 48px 0 0;
-            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-            background-color: #343a40;
-        }
-        
-        .sidebar-sticky {
-            position: relative;
-            top: 0;
-            height: calc(100vh - 48px);
-            padding-top: .5rem;
-            overflow-x: hidden;
-            overflow-y: auto;
-        }
-        
-        .sidebar .nav-link {
-            font-weight: 500;
-            color: #ced4da;
-            padding: .75rem 1rem;
-        }
-        
-        .sidebar .nav-link:hover {
-            color: #fff;
-        }
-        
-        .sidebar .nav-link.active {
-            color: #fff;
-            background-color: rgba(255, 255, 255, .1);
-        }
-        
-        .sidebar .nav-link i {
-            margin-right: .5rem;
-            width: 20px;
-            text-align: center;
-        }
-        
-        .main-content {
-            margin-left: 240px;
-            padding: 2rem;
-        }
-        
-        .navbar {
-            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
-        }
-        
-        .card {
-            border-radius: .5rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .card-header {
-            border-radius: .5rem .5rem 0 0 !important;
-            border-bottom: none;
-        }
-        
-        .icon-shape {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 3rem;
-            height: 3rem;
-            border-radius: 50%;
-        }
-    </style>
-
-    {% block extra_css %}{% endblock %}
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>{% block title %}Admin Dashboard{% endblock %} | TomOi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{% static 'dashboard/css/styles.css' %}" rel="stylesheet" />
+    {% block page_css %}{% endblock %}
 </head>
-<body>
-
-    <!-- Sidebar -->
-    <nav class="sidebar">
-        <div class="sidebar-sticky">
-            <div class="sidebar-header">
-                <h3>TomOi Admin</h3>
-            </div>
-            
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" href="{% url 'dashboard:home' %}">
-                        <i class="fas fa-tachometer-alt"></i> Dashboard
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a class="nav-link {% if '/dashboard/users/' in request.path %}active{% endif %}" href="{% url 'dashboard:users' %}">
-                        <i class="fas fa-users"></i> Người dùng
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a class="nav-link {% if '/dashboard/products/' in request.path %}active{% endif %}" href="{% url 'dashboard:products' %}">
-                        <i class="fas fa-box"></i> Sản phẩm
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a class="nav-link {% if '/dashboard/orders/' in request.path %}active{% endif %}" href="{% url 'dashboard:orders' %}">
-                        <i class="fas fa-shopping-cart"></i> Đơn hàng
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a class="nav-link {% if '/dashboard/marketing/' in request.path %}active{% endif %}" href="{% url 'dashboard:marketing' %}">
-                        <i class="fas fa-bullhorn"></i> Marketing
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a class="nav-link {% if '/dashboard/analytics/' in request.path %}active{% endif %}" href="{% url 'dashboard:analytics' %}">
-                        <i class="fas fa-chart-line"></i> Phân tích
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a class="nav-link {% if '/dashboard/tickets/' in request.path %}active{% endif %}" href="{% url 'dashboard:tickets' %}">
-                        <i class="fas fa-ticket-alt"></i> Hỗ trợ
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a class="nav-link {% if '/dashboard/posts/' in request.path %}active{% endif %}" href="{% url 'dashboard:posts' %}">
-                        <i class="fas fa-newspaper"></i> Bài viết
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a class="nav-link {% if '/dashboard/settings/' in request.path %}active{% endif %}" href="{% url 'dashboard:settings' %}">
-                        <i class="fas fa-cog"></i> Cài đặt
-                    </a>
-                </li>
-            </ul>
-            
-            <hr class="my-3 bg-secondary">
-            
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" href="/" target="_blank">
-                        <i class="fas fa-external-link-alt"></i> Xem website
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'accounts:logout' %}">
-                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                    </a>
+<body class="sb-nav-fixed">
+    <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+        <a class="navbar-brand ps-3" href="{% url 'dashboard:home' %}">TomOi Admin</a>
+        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
+        <div class="d-none d-md-inline-block ms-auto me-0 me-md-3 my-2 my-md-0">
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="{% url 'dashboard:settings' %}">Cài đặt</a></li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li><a class="dropdown-item" href="{% url 'store:home' %}" target="_blank">Xem website</a></li>
+                        <li><a class="dropdown-item" href="{% url 'dashboard:logout' %}">Đăng xuất</a></li>
+                    </ul>
                 </li>
             </ul>
         </div>
     </nav>
-
-    <main class="main-content">
-        <!-- Page content -->
-        {% block content %}{% endblock %}
-    </main>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    
+    <div id="layoutSidenav">
+        <!-- Include sidebar -->
+        {% if use_new_sidebar %}
+        {% include 'dashboard/includes/sidebar_new.html' %}
+        {% else %}
+        {% include 'dashboard/includes/sidebar.html' %}
+        {% endif %}
+        
+        <div id="layoutSidenav_content">
+            <main>
+                <div class="container-fluid px-4 mt-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h1 class="mb-0">{% block page_title %}Dashboard{% endblock %}</h1>
+                            <div class="text-muted">{% block page_subtitle %}Tổng quan hệ thống{% endblock %}</div>
+                        </div>
+                        <div>
+                            {% block page_actions %}{% endblock %}
+                        </div>
+                    </div>
+                    
+                    {% if messages %}
+                    <div class="row">
+                        <div class="col-12">
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% block content %}{% endblock %}
+                </div>
+            </main>
+            <footer class="py-4 bg-light mt-auto">
+                <div class="container-fluid px-4">
+                    <div class="d-flex align-items-center justify-content-between small">
+                        <div class="text-muted">Copyright &copy; TomOi 2023</div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="{% static 'dashboard/js/scripts.js' %}"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html> 

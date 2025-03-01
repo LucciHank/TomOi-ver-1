@@ -1,0 +1,49 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Edit Category{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Edit Category</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'dashboard:posts' %}">Blog Posts</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'dashboard:post_categories' %}">Categories</a></li>
+        <li class="breadcrumb-item active">Edit Category</li>
+    </ol>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-edit me-1"></i>
+            Edit Category
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="name" name="name" value="{{ category.name }}" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="slug" class="form-label">Slug</label>
+                    <input type="text" class="form-control" id="slug" name="slug" value="{{ category.slug }}">
+                    <small class="text-muted">Leave empty to auto-generate from name</small>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="3">{{ category.description }}</textarea>
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'dashboard:post_categories' %}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

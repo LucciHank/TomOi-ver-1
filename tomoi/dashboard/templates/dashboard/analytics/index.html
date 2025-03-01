@@ -8,189 +8,113 @@
 {% block page_subtitle %}Phân tích dữ liệu và thống kê{% endblock %}
 
 {% block content %}
-<div class="row">
-    <!-- Thống kê tổng quan -->
-    <div class="col-12 col-sm-6 col-xl-3 mb-4">
-        <div class="card border-0 shadow">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col">
-                        <h5 class="text-muted mb-2">Lượt xem trang</h5>
-                        <h3 class="mb-1">{{ page_views|intcomma }}</h3>
-                    </div>
-                    <div class="col-auto">
-                        <div class="icon-shape bg-primary text-white rounded">
-                            <i class="fas fa-eye"></i>
-                        </div>
-                    </div>
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Analytics Dashboard</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Analytics</li>
+    </ol>
+    
+    <!-- Date range selector -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-center">
+                <div class="col-auto">
+                    <label for="days" class="col-form-label">Time Period:</label>
                 </div>
-                <div class="mt-2">
-                    <span class="text-success me-1">
-                        <i class="fas fa-arrow-up"></i> {{ page_view_growth }}%
-                    </span>
-                    <span class="text-muted">So với tháng trước</span>
+                <div class="col-auto">
+                    <select class="form-select" id="days" name="days" onchange="this.form.submit()">
+                        <option value="7" {% if days == 7 %}selected{% endif %}>Last 7 days</option>
+                        <option value="30" {% if days == 30 %}selected{% endif %}>Last 30 days</option>
+                        <option value="90" {% if days == 90 %}selected{% endif %}>Last 90 days</option>
+                        <option value="365" {% if days == 365 %}selected{% endif %}>Last year</option>
+                    </select>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-12 col-sm-6 col-xl-3 mb-4">
-        <div class="card border-0 shadow">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col">
-                        <h5 class="text-muted mb-2">Khách truy cập</h5>
-                        <h3 class="mb-1">{{ unique_visitors|intcomma }}</h3>
-                    </div>
-                    <div class="col-auto">
-                        <div class="icon-shape bg-info text-white rounded">
-                            <i class="fas fa-users"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-2">
-                    <span class="text-success me-1">
-                        <i class="fas fa-arrow-up"></i> {{ visitor_growth }}%
-                    </span>
-                    <span class="text-muted">So với tháng trước</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-12 col-sm-6 col-xl-3 mb-4">
-        <div class="card border-0 shadow">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col">
-                        <h5 class="text-muted mb-2">Tỷ lệ thoát</h5>
-                        <h3 class="mb-1">{{ avg_bounce_rate|floatformat:1 }}%</h3>
-                    </div>
-                    <div class="col-auto">
-                        <div class="icon-shape bg-warning text-white rounded">
-                            <i class="fas fa-sign-out-alt"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-2">
-                    <span class="text-danger me-1">
-                        <i class="fas fa-arrow-down"></i> {{ bounce_rate_change }}%
-                    </span>
-                    <span class="text-muted">So với tháng trước</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-12 col-sm-6 col-xl-3 mb-4">
-        <div class="card border-0 shadow">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col">
-                        <h5 class="text-muted mb-2">Thời gian trung bình</h5>
-                        <h3 class="mb-1">{{ avg_session_duration }}</h3>
-                    </div>
-                    <div class="col-auto">
-                        <div class="icon-shape bg-success text-white rounded">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-2">
-                    <span class="text-success me-1">
-                        <i class="fas fa-arrow-up"></i> {{ duration_growth }}%
-                    </span>
-                    <span class="text-muted">So với tháng trước</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Biểu đồ lượt truy cập -->
-<div class="row">
-    <div class="col-12 col-xl-8 mb-4">
-        <div class="card border-0 shadow">
-            <div class="card-header">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h2 class="fs-5 fw-bold mb-0">Lượt truy cập</h2>
-                    </div>
-                    <div class="col-auto">
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-sm btn-outline-primary active" data-range="7">7 ngày</button>
-                            <button type="button" class="btn btn-sm btn-outline-primary" data-range="30">30 ngày</button>
-                            <button type="button" class="btn btn-sm btn-outline-primary" data-range="90">90 ngày</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <canvas id="trafficChart"></canvas>
-            </div>
+            </form>
         </div>
     </div>
     
-    <div class="col-12 col-xl-4 mb-4">
-        <div class="card border-0 shadow">
-            <div class="card-header">
-                <h2 class="fs-5 fw-bold mb-0">Nguồn truy cập</h2>
-            </div>
-            <div class="card-body">
-                <canvas id="sourceChart"></canvas>
+    <!-- Stats cards -->
+    <div class="row">
+        <div class="col-xl-4 col-md-6">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">{{ total_orders }}</h5>
+                            <div class="small">Total Orders</div>
+                        </div>
+                        <div>
+                            <i class="fas fa-shopping-cart fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-
-<!-- Thống kê chi tiết -->
-<div class="row">
-    <div class="col-12 col-xl-8 mb-4">
-        <div class="card border-0 shadow">
-            <div class="card-header">
-                <h2 class="fs-5 fw-bold mb-0">Trang phổ biến</h2>
+        <div class="col-xl-4 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">{{ total_revenue|floatformat:2 }}</h5>
+                            <div class="small">Total Revenue</div>
+                        </div>
+                        <div>
+                            <i class="fas fa-dollar-sign fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-centered table-nowrap mb-0 rounded">
-                        <thead class="thead-light">
-                            <tr>
-                                <th class="border-0">Trang</th>
-                                <th class="border-0">Lượt xem</th>
-                                <th class="border-0">Thời gian TB</th>
-                                <th class="border-0">Tỷ lệ thoát</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for page in popular_pages %}
-                            <tr>
-                                <td>
-                                    <a href="{{ page.url }}" class="text-primary fw-bold">{{ page.title }}</a>
-                                </td>
-                                <td>{{ page.views|intcomma }}</td>
-                                <td>{{ page.avg_time }}</td>
-                                <td>{{ page.bounce_rate|floatformat:1 }}%</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+        </div>
+        <div class="col-xl-4 col-md-6">
+            <div class="card bg-info text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">{{ total_customers }}</h5>
+                            <div class="small">New Customers</div>
+                        </div>
+                        <div>
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     
-    <div class="col-12 col-xl-4 mb-4">
-        <div class="card border-0 shadow">
-            <div class="card-header">
-                <h2 class="fs-5 fw-bold mb-0">Thiết bị truy cập</h2>
-            </div>
-            <div class="card-body">
-                <canvas id="deviceChart"></canvas>
-            </div>
+    <!-- Top products -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-table me-1"></i>
+            Top Products
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Units Sold</th>
+                        <th>Revenue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in top_products %}
+                    <tr>
+                        <td>{{ product.product__name }}</td>
+                        <td>{{ product.count }}</td>
+                        <td>{{ product.revenue|floatformat:2 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center">No data available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
-
 {% endblock %}
 
 {% block extra_js %}

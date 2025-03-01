@@ -1,0 +1,167 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Quản lý Câu Trả Lời Chatbot{% endblock %}
+
+{% block page_title %}Quản lý Câu Trả Lời Chatbot{% endblock %}
+{% block page_subtitle %}Quản lý các câu trả lời tự động của trợ lý ảo{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-comments me-1"></i>
+                Danh sách câu trả lời tự động
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addResponseModal">
+                <i class="fas fa-plus me-1"></i>Thêm câu trả lời
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="responsesTable">
+                    <thead>
+                        <tr>
+                            <th width="25%">Từ khóa kích hoạt</th>
+                            <th width="35%">Câu trả lời</th>
+                            <th>Danh mục</th>
+                            <th>Ngày tạo</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for response in responses %}
+                        <tr>
+                            <td>{{ response.trigger }}</td>
+                            <td>{{ response.response|truncatechars:100 }}</td>
+                            <td>{{ response.category }}</td>
+                            <td>{{ response.created_at }}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="editResponse('{{ response.id }}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDeleteResponse('{{ response.id }}', '{{ response.trigger|escapejs }}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">Chưa có dữ liệu.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal thêm câu trả lời -->
+<div class="modal fade" id="addResponseModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="post" action="{% url 'dashboard:chatbot_responses' %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Thêm câu trả lời mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="trigger" class="form-label">Từ khóa kích hoạt <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="trigger" name="trigger" required>
+                        <small class="form-text text-muted">Các từ khóa hoặc cụm từ sẽ kích hoạt câu trả lời này.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="category" class="form-label">Danh mục</label>
+                        <select class="form-select" id="category" name="category">
+                            <option value="Đơn hàng">Đơn hàng</option>
+                            <option value="Sản phẩm">Sản phẩm</option>
+                            <option value="Tài khoản">Tài khoản</option>
+                            <option value="Thanh toán">Thanh toán</option>
+                            <option value="Chính sách">Chính sách</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="response" class="form-label">Nội dung câu trả lời <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="response" name="response" rows="5" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xóa câu trả lời -->
+<div class="modal fade" id="deleteResponseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa câu trả lời cho từ khóa: <strong id="triggerToDelete"></strong>?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    $('#responsesTable').DataTable({
+        responsive: true,
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/vi.json'
+        }
+    });
+});
+
+function editResponse(id) {
+    // Chuyển đến trang chỉnh sửa
+    window.location.href = `/dashboard/chatbot/responses/${id}/edit/`;
+}
+
+function confirmDeleteResponse(id, trigger) {
+    document.getElementById('triggerToDelete').textContent = trigger;
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteResponseModal'));
+    
+    document.getElementById('confirmDeleteBtn').onclick = function() {
+        fetch(`/dashboard/chatbot/responses/${id}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert('Có lỗi xảy ra khi xóa câu trả lời');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Có lỗi xảy ra khi xóa câu trả lời');
+        });
+    };
+    
+    deleteModal.show();
+}
+</script>
+{% endblock %} 

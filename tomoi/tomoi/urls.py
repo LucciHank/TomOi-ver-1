@@ -25,6 +25,7 @@ urlpatterns = [
     path('', include('store.urls')),
     path('dashboard/', include('dashboard.urls')),
     path('blog/', include('blog.urls')),
+    path('social-auth/', include('social_django.urls', namespace='social')),
 ]
 
 if settings.DEBUG:

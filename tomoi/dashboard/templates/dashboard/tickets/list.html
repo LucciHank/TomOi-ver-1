@@ -1,100 +1,166 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
 
-{% block title %}Quản lý ticket{% endblock %}
+{% block title %}Hỗ trợ Khách hàng{% endblock %}
+
+{% block page_title %}Hỗ trợ Khách hàng{% endblock %}
+{% block page_subtitle %}Quản lý yêu cầu hỗ trợ từ khách hàng{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <h1 class="mb-4">Quản lý ticket</h1>
-        </div>
-    </div>
-    
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card border-0 shadow">
-                <div class="card-body">
-                    <h5 class="card-title">Ticket mới</h5>
-                    <h2 class="mb-0">{{ new_tickets }}</h2>
-                </div>
+<div class="container-fluid px-4">
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-headset me-1"></i>
+                Danh sách yêu cầu hỗ trợ
             </div>
-        </div>
-        
-        <div class="col-md-4">
-            <div class="card border-0 shadow">
-                <div class="card-body">
-                    <h5 class="card-title">Đang xử lý</h5>
-                    <h2 class="mb-0">{{ processing_tickets }}</h2>
+            <div class="d-flex">
+                <div class="btn-group me-2">
+                    <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fas fa-filter me-1"></i>Lọc theo trạng thái
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'dashboard:tickets' %}">Tất cả</a></li>
+                        <li><a class="dropdown-item" href="{% url 'dashboard:tickets' %}?status=open">Đang mở</a></li>
+                        <li><a class="dropdown-item" href="{% url 'dashboard:tickets' %}?status=pending">Đang chờ</a></li>
+                        <li><a class="dropdown-item" href="{% url 'dashboard:tickets' %}?status=closed">Đã đóng</a></li>
+                    </ul>
                 </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4">
-            <div class="card border-0 shadow">
-                <div class="card-body">
-                    <h5 class="card-title">Đã giải quyết</h5>
-                    <h2 class="mb-0">{{ resolved_tickets }}</h2>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="card border-0 shadow">
-        <div class="card-header bg-white">
-            <div class="row align-items-center">
-                <div class="col">
-                    <h5 class="mb-0">Danh sách ticket</h5>
-                </div>
+                <a href="{% url 'dashboard:tickets' %}?export=1" class="btn btn-outline-success btn-sm">
+                    <i class="fas fa-file-excel me-1"></i>Xuất Excel
+                </a>
             </div>
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-striped table-hover" id="ticketsTable">
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th>Tiêu đề</th>
-                            <th>Người gửi</th>
+                            <th>Khách hàng</th>
+                            <th>Danh mục</th>
                             <th>Ngày tạo</th>
+                            <th>Cập nhật</th>
                             <th>Trạng thái</th>
-                            <th>Thao tác</th>
+                            <th>Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for ticket in tickets %}
                         <tr>
-                            <td>{{ ticket.id }}</td>
-                            <td>{{ ticket.title }}</td>
-                            <td>{{ ticket.user.email }}</td>
-                            <td>{{ ticket.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>#{{ ticket.id }}</td>
                             <td>
-                                <span class="badge bg-{% if ticket.status == 'new' %}danger{% elif ticket.status == 'processing' %}warning{% elif ticket.status == 'resolved' %}success{% else %}secondary{% endif %}">
+                                <a href="{% url 'dashboard:ticket_detail' ticket.id %}">{{ ticket.subject }}</a>
+                                {% if ticket.status == 'open' and ticket.is_customer_reply %}
+                                <span class="badge bg-danger ms-1">Mới</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ ticket.user.full_name }}</td>
+                            <td>{{ ticket.category }}</td>
+                            <td>{{ ticket.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>{{ ticket.updated_at|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <span class="badge {% if ticket.status == 'open' %}bg-success
+                                {% elif ticket.status == 'pending' %}bg-warning
+                                {% elif ticket.status == 'closed' %}bg-danger
+                                {% else %}bg-secondary{% endif %}">
                                     {{ ticket.get_status_display }}
                                 </span>
                             </td>
                             <td>
-                                <a href="{% url 'dashboard:ticket_detail' ticket.id %}" class="btn btn-sm btn-info">
+                                <a href="{% url 'dashboard:ticket_detail' ticket.id %}" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="{% url 'dashboard:reply_ticket' ticket.id %}" class="btn btn-sm btn-primary">
-                                    <i class="fas fa-reply"></i>
-                                </a>
+                                {% if ticket.status != 'closed' %}
+                                <button class="btn btn-sm btn-outline-danger" onclick="confirmCloseTicket('{{ ticket.id }}')">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                {% endif %}
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="6" class="text-center">Không có ticket nào</td>
+                            <td colspan="8" class="text-center">Không có yêu cầu hỗ trợ nào.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-            
-            {% if is_paginated %}
-            {% include 'dashboard/components/pagination.html' with page_obj=page_obj %}
-            {% endif %}
         </div>
     </div>
 </div>
+
+<!-- Modal xác nhận đóng ticket -->
+<div class="modal fade" id="closeTicketModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận đóng yêu cầu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn đóng yêu cầu hỗ trợ này không?</p>
+                <form id="closeTicketForm" method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="closeReason" class="form-label">Lý do đóng (tùy chọn)</label>
+                        <textarea class="form-control" id="closeReason" name="reason" rows="3"></textarea>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="notifyUser" name="notify_user" checked>
+                        <label class="form-check-label" for="notifyUser">
+                            Thông báo cho khách hàng
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmCloseTicketBtn">Đóng yêu cầu</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    $('#ticketsTable').DataTable({
+        responsive: true,
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/vi.json'
+        },
+        order: [[4, 'desc']]
+    });
+    
+    $('#confirmCloseTicketBtn').click(function() {
+        const ticketId = $(this).data('ticket-id');
+        const form = $('#closeTicketForm');
+        
+        $.ajax({
+            url: `/dashboard/tickets/${ticketId}/close/`,
+            type: 'POST',
+            data: form.serialize(),
+            success: function(response) {
+                if (response.success) {
+                    window.location.reload();
+                } else {
+                    alert('Có lỗi xảy ra: ' + response.error);
+                }
+            },
+            error: function() {
+                alert('Có lỗi xảy ra khi đóng yêu cầu hỗ trợ');
+            }
+        });
+    });
+});
+
+function confirmCloseTicket(ticketId) {
+    $('#confirmCloseTicketBtn').data('ticket-id', ticketId);
+    const modal = new bootstrap.Modal(document.getElementById('closeTicketModal'));
+    modal.show();
+}
+</script>
 {% endblock %} 

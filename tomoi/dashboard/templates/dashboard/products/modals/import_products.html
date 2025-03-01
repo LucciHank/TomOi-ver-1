@@ -1,0 +1,39 @@
+<div class="modal-header">
+    <h5 class="modal-title" id="importProductsModalLabel">Nhập sản phẩm từ file</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <form id="importProductsForm" method="post" enctype="multipart/form-data" action="{% url 'dashboard:import_products' %}">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label for="importFile" class="form-label">Chọn file Excel/CSV</label>
+            <input type="file" class="form-control" id="importFile" name="import_file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" required>
+            <div class="form-text">Hỗ trợ định dạng .csv, .xls, .xlsx</div>
+        </div>
+        
+        <div class="mb-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="overwriteExisting" name="overwrite_existing">
+                <label class="form-check-label" for="overwriteExisting">
+                    Ghi đè sản phẩm đã tồn tại
+                </label>
+            </div>
+        </div>
+        
+        <div class="alert alert-info">
+            <h6 class="alert-heading">Hướng dẫn:</h6>
+            <p class="mb-0">File nhập phải có các cột: Tên sản phẩm, Danh mục, Giá, Số lượng</p>
+        </div>
+        
+        <div class="mb-3">
+            <a href="{% url 'dashboard:download_product_template' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-download me-1"></i> Tải mẫu file nhập
+            </a>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+    <button type="submit" form="importProductsForm" class="btn btn-primary">Nhập</button>
+</div> 

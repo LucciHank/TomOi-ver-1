@@ -1,0 +1,218 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Lịch sử Email{% endblock %}
+
+{% block page_title %}Lịch sử Email{% endblock %}
+{% block page_subtitle %}Xem lịch sử gửi email{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-history me-1"></i>
+                Lịch sử email
+            </div>
+            <div>
+                <a href="{% url 'dashboard:email_templates' %}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-envelope me-1"></i>Quản lý mẫu
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <form id="filterForm" method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Tìm theo email" value="{{ request.GET.email|default:'' }}">
+                            <button class="btn btn-outline-secondary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-select" name="template" id="template">
+                            <option value="">-- Tất cả mẫu email --</option>
+                            {% for template in templates %}
+                            <option value="{{ template.id }}" {% if request.GET.template == template.id|stringformat:'i' %}selected{% endif %}>{{ template.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select" name="status" id="status">
+                            <option value="">-- Trạng thái --</option>
+                            <option value="sent" {% if request.GET.status == 'sent' %}selected{% endif %}>Đã gửi</option>
+                            <option value="failed" {% if request.GET.status == 'failed' %}selected{% endif %}>Lỗi</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">Lọc</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="emailLogsTable">
+                    <thead>
+                        <tr>
+                            <th>Tiêu đề</th>
+                            <th>Người nhận</th>
+                            <th>Mẫu</th>
+                            <th>Thời gian gửi</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td>{{ log.subject }}</td>
+                            <td>{{ log.recipient }}</td>
+                            <td>{{ log.template_name }}</td>
+                            <td>{{ log.sent_at|date:"d/m/Y H:i:s" }}</td>
+                            <td>
+                                {% if log.status == 'sent' %}
+                                <span class="badge bg-success">Đã gửi</span>
+                                {% else %}
+                                <span class="badge bg-danger">Lỗi</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-outline-info" onclick="viewEmailContent('{{ log.id }}')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">Chưa có dữ liệu.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xem nội dung email -->
+<div class="modal fade" id="emailContentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chi tiết email</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <strong>Tiêu đề:</strong>
+                    <p id="emailSubject" class="mb-0"></p>
+                </div>
+                <div class="mb-3">
+                    <strong>Người nhận:</strong>
+                    <p id="emailRecipient" class="mb-0"></p>
+                </div>
+                <div class="mb-3">
+                    <strong>Thời gian gửi:</strong>
+                    <p id="emailSentTime" class="mb-0"></p>
+                </div>
+                <div class="mb-3">
+                    <strong>Trạng thái:</strong>
+                    <p id="emailStatus" class="mb-0"></p>
+                </div>
+                <div class="mb-3">
+                    <strong>Nội dung:</strong>
+                    <div id="emailContent" class="border rounded p-3 mt-2" style="max-height: 400px; overflow-y: auto;"></div>
+                </div>
+                <div id="emailErrorContainer" class="mb-3 d-none">
+                    <strong>Lỗi:</strong>
+                    <div id="emailError" class="border rounded p-3 mt-2 bg-light text-danger"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="resendEmailBtn">Gửi lại</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    $('#emailLogsTable').DataTable({
+        responsive: true,
+        order: [[3, 'desc']],
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/vi.json'
+        }
+    });
+    
+    // Auto submit form when select template changes
+    $('#template, #status').change(function() {
+        $('#filterForm').submit();
+    });
+});
+
+function viewEmailContent(emailId) {
+    // Giả lập dữ liệu - thay bằng API call thực tế
+    fetch(`/dashboard/api/email-logs/${emailId}/`)
+        .then(response => response.json())
+        .then(data => {
+            $('#emailSubject').text(data.subject);
+            $('#emailRecipient').text(data.recipient);
+            $('#emailSentTime').text(data.sent_at);
+            $('#emailContent').html(data.content);
+            
+            if (data.status === 'sent') {
+                $('#emailStatus').html('<span class="badge bg-success">Đã gửi</span>');
+                $('#emailErrorContainer').addClass('d-none');
+                $('#resendEmailBtn').addClass('d-none');
+            } else {
+                $('#emailStatus').html('<span class="badge bg-danger">Lỗi</span>');
+                $('#emailErrorContainer').removeClass('d-none');
+                $('#emailError').text(data.error_message);
+                $('#resendEmailBtn').removeClass('d-none');
+            }
+            
+            $('#resendEmailBtn').data('email-id', emailId);
+            
+            const modal = new bootstrap.Modal(document.getElementById('emailContentModal'));
+            modal.show();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Có lỗi xảy ra khi tải dữ liệu.');
+        });
+}
+
+// Xử lý gửi lại email
+$('#resendEmailBtn').click(function() {
+    const emailId = $(this).data('email-id');
+    
+    // Thực hiện gửi lại email qua API
+    fetch(`/dashboard/api/email-logs/${emailId}/resend/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Đã gửi lại email thành công!');
+            window.location.reload();
+        } else {
+            alert('Có lỗi xảy ra: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra khi gửi lại email.');
+    });
+});
+</script>
+{% endblock %} 

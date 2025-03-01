@@ -1,0 +1,171 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Cài Đặt Chatbot{% endblock %}
+
+{% block page_title %}Cài Đặt Chatbot{% endblock %}
+{% block page_subtitle %}Tùy chỉnh trải nghiệm chatbot cho người dùng{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-cogs me-1"></i>
+                    Cài đặt chung
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'dashboard:chatbot_settings' %}">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3 form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="active" name="active" {% if settings.active %}checked{% endif %}>
+                            <label class="form-check-label" for="active">Kích hoạt Chatbot</label>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="greeting_message" class="form-label">Tin nhắn chào</label>
+                            <textarea class="form-control" id="greeting_message" name="greeting_message" rows="2">{{ settings.greeting_message }}</textarea>
+                            <small class="form-text text-muted">Tin nhắn hiển thị khi người dùng mở chatbot.</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="offline_message" class="form-label">Tin nhắn ngoài giờ làm việc</label>
+                            <textarea class="form-control" id="offline_message" name="offline_message" rows="2">{{ settings.offline_message }}</textarea>
+                            <small class="form-text text-muted">Tin nhắn hiển thị khi không có nhân viên hỗ trợ trực tuyến.</small>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="working_hours" class="form-label">Giờ làm việc</label>
+                                <input type="text" class="form-control" id="working_hours" name="working_hours" value="{{ settings.working_hours }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="trigger_time" class="form-label">Thời gian hiển thị tự động (giây)</label>
+                                <input type="number" class="form-control" id="trigger_time" name="trigger_time" value="{{ settings.trigger_time }}">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3 form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="auto_reply" name="auto_reply" {% if settings.auto_reply %}checked{% endif %}>
+                            <label class="form-check-label" for="auto_reply">Kích hoạt trả lời tự động</label>
+                            <small class="d-block form-text text-muted">Cho phép chatbot tự động phản hồi dựa trên từ khóa.</small>
+                        </div>
+                        
+                        <div class="mb-3 form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="collect_email" name="collect_email" {% if settings.collect_email %}checked{% endif %}>
+                            <label class="form-check-label" for="collect_email">Yêu cầu nhập email</label>
+                            <small class="d-block form-text text-muted">Yêu cầu người dùng nhập email trước khi bắt đầu trò chuyện.</small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Lưu cài đặt</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-paint-brush me-1"></i>
+                    Tùy chỉnh giao diện
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'dashboard:chatbot_settings' %}" class="mb-0">
+                        {% csrf_token %}
+                        <input type="hidden" name="appearance_settings" value="1">
+                        
+                        <div class="mb-3">
+                            <label for="theme_color" class="form-label">Màu sắc chủ đạo</label>
+                            <input type="color" class="form-control form-control-color w-100" id="theme_color" name="theme_color" value="{{ settings.theme_color }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="position" class="form-label">Vị trí</label>
+                            <select class="form-select" id="position" name="position">
+                                <option value="left" {% if settings.position == 'left' %}selected{% endif %}>Bên trái</option>
+                                <option value="right" {% if settings.position == 'right' %}selected{% endif %}>Bên phải</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Lưu giao diện</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-mobile-alt me-1"></i>
+                    Xem trước
+                </div>
+                <div class="card-body position-relative" style="height: 400px; overflow: hidden; background-color: #f5f5f5;">
+                    <div class="chatbot-preview" style="position: absolute; bottom: 20px; right: 20px; width: 300px;">
+                        <div class="card shadow" style="border-radius: 10px; overflow: hidden;">
+                            <div class="card-header" style="background-color: {{ settings.theme_color }}; color: white;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>Hỗ trợ trực tuyến</strong>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-sm text-white"><i class="fas fa-minus"></i></button>
+                                        <button class="btn btn-sm text-white"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body bg-light" style="height: 250px; overflow-y: auto;">
+                                <div class="d-flex mb-3">
+                                    <div class="me-2">
+                                        <div class="avatar" style="width: 30px; height: 30px; background-color: {{ settings.theme_color }}; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-robot"></i>
+                                        </div>
+                                    </div>
+                                    <div class="message" style="background-color: white; padding: 8px 12px; border-radius: 15px; max-width: 80%;">
+                                        {{ settings.greeting_message }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Nhập tin nhắn...">
+                                    <button class="btn" style="background-color: {{ settings.theme_color }}; color: white;">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Cập nhật preview khi thay đổi các cài đặt
+$(document).ready(function() {
+    $('#theme_color').change(function() {
+        const color = $(this).val();
+        $('.chatbot-preview .card-header').css('background-color', color);
+        $('.chatbot-preview .avatar').css('background-color', color);
+        $('.chatbot-preview .btn').css('background-color', color);
+    });
+    
+    $('#greeting_message').keyup(function() {
+        const message = $(this).val();
+        $('.chatbot-preview .message').text(message);
+    });
+    
+    $('#position').change(function() {
+        const position = $(this).val();
+        if (position === 'left') {
+            $('.chatbot-preview').css({right: 'auto', left: '20px'});
+        } else {
+            $('.chatbot-preview').css({right: '20px', left: 'auto'});
+        }
+    });
+});
+</script>
+{% endblock %} 

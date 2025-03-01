@@ -7,139 +7,164 @@
 {% block page_subtitle %}Xem tổng quan về hoạt động của website{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Dashboard</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">Dashboard</li>
+    </ol>
+    
+    <!-- Stats Cards -->
     <div class="row">
-        <div class="col-12">
-            <h1 class="mb-4">Dashboard</h1>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">{{ total_orders }}</h5>
+                            <div class="small">Total Orders</div>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="{% url 'dashboard:orders' %}">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">{{ total_users }}</h5>
+                            <div class="small">Total Users</div>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="{% url 'dashboard:users' %}">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">{{ total_products }}</h5>
+                            <div class="small">Total Products</div>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-box"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="{% url 'dashboard:products' %}">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">{{ open_tickets }}</h5>
+                            <div class="small">Open Tickets</div>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-ticket-alt"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="{% url 'dashboard:tickets' %}">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
         </div>
     </div>
     
+    <!-- Charts -->
     <div class="row">
-        <!-- Thống kê đơn hàng -->
-        <div class="col-md-3 mb-4">
-            <div class="card border-0 shadow">
+        <div class="col-xl-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-area me-1"></i>
+                    Sales Overview
+                </div>
                 <div class="card-body">
-                    <h5 class="card-title">Đơn hàng</h5>
-                    <h2 class="mb-0">{{ total_orders }}</h2>
-                    <p class="text-muted">{{ monthly_orders }} đơn trong tháng này</p>
+                    <canvas id="salesChart" width="100%" height="40"></canvas>
                 </div>
             </div>
         </div>
-        
-        <!-- Thống kê doanh thu -->
-        <div class="col-md-3 mb-4">
-            <div class="card border-0 shadow">
-                <div class="card-body">
-                    <h5 class="card-title">Doanh thu</h5>
-                    <h2 class="mb-0">{{ total_revenue|floatformat:0 }} đ</h2>
-                    <p class="text-muted">{{ monthly_revenue|floatformat:0 }} đ trong tháng này</p>
+        <div class="col-xl-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-pie me-1"></i>
+                    Product Categories
                 </div>
-            </div>
-        </div>
-        
-        <!-- Thống kê khách hàng -->
-        <div class="col-md-3 mb-4">
-            <div class="card border-0 shadow">
                 <div class="card-body">
-                    <h5 class="card-title">Khách hàng</h5>
-                    <h2 class="mb-0">{{ total_customers }}</h2>
-                    <p class="text-muted">{{ new_customers }} khách mới trong tháng này</p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Thống kê sản phẩm -->
-        <div class="col-md-3 mb-4">
-            <div class="card border-0 shadow">
-                <div class="card-body">
-                    <h5 class="card-title">Sản phẩm</h5>
-                    <h2 class="mb-0">{{ total_products }}</h2>
-                    <p class="text-muted">{{ low_stock_products.count }} sản phẩm sắp hết hàng</p>
+                    <canvas id="categoryChart" width="100%" height="50"></canvas>
                 </div>
             </div>
         </div>
     </div>
     
-    <div class="row">
-        <!-- Đơn hàng gần đây -->
-        <div class="col-md-6 mb-4">
-            <div class="card border-0 shadow">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">Đơn hàng gần đây</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Khách hàng</th>
-                                    <th>Tổng tiền</th>
-                                    <th>Trạng thái</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for order in recent_orders %}
-                                <tr>
-                                    <td>{{ order.id }}</td>
-                                    <td>{{ order.user.email }}</td>
-                                    <td>{{ order.total_amount|floatformat:0 }} đ</td>
-                                    <td>
-                                        <span class="badge bg-{% if order.status == 'completed' %}success{% elif order.status == 'pending' %}warning{% else %}secondary{% endif %}">
-                                            {{ order.get_status_display }}
-                                        </span>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="4" class="text-center">Không có đơn hàng nào</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+    <!-- Recent Transactions -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-table me-1"></i>
+            Recent Transactions
         </div>
-        
-        <!-- Ticket hỗ trợ gần đây -->
-        <div class="col-md-6 mb-4">
-            <div class="card border-0 shadow">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">Ticket hỗ trợ gần đây</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Tiêu đề</th>
-                                    <th>Người gửi</th>
-                                    <th>Trạng thái</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for ticket in recent_tickets %}
-                                <tr>
-                                    <td>{{ ticket.id }}</td>
-                                    <td>{{ ticket.title }}</td>
-                                    <td>{{ ticket.user.email }}</td>
-                                    <td>
-                                        <span class="badge bg-{% if ticket.status == 'new' %}danger{% elif ticket.status == 'processing' %}warning{% elif ticket.status == 'resolved' %}success{% else %}secondary{% endif %}">
-                                            {{ ticket.get_status_display }}
-                                        </span>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="4" class="text-center">Không có ticket nào</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="transactionsTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Amount</th>
+                            <th>Payment Method</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in recent_transactions %}
+                        <tr>
+                            <td>{{ transaction.transaction_id }}</td>
+                            <td>{{ transaction.user.username }}</td>
+                            <td>{{ transaction.amount|floatformat:0 }}₫</td>
+                            <td>{{ transaction.get_payment_method_display }}</td>
+                            <td>
+                                <span class="badge {% if transaction.status == 'completed' %}bg-success{% elif transaction.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                                    {{ transaction.get_status_display }}
+                                </span>
+                            </td>
+                            <td>{{ transaction.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <a href="#" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No transactions found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -147,45 +172,81 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// Biểu đồ doanh thu
-var revenueData = {
-    labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
-    series: [
-        [{{ monthly_revenues|join:"," }}]
-    ]
-};
-
-new Chartist.Line('.ct-chart-sales-value', revenueData, {
-    low: 0,
-    showArea: true,
-    fullWidth: true,
-    plugins: [
-        Chartist.plugins.tooltip()
-    ],
-    axisY: {
-        low: 0,
-        scaleMinSpace: 50,
-        labelInterpolationFnc: function(value) {
-            return value.toLocaleString() + 'đ';
+    // Sales Chart
+    const salesCtx = document.getElementById('salesChart');
+    const salesChart = new Chart(salesCtx, {
+        type: 'line',
+        data: {
+            labels: {{ sales_dates|safe }},
+            datasets: [{
+                label: 'Sales',
+                data: {{ sales_amounts|safe }},
+                backgroundColor: 'rgba(229, 9, 20, 0.2)',
+                borderColor: 'rgba(229, 9, 20, 1)',
+                borderWidth: 2,
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString() + '₫';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.raw.toLocaleString() + '₫';
+                        }
+                    }
+                }
+            }
         }
-    }
-});
-
-// Biểu đồ phân bố
-var distributionData = {
-    labels: [{% for item in distribution_data %}'{{ item.name }}',{% endfor %}],
-    series: [{% for item in distribution_data %}{{ item.value }},{% endfor %}]
-};
-
-new Chartist.Pie('.ct-chart-distribution', distributionData, {
-    donut: true,
-    donutWidth: 60,
-    startAngle: 270,
-    total: 200,
-    plugins: [
-        Chartist.plugins.tooltip()
-    ]
-});
+    });
+    
+    // Fetch category data for pie chart
+    fetch('{% url "dashboard:chart_data" %}')
+        .then(response => response.json())
+        .then(data => {
+            const categoryCtx = document.getElementById('categoryChart');
+            const categoryChart = new Chart(categoryCtx, {
+                type: 'pie',
+                data: {
+                    labels: data.category_labels,
+                    datasets: [{
+                        data: data.category_counts,
+                        backgroundColor: [
+                            'rgba(229, 9, 20, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(153, 102, 255, 0.7)',
+                            'rgba(255, 159, 64, 0.7)',
+                            'rgba(199, 199, 199, 0.7)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        });
 </script>
 {% endblock %} 

@@ -1,0 +1,216 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{% if is_new %}Tạo mẫu email mới{% else %}Chỉnh sửa mẫu email{% endif %}{% endblock %}
+
+{% block page_title %}{% if is_new %}Tạo mẫu email mới{% else %}Chỉnh sửa mẫu email{% endif %}{% endblock %}
+{% block page_subtitle %}Quản lý nội dung và cấu trúc email{% endblock %}
+
+{% block page_css %}
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+<style>
+    .note-editor {
+        margin-bottom: 1rem;
+    }
+    .variables-box {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 0.25rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .variable-item {
+        display: inline-block;
+        background-color: #e9ecef;
+        border-radius: 0.25rem;
+        padding: 0.25rem 0.5rem;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+    }
+    .variable-item:hover {
+        background-color: #dee2e6;
+    }
+    .test-email-form {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e9ecef;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-{% if is_new %}plus{% else %}edit{% endif %} me-1"></i>
+            {% if is_new %}Tạo mẫu email mới{% else %}Chỉnh sửa mẫu email{% endif %}
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <form method="post" action="{% if is_new %}{% url 'dashboard:create_email_template' %}{% else %}{% url 'dashboard:edit_email_template' template.id %}{% endif %}">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="id_name" class="form-label">Tên mẫu <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="id_name" name="name" value="{{ form.name.value|default:'' }}" required>
+                            {% if form.name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.name.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_code" class="form-label">Mã mẫu <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="id_code" name="code" value="{{ form.code.value|default:'' }}" required {% if not is_new %}readonly{% endif %}>
+                            {% if form.code.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.code.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_description" class="form-label">Mô tả</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.description.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_subject" class="form-label">Tiêu đề email</label>
+                            {{ form.subject }}
+                            {% if form.subject.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.subject.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_content" class="form-label">Nội dung email</label>
+                            {{ form.content }}
+                            {% if form.content.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.content.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'dashboard:email_templates' %}" class="btn btn-secondary">Hủy</a>
+                            <button type="submit" class="btn btn-primary">
+                                {% if is_new %}Tạo mẫu email{% else %}Cập nhật{% endif %}
+                            </button>
+                        </div>
+                        
+                        {% if not is_new %}
+                        <div class="test-email-form mt-4">
+                            <h5>Gửi email test</h5>
+                            <div class="input-group">
+                                <input type="email" class="form-control" id="testEmail" name="test_email" placeholder="Nhập email để test">
+                                <button type="submit" class="btn btn-info" formaction="{% url 'dashboard:test_email_template' template.id %}" formmethod="post">Gửi test</button>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </form>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="variables-box">
+                        <h5>Biến có sẵn</h5>
+                        <p class="small text-muted">Nhấp vào các biến dưới đây để thêm vào nội dung email.</p>
+                        
+                        <div class="mb-3">
+                            <h6>Biến người dùng</h6>
+                            <div class="variable-item" data-variable="{{ user.first_name }}">Tên</div>
+                            <div class="variable-item" data-variable="{{ user.last_name }}">Họ</div>
+                            <div class="variable-item" data-variable="{{ user.email }}">Email</div>
+                            <div class="variable-item" data-variable="{{ user.username }}">Tên đăng nhập</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h6>Biến đơn hàng</h6>
+                            <div class="variable-item" data-variable="{{ order.id }}">Mã đơn hàng</div>
+                            <div class="variable-item" data-variable="{{ order.total }}">Tổng tiền</div>
+                            <div class="variable-item" data-variable="{{ order.created_at }}">Ngày đặt</div>
+                            <div class="variable-item" data-variable="{{ order.status }}">Trạng thái</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h6>Biến khác</h6>
+                            <div class="variable-item" data-variable="{{ site_name }}">Tên website</div>
+                            <div class="variable-item" data-variable="{{ site_url }}">URL website</div>
+                            <div class="variable-item" data-variable="{{ current_date }}">Ngày hiện tại</div>
+                            <div class="variable-item" data-variable="{{ support_email }}">Email hỗ trợ</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Hướng dẫn
+                        </div>
+                        <div class="card-body">
+                            <p>Sử dụng cú pháp Django template để tạo mẫu email động:</p>
+                            <ul class="small">
+                                <li>Sử dụng <code>{{ variable }}</code> để hiển thị giá trị</li>
+                                <li>Sử dụng <code>{% if condition %}...{% endif %}</code> cho điều kiện</li>
+                                <li>Sử dụng <code>{% for item in items %}...{% endfor %}</code> cho vòng lặp</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Khởi tạo rich text editor cho nội dung
+    $('#id_content').summernote({
+        height: 300,
+        toolbar: [
+            ['style', ['style']],
+            ['font', ['bold', 'italic', 'underline', 'clear']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture', 'hr']],
+            ['view', ['fullscreen', 'codeview']],
+            ['help', ['help']]
+        ],
+        callbacks: {
+            onImageUpload: function(files) {
+                // Xử lý upload hình ảnh nếu cần
+            }
+        }
+    });
+    
+    // Xử lý khi click vào biến
+    $('.variable-item').click(function() {
+        const variable = $(this).data('variable');
+        
+        // Thêm vào summernote nếu đang focus vào nội dung
+        $('#id_content').summernote('insertText', variable);
+    });
+    
+    // Override form submit để kiểm tra dữ liệu
+    $('form').submit(function(e) {
+        if ($('#id_name').val().trim() === '' || $('#id_code').val().trim() === '') {
+            e.preventDefault();
+            alert('Vui lòng điền đầy đủ thông tin bắt buộc!');
+        }
+    });
+});
+</script>
+{% endblock %} 

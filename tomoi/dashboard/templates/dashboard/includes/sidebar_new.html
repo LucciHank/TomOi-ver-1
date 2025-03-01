@@ -1,0 +1,95 @@
+<div id="layoutSidenav_nav">
+    <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+        <div class="sb-sidenav-menu">
+            <div class="nav">
+                <div class="sb-sidenav-menu-heading">Tổng quan</div>
+                <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" 
+                   href="{% url 'dashboard:home' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                    Bảng điều khiển
+                </a>
+                
+                <div class="sb-sidenav-menu-heading">Sản phẩm</div>
+                <a class="nav-link {% if 'product' in request.resolver_match.url_name %}active{% endif %}" 
+                   href="{% url 'dashboard:products' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-box"></i></div>
+                    Quản lý sản phẩm
+                </a>
+                <a class="nav-link {% if 'categor' in request.resolver_match.url_name %}active{% endif %}" 
+                   href="{% url 'dashboard:categories' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-list"></i></div>
+                    Danh mục
+                </a>
+                
+                <div class="sb-sidenav-menu-heading">Đơn hàng & Khách hàng</div>
+                <a class="nav-link {% if 'order' in request.resolver_match.url_name %}active{% endif %}" 
+                   href="{% url 'dashboard:orders' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-shopping-cart"></i></div>
+                    Đơn hàng
+                </a>
+                <a class="nav-link {% if 'user' in request.resolver_match.url_name %}active{% endif %}" 
+                   href="{% url 'dashboard:users' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
+                    Người dùng
+                </a>
+                <a class="nav-link {% if 'discount' in request.resolver_match.url_name %}active{% endif %}" 
+                   href="{% url 'dashboard:discounts' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-tags"></i></div>
+                    Mã giảm giá
+                </a>
+                
+                <div class="sb-sidenav-menu-heading">Tiếp thị & Nội dung</div>
+                <a class="nav-link {% if 'marketing' in request.resolver_match.url_name %}active{% endif %}" 
+                   href="{% url 'dashboard:marketing' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-bullhorn"></i></div>
+                    Tiếp thị
+                </a>
+                <a class="nav-link {% if 'banner' in request.resolver_match.url_name %}active{% endif %}" 
+                   href="{% url 'dashboard:banners' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-images"></i></div>
+                    Banner
+                </a>
+                <a class="nav-link {% if 'blog' in request.resolver_match.url_name or 'post' in request.resolver_match.url_name %}active{% endif %}" 
+                   href="{% url 'dashboard:blogs' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-blog"></i></div>
+                    Blog
+                </a>
+                
+                <div class="sb-sidenav-menu-heading">Phân tích & Báo cáo</div>
+                <a class="nav-link {% if 'analytics' in request.resolver_match.url_name %}active{% endif %}" 
+                   href="{% url 'dashboard:analytics' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-chart-bar"></i></div>
+                    Thống kê & Báo cáo
+                </a>
+                
+                <div class="sb-sidenav-menu-heading">Tương tác khách hàng</div>
+                <a class="nav-link {% if 'email' in request.resolver_match.url_name %}active{% endif %}" 
+                   href="{% url 'dashboard:email_templates' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-envelope"></i></div>
+                    Email Templates
+                </a>
+                <a class="nav-link {% if 'chatbot' in request.resolver_match.url_name %}active{% endif %}" 
+                   href="{% url 'dashboard:chatbot' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-robot"></i></div>
+                    Chatbot
+                </a>
+                <a class="nav-link {% if 'ticket' in request.resolver_match.url_name %}active{% endif %}" 
+                   href="{% url 'dashboard:tickets' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-headset"></i></div>
+                    Hỗ trợ khách hàng
+                </a>
+                
+                <div class="sb-sidenav-menu-heading">Cài đặt</div>
+                <a class="nav-link {% if 'setting' in request.resolver_match.url_name %}active{% endif %}" 
+                   href="{% url 'dashboard:settings' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-cog"></i></div>
+                    Cài đặt hệ thống
+                </a>
+            </div>
+        </div>
+        <div class="sb-sidenav-footer">
+            <div class="small">Đăng nhập với:</div>
+            {{ request.user.username }}
+        </div>
+    </nav>
+</div> 

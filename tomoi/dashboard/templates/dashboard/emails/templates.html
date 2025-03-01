@@ -1,0 +1,142 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Quản lý Mẫu Email{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Quản lý Mẫu Email</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Mẫu Email</li>
+    </ol>
+    
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-envelope me-1"></i>
+                Danh sách mẫu email
+            </div>
+            <a href="{% url 'dashboard:create_email_template' %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus me-1"></i>Thêm mẫu mới
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="emailTemplatesTable">
+                    <thead>
+                        <tr>
+                            <th>Tên mẫu</th>
+                            <th>Mã</th>
+                            <th>Tiêu đề</th>
+                            <th>Mô tả</th>
+                            <th>Cập nhật lần cuối</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for template in templates %}
+                        <tr>
+                            <td>{{ template.name }}</td>
+                            <td><code>{{ template.code }}</code></td>
+                            <td>{{ template.subject }}</td>
+                            <td>{{ template.description|truncatechars:50 }}</td>
+                            <td>{{ template.updated_at|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'dashboard:edit_email_template' template.id %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#testEmailModal{{ template.id }}">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-danger" onclick="confirmDeleteTemplate({{ template.id }}, '{{ template.name }}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                
+                                <!-- Test Email Modal -->
+                                <div class="modal fade" id="testEmailModal{{ template.id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Gửi email test</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <form action="{% url 'dashboard:test_email_template' template.id %}" method="post">
+                                                {% csrf_token %}
+                                                <div class="modal-body">
+                                                    <div class="mb-3">
+                                                        <label for="test_email" class="form-label">Email nhận</label>
+                                                        <input type="email" class="form-control" id="test_email" name="test_email" required>
+                                                    </div>
+                                                    <p class="small text-muted">
+                                                        Email test sẽ được gửi với dữ liệu mẫu để kiểm tra định dạng và nội dung.
+                                                    </p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                                    <button type="submit" class="btn btn-primary">Gửi test</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">Không có mẫu email nào.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteTemplateModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc muốn xóa mẫu email "<span id="templateNameToDelete"></span>"?</p>
+                <p class="text-danger">Lưu ý: Hành động này không thể hoàn tác.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmDeleteTemplate(id, name) {
+    document.getElementById('templateNameToDelete').textContent = name;
+    const modal = new bootstrap.Modal(document.getElementById('deleteTemplateModal'));
+    
+    document.getElementById('confirmDeleteBtn').onclick = function() {
+        window.location.href = `/dashboard/emails/${id}/delete/`;
+    };
+    
+    modal.show();
+}
+
+$(document).ready(function() {
+    $('#emailTemplatesTable').DataTable({
+        responsive: true,
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/vi.json'
+        }
+    });
+});
+</script>
+{% endblock %} 

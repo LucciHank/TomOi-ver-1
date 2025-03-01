@@ -428,3 +428,45 @@ class SearchHistory(models.Model):
 
     def __str__(self):
         return f"{self.keyword} - {self.created_at.strftime('%d/%m/%Y %H:%M')}"
+
+class Discount(models.Model):
+    DISCOUNT_TYPE_CHOICES = [
+        ('percentage', 'Phần trăm'),
+        ('fixed', 'Số tiền cố định'),
+    ]
+    
+    code = models.CharField(max_length=50, unique=True)
+    description = models.TextField(blank=True, null=True)
+    discount_type = models.CharField(max_length=10, choices=DISCOUNT_TYPE_CHOICES, default='percentage')
+    value = models.DecimalField(max_digits=10, decimal_places=2)
+    max_uses = models.IntegerField(default=0)  # 0 = không giới hạn
+    used_count = models.IntegerField(default=0)
+    valid_from = models.DateTimeField()
+    valid_to = models.DateTimeField()
+    products = models.ManyToManyField(Product, blank=True)
+    categories = models.ManyToManyField(Category, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Mã giảm giá'
+        verbose_name_plural = 'Mã giảm giá'
+    
+    def __str__(self):
+        return self.code
+    
+    def is_valid(self):
+        now = timezone.now()
+        if not self.is_active:
+            return False
+        if self.max_uses > 0 and self.used_count >= self.max_uses:
+            return False
+        if now < self.valid_from or now > self.valid_to:
+            return False
+        return True
+    
+    def get_discount_amount(self, amount):
+        if self.discount_type == 'percentage':
+            return (amount * self.value) / 100
+        return self.value if amount > self.value else amount

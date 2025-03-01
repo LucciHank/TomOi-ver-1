@@ -11,41 +11,54 @@ from django.utils.translation import gettext_lazy as _
 User = get_user_model()
 
 class Ticket(models.Model):
-    STATUS_CHOICES = (
-        ('new', _('Mới')),
-        ('processing', _('Đang xử lý')),
-        ('resolved', _('Đã giải quyết')),
-        ('closed', _('Đã đóng')),
-    )
+    """Support ticket model"""
+    STATUS_CHOICES = [
+        ('new', 'New'),
+        ('processing', 'Processing'),
+        ('resolved', 'Resolved'),
+        ('closed', 'Closed'),
+    ]
     
+    PRIORITY_CHOICES = [
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+        ('urgent', 'Urgent'),
+    ]
+    
+    title = models.CharField(max_length=255)
+    content = models.TextField()
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='tickets')
-    title = models.CharField(_('Tiêu đề'), max_length=255)
-    content = models.TextField(_('Nội dung'))
-    status = models.CharField(_('Trạng thái'), max_length=20, choices=STATUS_CHOICES, default='new')
-    created_at = models.DateTimeField(_('Ngày tạo'), auto_now_add=True)
-    updated_at = models.DateTimeField(_('Ngày cập nhật'), auto_now=True)
+    assigned_to = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='assigned_tickets'
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new')
+    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='medium')
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
-        verbose_name = _('Ticket')
-        verbose_name_plural = _('Tickets')
         ordering = ['-created_at']
-    
+        
     def __str__(self):
         return self.title
 
 class TicketReply(models.Model):
+    """Reply to a support ticket"""
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name='replies')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    content = models.TextField(_('Nội dung'))
-    created_at = models.DateTimeField(_('Ngày tạo'), auto_now_add=True)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
-        verbose_name = _('Phản hồi ticket')
-        verbose_name_plural = _('Phản hồi ticket')
         ordering = ['created_at']
-    
+        
     def __str__(self):
-        return f'Phản hồi cho {self.ticket.title}'
+        return f"Reply to {self.ticket.title} by {self.user.username}"
 
 class Commission(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -106,31 +119,24 @@ class MarketingCampaign(models.Model):
     CAMPAIGN_TYPES = (
         ('email', 'Email Marketing'),
         ('social', 'Social Media'),
-        ('display', 'Display Ads'),
+        ('banner', 'Banner Ads'),
         ('search', 'Search Ads'),
+        ('other', 'Khác'),
     )
     
-    name = models.CharField(max_length=200)
-    type = models.CharField(max_length=20, choices=CAMPAIGN_TYPES)
+    name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
-    goals = models.TextField(blank=True)
-    budget = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    
-    start_date = models.DateField()
-    end_date = models.DateField(null=True, blank=True)
-    
-    impressions = models.PositiveIntegerField(default=0)
-    clicks = models.PositiveIntegerField(default=0)
-    conversions = models.PositiveIntegerField(default=0)
-    
+    type = models.CharField(max_length=20, choices=CAMPAIGN_TYPES)
+    budget = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    start_date = models.DateField(default='2023-01-01')
+    end_date = models.DateField(default='2023-12-31')
+    impressions = models.IntegerField(default=0)
+    clicks = models.IntegerField(default=0)
+    conversions = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
-    class Meta:
-        ordering = ['-created_at']
-        
     def __str__(self):
         return self.name
         
@@ -242,66 +248,34 @@ class SalesAnalytics(models.Model):
     refund_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
 # Chatbot Models
-class ChatbotQA(models.Model):
-    CATEGORY_CHOICES = [
-        ('general', 'Thông tin chung'),
-        ('product', 'Sản phẩm'),
-        ('payment', 'Thanh toán'),
-        ('shipping', 'Vận chuyển'),
-        ('return', 'Đổi trả')
-    ]
-    
-    question = models.CharField(max_length=255)
-    answer = models.TextField()
-    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, blank=True, null=True)
-    keywords = models.CharField(max_length=255, blank=True)
-    usage_count = models.PositiveIntegerField(default=0)
+class ChatConversation(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    session_id = models.CharField(max_length=100, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return self.question
-    
-    class Meta:
-        verbose_name = 'Câu hỏi và trả lời'
-        verbose_name_plural = 'Câu hỏi và trả lời'
-
-class ChatSession(models.Model):
-    STATUS_CHOICES = [
-        ('active', 'Đang hoạt động'),
-        ('ended', 'Đã kết thúc'),
-        ('transferred', 'Đã chuyển cho nhân viên')
-    ]
-    
-    session_id = models.CharField(max_length=100, unique=True)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    ip_address = models.GenericIPAddressField()
-    user_agent = models.CharField(max_length=255)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
-    start_time = models.DateTimeField(auto_now_add=True)
-    end_time = models.DateTimeField(null=True, blank=True)
-    duration = models.DurationField(null=True, blank=True)
-    feedback_rating = models.PositiveSmallIntegerField(null=True, blank=True)
-    feedback_comment = models.TextField(blank=True)
-    
-    def __str__(self):
-        return f"Chat {self.session_id} - {self.start_time}"
-    
-    class Meta:
-        ordering = ['-start_time']
+        return f"Cuộc hội thoại #{self.id}"
 
 class ChatMessage(models.Model):
-    session = models.ForeignKey(ChatSession, on_delete=models.CASCADE, related_name='messages')
-    is_bot = models.BooleanField(default=False)
-    message = models.TextField()
-    sent_at = models.DateTimeField(auto_now_add=True)
-    qa_used = models.ForeignKey(ChatbotQA, on_delete=models.SET_NULL, null=True, blank=True)
+    conversation = models.ForeignKey(ChatConversation, on_delete=models.CASCADE, related_name='messages')
+    content = models.TextField()
+    from_user = models.BooleanField(default=True)  # True nếu từ người dùng, False nếu từ chatbot
+    created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        return f"{'Bot' if self.is_bot else 'User'}: {self.message[:50]}"
+        sender = "Người dùng" if self.from_user else "Chatbot"
+        return f"{sender}: {self.content[:50]}..."
+
+class ChatbotResponse(models.Model):
+    trigger = models.CharField(max_length=200)
+    response = models.TextField()
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
-    class Meta:
-        ordering = ['sent_at']
+    def __str__(self):
+        return f"Trigger: {self.trigger[:30]}..."
 
 # Content Management Models
 class ContentPage(models.Model):
@@ -501,4 +475,105 @@ class ReferrerAnalytics(models.Model):
     def avg_session_duration(self):
         if self.visits > 0:
             return self.total_duration / self.visits
-        return timedelta() 
+        return timedelta()
+
+class Discount(models.Model):
+    DISCOUNT_TYPES = (
+        ('percentage', 'Phần trăm'),
+        ('fixed', 'Giảm trực tiếp'),
+    )
+    
+    code = models.CharField(max_length=20, unique=True)
+    discount_type = models.CharField(max_length=20, choices=DISCOUNT_TYPES, default='percentage')
+    value = models.DecimalField(max_digits=10, decimal_places=2)
+    min_order_value = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    max_uses = models.IntegerField(default=0)  # 0 = không giới hạn
+    used_count = models.IntegerField(default=0)
+    valid_from = models.DateTimeField(default=timezone.now)
+    valid_to = models.DateTimeField(default=lambda: timezone.now() + timedelta(days=30))
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    @property
+    def is_valid(self):
+        now = timezone.now()
+        is_in_period = self.valid_from <= now <= self.valid_to
+        not_maxed_out = self.max_uses == 0 or self.used_count < self.max_uses
+        return is_in_period and not_maxed_out and self.is_active
+    
+    def __str__(self):
+        return self.code
+
+class EmailTemplate(models.Model):
+    TEMPLATE_TYPES = (
+        ('welcome', 'Chào mừng'),
+        ('order_confirmation', 'Xác nhận đơn hàng'),
+        ('shipping_confirmation', 'Xác nhận vận chuyển'),
+        ('order_completed', 'Đơn hàng hoàn thành'),
+        ('password_reset', 'Đặt lại mật khẩu'),
+        ('newsletter', 'Bản tin'),
+        ('custom', 'Tùy chỉnh'),
+    )
+    
+    name = models.CharField(max_length=100)
+    subject = models.CharField(max_length=200)
+    content = models.TextField()
+    template_type = models.CharField(max_length=50, choices=TEMPLATE_TYPES, default='custom')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return self.name
+
+class EmailLog(models.Model):
+    subject = models.CharField(max_length=200)
+    recipient = models.EmailField()
+    content = models.TextField()
+    template = models.ForeignKey(EmailTemplate, on_delete=models.SET_NULL, null=True, blank=True)
+    was_opened = models.BooleanField(default=False)
+    was_clicked = models.BooleanField(default=False)
+    sent_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Email to {self.recipient} - {self.subject}"
+
+class SupportTicket(models.Model):
+    STATUS_CHOICES = (
+        ('open', 'Đang mở'),
+        ('pending', 'Đang chờ'),
+        ('closed', 'Đã đóng'),
+    )
+    
+    CATEGORY_CHOICES = (
+        ('general', 'Câu hỏi chung'),
+        ('order', 'Vấn đề đơn hàng'),
+        ('product', 'Thông tin sản phẩm'),
+        ('shipping', 'Vận chuyển'),
+        ('return', 'Đổi trả'),
+        ('technical', 'Kỹ thuật'),
+        ('other', 'Khác'),
+    )
+    
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    subject = models.CharField(max_length=200)
+    message = models.TextField()
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='general')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open')
+    is_customer_reply = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    closed_at = models.DateTimeField(null=True, blank=True)
+    
+    def __str__(self):
+        return f"Ticket #{self.id} - {self.subject}"
+
+class TicketReply(models.Model):
+    ticket = models.ForeignKey(SupportTicket, on_delete=models.CASCADE, related_name='replies')
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    content = models.TextField()
+    is_admin_reply = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Reply to Ticket #{self.ticket.id}" 

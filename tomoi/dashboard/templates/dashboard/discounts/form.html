@@ -1,0 +1,180 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{% if is_add %}Thêm mã giảm giá{% else %}Chỉnh sửa mã giảm giá{% endif %}{% endblock %}
+
+{% block page_title %}{% if is_add %}Thêm mã giảm giá{% else %}Chỉnh sửa mã giảm giá{% endif %}{% endblock %}
+{% block page_subtitle %}{% if is_add %}Tạo mã giảm giá mới{% else %}Cập nhật thông tin mã giảm giá{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-{% if is_add %}plus{% else %}edit{% endif %} me-1"></i>
+            {% if is_add %}Thêm mã giảm giá{% else %}Chỉnh sửa mã giảm giá{% endif %}
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% if is_add %}{% url 'dashboard:add_discount' %}{% else %}{% url 'dashboard:edit_discount' discount.id %}{% endif %}">
+                {% csrf_token %}
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="id_code" class="form-label">Mã giảm giá <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="id_code" name="code" value="{{ form.code.value|default:'' }}" required {% if not is_add %}readonly{% endif %}>
+                            {% if form.code.errors %}
+                            <div class="text-danger">
+                                {{ form.code.errors }}
+                            </div>
+                            {% endif %}
+                            <small class="form-text text-muted">Mã giảm giá là duy nhất và không thể thay đổi sau khi tạo.</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_description" class="form-label">Mô tả</label>
+                            <textarea class="form-control" id="id_description" name="description" rows="3">{{ form.description.value|default:'' }}</textarea>
+                            {% if form.description.errors %}
+                            <div class="text-danger">
+                                {{ form.description.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_discount_type" class="form-label">Loại giảm giá <span class="text-danger">*</span></label>
+                                <select class="form-select" id="id_discount_type" name="discount_type" required>
+                                    <option value="percentage" {% if form.discount_type.value == 'percentage' %}selected{% endif %}>Phần trăm (%)</option>
+                                    <option value="fixed" {% if form.discount_type.value == 'fixed' %}selected{% endif %}>Số tiền cố định (₫)</option>
+                                </select>
+                                {% if form.discount_type.errors %}
+                                <div class="text-danger">
+                                    {{ form.discount_type.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="id_value" class="form-label">Giá trị <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="id_value" name="value" value="{{ form.value.value|default:'' }}" min="0" step="0.01" required>
+                                {% if form.value.errors %}
+                                <div class="text-danger">
+                                    {{ form.value.errors }}
+                                </div>
+                                {% endif %}
+                                <small class="form-text text-muted discount-hint">Phần trăm giảm giá (ví dụ: 10 = 10%)</small>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_max_uses" class="form-label">Số lần sử dụng tối đa</label>
+                            <input type="number" class="form-control" id="id_max_uses" name="max_uses" value="{{ form.max_uses.value|default:'0' }}" min="0">
+                            {% if form.max_uses.errors %}
+                            <div class="text-danger">
+                                {{ form.max_uses.errors }}
+                            </div>
+                            {% endif %}
+                            <small class="form-text text-muted">Nhập 0 nếu không giới hạn số lần sử dụng.</small>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_valid_from" class="form-label">Hiệu lực từ <span class="text-danger">*</span></label>
+                                <input type="datetime-local" class="form-control" id="id_valid_from" name="valid_from" value="{{ form.valid_from.value|date:'Y-m-d\TH:i' }}" required>
+                                {% if form.valid_from.errors %}
+                                <div class="text-danger">
+                                    {{ form.valid_from.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="id_valid_to" class="form-label">Hiệu lực đến <span class="text-danger">*</span></label>
+                                <input type="datetime-local" class="form-control" id="id_valid_to" name="valid_to" value="{{ form.valid_to.value|date:'Y-m-d\TH:i' }}" required>
+                                {% if form.valid_to.errors %}
+                                <div class="text-danger">
+                                    {{ form.valid_to.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Áp dụng cho sản phẩm</label>
+                            <select class="form-select" id="id_products" name="products" multiple>
+                                {% for product in products %}
+                                <option value="{{ product.id }}" {% if product.id in form.products.value %}selected{% endif %}>{{ product.name }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if form.products.errors %}
+                            <div class="text-danger">
+                                {{ form.products.errors }}
+                            </div>
+                            {% endif %}
+                            <small class="form-text text-muted">Để trống nếu áp dụng cho tất cả sản phẩm.</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Áp dụng cho danh mục</label>
+                            <select class="form-select" id="id_categories" name="categories" multiple>
+                                {% for category in categories %}
+                                <option value="{{ category.id }}" {% if category.id in form.categories.value %}selected{% endif %}>{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if form.categories.errors %}
+                            <div class="text-danger">
+                                {{ form.categories.errors }}
+                            </div>
+                            {% endif %}
+                            <small class="form-text text-muted">Để trống nếu áp dụng cho tất cả danh mục.</small>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="id_is_active" name="is_active" {% if form.is_active.value %}checked{% endif %}>
+                            <label class="form-check-label" for="id_is_active">
+                                Kích hoạt
+                            </label>
+                            {% if form.is_active.errors %}
+                            <div class="text-danger">
+                                {{ form.is_active.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'dashboard:discounts' %}" class="btn btn-secondary">Hủy</a>
+                    <button type="submit" class="btn btn-primary">
+                        {% if is_add %}Tạo mã giảm giá{% else %}Cập nhật{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#id_products, #id_categories').select2({
+        placeholder: "Chọn nhiều tùy chọn",
+        allowClear: true
+    });
+    
+    $('#id_discount_type').change(function() {
+        const type = $(this).val();
+        if (type === 'percentage') {
+            $('.discount-hint').text('Phần trăm giảm giá (ví dụ: 10 = 10%)');
+        } else {
+            $('.discount-hint').text('Số tiền giảm giá (VNĐ)');
+        }
+    });
+});
+</script>
+{% endblock %} 

@@ -107,7 +107,7 @@ ROOT_URLCONF = 'tomoi.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "templates"],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -118,6 +118,7 @@ TEMPLATES = [
                 'social_django.context_processors.backends',
                 'social_django.context_processors.login_redirect',
                 'store.context_processors.banners',
+                'dashboard.context_processors.dashboard_settings',
             ],
         },
     },

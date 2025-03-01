@@ -1,0 +1,239 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Chương Trình Giới Thiệu{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Chương Trình Giới Thiệu</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Chương Trình Giới Thiệu</li>
+    </ol>
+    
+    <!-- Settings Card -->
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-cog me-1"></i>
+                    Cài đặt chương trình giới thiệu
+                </div>
+                <div class="card-body">
+                    <form id="referralSettingsForm" method="post" action="{% url 'dashboard:update_referral_settings' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="referralReward" class="form-label">Phần trăm hoa hồng cho người giới thiệu (%)</label>
+                            <input type="number" class="form-control" id="referralReward" name="referral_reward" value="{{ settings.referral_reward }}" min="0" max="100" step="0.1" required>
+                            <div class="form-text">Phần trăm hoa hồng người giới thiệu nhận được từ mỗi giao dịch của người được giới thiệu.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="referralDiscount" class="form-label">Giảm giá cho người được giới thiệu (%)</label>
+                            <input type="number" class="form-control" id="referralDiscount" name="referral_discount" value="{{ settings.referral_discount }}" min="0" max="100" step="0.1" required>
+                            <div class="form-text">Phần trăm giảm giá cho người được giới thiệu trong lần mua hàng đầu tiên.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="minPurchaseAmount" class="form-label">Số tiền mua hàng tối thiểu (VNĐ)</label>
+                            <input type="number" class="form-control" id="minPurchaseAmount" name="min_purchase_amount" value="{{ settings.min_purchase_amount }}" min="0" step="1000" required>
+                            <div class="form-text">Số tiền tối thiểu người được giới thiệu phải chi tiêu để người giới thiệu nhận được hoa hồng.</div>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="isActive" name="is_active" {% if settings.is_active %}checked{% endif %}>
+                            <label class="form-check-label" for="isActive">Kích hoạt chương trình giới thiệu</label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Lưu cài đặt</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-bar me-1"></i>
+                    Thống kê chương trình giới thiệu
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="card bg-primary text-white h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 class="mb-0">{{ stats.total_referrals }}</h5>
+                                            <div class="small">Tổng số giới thiệu</div>
+                                        </div>
+                                        <div>
+                                            <i class="fas fa-users fa-2x"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-4">
+                            <div class="card bg-success text-white h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 class="mb-0">{{ stats.successful_referrals }}</h5>
+                                            <div class="small">Giới thiệu thành công</div>
+                                        </div>
+                                        <div>
+                                            <i class="fas fa-check-circle fa-2x"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-4">
+                            <div class="card bg-info text-white h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 class="mb-0">{{ stats.total_commission|floatformat:0 }}₫</h5>
+                                            <div class="small">Tổng hoa hồng đã trả</div>
+                                        </div>
+                                        <div>
+                                            <i class="fas fa-money-bill-wave fa-2x"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-4">
+                            <div class="card bg-warning text-white h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 class="mb-0">{{ stats.conversion_rate|floatformat:1 }}%</h5>
+                                            <div class="small">Tỷ lệ chuyển đổi</div>
+                                        </div>
+                                        <div>
+                                            <i class="fas fa-chart-line fa-2x"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Referrals List -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-table me-1"></i>
+            Danh sách người giới thiệu
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="referralsTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Người giới thiệu</th>
+                            <th>Số người đã giới thiệu</th>
+                            <th>Số giới thiệu thành công</th>
+                            <th>Tổng hoa hồng</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for referrer in top_referrers %}
+                        <tr>
+                            <td>{{ referrer.id }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar me-2">
+                                        {% if referrer.avatar %}
+                                        <img src="{{ referrer.avatar.url }}" alt="Avatar" class="rounded-circle" width="32" height="32">
+                                        {% else %}
+                                        <div class="avatar-placeholder">{{ referrer.username|first|upper }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <div>{{ referrer.username }}</div>
+                                        <div class="small text-muted">{{ referrer.email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ referrer.total_referrals }}</td>
+                            <td>{{ referrer.successful_referrals }}</td>
+                            <td>{{ referrer.total_commission|floatformat:0 }}₫</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-primary" onclick="viewReferralDetails({{ referrer.id }})">
+                                    <i class="fas fa-eye"></i> Chi tiết
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Referral Details Modal -->
+<div class="modal fade" id="referralDetailsModal" tabindex="-1" aria-labelledby="referralDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="referralDetailsModalLabel">Chi tiết giới thiệu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="referralDetailsContent">
+                    <!-- Content will be loaded dynamically -->
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Đang tải...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    $('#referralsTable').DataTable({
+        responsive: true,
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/vi.json'
+        }
+    });
+});
+
+function viewReferralDetails(userId) {
+    const modal = new bootstrap.Modal(document.getElementById('referralDetailsModal'));
+    modal.show();
+    
+    // Load referral details
+    fetch(`{% url 'dashboard:referral_details' %}?user_id=${userId}`)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('referralDetailsContent').innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('referralDetailsContent').innerHTML = '<div class="alert alert-danger">Có lỗi xảy ra khi tải dữ liệu</div>';
+        });
+}
+</script>
+{% endblock %} 

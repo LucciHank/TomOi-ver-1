@@ -7,100 +7,169 @@
 {% block page_subtitle %}Cấu hình và quản lý chatbot tự động{% endblock %}
 
 {% block content %}
-<div class="row">
-    <!-- Thống kê tổng quan -->
-    <div class="col-12 col-sm-6 col-xl-3 mb-4">
-        <div class="card border-0 shadow">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col">
-                        <h5 class="text-muted mb-2">Tổng cuộc hội thoại</h5>
-                        <h3 class="mb-1">{{ total_conversations }}</h3>
-                    </div>
-                    <div class="col-auto">
-                        <div class="icon-shape bg-primary text-white rounded">
-                            <i class="fas fa-comments"></i>
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Quản lý Chatbot</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Chatbot</li>
+    </ol>
+    
+    <!-- Overview Cards -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">{{ total_conversations }}</h5>
+                            <div class="small">Tổng cuộc hội thoại</div>
+                        </div>
+                        <div>
+                            <i class="fas fa-comments fa-2x"></i>
                         </div>
                     </div>
                 </div>
-                <div class="mt-2">
-                    <span class="text-success me-1">
-                        <i class="fas fa-arrow-up"></i> {{ conversation_growth }}%
-                    </span>
-                    <span class="text-muted">So với tháng trước</span>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">{{ today_conversations }}</h5>
+                            <div class="small">Hội thoại hôm nay</div>
+                        </div>
+                        <div>
+                            <i class="fas fa-comment-dots fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">{{ response_rate|floatformat:1 }}%</h5>
+                            <div class="small">Tỷ lệ phản hồi</div>
+                        </div>
+                        <div>
+                            <i class="fas fa-chart-line fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">{{ avg_response_time|default:"0.0" }}s</h5>
+                            <div class="small">Thời gian phản hồi TB</div>
+                        </div>
+                        <div>
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="col-12 col-sm-6 col-xl-3 mb-4">
-        <div class="card border-0 shadow">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col">
-                        <h5 class="text-muted mb-2">Tỷ lệ giải quyết</h5>
-                        <h3 class="mb-1">{{ resolution_rate }}%</h3>
-                    </div>
-                    <div class="col-auto">
-                        <div class="icon-shape bg-success text-white rounded">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-2">
-                    <span class="text-success me-1">
-                        <i class="fas fa-arrow-up"></i> {{ resolution_growth }}%
-                    </span>
-                    <span class="text-muted">So với tháng trước</span>
-                </div>
+    
+    <!-- Recent Conversations -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-comments me-1"></i>
+                Hội thoại gần đây
             </div>
+            <a href="{% url 'dashboard:chatbot_logs' %}" class="btn btn-sm btn-primary">
+                Xem tất cả
+            </a>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Người dùng</th>
+                        <th>Câu hỏi</th>
+                        <th>Thời gian</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for convo in recent_conversations %}
+                    <tr>
+                        <td>{{ convo.id }}</td>
+                        <td>
+                            {% if convo.user %}
+                                {{ convo.user.username }}
+                            {% else %}
+                                Khách
+                            {% endif %}
+                        </td>
+                        <td>{{ convo.first_message|truncatechars:50 }}</td>
+                        <td>{{ convo.created_at|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            {% if convo.is_resolved %}
+                                <span class="badge bg-success">Đã giải quyết</span>
+                            {% else %}
+                                <span class="badge bg-warning">Đang xử lý</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">Chưa có hội thoại nào.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
-
-    <div class="col-12 col-sm-6 col-xl-3 mb-4">
-        <div class="card border-0 shadow">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col">
-                        <h5 class="text-muted mb-2">Thời gian phản hồi</h5>
-                        <h3 class="mb-1">{{ avg_response_time }}s</h3>
-                    </div>
-                    <div class="col-auto">
-                        <div class="icon-shape bg-info text-white rounded">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-2">
-                    <span class="text-danger me-1">
-                        <i class="fas fa-arrow-down"></i> {{ response_time_change }}%
-                    </span>
-                    <span class="text-muted">So với tháng trước</span>
-                </div>
-            </div>
+    
+    <!-- Top Questions -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-question-circle me-1"></i>
+            Câu hỏi phổ biến
         </div>
-    </div>
-
-    <div class="col-12 col-sm-6 col-xl-3 mb-4">
-        <div class="card border-0 shadow">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col">
-                        <h5 class="text-muted mb-2">Đánh giá tích cực</h5>
-                        <h3 class="mb-1">{{ positive_feedback }}%</h3>
-                    </div>
-                    <div class="col-auto">
-                        <div class="icon-shape bg-warning text-white rounded">
-                            <i class="fas fa-smile"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-2">
-                    <span class="text-success me-1">
-                        <i class="fas fa-arrow-up"></i> {{ feedback_growth }}%
-                    </span>
-                    <span class="text-muted">So với tháng trước</span>
-                </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Câu hỏi</th>
+                            <th>Số lần</th>
+                            <th>Tỷ lệ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for question in top_questions %}
+                        <tr>
+                            <td>{{ question.question|truncatechars:60 }}</td>
+                            <td>{{ question.count }}</td>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" style="width: {{ question.percentage }}%">
+                                        {{ question.percentage }}%
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center">Không có dữ liệu</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
