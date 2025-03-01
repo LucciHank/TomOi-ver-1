@@ -1,0 +1,240 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Cài đặt hệ thống - Dashboard{% endblock %}
+
+{% block page_title %}Cài đặt hệ thống{% endblock %}
+{% block page_subtitle %}Quản lý cài đặt website{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-3 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Danh mục cài đặt</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    <a href="#general" class="list-group-item list-group-item-action active" data-bs-toggle="tab">
+                        <i class="fas fa-cog me-2"></i> Cài đặt chung
+                    </a>
+                    <a href="#store" class="list-group-item list-group-item-action" data-bs-toggle="tab">
+                        <i class="fas fa-store me-2"></i> Cửa hàng
+                    </a>
+                    <a href="#shipping" class="list-group-item list-group-item-action" data-bs-toggle="tab">
+                        <i class="fas fa-truck me-2"></i> Vận chuyển
+                    </a>
+                    <a href="#payment" class="list-group-item list-group-item-action" data-bs-toggle="tab">
+                        <i class="fas fa-credit-card me-2"></i> Thanh toán
+                    </a>
+                    <a href="#email" class="list-group-item list-group-item-action" data-bs-toggle="tab">
+                        <i class="fas fa-envelope me-2"></i> Email
+                    </a>
+                    <a href="#notification" class="list-group-item list-group-item-action" data-bs-toggle="tab">
+                        <i class="fas fa-bell me-2"></i> Thông báo
+                    </a>
+                    <a href="#seo" class="list-group-item list-group-item-action" data-bs-toggle="tab">
+                        <i class="fas fa-search me-2"></i> SEO
+                    </a>
+                    <a href="#security" class="list-group-item list-group-item-action" data-bs-toggle="tab">
+                        <i class="fas fa-shield-alt me-2"></i> Bảo mật
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-9">
+        <div class="tab-content">
+            <!-- Cài đặt chung -->
+            <div class="tab-pane fade show active" id="general">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Thông tin cửa hàng</h6>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="store_name" class="form-label">Tên cửa hàng</label>
+                                <input type="text" class="form-control" id="store_name" name="store_name" value="{{ settings.store_name }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="store_description" class="form-label">Mô tả</label>
+                                <textarea class="form-control" id="store_description" name="store_description" rows="3">{{ settings.store_description }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="contact_email" class="form-label">Email liên hệ</label>
+                                <input type="email" class="form-control" id="contact_email" name="contact_email" value="{{ settings.contact_email }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="contact_phone" class="form-label">Số điện thoại</label>
+                                <input type="text" class="form-control" id="contact_phone" name="contact_phone" value="{{ settings.contact_phone }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="logo" class="form-label">Logo</label>
+                                <div class="d-flex align-items-center">
+                                    {% if settings.logo %}
+                                    <div class="me-3">
+                                        <img src="{{ settings.logo.url }}" alt="Logo" style="max-height: 60px;">
+                                    </div>
+                                    {% endif %}
+                                    <input type="file" class="form-control" id="logo" name="logo">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="favicon" class="form-label">Favicon</label>
+                                <div class="d-flex align-items-center">
+                                    {% if settings.favicon %}
+                                    <div class="me-3">
+                                        <img src="{{ settings.favicon.url }}" alt="Favicon" style="max-height: 32px;">
+                                    </div>
+                                    {% endif %}
+                                    <input type="file" class="form-control" id="favicon" name="favicon">
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Địa chỉ cửa hàng</h6>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="address" class="form-label">Địa chỉ</label>
+                                <input type="text" class="form-control" id="address" name="address" value="{{ settings.address }}">
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label for="city" class="form-label">Thành phố</label>
+                                    <input type="text" class="form-control" id="city" name="city" value="{{ settings.city }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="state" class="form-label">Tỉnh/Thành</label>
+                                    <input type="text" class="form-control" id="state" name="state" value="{{ settings.state }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="zip_code" class="form-label">Mã bưu điện</label>
+                                    <input type="text" class="form-control" id="zip_code" name="zip_code" value="{{ settings.zip_code }}">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="country" class="form-label">Quốc gia</label>
+                                <select class="form-select" id="country" name="country">
+                                    <option value="VN" {% if settings.country == 'VN' %}selected{% endif %}>Việt Nam</option>
+                                    <option value="US" {% if settings.country == 'US' %}selected{% endif %}>United States</option>
+                                    <option value="GB" {% if settings.country == 'GB' %}selected{% endif %}>United Kingdom</option>
+                                </select>
+                            </div>
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cài đặt cửa hàng -->
+            <div class="tab-pane fade" id="store">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Cài đặt cửa hàng</h6>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label">Đơn vị tiền tệ</label>
+                                <select class="form-select" name="currency">
+                                    <option value="VND" {% if settings.currency == 'VND' %}selected{% endif %}>VND (₫)</option>
+                                    <option value="USD" {% if settings.currency == 'USD' %}selected{% endif %}>USD ($)</option>
+                                    <option value="EUR" {% if settings.currency == 'EUR' %}selected{% endif %}>EUR (€)</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Định dạng giá</label>
+                                <select class="form-select" name="price_format">
+                                    <option value="comma" {% if settings.price_format == 'comma' %}selected{% endif %}>123,456 ₫</option>
+                                    <option value="dot" {% if settings.price_format == 'dot' %}selected{% endif %}>123.456 ₫</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Thuế VAT (%)</label>
+                                <input type="number" class="form-control" name="tax_rate" value="{{ settings.tax_rate|default:10 }}" min="0" step="0.1">
+                            </div>
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Các tab khác cũng có cấu trúc tương tự -->
+            <div class="tab-pane fade" id="shipping">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Cài đặt vận chuyển</h6>
+                    </div>
+                    <div class="card-body">
+                        <!-- Content sẽ được thêm sau -->
+                        <div class="alert alert-info">
+                            Tính năng đang được phát triển.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-pane fade" id="payment">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Cài đặt thanh toán</h6>
+                    </div>
+                    <div class="card-body">
+                        <!-- Content sẽ được thêm sau -->
+                        <div class="alert alert-info">
+                            Tính năng đang được phát triển.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Các tab khác cũng tương tự -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Xử lý chuyển tab
+        const tabLinks = document.querySelectorAll('.list-group-item');
+        tabLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Xóa active class
+                tabLinks.forEach(l => l.classList.remove('active'));
+                
+                // Thêm active cho tab được chọn
+                this.classList.add('active');
+                
+                // Hiển thị tab content tương ứng
+                const target = this.getAttribute('href');
+                document.querySelectorAll('.tab-pane').forEach(pane => {
+                    pane.classList.remove('show', 'active');
+                });
+                document.querySelector(target).classList.add('show', 'active');
+            });
+        });
+    });
+</script>
+{% endblock %} 

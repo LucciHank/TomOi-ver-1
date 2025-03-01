@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from .redirects import blog_redirect, banner_redirect, chart_data_redirect
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,6 +27,9 @@ urlpatterns = [
     path('dashboard/', include('dashboard.urls')),
     path('blog/', include('blog.urls')),
     path('social-auth/', include('social_django.urls', namespace='social')),
+    path('blogs/', blog_redirect, name='blogs'),
+    path('banners/', banner_redirect, name='banners'),
+    path('chart-data/', chart_data_redirect, name='chart_data'),
 ]
 
 if settings.DEBUG:

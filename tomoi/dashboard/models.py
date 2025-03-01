@@ -7,8 +7,21 @@ from django.contrib.auth import get_user_model
 from datetime import timedelta
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+import uuid
 
 User = get_user_model()
+
+def get_default_time():
+    return timezone.now()
+
+def get_default_expiry_date():
+    return timezone.now() + timedelta(days=30)
+
+def get_default_from_date():
+    return timezone.now()
+
+def get_default_token():
+    return uuid.uuid4().hex
 
 class Ticket(models.Model):
     """Support ticket model"""
@@ -101,7 +114,7 @@ class APIKey(models.Model):
     name = models.CharField(max_length=100)
     key = models.CharField(max_length=64, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    expires_at = models.DateTimeField()
+    expires_at = models.DateTimeField(default=get_default_expiry_date)
     is_active = models.BooleanField(default=True)
     last_used = models.DateTimeField(null=True, blank=True)
     rate_limit = models.IntegerField(default=1000)  # Requests per day
@@ -490,7 +503,7 @@ class Discount(models.Model):
     max_uses = models.IntegerField(default=0)  # 0 = không giới hạn
     used_count = models.IntegerField(default=0)
     valid_from = models.DateTimeField(default=timezone.now)
-    valid_to = models.DateTimeField(default=lambda: timezone.now() + timedelta(days=30))
+    valid_to = models.DateTimeField(default=get_default_expiry_date)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -15,4 +15,11 @@ def format_balance(value):
     except (ValueError, TypeError):
         return value
 
-# ... các filter khác giữ nguyên 
+@register.filter
+def format_price(value):
+    try:
+        return "{:,.0f}₫".format(float(value))
+    except (ValueError, TypeError):
+        return value
+
+# Các filter khác từ custom_filters 

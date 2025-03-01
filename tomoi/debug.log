@@ -43529,3 +43529,1917 @@ Watching for file changes with StatReloader
 Watching for file changes with StatReloader
 /Users/hanhhlanhchanh/TomOi-ver-1/tomoi/dashboard/views.py changed, reloading.
 Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 69336
+"GET /static/css/style.css?v=1.1 HTTP/1.1" 304 0
+"GET /static/css/security.css?v=1.1 HTTP/1.1" 304 0
+"GET /static/js/translations.js HTTP/1.1" 304 0
+"GET /static/js/base.js HTTP/1.1" 304 0
+"GET /static/accounts/js/base.js?v=1.2 HTTP/1.1" 304 0
+"GET /static/store/js/search.js HTTP/1.1" 304 0
+"GET /media/avatars/Firefly_20250220094241.png HTTP/1.1" 200 469690
+"GET /media/products/74jpIkbEsTJAX.png HTTP/1.1" 200 157691
+"GET /media/products/Anh_man_hinh_2023-11-27_luc_18.25.19.png HTTP/1.1" 200 1588225
+"GET /media/categories/no-minors.png HTTP/1.1" 200 33146
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /static/images/favicon.ico HTTP/1.1" 404 1981
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/api/ HTTP/1.1" 200 467
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /cart/count/ HTTP/1.1" 200 12
+"GET /dashboard HTTP/1.1" 301 0
+Internal Server Error: /dashboard/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2501, in index
+    return render(request, 'dashboard/index.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 327, in render
+    return nodelist.render(context)
+           ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 210, in render
+    return template.render(context)
+           ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 173, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'banners' not found. 'banners' is not a valid view function or pattern name.
+"GET /dashboard/ HTTP/1.1" 500 209998
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 11863
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py changed, reloading.
+Watching for file changes with StatReloader
+Internal Server Error: /dashboard/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2501, in index
+    return render(request, 'dashboard/index.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 327, in render
+    return nodelist.render(context)
+           ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 210, in render
+    return template.render(context)
+           ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 173, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'blogs' not found. 'blogs' is not a valid view function or pattern name.
+"GET /dashboard/ HTTP/1.1" 500 210291
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\urls.py changed, reloading.
+Watching for file changes with StatReloader
+Internal Server Error: /dashboard/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2501, in index
+    return render(request, 'dashboard/index.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'blogs' not found. 'blogs' is not a valid view function or pattern name.
+"GET /dashboard/ HTTP/1.1" 500 165307
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\tomoi\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\tomoi\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py changed, reloading.
+Watching for file changes with StatReloader
+Internal Server Error: /dashboard/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2501, in index
+    return render(request, 'dashboard/index.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'chart_data' not found. 'chart_data' is not a valid view function or pattern name.
+"GET /dashboard/ HTTP/1.1" 500 183306
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\tomoi\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\tomoi\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\tomoi\redirects.py changed, reloading.
+Watching for file changes with StatReloader
+Internal Server Error: /dashboard/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2501, in index
+    return render(request, 'dashboard/index.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'chart_data' not found. 'chart_data' is not a valid view function or pattern name.
+"GET /dashboard/ HTTP/1.1" 500 183306
+Internal Server Error: /dashboard/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2501, in index
+    return render(request, 'dashboard/index.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'chart_data' not found. 'chart_data' is not a valid view function or pattern name.
+"GET /dashboard/ HTTP/1.1" 500 183306
+Internal Server Error: /dashboard/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2501, in index
+    return render(request, 'dashboard/index.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'chart_data' not found. 'chart_data' is not a valid view function or pattern name.
+"GET /dashboard/ HTTP/1.1" 500 183306
+Internal Server Error: /dashboard/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2501, in index
+    return render(request, 'dashboard/index.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'chart_data' not found. 'chart_data' is not a valid view function or pattern name.
+"GET /dashboard/ HTTP/1.1" 500 183306
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\tomoi\redirects.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\tomoi\redirects.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\urls.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /dashboard/ HTTP/1.1" 200 16492
+"GET /static/dashboard/css/styles.css HTTP/1.1" 404 1999
+"GET /static/dashboard/js/scripts.js HTTP/1.1" 404 1996
+C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\urls.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /dashboard/ HTTP/1.1" 200 21916
+"GET /static/dashboard/css/styles.css HTTP/1.1" 404 1999
+"GET /dashboard/chatbot/ HTTP/1.1" 200 21283
+"GET /static/dashboard/css/styles.css HTTP/1.1" 404 1999
+Internal Server Error: /dashboard/email-templates/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2746, in email_templates
+    return render(request, 'dashboard/emails/templates.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'create_email_template' not found. 'create_email_template' is not a valid view function or pattern name.
+"GET /dashboard/email-templates/ HTTP/1.1" 500 169552
+Internal Server Error: /dashboard/banners/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 3306, in banner_list
+    return render(request, 'dashboard/marketing/banners.html', {'banners': banners})
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: dashboard/marketing/banners.html
+"GET /dashboard/banners/ HTTP/1.1" 500 97910
+Internal Server Error: /dashboard/blogs/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 3410, in blog_categories
+    return render(request, 'dashboard/blog/categories.html', {'categories': categories})
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: dashboard/blog/categories.html
+"GET /dashboard/blogs/ HTTP/1.1" 500 97802
+"GET /dashboard/ HTTP/1.1" 200 21916
+"GET /static/dashboard/css/styles.css HTTP/1.1" 404 1999
+Not Found: /dashboard/orders/5/
+"GET /dashboard/orders/5/ HTTP/1.1" 404 16348
+Internal Server Error: /dashboard/settings/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2643, in system_settings
+    return render(request, 'dashboard/settings/general.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: dashboard/settings/general.html
+"GET /dashboard/settings/ HTTP/1.1" 500 99917
+Internal Server Error: /dashboard/settings/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2643, in system_settings
+    return render(request, 'dashboard/settings/general.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: dashboard/settings/general.html
+"GET /dashboard/settings/ HTTP/1.1" 500 99917
+Internal Server Error: /dashboard/tickets/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 354, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: dashboard_supportticket
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2835, in ticket_list
+    return render(request, 'dashboard/tickets/list.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 199, in render
+    len_values = len(values)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\models\query.py", line 382, in __len__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\models\query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\models\query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1574, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 354, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such table: dashboard_supportticket
+"GET /dashboard/tickets/ HTTP/1.1" 500 225604
+"GET /dashboard/analytics/ HTTP/1.1" 200 16684
+"GET /static/dashboard/css/styles.css HTTP/1.1" 404 1999
+Internal Server Error: /dashboard/email-templates/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2746, in email_templates
+    return render(request, 'dashboard/emails/templates.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'create_email_template' not found. 'create_email_template' is not a valid view function or pattern name.
+"GET /dashboard/email-templates/ HTTP/1.1" 500 169554
+"GET /dashboard/chatbot/ HTTP/1.1" 200 21283
+"GET /static/dashboard/css/styles.css HTTP/1.1" 404 1999
+Internal Server Error: /dashboard/chatbot/logs/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2406, in chatbot_logs
+    'satisfaction': null
+                    ^^^^
+NameError: name 'null' is not defined
+"GET /dashboard/chatbot/logs/ HTTP/1.1" 500 79190
+"GET /dashboard/ HTTP/1.1" 200 21916
+"GET /static/dashboard/css/styles.css HTTP/1.1" 404 1999
+Internal Server Error: /dashboard/marketing/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 208, in marketing_dashboard
+    return render(request, 'dashboard/marketing/dashboard.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: dashboard/marketing/dashboard.html
+"GET /dashboard/marketing/ HTTP/1.1" 500 100867
+Internal Server Error: /dashboard/banners/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 3306, in banner_list
+    return render(request, 'dashboard/marketing/banners.html', {'banners': banners})
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: dashboard/marketing/banners.html
+"GET /dashboard/banners/ HTTP/1.1" 500 97902
+Internal Server Error: /dashboard/blogs/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 3410, in blog_categories
+    return render(request, 'dashboard/blog/categories.html', {'categories': categories})
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: dashboard/blog/categories.html
+"GET /dashboard/blogs/ HTTP/1.1" 500 97794
+"GET /dashboard/discounts/ HTTP/1.1" 200 13828
+"GET /static/dashboard/css/styles.css HTTP/1.1" 404 1999
+Internal Server Error: /dashboard/discounts/add/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2689, in add_discount
+    return render(request, 'dashboard/discounts/form.html', {'is_new': True})
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 327, in render
+    return nodelist.render(context)
+           ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'edit_discount' with arguments '('',)' not found. 1 pattern(s) tried: ['dashboard/discounts/(?P<discount_id>[0-9]+)/\\Z']
+"GET /dashboard/discounts/add/ HTTP/1.1" 500 193035
+"GET /dashboard/discounts/ HTTP/1.1" 200 20340
+"GET /dashboard/ HTTP/1.1" 200 28428
+Internal Server Error: /dashboard/settings/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2643, in system_settings
+    return render(request, 'dashboard/settings/general.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: dashboard/settings/general.html
+"GET /dashboard/settings/ HTTP/1.1" 500 99917
+Not Found: /dashboard/orders/5/
+"GET /dashboard/orders/5/ HTTP/1.1" 404 16348
+Internal Server Error: /dashboard/products/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2946, in product_list
+    return render(request, 'dashboard/products/list.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 243, in render
+    nodelist.append(node.render_annotated(context))
+                    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'product_detail' not found. 'product_detail' is not a valid view function or pattern name.
+"GET /dashboard/products/ HTTP/1.1" 500 190654
+"GET /dashboard/ HTTP/1.1" 200 28428
+"GET /dashboard/ HTTP/1.1" 200 28428
+Internal Server Error: /dashboard/orders/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 1707, in order_list
+    return render(request, 'dashboard/orders/list.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'export_orders' not found. 'export_orders' is not a valid view function or pattern name.
+"GET /dashboard/orders/ HTTP/1.1" 500 196846
+Internal Server Error: /dashboard/products/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2946, in product_list
+    return render(request, 'dashboard/products/list.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 243, in render
+    nodelist.append(node.render_annotated(context))
+                    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'product_detail' not found. 'product_detail' is not a valid view function or pattern name.
+"GET /dashboard/products/ HTTP/1.1" 500 190654
+Internal Server Error: /dashboard/categories/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 3116, in category_list
+    return render(request, 'dashboard/categories/list.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: dashboard/categories/list.html
+"GET /dashboard/categories/ HTTP/1.1" 500 98309
+Internal Server Error: /dashboard/orders/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 1707, in order_list
+    return render(request, 'dashboard/orders/list.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'export_orders' not found. 'export_orders' is not a valid view function or pattern name.
+"GET /dashboard/orders/ HTTP/1.1" 500 196846
+Internal Server Error: /dashboard/users/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2512, in user_list
+    return render(request, 'dashboard/users/list.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 243, in render
+    nodelist.append(node.render_annotated(context))
+                    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'user_detail' not found. 'user_detail' is not a valid view function or pattern name.
+"GET /dashboard/users/ HTTP/1.1" 500 187709
+"GET /dashboard/discounts/ HTTP/1.1" 200 20340
+Internal Server Error: /dashboard/discounts/add/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2689, in add_discount
+    return render(request, 'dashboard/discounts/form.html', {'is_new': True})
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 327, in render
+    return nodelist.render(context)
+           ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'edit_discount' with arguments '('',)' not found. 1 pattern(s) tried: ['dashboard/discounts/(?P<discount_id>[0-9]+)/\\Z']
+"GET /dashboard/discounts/add/ HTTP/1.1" 500 194123
+"GET /dashboard/marketing/ HTTP/1.1" 200 26951
+"GET /dashboard/banners/ HTTP/1.1" 200 17463
+"GET /static/dashboard/img/empty.svg HTTP/1.1" 404 1996
+"GET /dashboard/blogs/ HTTP/1.1" 200 17470
+"GET /static/dashboard/img/empty.svg HTTP/1.1" 404 1996
+"GET /dashboard/analytics/ HTTP/1.1" 200 23196
+"GET /dashboard/email-templates/ HTTP/1.1" 200 17513
+"GET /static/dashboard/img/empty.svg HTTP/1.1" 404 1996
+Internal Server Error: /dashboard/email-templates/add/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2768, in add_email_template
+    return render(request, 'dashboard/emails/template_form.html', {'is_new': True})
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 327, in render
+    return nodelist.render(context)
+           ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'create_email_template' not found. 'create_email_template' is not a valid view function or pattern name.
+"GET /dashboard/email-templates/add/ HTTP/1.1" 500 193063
+"GET /dashboard/chatbot/ HTTP/1.1" 200 27795
+Internal Server Error: /dashboard/tickets/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 354, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: dashboard_supportticket
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2835, in ticket_list
+    return render(request, 'dashboard/tickets/list.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 326, in render
+    if match:
+       ^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\models\query.py", line 414, in __bool__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\models\query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\models\query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1574, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 354, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such table: dashboard_supportticket
+"GET /dashboard/tickets/ HTTP/1.1" 500 225124
+Internal Server Error: /dashboard/tickets/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 354, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: dashboard_supportticket
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2835, in ticket_list
+    return render(request, 'dashboard/tickets/list.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 326, in render
+    if match:
+       ^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\models\query.py", line 414, in __bool__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\models\query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\models\query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1574, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 354, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such table: dashboard_supportticket
+"GET /dashboard/tickets/ HTTP/1.1" 500 225124
+Internal Server Error: /dashboard/settings/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2643, in system_settings
+    return render(request, 'dashboard/settings/general.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: dashboard/settings/general.html
+"GET /dashboard/settings/ HTTP/1.1" 500 99925
+Internal Server Error: /dashboard/settings/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2643, in system_settings
+    return render(request, 'dashboard/settings/general.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: dashboard/settings/general.html
+"GET /dashboard/settings/ HTTP/1.1" 500 99925
+"GET /dashboard/ HTTP/1.1" 200 28428
+Not Found: /dashboard/orders/5/
+"GET /dashboard/orders/5/ HTTP/1.1" 404 16348
+Internal Server Error: /dashboard/settings/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2643, in system_settings
+    return render(request, 'dashboard/settings/general.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: dashboard/settings/general.html
+"GET /dashboard/settings/ HTTP/1.1" 500 99917
+"GET /dashboard/ HTTP/1.1" 200 28428
+Internal Server Error: /dashboard/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 510, in parse
+    compile_func = self.tags[command]
+                   ~~~~~~~~~^^^^^^^^^
+KeyError: 'endblock'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2484, in index
+    return render(request, 'dashboard/index.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 295, in do_extends
+    nodelist = parser.parse()
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 512, in parse
+    self.invalid_block_tag(token, command, parse_until)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 573, in invalid_block_tag
+    raise self.error(
+    ...<3 lines>...
+    )
+django.template.exceptions.TemplateSyntaxError: Invalid block tag on line 308: 'endblock'. Did you forget to register or load this tag?
+"GET /dashboard/ HTTP/1.1" 500 188355
+"GET /dashboard/ HTTP/1.1" 200 29837
+Internal Server Error: /dashboard/products/
+Traceback (most recent call last):
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\dashboard\views.py", line 2946, in product_list
+    return render(request, 'dashboard/products/list.html', context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 243, in render
+    nodelist.append(node.render_annotated(context))
+                    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\base.py", line 969, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NC\Documents\GitHub\TomOi-ver-1\tomoi\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'product_detail' not found. 'product_detail' is not a valid view function or pattern name.
+"GET /dashboard/products/ HTTP/1.1" 500 190654

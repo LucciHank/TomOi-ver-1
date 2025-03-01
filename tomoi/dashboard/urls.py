@@ -43,13 +43,13 @@ urlpatterns = [
     # path('marketing/campaigns/<int:campaign_id>/', views.edit_campaign, name='edit_campaign'),
     
     # Banners
-    # path('banners/', views.banner_list, name='banners'),
+    path('banners/', views.banner_list, name='banners'),
     # path('banners/add/', views.add_banner, name='add_banner'),
     # path('banners/<int:banner_id>/', views.edit_banner, name='edit_banner'),
     # path('banners/<int:banner_id>/delete/', views.delete_banner, name='delete_banner'),
     
     # Blog
-    # path('blogs/', views.blog_categories, name='blogs'),
+    path('blogs/', views.blog_categories, name='blogs'),
     # path('blogs/categories/add/', views.add_blog_category, name='add_blog_category'),
     # path('blogs/categories/<int:category_id>/', views.edit_blog_category, name='edit_blog_category'),
     # path('blogs/categories/<int:category_id>/delete/', views.delete_blog_category, name='delete_blog_category'),
@@ -90,4 +90,7 @@ urlpatterns = [
     path('tickets/<int:ticket_id>/', views.ticket_detail, name='ticket_detail'),
     path('tickets/<int:ticket_id>/reply/', views.ticket_reply, name='ticket_reply'),
     path('tickets/<int:ticket_id>/close/', views.close_ticket, name='close_ticket'),
+    
+    # Chart Data
+    path('chart-data/', views.chart_data, name='chart_data'),
 ] 

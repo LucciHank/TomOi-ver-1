@@ -1,0 +1,313 @@
+/* Styles.css - Styles chính cho dashboard */
+:root {
+    --primary: #4e73df;
+    --success: #1cc88a;
+    --info: #36b9cc;
+    --warning: #f6c23e;
+    --danger: #e74a3b;
+    --secondary: #858796;
+    --light: #f8f9fc;
+    --dark: #5a5c69;
+    --sidebar-width: 250px;
+    --topnav-height: 56px;
+    --sidebar-dark-bg: #212529;
+    --sidebar-dark-color: rgba(255, 255, 255, 0.8);
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow-x: hidden;
+    background-color: #f8f9fc;
+}
+
+/* Layout chính */
+.sb-nav-fixed {
+    padding-top: var(--topnav-height);
+}
+
+#layoutSidenav {
+    display: flex;
+}
+
+/* Sidebar */
+#layoutSidenav_nav {
+    flex-basis: var(--sidebar-width);
+    flex-shrink: 0;
+    position: fixed;
+    width: var(--sidebar-width);
+    height: calc(100vh - var(--topnav-height));
+    top: var(--topnav-height);
+    left: 0;
+    z-index: 1000;
+    background: var(--sidebar-dark-bg);
+    color: var(--sidebar-dark-color);
+    overflow-y: auto;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+.sb-sidenav {
+    padding-top: 0;
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.sb-sidenav-menu {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.sb-sidenav-menu .nav {
+    flex-direction: column;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.sb-sidenav-menu-heading {
+    padding: 1.1rem 1rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    opacity: 0.6;
+}
+
+.sb-sidenav-menu .nav-link {
+    color: var(--sidebar-dark-color);
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    position: relative;
+    text-decoration: none;
+}
+
+.sb-sidenav-menu .nav-link:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.sb-sidenav-menu .nav-link.active {
+    color: white;
+    background: var(--primary);
+}
+
+.sb-sidenav-menu .nav-link .sb-nav-link-icon {
+    width: 1.25rem;
+    margin-right: 0.5rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+}
+
+.sb-sidenav-menu .nav-link.active .sb-nav-link-icon,
+.sb-sidenav-menu .nav-link:hover .sb-nav-link-icon {
+    color: white;
+}
+
+.sb-sidenav-footer {
+    padding: 0.75rem;
+    background: rgba(0, 0, 0, 0.2);
+    font-size: 0.85rem;
+}
+
+/* Content */
+#layoutSidenav_content {
+    flex-grow: 1;
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    overflow-x: hidden;
+    background-color: #f8f9fc;
+    min-height: calc(100vh - var(--topnav-height));
+    display: flex;
+    flex-direction: column;
+}
+
+#layoutSidenav_content main {
+    flex-grow: 1;
+}
+
+/* Topnav */
+.sb-topnav {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: var(--topnav-height);
+    z-index: 1001;
+    background-color: #343a40;
+    padding: 0;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.sb-topnav .navbar-brand {
+    width: var(--sidebar-width);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    margin: 0;
+    background-color: #212529;
+    color: white;
+    text-align: center;
+}
+
+/* Cards & Widgets */
+.card {
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+    border: none;
+    border-radius: 0.35rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background-color: transparent;
+    border-bottom: 1px solid #e3e6f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.25rem;
+}
+
+.card-footer {
+    background-color: #f8f9fc;
+    border-top: 1px solid #e3e6f0;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.bg-primary {
+    background-color: var(--primary) !important;
+}
+
+.bg-success {
+    background-color: var(--success) !important;
+}
+
+.bg-info {
+    background-color: var(--info) !important;
+}
+
+.bg-warning {
+    background-color: var(--warning) !important;
+}
+
+.bg-danger {
+    background-color: var(--danger) !important;
+}
+
+.text-white {
+    color: #fff !important;
+}
+
+.border-left-primary {
+    border-left: 0.25rem solid var(--primary) !important;
+}
+
+.border-left-success {
+    border-left: 0.25rem solid var(--success) !important;
+}
+
+.border-left-info {
+    border-left: 0.25rem solid var(--info) !important;
+}
+
+.border-left-warning {
+    border-left: 0.25rem solid var(--warning) !important;
+}
+
+.border-left-danger {
+    border-left: 0.25rem solid var(--danger) !important;
+}
+
+/* DataTables */
+.dataTable thead th {
+    position: relative; 
+    vertical-align: middle;
+    border-bottom: 1px solid #e3e6f0 !important;
+}
+
+.dataTable th, .dataTable td {
+    vertical-align: middle;
+    padding: 0.75rem;
+}
+
+.dataTable tbody tr:hover {
+    background-color: rgba(78, 115, 223, 0.05);
+}
+
+/* Responsive */
+@media (max-width: 991.98px) {
+    #layoutSidenav_nav {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    
+    #layoutSidenav_content {
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    .sb-topnav .navbar-brand {
+        width: auto;
+    }
+    
+    body.sb-sidenav-toggled #layoutSidenav_nav {
+        transform: translateX(0);
+    }
+}
+
+/* Action buttons */
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+/* Dashboard stats */
+.stat-card {
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+}
+
+/* Stats icons */
+.icon-circle {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Chart containers */
+.chart-area {
+    position: relative;
+    height: 20rem;
+}
+
+.chart-bar {
+    position: relative;
+    height: 20rem;
+}
+
+.chart-pie {
+    position: relative;
+    height: 15rem;
+}
+
+/* Transition cho sidebar */
+@media (min-width: 992px) {
+    #layoutSidenav_nav, #layoutSidenav_content {
+        transition: all 0.3s ease-in-out;
+    }
+} 
