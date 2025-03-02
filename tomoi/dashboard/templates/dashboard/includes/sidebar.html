@@ -3,19 +3,19 @@
         <div class="sb-sidenav-menu">
             <div class="nav">
                 <div class="sb-sidenav-menu-heading">Tổng quan</div>
-                <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" 
+                <a class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" 
                    href="{% url 'dashboard:home' %}">
                     <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                     Bảng điều khiển
                 </a>
                 
                 <div class="sb-sidenav-menu-heading">Sản phẩm</div>
-                <a class="nav-link {% if 'product' in request.resolver_match.url_name %}active{% endif %}" 
+                <a class="nav-link {% if 'products' in request.path and not 'categories' in request.path %}active{% endif %}" 
                    href="{% url 'dashboard:products' %}">
                     <div class="sb-nav-link-icon"><i class="fas fa-box"></i></div>
                     Quản lý sản phẩm
                 </a>
-                <a class="nav-link {% if 'categor' in request.resolver_match.url_name %}active{% endif %}" 
+                <a class="nav-link {% if 'categories' in request.path %}active{% endif %}" 
                    href="{% url 'dashboard:categories' %}">
                     <div class="sb-nav-link-icon"><i class="fas fa-list"></i></div>
                     Danh mục

@@ -1799,7 +1799,7 @@ def settings_dashboard(request):
 @staff_member_required
 def ticket_detail(request, ticket_id):
     """Chi tiết ticket hỗ trợ"""
-    ticket = get_object_or_404(Ticket, id=ticket_id)
+    ticket = get_object_or_404(SupportTicket, id=ticket_id)
     
     # Lấy danh sách nhân viên để phân công
     staff_users = CustomUser.objects.filter(is_staff=True)
@@ -1818,12 +1818,13 @@ def ticket_detail(request, ticket_id):
         TicketReply.objects.create(
             ticket=ticket,
             user=request.user,
-            content=content
+            content=content,
+            is_admin_reply=True
         )
         
         # Cập nhật trạng thái ticket nếu cần
-        if ticket.status == 'new':
-            ticket.status = 'processing'
+        if ticket.status == 'open':
+            ticket.status = 'pending'
             ticket.save()
         
         return redirect('dashboard:ticket_detail', ticket_id=ticket_id)
@@ -1848,52 +1849,34 @@ def chart_data(request):
 
 @staff_member_required
 def product_detail(request, product_id):
-    """View product details in dashboard"""
     product = get_object_or_404(Product, id=product_id)
-    variants = ProductVariant.objects.filter(product=product)
     
-    # Get sales data for this product
-    today = timezone.now().date()
-    thirty_days_ago = today - timedelta(days=30)
+    # Lấy dữ liệu bán hàng trong 30 ngày qua
+    thirty_days_ago = timezone.now() - timedelta(days=30)
+    sales_data = Order.objects.filter(
+        items__product=product,
+        created_at__gte=thirty_days_ago
+    ).values('created_at__date').annotate(
+        count=Count('id'),
+        total=Sum('total_amount')
+    ).order_by('created_at__date')
     
-    # Get order items for this product in the last 30 days
-    order_items = OrderItem.objects.filter(
-        product=product,
-        order__created_at__date__gte=thirty_days_ago,
-        order__status='completed'
-    )
-    
-    # Calculate total sales
-    total_sales = order_items.count()
-    total_revenue = order_items.aggregate(
-        total=Sum(F('price') * F('quantity'))
-    )['total'] or 0
-    
-    # Get daily sales data for chart
-    daily_sales = order_items.values('order__created_at__date').annotate(
-        count=Count('id')
-    ).order_by('order__created_at__date')
-    
-    # Format for chart
+    # Chuẩn bị dữ liệu cho biểu đồ
     dates = []
-    sales_counts = []
+    counts = []
+    totals = []
     
-    # Create a dictionary of date to count
-    sales_dict = {item['order__created_at__date']: item['count'] for item in daily_sales}
-    
-    # Fill in all dates in the range
-    for i in range(30):
-        date = today - timedelta(days=29-i)
-        dates.append(date.strftime('%d/%m'))
-        sales_counts.append(sales_dict.get(date, 0))
+    for data in sales_data:
+        dates.append(data['created_at__date'].strftime('%d/%m'))
+        counts.append(data['count'])
+        totals.append(float(data['total']))
     
     context = {
         'product': product,
-        'variants': variants,
-        'total_sales': total_sales,
-        'total_revenue': total_revenue,
-        'dates': json.dumps(dates),
-        'sales_counts': json.dumps(sales_counts),
+        'variants': product.variants.all(),
+        'chart_dates': dates,
+        'chart_counts': counts,
+        'chart_totals': totals,
     }
     
     return render(request, 'dashboard/products/detail.html', context)

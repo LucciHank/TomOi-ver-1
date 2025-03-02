@@ -60,18 +60,49 @@ class Ticket(models.Model):
     def __str__(self):
         return self.title
 
+class SupportTicket(models.Model):
+    STATUS_CHOICES = (
+        ('open', 'Đang mở'),
+        ('pending', 'Đang chờ'),
+        ('closed', 'Đã đóng'),
+    )
+    
+    CATEGORY_CHOICES = (
+        ('general', 'Câu hỏi chung'),
+        ('order', 'Vấn đề đơn hàng'),
+        ('product', 'Thông tin sản phẩm'),
+        ('shipping', 'Vận chuyển'),
+        ('return', 'Đổi trả'),
+        ('technical', 'Kỹ thuật'),
+        ('other', 'Khác'),
+    )
+    
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    subject = models.CharField(max_length=200)
+    message = models.TextField()
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='general')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open')
+    is_customer_reply = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    closed_at = models.DateTimeField(null=True, blank=True)
+    
+    def __str__(self):
+        return f"Ticket #{self.id} - {self.subject}"
+
 class TicketReply(models.Model):
     """Reply to a support ticket"""
-    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name='replies')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    ticket = models.ForeignKey(SupportTicket, on_delete=models.CASCADE, related_name='replies')
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     content = models.TextField()
+    is_admin_reply = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     
-    class Meta:
-        ordering = ['created_at']
-        
     def __str__(self):
-        return f"Reply to {self.ticket.title} by {self.user.username}"
+        return f"Reply to Ticket #{self.ticket.id}"
+    
+    class Meta:
+        app_label = 'dashboard'  # Chỉ định rõ app_label để tránh nhầm lẫn
 
 class Commission(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -549,44 +580,4 @@ class EmailLog(models.Model):
     sent_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        return f"Email to {self.recipient} - {self.subject}"
-
-class SupportTicket(models.Model):
-    STATUS_CHOICES = (
-        ('open', 'Đang mở'),
-        ('pending', 'Đang chờ'),
-        ('closed', 'Đã đóng'),
-    )
-    
-    CATEGORY_CHOICES = (
-        ('general', 'Câu hỏi chung'),
-        ('order', 'Vấn đề đơn hàng'),
-        ('product', 'Thông tin sản phẩm'),
-        ('shipping', 'Vận chuyển'),
-        ('return', 'Đổi trả'),
-        ('technical', 'Kỹ thuật'),
-        ('other', 'Khác'),
-    )
-    
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    subject = models.CharField(max_length=200)
-    message = models.TextField()
-    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='general')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open')
-    is_customer_reply = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    closed_at = models.DateTimeField(null=True, blank=True)
-    
-    def __str__(self):
-        return f"Ticket #{self.id} - {self.subject}"
-
-class TicketReply(models.Model):
-    ticket = models.ForeignKey(SupportTicket, on_delete=models.CASCADE, related_name='replies')
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    content = models.TextField()
-    is_admin_reply = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    def __str__(self):
-        return f"Reply to Ticket #{self.ticket.id}" 
+        return f"Email to {self.recipient} - {self.subject}" 
