@@ -1,0 +1,992 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Quản lý mẫu email{% endblock %}
+
+{% block extra_css %}
+<style>
+    .template-preview {
+        border: 1px solid #e3e6f0;
+        border-radius: 5px;
+        height: 200px;
+        overflow: hidden;
+        margin-bottom: 15px;
+        position: relative;
+    }
+    
+    .template-preview iframe {
+        width: 100%;
+        height: 300px;
+        transform: scale(0.6);
+        transform-origin: 0 0;
+        pointer-events: none;
+    }
+    
+    .template-actions {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background: rgba(255,255,255,0.9);
+        padding: 5px;
+        border-top-left-radius: 5px;
+    }
+    
+    .version-tag {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 12px;
+        background: #4e73df;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 10px;
+    }
+    
+    .nav-tabs .nav-item .nav-link {
+        font-weight: 500;
+    }
+    
+    .nav-tabs .nav-item .nav-link.active {
+        border-bottom: 3px solid #4e73df;
+    }
+    
+    .color-picker-container {
+        display: inline-block;
+        margin-right: 10px;
+    }
+    
+    .color-picker {
+        width: 30px;
+        height: 30px;
+        border-radius: 5px;
+        display: inline-block;
+        cursor: pointer;
+        border: 1px solid #ddd;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Quản lý mẫu email</h1>
+        <div>
+            <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#importTemplateModal">
+                <i class="fas fa-file-import fa-sm text-white-50"></i> Nhập từ file
+            </a>
+            <a href="{% url 'dashboard:email_editor' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+                <i class="fas fa-plus fa-sm text-white-50"></i> Tạo mẫu mới
+            </a>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs" id="emailTabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="templates-tab" data-bs-toggle="tab" href="#templates" role="tab" aria-controls="templates" aria-selected="true">
+                <i class="fas fa-envelope"></i> Mẫu email
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="campaigns-tab" data-bs-toggle="tab" href="#campaigns" role="tab" aria-controls="campaigns" aria-selected="false">
+                <i class="fas fa-paper-plane"></i> Chiến dịch email
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="logs-tab" data-bs-toggle="tab" href="#logs" role="tab" aria-controls="logs" aria-selected="false">
+                <i class="fas fa-history"></i> Lịch sử gửi
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="settings-tab" data-bs-toggle="tab" href="#settings" role="tab" aria-controls="settings" aria-selected="false">
+                <i class="fas fa-cog"></i> Cài đặt
+            </a>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="emailTabsContent">
+        <!-- Templates Tab -->
+        <div class="tab-pane fade show active" id="templates" role="tabpanel" aria-labelledby="templates-tab">
+            <!-- Template Category Filters -->
+            <div class="card shadow mb-4 mt-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Mẫu email</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-primary active">Tất cả</button>
+                            <button type="button" class="btn btn-outline-primary">Chào mừng</button>
+                            <button type="button" class="btn btn-outline-primary">Đơn hàng</button>
+                            <button type="button" class="btn btn-outline-primary">Khuyến mãi</button>
+                            <button type="button" class="btn btn-outline-primary">Thông báo</button>
+                            <button type="button" class="btn btn-outline-primary">Khôi phục mật khẩu</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Templates Grid -->
+                    <div class="row">
+                        <!-- Template Card 1 - Welcome Email -->
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card shadow h-100">
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">Email chào mừng</h6>
+                                    <div class="dropdown no-arrow">
+                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                                            <a class="dropdown-item" href="{% url 'dashboard:email_editor_edit' welcome_email.id %}"><i class="fas fa-edit fa-sm fa-fw mr-2 text-gray-400"></i> Chỉnh sửa</a>
+                                            <a class="dropdown-item" href="#"><i class="fas fa-copy fa-sm fa-fw mr-2 text-gray-400"></i> Sao chép</a>
+                                            <a class="dropdown-item" href="#"><i class="fas fa-download fa-sm fa-fw mr-2 text-gray-400"></i> Tải xuống</a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item text-danger" href="#"><i class="fas fa-trash fa-sm fa-fw mr-2 text-gray-400"></i> Xóa</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="template-preview">
+                                        <span class="version-tag">v1.3</span>
+                                        <iframe src="about:blank" srcdoc="<div style='background-color:#f8f9fc;padding:20px;'><div style='background:#fff;padding:30px;font-family:Arial;'><h2 style='color:#4e73df;'>Chào mừng bạn đến với TomOi!</h2><p>Cảm ơn bạn đã đăng ký tài khoản.</p><p>Chúng tôi rất vui mừng được cung cấp dịch vụ cho bạn!</p><a href='#' style='display:inline-block;background:#4e73df;color:white;padding:10px 20px;text-decoration:none;border-radius:4px;'>Khám phá ngay</a></div></div>"></iframe>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <p class="mb-0 text-gray-600 small">Cập nhật: 01/03/2025</p>
+                                        </div>
+                                        <div>
+                                            <a href="#" class="btn btn-sm btn-primary"><i class="fas fa-paper-plane"></i> Gửi</a>
+                                            <a href="{% url 'dashboard:email_editor_edit' welcome_email.id %}" class="btn btn-sm btn-info"><i class="fas fa-edit"></i> Sửa</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Template Card 2 - Order Confirmation -->
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card shadow h-100">
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">Xác nhận đơn hàng</h6>
+                                    <div class="dropdown no-arrow">
+                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink2">
+                                            <a class="dropdown-item" href="{% url 'dashboard:email_editor_edit' order_confirmation.id %}"><i class="fas fa-edit fa-sm fa-fw mr-2 text-gray-400"></i> Chỉnh sửa</a>
+                                            <a class="dropdown-item" href="#"><i class="fas fa-copy fa-sm fa-fw mr-2 text-gray-400"></i> Sao chép</a>
+                                            <a class="dropdown-item" href="#"><i class="fas fa-download fa-sm fa-fw mr-2 text-gray-400"></i> Tải xuống</a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item text-danger" href="#"><i class="fas fa-trash fa-sm fa-fw mr-2 text-gray-400"></i> Xóa</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="template-preview">
+                                        <span class="version-tag">v2.1</span>
+                                        <iframe src="about:blank" srcdoc="<div style='background-color:#f8f9fc;padding:20px;'><div style='background:#fff;padding:30px;font-family:Arial;'><h2 style='color:#1cc88a;'>Đơn hàng của bạn đã được xác nhận!</h2><p>Mã đơn hàng: <strong>#OR-12345</strong></p><div style='background:#f8f9fc;padding:10px;margin:15px 0;border-radius:5px;'><h4>Chi tiết đơn hàng</h4><p>1x Netflix Premium: 120.000đ</p><hr><p>Tổng cộng: <strong>120.000đ</strong></p></div><a href='#' style='display:inline-block;background:#1cc88a;color:white;padding:10px 20px;text-decoration:none;border-radius:4px;'>Theo dõi đơn hàng</a></div></div>"></iframe>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <p class="mb-0 text-gray-600 small">Cập nhật: 15/02/2025</p>
+                                        </div>
+                                        <div>
+                                            <a href="#" class="btn btn-sm btn-primary"><i class="fas fa-paper-plane"></i> Gửi</a>
+                                            <a href="{% url 'dashboard:email_editor_edit' order_confirmation.id %}" class="btn btn-sm btn-info"><i class="fas fa-edit"></i> Sửa</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Template Card 3 - Password Reset -->
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card shadow h-100">
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">Đặt lại mật khẩu</h6>
+                                    <div class="dropdown no-arrow">
+                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink3" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink3">
+                                            <a class="dropdown-item" href="{% url 'dashboard:email_editor_edit' password_reset.id %}"><i class="fas fa-edit fa-sm fa-fw mr-2 text-gray-400"></i> Chỉnh sửa</a>
+                                            <a class="dropdown-item" href="#"><i class="fas fa-copy fa-sm fa-fw mr-2 text-gray-400"></i> Sao chép</a>
+                                            <a class="dropdown-item" href="#"><i class="fas fa-download fa-sm fa-fw mr-2 text-gray-400"></i> Tải xuống</a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item text-danger" href="#"><i class="fas fa-trash fa-sm fa-fw mr-2 text-gray-400"></i> Xóa</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="template-preview">
+                                        <span class="version-tag">v1.0</span>
+                                        <iframe src="about:blank" srcdoc="<div style='background-color:#f8f9fc;padding:20px;'><div style='background:#fff;padding:30px;font-family:Arial;'><h2 style='color:#e74a3b;'>Đặt lại mật khẩu</h2><p>Bạn đã yêu cầu đặt lại mật khẩu cho tài khoản của mình.</p><p>Nhấn vào nút bên dưới để tiếp tục:</p><a href='#' style='display:inline-block;background:#e74a3b;color:white;padding:10px 20px;text-decoration:none;border-radius:4px;'>Đặt lại mật khẩu</a><p style='margin-top:20px;font-size:13px;color:#858796;'>Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.</p></div></div>"></iframe>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <p class="mb-0 text-gray-600 small">Cập nhật: 20/02/2025</p>
+                                        </div>
+                                        <div>
+                                            <a href="#" class="btn btn-sm btn-primary"><i class="fas fa-paper-plane"></i> Gửi</a>
+                                            <a href="{% url 'dashboard:email_editor_edit' password_reset.id %}" class="btn btn-sm btn-info"><i class="fas fa-edit"></i> Sửa</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Campaigns Tab -->
+        <div class="tab-pane fade" id="campaigns" role="tabpanel" aria-labelledby="campaigns-tab">
+            <div class="card shadow mb-4 mt-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Chiến dịch gửi email</h6>
+                    <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#newCampaignModal">
+                        <i class="fas fa-plus fa-sm text-white-50"></i> Tạo chiến dịch mới
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="campaignTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Tên chiến dịch</th>
+                                    <th>Mẫu email</th>
+                                    <th>Người nhận</th>
+                                    <th>Trạng thái</th>
+                                    <th>Ngày tạo</th>
+                                    <th>Gửi thành công</th>
+                                    <th>Tỉ lệ mở</th>
+                                    <th>Tỉ lệ click</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Chào mừng T3/2025</td>
+                                    <td>Email chào mừng</td>
+                                    <td>254 người</td>
+                                    <td><span class="badge badge-success">Hoàn thành</span></td>
+                                    <td>01/03/2025</td>
+                                    <td>248 (97.6%)</td>
+                                    <td>182 (73.4%)</td>
+                                    <td>104 (41.9%)</td>
+                                    <td>
+                                        <a href="#" class="btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
+                                        <a href="#" class="btn btn-sm btn-primary"><i class="fas fa-copy"></i></a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Flash Sale T2/2025</td>
+                                    <td>Khuyến mãi Flash Sale</td>
+                                    <td>1,045 người</td>
+                                    <td><span class="badge badge-success">Hoàn thành</span></td>
+                                    <td>15/02/2025</td>
+                                    <td>1,024 (98.0%)</td>
+                                    <td>842 (82.2%)</td>
+                                    <td>652 (63.7%)</td>
+                                    <td>
+                                        <a href="#" class="btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
+                                        <a href="#" class="btn btn-sm btn-primary"><i class="fas fa-copy"></i></a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Thông báo bảo trì hệ thống</td>
+                                    <td>Thông báo bảo trì</td>
+                                    <td>Tất cả (2,458 người)</td>
+                                    <td><span class="badge badge-warning">Đang gửi</span></td>
+                                    <td>03/03/2025</td>
+                                    <td>1,245 (50.6%)</td>
+                                    <td>782 (62.8%)</td>
+                                    <td>124 (10.0%)</td>
+                                    <td>
+                                        <a href="#" class="btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
+                                        <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-stop"></i></a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Giới thiệu tính năng mới</td>
+                                    <td>Thông báo tính năng</td>
+                                    <td>500 người (Beta Testers)</td>
+                                    <td><span class="badge badge-info">Lên lịch</span></td>
+                                    <td>05/03/2025 (Dự kiến)</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>
+                                        <a href="#" class="btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
+                                        <a href="#" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Logs Tab -->
+        <div class="tab-pane fade" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+            <div class="card shadow mb-4 mt-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Lịch sử gửi email</h6>
+                    <div>
+                        <button class="btn btn-sm btn-primary" id="refreshLogsBtn">
+                            <i class="fas fa-sync-alt fa-sm text-white-50"></i> Làm mới
+                        </button>
+                        <button class="btn btn-sm btn-info" id="exportLogsBtn">
+                            <i class="fas fa-download fa-sm text-white-50"></i> Xuất báo cáo
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="logsTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Người nhận</th>
+                                    <th>Tiêu đề email</th>
+                                    <th>Chiến dịch</th>
+                                    <th>Thời gian gửi</th>
+                                    <th>Trạng thái</th>
+                                    <th>Đã mở</th>
+                                    <th>Đã click</th>
+                                    <th>Chi tiết</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>EMI-001254</td>
+                                    <td>user1@example.com</td>
+                                    <td>Chào mừng bạn đến với TomOi!</td>
+                                    <td>Chào mừng T3/2025</td>
+                                    <td>01/03/2025 08:12</td>
+                                    <td><span class="badge badge-success">Thành công</span></td>
+                                    <td><i class="fas fa-check text-success"></i></td>
+                                    <td><i class="fas fa-check text-success"></i></td>
+                                    <td><button class="btn btn-sm btn-info"><i class="fas fa-eye"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td>EMI-001255</td>
+                                    <td>user2@example.com</td>
+                                    <td>Chào mừng bạn đến với TomOi!</td>
+                                    <td>Chào mừng T3/2025</td>
+                                    <td>01/03/2025 08:12</td>
+                                    <td><span class="badge badge-success">Thành công</span></td>
+                                    <td><i class="fas fa-check text-success"></i></td>
+                                    <td><i class="fas fa-times text-danger"></i></td>
+                                    <td><button class="btn btn-sm btn-info"><i class="fas fa-eye"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td>EMI-001247</td>
+                                    <td>user3@example.com</td>
+                                    <td>Chào mừng bạn đến với TomOi!</td>
+                                    <td>Chào mừng T3/2025</td>
+                                    <td>01/03/2025 08:15</td>
+                                    <td><span class="badge badge-danger">Thất bại</span></td>
+                                    <td><i class="fas fa-times text-danger"></i></td>
+                                    <td><i class="fas fa-times text-danger"></i></td>
+                                    <td><button class="btn btn-sm btn-info"><i class="fas fa-eye"></i></button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Analytics Card -->
+            <div class="row">
+                <div class="col-xl-8 col-lg-7">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Phân tích hiệu suất email</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-area">
+                                <canvas id="emailPerformanceChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-4 col-lg-5">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Phân phối trạng thái</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-pie mb-4">
+                                <canvas id="emailStatusChart"></canvas>
+                            </div>
+                            <div class="mt-4 text-center small">
+                                <span class="mr-2">
+                                    <i class="fas fa-circle text-success"></i> Thành công (92%)
+                                </span>
+                                <span class="mr-2">
+                                    <i class="fas fa-circle text-danger"></i> Thất bại (5%)
+                                </span>
+                                <span class="mr-2">
+                                    <i class="fas fa-circle text-warning"></i> Bị chặn (3%)
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Settings Tab -->
+        <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+            <div class="row mt-4">
+                <!-- SMTP Settings -->
+                <div class="col-xl-6 col-lg-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Cấu hình SMTP</h6>
+                        </div>
+                        <div class="card-body">
+                            <form>
+                                <div class="form-group">
+                                    <label for="smtpServer">Máy chủ SMTP</label>
+                                    <input type="text" class="form-control" id="smtpServer" value="smtp.example.com">
+                                </div>
+                                <div class="form-group">
+                                    <label for="smtpPort">Cổng</label>
+                                    <input type="number" class="form-control" id="smtpPort" value="587">
+                                </div>
+                                <div class="form-group">
+                                    <label for="smtpUsername">Tên đăng nhập</label>
+                                    <input type="text" class="form-control" id="smtpUsername" value="notifications@tomoi.vn">
+                                </div>
+                                <div class="form-group">
+                                    <label for="smtpPassword">Mật khẩu</label>
+                                    <input type="password" class="form-control" id="smtpPassword" value="********">
+                                </div>
+                                <div class="form-group">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="smtpSsl" checked>
+                                        <label class="custom-control-label" for="smtpSsl">Sử dụng SSL/TLS</label>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Lưu cấu hình</button>
+                                <button type="button" class="btn btn-info" id="testSmtpBtn">Kiểm tra kết nối</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Email Defaults -->
+                <div class="col-xl-6 col-lg-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Cấu hình mặc định</h6>
+                        </div>
+                        <div class="card-body">
+                            <form>
+                                <div class="form-group">
+                                    <label for="defaultSender">Email người gửi mặc định</label>
+                                    <input type="email" class="form-control" id="defaultSender" value="support@tomoi.vn">
+                                </div>
+                                <div class="form-group">
+                                    <label for="defaultName">Tên người gửi mặc định</label>
+                                    <input type="text" class="form-control" id="defaultName" value="TomOi Support">
+                                </div>
+                                <div class="form-group">
+                                    <label for="defaultFooter">Chân trang mặc định</label>
+                                    <textarea class="form-control" id="defaultFooter" rows="3">© TomOi 2025. Địa chỉ: 123 Đường ABC, Quận XYZ, TP HCM. Điện thoại: 1900-6868. Email: support@tomoi.vn</textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="defaultThemeColor">Màu chủ đạo</label>
+                                    <div>
+                                        <div class="color-picker-container">
+                                            <div class="color-picker" id="primaryColorPicker" style="background-color: #4e73df;"></div>
+                                            <span class="small ml-1">Chính</span>
+                                        </div>
+                                        <div class="color-picker-container">
+                                            <div class="color-picker" id="secondaryColorPicker" style="background-color: #1cc88a;"></div>
+                                            <span class="small ml-1">Phụ</span>
+                                        </div>
+                                        <div class="color-picker-container">
+                                            <div class="color-picker" id="accentColorPicker" style="background-color: #f6c23e;"></div>
+                                            <span class="small ml-1">Nhấn</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="trackOpens" checked>
+                                        <label class="custom-control-label" for="trackOpens">Theo dõi lượt mở email</label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="trackClicks" checked>
+                                        <label class="custom-control-label" for="trackClicks">Theo dõi lượt click liên kết</label>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Lưu cấu hình</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Import Template Modal -->
+<div class="modal fade" id="importTemplateModal" tabindex="-1" role="dialog" aria-labelledby="importTemplateModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="importTemplateModalLabel">Nhập mẫu từ file</h5>
+                <button class="close" type="button" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="templateName">Tên mẫu</label>
+                        <input type="text" class="form-control" id="templateName" placeholder="Nhập tên mẫu email">
+                    </div>
+                    <div class="form-group">
+                        <label for="templateCategory">Loại mẫu</label>
+                        <select class="form-control" id="templateCategory">
+                            <option value="welcome">Chào mừng</option>
+                            <option value="order">Đơn hàng</option>
+                            <option value="promotion">Khuyến mãi</option>
+                            <option value="notification">Thông báo</option>
+                            <option value="password">Khôi phục mật khẩu</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="templateFile">File HTML</label>
+                        <input type="file" class="form-control-file" id="templateFile" accept=".html">
+                    </div>
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="activeTemplate" checked>
+                            <label class="custom-control-label" for="activeTemplate">Kích hoạt ngay sau khi tạo</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Hủy</button>
+                <button class="btn btn-primary" type="button">Nhập</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Campaign Modal -->
+<div class="modal fade" id="newCampaignModal" tabindex="-1" role="dialog" aria-labelledby="newCampaignModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newCampaignModalLabel">Tạo chiến dịch email mới</h5>
+                <button class="close" type="button" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="campaignName">Tên chiến dịch</label>
+                        <input type="text" class="form-control" id="campaignName" placeholder="Nhập tên chiến dịch email">
+                    </div>
+                    <div class="form-group">
+                        <label for="campaignTemplate">Chọn mẫu email</label>
+                        <select class="form-control" id="campaignTemplate">
+                            <option value="">-- Chọn mẫu email --</option>
+                            <option value="welcome">Email chào mừng mới</option>
+                            <option value="order_confirmation">Xác nhận đơn hàng</option>
+                            <option value="april_promo">Khuyến mãi tháng 4</option>
+                            <option value="account_upgrade">Nâng cấp tài khoản</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="campaignSubject">Chủ đề email</label>
+                        <input type="text" class="form-control" id="campaignSubject" placeholder="Nhập chủ đề email">
+                    </div>
+                    <div class="form-group">
+                        <label for="campaignRecipients">Người nhận</label>
+                        <select class="form-control" id="campaignRecipients">
+                            <option value="all">Tất cả người dùng</option>
+                            <option value="active">Người dùng đang hoạt động</option>
+                            <option value="inactive">Người dùng không hoạt động</option>
+                            <option value="recent">Người dùng mới</option>
+                            <option value="custom">Nhóm tùy chỉnh</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="customRecipientsGroup" style="display: none;">
+                        <label for="customRecipients">Tải lên danh sách người nhận</label>
+                        <input type="file" class="form-control-file" id="customRecipients" accept=".csv">
+                        <small class="form-text text-muted">Tải lên file CSV với định dạng: email, tên, biến tùy chỉnh</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Lên lịch gửi</label>
+                        <div class="custom-control custom-radio">
+                            <input type="radio" id="sendNow" name="sendSchedule" class="custom-control-input" checked>
+                            <label class="custom-control-label" for="sendNow">Gửi ngay</label>
+                        </div>
+                        <div class="custom-control custom-radio">
+                            <input type="radio" id="sendLater" name="sendSchedule" class="custom-control-input">
+                            <label class="custom-control-label" for="sendLater">Lên lịch gửi</label>
+                        </div>
+                    </div>
+                    <div class="form-group" id="scheduleDateGroup" style="display: none;">
+                        <label for="scheduleDate">Ngày gửi</label>
+                        <input type="datetime-local" class="form-control" id="scheduleDate">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Hủy</button>
+                <button class="btn btn-primary" type="button">Tạo chiến dịch</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Template Modal -->
+<div class="modal fade" id="previewTemplateModal" tabindex="-1" role="dialog" aria-labelledby="previewTemplateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="previewTemplateModalLabel">Xem trước mẫu email</h5>
+                <button class="close" type="button" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-primary active" id="desktopPreview">
+                                <i class="fas fa-desktop"></i> Desktop
+                            </button>
+                            <button type="button" class="btn btn-primary" id="tabletPreview">
+                                <i class="fas fa-tablet-alt"></i> Tablet
+                            </button>
+                            <button type="button" class="btn btn-primary" id="mobilePreview">
+                                <i class="fas fa-mobile-alt"></i> Mobile
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-8 text-right">
+                        <button class="btn btn-sm btn-info">
+                            <i class="fas fa-download"></i> Tải xuống HTML
+                        </button>
+                    </div>
+                </div>
+                <div class="preview-container" style="height: 600px; overflow: auto; border: 1px solid #e3e6f0;">
+                    <iframe id="previewTemplateFrame" style="width: 100%; height: 100%; border: none;"></iframe>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Khởi tạo DataTables cho các bảng
+$(document).ready(function() {
+    $('#templateTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json"
+        }
+    });
+    
+    $('#campaignTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json"
+        }
+    });
+    
+    $('#emailLogTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json"
+        },
+        "order": [[3, "desc"]]
+    });
+    
+    // Xử lý hiển thị các trường tùy chọn
+    $('#campaignRecipients').change(function() {
+        if ($(this).val() === 'custom') {
+            $('#customRecipientsGroup').show();
+        } else {
+            $('#customRecipientsGroup').hide();
+        }
+    });
+    
+    $('input[name="sendSchedule"]').change(function() {
+        if ($('#sendLater').is(':checked')) {
+            $('#scheduleDateGroup').show();
+        } else {
+            $('#scheduleDateGroup').hide();
+        }
+    });
+    
+    // Xử lý nút mở modal xem trước template
+    $('.preview-template').click(function(e) {
+        e.preventDefault();
+        $('#previewTemplateModal').modal('show');
+        // Giả lập nạp mẫu email vào iframe
+        setTimeout(function() {
+            var demoHTML = '<html><head><style>body{font-family: Arial; color: #333;} .header{background: #4e73df; color: white; padding: 20px;} .content{padding: 20px;} .footer{background: #f8f9fc; padding: 10px; font-size: 12px;}</style></head><body><div class="header"><h2>Chào mừng bạn đến với TomOi</h2></div><div class="content"><p>Xin chào {name},</p><p>Cảm ơn bạn đã đăng ký tài khoản tại TomOi. Chúng tôi rất vui được phục vụ bạn!</p><p>Bạn có thể bắt đầu mua sắm ngay bây giờ hoặc khám phá các dịch vụ của chúng tôi.</p><p><a href="#" style="background: #1cc88a; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px;">Bắt đầu ngay</a></p><p>Nếu bạn có bất kỳ câu hỏi nào, đừng ngần ngại liên hệ với chúng tôi.</p><p>Trân trọng,<br>Đội ngũ TomOi</p></div><div class="footer">© TomOi 2025. Địa chỉ: 123 Đường ABC, Quận XYZ, TP HCM. Điện thoại: 1900-6868. Email: support@tomoi.vn</div></body></html>';
+            document.getElementById('previewTemplateFrame').contentWindow.document.open();
+            document.getElementById('previewTemplateFrame').contentWindow.document.write(demoHTML);
+            document.getElementById('previewTemplateFrame').contentWindow.document.close();
+        }, 300);
+    });
+    
+    // Xử lý nút chọn chế độ xem
+    $('#desktopPreview').click(function() {
+        $('#previewTemplateFrame').css('width', '100%');
+        $(this).addClass('active').siblings().removeClass('active');
+    });
+    
+    $('#tabletPreview').click(function() {
+        $('#previewTemplateFrame').css('width', '768px');
+        $(this).addClass('active').siblings().removeClass('active');
+    });
+    
+    $('#mobilePreview').click(function() {
+        $('#previewTemplateFrame').css('width', '375px');
+        $(this).addClass('active').siblings().removeClass('active');
+    });
+    
+    // Khởi tạo Color Picker cho các màu sắc
+    const pickrOptions = {
+        el: '#primaryColorPicker',
+        theme: 'classic',
+        default: '#4e73df',
+        swatches: [
+            '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#5a5c69'
+        ],
+        components: {
+            preview: true,
+            opacity: true,
+            hue: true,
+            interaction: {
+                hex: true,
+                rgba: true,
+                hsla: false,
+                hsva: false,
+                cmyk: false,
+                input: true,
+                clear: false,
+                save: true
+            }
+        }
+    };
+    
+    // Khởi tạo các color picker
+    const primaryPickr = Pickr.create({
+        ...pickrOptions,
+        el: '#primaryColorPicker',
+        default: '#4e73df'
+    });
+    
+    const secondaryPickr = Pickr.create({
+        ...pickrOptions,
+        el: '#secondaryColorPicker',
+        default: '#1cc88a'
+    });
+    
+    const accentPickr = Pickr.create({
+        ...pickrOptions,
+        el: '#accentColorPicker',
+        default: '#f6c23e'
+    });
+    
+    // Xử lý lưu màu khi thay đổi
+    primaryPickr.on('save', (color) => {
+        $('#primaryColorPicker').css('background-color', color.toHEXA().toString());
+        updateChartColors();
+    });
+    
+    secondaryPickr.on('save', (color) => {
+        $('#secondaryColorPicker').css('background-color', color.toHEXA().toString());
+        updateChartColors();
+    });
+    
+    accentPickr.on('save', (color) => {
+        $('#accentColorPicker').css('background-color', color.toHEXA().toString());
+        updateChartColors();
+    });
+    
+    // Vẽ biểu đồ mẫu
+    const emailPerformanceCtx = document.getElementById('emailPerformanceChart');
+    const emailStatusCtx = document.getElementById('emailStatusChart');
+    
+    // Biểu đồ hiệu suất email
+    const emailPerformanceChart = new Chart(emailPerformanceCtx, {
+        type: 'line',
+        data: {
+            labels: ["T1", "T2", "T3", "T4", "T5", "T6"],
+            datasets: [{
+                label: "Tỷ lệ mở",
+                backgroundColor: "rgba(78, 115, 223, 0.05)",
+                borderColor: "#4e73df",
+                pointRadius: 3,
+                pointBackgroundColor: "#4e73df",
+                pointBorderColor: "#4e73df",
+                pointHoverRadius: 3,
+                pointHoverBackgroundColor: "#4e73df",
+                pointHoverBorderColor: "#4e73df",
+                pointHitRadius: 10,
+                pointBorderWidth: 2,
+                data: [65, 70, 68, 72, 75, 80],
+            },
+            {
+                label: "Tỷ lệ click",
+                backgroundColor: "rgba(28, 200, 138, 0.05)",
+                borderColor: "#1cc88a",
+                pointRadius: 3,
+                pointBackgroundColor: "#1cc88a",
+                pointBorderColor: "#1cc88a",
+                pointHoverRadius: 3,
+                pointHoverBackgroundColor: "#1cc88a",
+                pointHoverBorderColor: "#1cc88a",
+                pointHitRadius: 10,
+                pointBorderWidth: 2,
+                data: [25, 30, 28, 35, 40, 45],
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    left: 10,
+                    right: 25,
+                    top: 25,
+                    bottom: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    gridLines: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        maxTicksLimit: 7
+                    }
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        padding: 10,
+                        callback: function(value) {
+                            return value + "%";
+                        }
+                    },
+                    gridLines: {
+                        color: "rgb(234, 236, 244)",
+                        zeroLineColor: "rgb(234, 236, 244)",
+                        drawBorder: false,
+                        borderDash: [2],
+                        zeroLineBorderDash: [2]
+                    }
+                }],
+            },
+            legend: {
+                display: true
+            },
+            tooltips: {
+                backgroundColor: "rgb(255,255,255)",
+                bodyFontColor: "#858796",
+                titleMarginBottom: 10,
+                titleFontColor: '#6e707e',
+                titleFontSize: 14,
+                borderColor: '#dddfeb',
+                borderWidth: 1,
+                xPadding: 15,
+                yPadding: 15,
+                displayColors: false,
+                intersect: false,
+                mode: 'index',
+                caretPadding: 10,
+                callbacks: {
+                    label: function(tooltipItem, chart) {
+                        var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+                        return datasetLabel + ': ' + tooltipItem.yLabel + '%';
+                    }
+                }
+            }
+        }
+    });
+    
+    // Biểu đồ trạng thái email
+    const emailStatusChart = new Chart(emailStatusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ["Thành công", "Thất bại", "Bị chặn"],
+            datasets: [{
+                data: [92, 5, 3],
+                backgroundColor: ['#1cc88a', '#e74a3b', '#f6c23e'],
+                hoverBackgroundColor: ['#17a673', '#d52a1a', '#f0b429'],
+                hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            tooltips: {
+                backgroundColor: "rgb(255,255,255)",
+                bodyFontColor: "#858796",
+                borderColor: '#dddfeb',
+                borderWidth: 1,
+                xPadding: 15,
+                yPadding: 15,
+                displayColors: false,
+                caretPadding: 10,
+            },
+            legend: {
+                display: false
+            },
+            cutoutPercentage: 70,
+        },
+    });
+    
+    // Hàm cập nhật màu sắc cho biểu đồ
+    function updateChartColors() {
+        const primaryColor = $('#primaryColorPicker').css('background-color');
+        const secondaryColor = $('#secondaryColorPicker').css('background-color');
+        const accentColor = $('#accentColorPicker').css('background-color');
+        
+        // Cập nhật biểu đồ hiệu suất
+        emailPerformanceChart.data.datasets[0].borderColor = primaryColor;
+        emailPerformanceChart.data.datasets[0].pointBackgroundColor = primaryColor;
+        emailPerformanceChart.data.datasets[0].pointBorderColor = primaryColor;
+        emailPerformanceChart.data.datasets[0].pointHoverBackgroundColor = primaryColor;
+        emailPerformanceChart.data.datasets[0].pointHoverBorderColor = primaryColor;
+        
+        emailPerformanceChart.data.datasets[1].borderColor = secondaryColor;
+        emailPerformanceChart.data.datasets[1].pointBackgroundColor = secondaryColor;
+        emailPerformanceChart.data.datasets[1].pointBorderColor = secondaryColor;
+        emailPerformanceChart.data.datasets[1].pointHoverBackgroundColor = secondaryColor;
+        emailPerformanceChart.data.datasets[1].pointHoverBorderColor = secondaryColor;
+        
+        emailPerformanceChart.update();
+        
+        // Cập nhật biểu đồ trạng thái
+        emailStatusChart.data.datasets[0].backgroundColor = [secondaryColor, '#e74a3b', accentColor];
+        emailStatusChart.data.datasets[0].hoverBackgroundColor = [secondaryColor, '#d52a1a', accentColor];
+        emailStatusChart.update();
+    }
+});
+</script>
+{% endblock %}

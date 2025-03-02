@@ -1,0 +1,95 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Quản lý Webhooks{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-gray-800">Quản lý Webhooks</h1>
+        <a href="{% url 'dashboard:add_webhook' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Thêm Webhook
+        </a>
+    </div>
+    
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Tên</th>
+                            <th>URL</th>
+                            <th>Sự kiện</th>
+                            <th>Trạng thái</th>
+                            <th>Lần cuối kích hoạt</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for webhook in webhooks %}
+                        <tr>
+                            <td>{{ webhook.name }}</td>
+                            <td>
+                                <div class="text-truncate" style="max-width: 250px;">
+                                    {{ webhook.url }}
+                                </div>
+                            </td>
+                            <td>
+                                {% for event in webhook.events %}
+                                <span class="badge badge-info">{{ event }}</span>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% if webhook.is_active %}
+                                <span class="badge badge-success">Hoạt động</span>
+                                {% else %}
+                                <span class="badge badge-secondary">Đã tắt</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if webhook.last_triggered %}
+                                {{ webhook.last_triggered|date:"d/m/Y H:i" }}
+                                {% else %}
+                                Chưa kích hoạt
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'dashboard:edit_webhook' webhook.id %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="btn btn-sm btn-danger" onclick="deleteWebhook({{ webhook.id }})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">Chưa có webhook nào</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function deleteWebhook(id) {
+    if (confirm('Bạn có chắc muốn xóa webhook này?')) {
+        fetch(`/dashboard/api/webhooks/${id}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        }).then(response => {
+            if (response.ok) {
+                window.location.reload();
+            }
+        });
+    }
+}
+</script>
+{% endblock %} 

@@ -1,0 +1,174 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+
+{% block title %}Cấu hình Chatbot{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+<style>
+    .badge-closable {
+        margin-right: 5px;
+        margin-bottom: 5px;
+        display: inline-block;
+    }
+    
+    .categories-container {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .prompt-editor {
+        height: 300px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            {% if config %}
+            Chỉnh sửa cấu hình Chatbot: {{ config.name }}
+            {% else %}
+            Tạo cấu hình Chatbot mới
+            {% endif %}
+        </h1>
+        <a href="{% url 'dashboard:chatbot_dashboard' %}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Quay lại
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thông tin cấu hình</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab" aria-controls="info" aria-selected="true">Thông tin cơ bản</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="categories-tab" data-bs-toggle="tab" data-bs-target="#categories" type="button" role="tab" aria-controls="categories" aria-selected="false">Danh mục</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="forbidden-tab" data-bs-toggle="tab" data-bs-target="#forbidden" type="button" role="tab" aria-controls="forbidden" aria-selected="false">Từ khóa cấm</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content mt-3" id="myTabContent">
+                        <!-- Tab thông tin cơ bản -->
+                        <div class="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
+                            <div class="form-group row">
+                                <label for="name" class="col-sm-2 col-form-label">Tên cấu hình</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="name" name="name" 
+                                           value="{{ config.name|default:'' }}" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group row">
+                                <label for="base_prompt" class="col-sm-2 col-form-label">Prompt cơ bản</label>
+                                <div class="col-sm-10">
+                                    <textarea class="form-control prompt-editor" id="base_prompt" name="base_prompt">{{ config.base_prompt|default:'Bạn là chatbot tư vấn sản phẩm. Bạn chỉ trả lời dựa trên thông tin sản phẩm được cung cấp trong hệ thống của chúng tôi.' }}</textarea>
+                                    <small class="form-text text-muted">
+                                        Prompt cơ bản sẽ được sử dụng để định hướng chatbot về phạm vi trả lời.
+                                    </small>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group row">
+                                <label for="rejection_message" class="col-sm-2 col-form-label">Tin nhắn từ chối</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="rejection_message" name="rejection_message" 
+                                           value="{{ config.rejection_message|default:'Xin lỗi, tôi không thể hỗ trợ câu hỏi này.' }}">
+                                    <small class="form-text text-muted">
+                                        Tin nhắn này sẽ được gửi khi chatbot không thể trả lời câu hỏi nằm ngoài phạm vi.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tab danh mục -->
+                        <div class="tab-pane fade" id="categories" role="tabpanel" aria-labelledby="categories-tab">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card mb-3">
+                                        <div class="card-header">
+                                            <h6 class="m-0 font-weight-bold text-primary">Danh mục được phép tư vấn</h6>
+                                        </div>
+                                        <div class="card-body categories-container">
+                                            {% if config %}
+                                                {% for allowed in config.allowed_categories.all %}
+                                                    <div class="badge badge-primary badge-closable p-2 mb-2">
+                                                        {{ allowed.category.name }}
+                                                        <input type="hidden" name="allowed_categories[]" value="{{ allowed.category.id }}">
+                                                        <button type="button" class="close ml-1 remove-category" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                {% empty %}
+                                                    <div class="text-muted">Chưa có danh mục nào được thêm</div>
+                                                {% endfor %}
+                                            {% else %}
+                                                <div class="text-muted">Chưa có danh mục nào được thêm</div>
+                                            {% endif %}
+                                            
+                                            <div id="selectedCategories"></div>
+                                        </div>
+                                        <div class="card-footer">
+                                            <div class="input-group">
+                                                <select class="form-control" id="categorySelect">
+                                                    <option value="">-- Chọn danh mục --</option>
+                                                    {% for category in all_categories %}
+                                                        <option value="{{ category.id }}">{{ category.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-primary" type="button" id="addCategoryBtn">Thêm</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tab từ khoá cấm -->
+                        <div class="tab-pane fade" id="forbidden" role="tabpanel" aria-labelledby="forbidden-tab">
+                            <div class="form-group">
+                                <label for="forbidden_keywords">Từ khóa cấm</label>
+                                <textarea class="form-control" id="forbidden_keywords" name="forbidden_keywords" rows="5">{% for keyword in config.forbidden_keywords.all %}{{ keyword.keyword }}
+{% endfor %}</textarea>
+                                <small class="form-text text-muted">
+                                    Nhập mỗi từ khóa trên một dòng. Nếu người dùng hỏi về các từ khóa này, chatbot sẽ trả lời bằng tin nhắn từ chối.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Khởi tạo trình soạn thảo
+        $('#base_prompt').summernote({
+            height: 300,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ],
+            placeholder: 'Nhập prompt cơ bản cho chatbot...'
+        });
+    });
+</script>
+{% endblock %} 

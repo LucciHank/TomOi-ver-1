@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Thông báo sắp hết hạn gói đăng ký</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .content {
+            padding: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #777;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4e73df;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        .warning {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Gói đăng ký của bạn sắp hết hạn</h2>
+        </div>
+        <div class="content">
+            <p>Xin chào {{ user.username }},</p>
+            
+            <p>Chúng tôi xin thông báo rằng gói đăng ký <strong>{{ subscription.plan.name }}</strong> của bạn sẽ hết hạn sau <span class="warning">{{ days_left }} ngày</span>.</p>
+            
+            <p><strong>Chi tiết gói:</strong></p>
+            <ul>
+                <li>Tên gói: {{ subscription.plan.name }}</li>
+                <li>Ngày bắt đầu: {{ subscription.start_date|date:"d/m/Y" }}</li>
+                <li>Ngày hết hạn: {{ subscription.end_date|date:"d/m/Y" }}</li>
+            </ul>
+            
+            <p>Để tiếp tục sử dụng dịch vụ không bị gián đoạn, vui lòng gia hạn gói đăng ký của bạn trước ngày hết hạn.</p>
+            
+            <a href="{{ site_url }}{% url 'subscription_renew' subscription.id %}" class="button">Gia hạn ngay</a>
+            
+            <p>Nếu bạn không gia hạn, tài khoản của bạn sẽ bị hạ xuống gói miễn phí với các tính năng bị giới hạn sau khi hết hạn.</p>
+        </div>
+        <div class="footer">
+            <p>Email này được gửi tự động từ hệ thống. Vui lòng không trả lời.</p>
+            <p>Nếu bạn cần hỗ trợ, vui lòng liên hệ với chúng tôi qua email: support@tomoi.vn</p>
+        </div>
+    </div>
+</body>
+</html> 

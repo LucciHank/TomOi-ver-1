@@ -1,0 +1,88 @@
+{% extends 'dashboard/base.html' %}
+{% load humanize %}
+
+{% block title %}Quản lý gói đăng ký{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Quản lý gói đăng ký</h1>
+    
+    <!-- Thêm gói mới -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thêm gói đăng ký mới</h6>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Tên gói</label>
+                    <input type="text" class="form-control" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label>Mô tả</label>
+                    <textarea class="form-control" name="description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Giá (VNĐ)</label>
+                    <input type="number" class="form-control" name="price" required>
+                </div>
+                <div class="form-group">
+                    <label>Thời hạn (ngày)</label>
+                    <input type="number" class="form-control" name="duration" required>
+                </div>
+                <div class="form-group">
+                    <label>Số lần bảo hành tối đa</label>
+                    <input type="number" class="form-control" name="max_warranty_count" value="0">
+                </div>
+                <button type="submit" class="btn btn-primary">Thêm gói</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Danh sách gói -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách gói đăng ký</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Tên gói</th>
+                            <th>Mô tả</th>
+                            <th>Giá</th>
+                            <th>Thời hạn</th>
+                            <th>Bảo hành</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for plan in plans %}
+                        <tr>
+                            <td>{{ plan.name }}</td>
+                            <td>{{ plan.description }}</td>
+                            <td>{{ plan.price|intcomma }} VNĐ</td>
+                            <td>{{ plan.duration }} ngày</td>
+                            <td>{{ plan.max_warranty_count }} lần</td>
+                            <td>
+                                <button class="btn btn-sm btn-info edit-plan" 
+                                        data-id="{{ plan.id }}"
+                                        data-name="{{ plan.name }}"
+                                        data-description="{{ plan.description }}"
+                                        data-price="{{ plan.price }}"
+                                        data-duration="{{ plan.duration }}"
+                                        data-warranty="{{ plan.max_warranty_count }}">
+                                    Sửa
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

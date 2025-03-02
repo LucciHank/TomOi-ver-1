@@ -1,0 +1,357 @@
+/* Thay đổi màu chủ đạo */
+:root {
+  --primary: #df2626 !important;
+  --primary-dark: #c51f1f !important;
+  --primary-light: #e84545 !important;
+}
+
+/* Cập nhật màu cho các thành phần */
+.bg-gradient-primary {
+  background-color: #df2626;
+  background-image: linear-gradient(180deg, #df2626 10%, #c51f1f 100%);
+  background-size: cover;
+}
+
+.btn-primary {
+  background-color: #df2626;
+  border-color: #df2626;
+}
+
+.btn-primary:hover {
+  background-color: #c51f1f;
+  border-color: #c51f1f;
+}
+
+.text-primary {
+  color: #df2626 !important;
+}
+
+.border-left-primary {
+  border-left: 0.25rem solid #df2626 !important;
+}
+
+.sidebar .nav-item .nav-link.active {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Cập nhật màu cho các biểu đồ */
+.chart-area .chartjs-render-monitor {
+  --chart-primary: #df2626;
+  --chart-secondary: #e84545;
+}
+
+/* Cập nhật màu cho pagination */
+.pagination .page-item.active .page-link {
+  background-color: #df2626;
+  border-color: #df2626;
+}
+
+.pagination .page-item .page-link {
+  color: #df2626;
+}
+
+/* Cải thiện giao diện chung */
+body {
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.9rem;
+}
+
+/* Cải thiện card */
+.card {
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.15);
+}
+
+/* Cải thiện button */
+.btn {
+  border-radius: 0.35rem;
+  padding: 0.375rem 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+/* Cải thiện sidebar */
+.sidebar {
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+.sidebar .nav-item .nav-link {
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.sidebar .nav-item .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .nav-item .nav-link i {
+  margin-right: 0.5rem;
+  transition: transform 0.2s;
+}
+
+.sidebar .nav-item .nav-link:hover i {
+  transform: translateX(3px);
+}
+
+/* Cải thiện table */
+.table {
+  border-radius: 0.35rem;
+  overflow: hidden;
+}
+
+.table thead th {
+  background-color: #f8f9fc;
+  border-bottom: 2px solid #e3e6f0;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(78, 115, 223, 0.05);
+}
+
+/* Cải thiện form */
+.form-control {
+  border-radius: 0.35rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d3e2;
+  transition: border-color 0.2s;
+}
+
+.form-control:focus {
+  border-color: #4e73df;
+  box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+/* Cải thiện dropdown menu */
+.dropdown-menu {
+  border: none;
+  border-radius: 0.35rem;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+  animation: dropdown-animation 0.2s ease-in-out;
+}
+
+@keyframes dropdown-animation {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fc;
+  transform: translateX(5px);
+}
+
+/* Cải thiện badge */
+.badge {
+  font-weight: 600;
+  padding: 0.35em 0.65em;
+  border-radius: 0.35rem;
+}
+
+/* Cải thiện alert */
+.alert {
+  border: none;
+  border-radius: 0.35rem;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+}
+
+/* Cải thiện modal */
+.modal-content {
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+.modal-header {
+  border-bottom: 1px solid #e3e6f0;
+  background-color: #f8f9fc;
+}
+
+.modal-footer {
+  border-top: 1px solid #e3e6f0;
+  background-color: #f8f9fc;
+}
+
+/* Cải thiện pagination */
+.pagination .page-item .page-link {
+  border: none;
+  padding: 0.5rem 0.75rem;
+  margin: 0 0.2rem;
+  border-radius: 0.35rem;
+  color: #4e73df;
+  transition: all 0.2s;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #4e73df;
+  color: white;
+}
+
+.pagination .page-item .page-link:hover {
+  background-color: #eaecf4;
+  transform: translateY(-2px);
+}
+
+/* Cải thiện chart */
+.chart-area, .chart-pie {
+  position: relative;
+  height: 20rem;
+  width: 100%;
+}
+
+/* Cải thiện scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Fix avatar size */
+.img-profile {
+  height: 2rem !important;
+  width: 2rem !important;
+  object-fit: cover;
+}
+
+.topbar .nav-item .nav-link .img-profile {
+  height: 2rem !important;
+  width: 2rem !important;
+}
+
+/* Thêm hiệu ứng hover cho avatar */
+.img-profile:hover {
+  transform: scale(1.05);
+  transition: transform 0.2s ease-in-out;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Tùy chỉnh cho trang nguồn nhập */
+.activity-feed {
+    padding: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.feed-item {
+    border-left: 2px solid #f0f0f0;
+    padding-left: 15px;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.feed-item:last-child {
+    margin-bottom: 0;
+}
+
+.feed-item:before {
+    content: "";
+    display: block;
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4e73df;
+    left: -5px;
+    top: 5px;
+}
+
+.feed-item .date {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.source-card {
+    transition: all 0.3s ease;
+}
+
+.source-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+
+.chart-container {
+    position: relative;
+    min-height: 300px;
+}
+
+/* Style cho trang phân tích nguồn */
+.insight-card {
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.insight-card:hover {
+    transform: scale(1.02);
+}
+
+.filter-box {
+    background-color: #f8f9fc;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.source-table th {
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+.source-metrics {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.source-metrics-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: #858796;
+    margin-top: -5px;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .source-metrics {
+        font-size: 1.5rem;
+    }
+    
+    .activity-feed {
+        max-height: 300px;
+    }
+}

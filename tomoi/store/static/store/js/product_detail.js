@@ -46,6 +46,75 @@ document.addEventListener('DOMContentLoaded', function() {
     if (firstVariant) {
         firstVariant.click();
     }
+
+    // Xử lý nút yêu thích
+    const wishlistBtn = document.querySelector('.wishlist-btn');
+    if (wishlistBtn) {
+        wishlistBtn.addEventListener('click', async function() {
+            const productId = this.getAttribute('data-product-id');
+            
+            try {
+                const response = await fetch('/toggle-wishlist/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        product_id: productId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'added') {
+                    // Thay đổi icon thành trái tim đầy
+                    wishlistBtn.innerHTML = '<i class="fas fa-heart"></i>';
+                    wishlistBtn.classList.add('active');
+                } else if (data.status === 'removed') {
+                    // Thay đổi icon thành trái tim rỗng
+                    wishlistBtn.innerHTML = '<i class="far fa-heart"></i>';
+                    wishlistBtn.classList.remove('active');
+                }
+                
+                // Hiển thị thông báo
+                Swal.fire({
+                    icon: 'success',
+                    text: data.message,
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    text: 'Có lỗi xảy ra, vui lòng thử lại sau',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            }
+        });
+    }
+    
+    // Helper function để lấy cookie
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 });
 
 function selectVariant(element) {

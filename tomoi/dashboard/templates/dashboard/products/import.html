@@ -1,0 +1,129 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Import Sản phẩm{% endblock %}
+
+{% block page_title %}Import Sản phẩm{% endblock %}
+{% block page_subtitle %}Nhập danh sách sản phẩm từ file Excel/CSV{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 col-lg-6 mx-auto">
+        <div class="card shadow mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Import sản phẩm</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4 text-center">
+                        <div class="upload-area p-4 border rounded mb-3" id="uploadArea">
+                            <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                            <p>Kéo thả file vào đây hoặc click để chọn file</p>
+                            <input type="file" name="import_file" id="importFile" class="d-none" accept=".csv, .xlsx, .xls">
+                        </div>
+                        <div id="fileInfo" class="mt-2 d-none">
+                            <p class="mb-0"><i class="fas fa-file-excel me-2"></i> <span id="fileName"></span></p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Tùy chọn Import</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="update_existing" id="updateExisting" checked>
+                            <label class="form-check-label" for="updateExisting">
+                                Cập nhật sản phẩm đã tồn tại
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="create_categories" id="createCategories">
+                            <label class="form-check-label" for="createCategories">
+                                Tự động tạo danh mục mới
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-file-import me-2"></i> Import Sản phẩm
+                        </button>
+                        <a href="{% url 'dashboard:products' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i> Quay lại
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card shadow">
+            <div class="card-header">
+                <h5 class="mb-0">Hướng dẫn</h5>
+            </div>
+            <div class="card-body">
+                <p>File import cần có các cột sau:</p>
+                <ul class="mb-4">
+                    <li>name - Tên sản phẩm (bắt buộc)</li>
+                    <li>category - Danh mục (bắt buộc)</li>
+                    <li>price - Giá (bắt buộc)</li>
+                    <li>description - Mô tả</li>
+                    <li>sku - Mã sản phẩm</li>
+                    <li>is_active - Trạng thái (1 = kích hoạt, 0 = vô hiệu)</li>
+                </ul>
+                
+                <a href="{% static 'dashboard/templates/product_import_template.xlsx' %}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-download me-2"></i> Tải file mẫu
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        const uploadArea = $('#uploadArea');
+        const importFile = $('#importFile');
+        const fileInfo = $('#fileInfo');
+        const fileName = $('#fileName');
+        
+        // Xử lý click vào khu vực upload
+        uploadArea.on('click', function() {
+            importFile.click();
+        });
+        
+        // Xử lý kéo thả
+        uploadArea.on('dragover', function(e) {
+            e.preventDefault();
+            $(this).addClass('bg-light');
+        });
+        
+        uploadArea.on('dragleave', function() {
+            $(this).removeClass('bg-light');
+        });
+        
+        uploadArea.on('drop', function(e) {
+            e.preventDefault();
+            $(this).removeClass('bg-light');
+            
+            if (e.originalEvent.dataTransfer.files.length) {
+                importFile[0].files = e.originalEvent.dataTransfer.files;
+                handleFileSelect();
+            }
+        });
+        
+        // Xử lý chọn file
+        importFile.on('change', handleFileSelect);
+        
+        function handleFileSelect() {
+            if (importFile[0].files.length) {
+                fileInfo.removeClass('d-none');
+                fileName.text(importFile[0].files[0].name);
+            } else {
+                fileInfo.addClass('d-none');
+            }
+        }
+    });
+</script>
+{% endblock %} 

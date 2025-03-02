@@ -1,0 +1,82 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Cài đặt Email{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Cài đặt Email</h1>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Cấu hình SMTP</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'dashboard:email_settings_update' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="smtp_host" class="form-label">SMTP Host</label>
+                            <input type="text" class="form-control" id="smtp_host" name="smtp_host" value="{{ smtp_host }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="smtp_port" class="form-label">SMTP Port</label>
+                            <input type="number" class="form-control" id="smtp_port" name="smtp_port" value="{{ smtp_port }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="smtp_user" class="form-label">SMTP Username</label>
+                            <input type="text" class="form-control" id="smtp_user" name="smtp_user" value="{{ smtp_user }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="smtp_password" class="form-label">SMTP Password</label>
+                            <input type="password" class="form-control" id="smtp_password" name="smtp_password" placeholder="••••••••">
+                            <small class="form-text text-muted">Để trống nếu không muốn thay đổi mật khẩu</small>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="smtp_use_tls" name="smtp_use_tls" {% if smtp_use_tls %}checked{% endif %}>
+                            <label class="form-check-label" for="smtp_use_tls">Sử dụng TLS</label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="default_from_email" class="form-label">Email gửi mặc định</label>
+                            <input type="email" class="form-control" id="default_from_email" name="default_from_email" value="{{ default_from_email }}">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Lưu cài đặt</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Kiểm tra cài đặt</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'dashboard:email_test' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="test_email" class="form-label">Email nhận thử nghiệm</label>
+                            <input type="email" class="form-control" id="test_email" name="test_email" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Gửi email thử nghiệm</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thông tin</h6>
+                </div>
+                <div class="card-body">
+                    <p>Cài đặt email được sử dụng để gửi:</p>
+                    <ul>
+                        <li>Email xác nhận đăng ký</li>
+                        <li>Email đặt lại mật khẩu</li>
+                        <li>Thông báo đơn hàng</li>
+                        <li>Email marketing</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

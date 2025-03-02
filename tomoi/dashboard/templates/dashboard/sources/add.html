@@ -1,0 +1,104 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Thêm nguồn nhập mới{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Thêm nguồn nhập mới</h1>
+    <p class="mb-4">Nhập thông tin chi tiết cho nguồn nhập mới.</p>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin nguồn nhập</h6>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-group row">
+                    <label for="name" class="col-sm-2 col-form-label">Tên nguồn</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="url" class="col-sm-2 col-form-label">Link nguồn</label>
+                    <div class="col-sm-10">
+                        <input type="url" class="form-control" id="url" name="url">
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="platform" class="col-sm-2 col-form-label">Nền tảng</label>
+                    <div class="col-sm-10">
+                        <select class="form-control" id="platform" name="platform">
+                            <option value="facebook">Facebook</option>
+                            <option value="zalo">Zalo</option>
+                            <option value="instagram">Instagram</option>
+                            <option value="tiktok">TikTok</option>
+                            <option value="discord">Discord</option>
+                            <option value="telegram">Telegram</option>
+                            <option value="other">Khác</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="product_type" class="col-sm-2 col-form-label">Loại sản phẩm</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="product_type" name="product_type">
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="base_price" class="col-sm-2 col-form-label">Giá nhập chuẩn</label>
+                    <div class="col-sm-10">
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="base_price" name="base_price" step="1000">
+                            <div class="input-group-append">
+                                <span class="input-group-text">VNĐ</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="availability_rate" class="col-sm-2 col-form-label">Tỷ lệ có hàng (%)</label>
+                    <div class="col-sm-10">
+                        <input type="number" class="form-control" id="availability_rate" name="availability_rate" min="0" max="100">
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="priority" class="col-sm-2 col-form-label">Mức độ ưu tiên</label>
+                    <div class="col-sm-10">
+                        <select class="form-control" id="priority" name="priority">
+                            <option value="1">1 - Cao nhất</option>
+                            <option value="2">2 - Cao</option>
+                            <option value="3">3 - Trung bình</option>
+                            <option value="4">4 - Thấp</option>
+                            <option value="5">5 - Thấp nhất</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="notes" class="col-sm-2 col-form-label">Ghi chú</label>
+                    <div class="col-sm-10">
+                        <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <div class="col-sm-10 offset-sm-2">
+                        <button type="submit" class="btn btn-primary">Lưu nguồn nhập</button>
+                        <a href="{% url 'dashboard:source_list' %}" class="btn btn-secondary">Hủy</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

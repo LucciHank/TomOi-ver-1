@@ -1,0 +1,127 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Quản lý API Keys{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-gray-800">Quản lý API Keys</h1>
+        <a href="{% url 'dashboard:add_api_key' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Tạo API Key mới
+        </a>
+    </div>
+    
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Tên</th>
+                            <th>API Key</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày tạo</th>
+                            <th>Lần cuối sử dụng</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for key in api_keys %}
+                        <tr>
+                            <td>{{ key.name }}</td>
+                            <td>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" value="{{ key.key }}" readonly>
+                                    <button class="btn btn-outline-secondary" onclick="copyToClipboard(this)">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                {% if key.is_active %}
+                                <span class="badge badge-success">Hoạt động</span>
+                                {% else %}
+                                <span class="badge badge-secondary">Đã tắt</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ key.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if key.last_used %}
+                                {{ key.last_used|date:"d/m/Y H:i" }}
+                                {% else %}
+                                Chưa sử dụng
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-info" onclick="toggleAPIKey({{ key.id }})">
+                                    {% if key.is_active %}
+                                    <i class="fas fa-pause"></i>
+                                    {% else %}
+                                    <i class="fas fa-play"></i>
+                                    {% endif %}
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteAPIKey({{ key.id }})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">Chưa có API key nào</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyToClipboard(button) {
+    const input = button.parentElement.querySelector('input');
+    input.select();
+    document.execCommand('copy');
+    
+    // Show tooltip
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tooltip show';
+    tooltip.textContent = 'Đã sao chép!';
+    button.appendChild(tooltip);
+    
+    setTimeout(() => tooltip.remove(), 2000);
+}
+
+function toggleAPIKey(id) {
+    if (confirm('Bạn có chắc muốn thay đổi trạng thái của API key này?')) {
+        fetch(`/dashboard/api/keys/${id}/toggle/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        }).then(response => {
+            if (response.ok) {
+                window.location.reload();
+            }
+        });
+    }
+}
+
+function deleteAPIKey(id) {
+    if (confirm('Bạn có chắc muốn xóa API key này? Hành động này không thể hoàn tác.')) {
+        fetch(`/dashboard/api/keys/${id}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        }).then(response => {
+            if (response.ok) {
+                window.location.reload();
+            }
+        });
+    }
+}
+</script>
+{% endblock %} 

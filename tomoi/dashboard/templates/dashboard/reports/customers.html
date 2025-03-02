@@ -1,0 +1,139 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Báo cáo khách hàng{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Báo cáo khách hàng</h1>
+    <p class="mb-4">Phân tích dữ liệu khách hàng.</p>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Biểu đồ khách hàng mới -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Khách hàng mới theo tháng</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="newCustomersChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top khách hàng -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Top khách hàng</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Khách hàng</th>
+                                    <th>Đơn hàng</th>
+                                    <th>Chi tiêu</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for customer in top_customers %}
+                                <tr>
+                                    <td>{{ customer.username }}</td>
+                                    <td>{{ customer.order_count }}</td>
+                                    <td>{{ customer.total_spent|floatformat:0 }} đ</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">Chưa có dữ liệu</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Biểu đồ khách hàng mới
+var ctx = document.getElementById("newCustomersChart");
+var newCustomersChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+        datasets: [{
+            label: "Khách hàng mới",
+            backgroundColor: "#4e73df",
+            hoverBackgroundColor: "#2e59d9",
+            borderColor: "#4e73df",
+            data: {{ customers|safe }},
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        layout: {
+            padding: {
+                left: 10,
+                right: 25,
+                top: 25,
+                bottom: 0
+            }
+        },
+        scales: {
+            xAxes: [{
+                time: {
+                    unit: 'month'
+                },
+                gridLines: {
+                    display: false,
+                    drawBorder: false
+                },
+                ticks: {
+                    maxTicksLimit: 12
+                },
+                maxBarThickness: 25,
+            }],
+            yAxes: [{
+                ticks: {
+                    min: 0,
+                    maxTicksLimit: 5,
+                    padding: 10,
+                },
+                gridLines: {
+                    color: "rgb(234, 236, 244)",
+                    zeroLineColor: "rgb(234, 236, 244)",
+                    drawBorder: false,
+                    borderDash: [2],
+                    zeroLineBorderDash: [2]
+                }
+            }],
+        },
+        legend: {
+            display: false
+        },
+        tooltips: {
+            titleMarginBottom: 10,
+            titleFontColor: '#6e707e',
+            titleFontSize: 14,
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+            xPadding: 15,
+            yPadding: 15,
+            displayColors: false,
+            caretPadding: 10,
+        },
+    }
+});
+</script>
+{% endblock %} 

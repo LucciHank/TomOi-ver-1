@@ -1,0 +1,203 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Phân tích dữ liệu{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Phân tích dữ liệu</h1>
+    
+    <!-- Thẻ điều hướng -->
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link active" href="{% url 'dashboard:analytics_dashboard' %}">Tổng quan</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'dashboard:sales_report' %}">Doanh số</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'dashboard:user_analytics' %}">Khách hàng</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'dashboard:marketing_analytics' %}">Marketing</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'dashboard:custom_report' %}">Báo cáo tùy chỉnh</a>
+        </li>
+    </ul>
+    
+    <!-- Tổng quan cards -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Doanh thu (30 ngày qua)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_revenue|floatformat:0 }} đ</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Tổng đơn hàng</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_orders }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Giá trị đơn hàng trung bình</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ avg_order_value|floatformat:0 }} đ</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Khách hàng mới</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ new_users }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Biểu đồ doanh thu -->
+    <div class="row">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Doanh thu 30 ngày qua</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biểu đồ tròn sản phẩm -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Sản phẩm bán chạy</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie pt-4 pb-2">
+                        <canvas id="productPieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Biểu đồ doanh thu
+    var revenueChart = new Chart(document.getElementById('revenueChart'), {
+        type: 'line',
+        data: {
+            labels: {{ daily_revenue|safe }}.map(day => day.date),
+            datasets: [{
+                label: 'Doanh thu',
+                data: {{ daily_revenue|safe }}.map(day => day.revenue),
+                borderColor: '#4e73df',
+                backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                tension: 0.3,
+                fill: true
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        borderDash: [2],
+                        drawBorder: false,
+                        zeroLineColor: 'rgba(0, 0, 0, 0.1)',
+                        zeroLineBorderDash: [2]
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString() + ' đ';
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Biểu đồ tròn sản phẩm bán chạy
+    var productCtx = document.getElementById('productPieChart').getContext('2d');
+    var productPieChart = new Chart(productCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Netflix', 'Spotify', 'YouTube Premium', 'Disney+', 'HBO Max'],
+            datasets: [{
+                data: [35, 25, 20, 15, 5],
+                backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'],
+                hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617'],
+                hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            },
+            cutout: '70%'
+        }
+    });
+</script>
+{% endblock %} 

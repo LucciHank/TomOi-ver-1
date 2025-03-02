@@ -1,0 +1,373 @@
+{% extends "dashboard/base.html" %}
+{% load dashboard_filters %}
+
+{% block title %}Quản lý Đơn hàng{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-gray-800">Quản lý Đơn hàng</h1>
+        <div>
+            <button class="btn btn-primary" data-toggle="modal" data-target="#filterModal">
+                <i class="fas fa-filter"></i> Lọc
+            </button>
+            <div class="btn-group">
+                <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+                    <i class="fas fa-download"></i> Xuất
+                </button>
+                <div class="dropdown-menu">
+                    <a href="{% url 'dashboard:export_orders' %}?format=excel" class="dropdown-item">
+                        <i class="fas fa-file-excel"></i> Excel
+                    </a>
+                    <a href="{% url 'dashboard:export_orders' %}?format=csv" class="dropdown-item">
+                        <i class="fas fa-file-csv"></i> CSV
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Thống kê -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Tổng đơn hàng
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ total_orders }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Doanh thu
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ total_revenue|floatformat:0 }}đ
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Giá trị TB/đơn
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% if total_orders > 0 %}
+                                    {{ total_revenue|floatformat:0 }}đ
+                                {% else %}
+                                    0đ
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Đơn chờ xử lý
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ pending_orders }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-comments fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Thêm thống kê theo phương thức thanh toán -->
+    <div class="row mb-4">
+        {% for stat in payment_stats %}
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                {{ stat.payment_method }}
+                            </div>
+                            <div class="row no-gutters align-items-center">
+                                <div class="col-auto">
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
+                                        {{ stat.count }} đơn
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="progress progress-sm mr-2">
+                                        <div class="progress-bar bg-info" role="progressbar" 
+                                             style="width: {{ stat.count|div:total_orders|mul:100 }}%">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Danh sách đơn hàng -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách đơn hàng</h6>
+            <div class="dropdown no-arrow">
+                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                    aria-labelledby="dropdownMenuLink">
+                    <div class="dropdown-header">Tùy chọn:</div>
+                    <a class="dropdown-item" href="{% url 'dashboard:export_orders' %}?format=excel">Xuất Excel</a>
+                    <a class="dropdown-item" href="{% url 'dashboard:export_orders' %}?format=csv">Xuất CSV</a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Mã đơn</th>
+                            <th>Khách hàng</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Thanh toán</th>
+                            <th>Ngày tạo</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'dashboard:order_detail' order.id %}" class="font-weight-bold">
+                                    #{{ order.id }}
+                                </a>
+                            </td>
+                            <td>{{ order.user.username }}</td>
+                            <td>{{ order.total_amount|floatformat:0 }}đ</td>
+                            <td>
+                                {% if order.status == 'pending' %}
+                                <span class="badge badge-warning">{{ order.get_status_display }}</span>
+                                {% elif order.status == 'processing' %}
+                                <span class="badge badge-info">{{ order.get_status_display }}</span>
+                                {% elif order.status == 'shipped' %}
+                                <span class="badge badge-primary">{{ order.get_status_display }}</span>
+                                {% elif order.status == 'completed' %}
+                                <span class="badge badge-success">{{ order.get_status_display }}</span>
+                                {% elif order.status == 'cancelled' %}
+                                <span class="badge badge-danger">{{ order.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if order.payment_status == 'pending' %}
+                                <span class="badge badge-warning">{{ order.get_payment_status_display }}</span>
+                                {% elif order.payment_status == 'paid' %}
+                                <span class="badge badge-success">{{ order.get_payment_status_display }}</span>
+                                {% elif order.payment_status == 'failed' %}
+                                <span class="badge badge-danger">{{ order.get_payment_status_display }}</span>
+                                {% elif order.payment_status == 'refunded' %}
+                                <span class="badge badge-info">{{ order.get_payment_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <a href="{% url 'dashboard:order_detail' order.id %}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">Không có đơn hàng nào</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Phân trang -->
+            {% if orders.has_other_pages %}
+            <nav class="mt-3">
+                <ul class="pagination justify-content-center">
+                    {% if orders.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ orders.previous_page_number }}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for i in orders.paginator.page_range %}
+                    <li class="page-item {% if orders.number == i %}active{% endif %}">
+                        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                    </li>
+                    {% endfor %}
+                    
+                    {% if orders.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ orders.next_page_number }}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal lọc -->
+<div class="modal fade" id="filterModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Lọc đơn hàng</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="get">
+                    <div class="form-group">
+                        <label>Trạng thái</label>
+                        <select name="status" class="form-control">
+                            <option value="">Tất cả</option>
+                            {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Thanh toán</label>
+                        <select name="payment_status" class="form-control">
+                            <option value="">Tất cả</option>
+                            {% for value, label in payment_status_choices %}
+                            <option value="{{ value }}" {% if request.GET.payment_status == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Từ ngày</label>
+                        <input type="date" name="date_from" class="form-control" value="{{ request.GET.date_from }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Đến ngày</label>
+                        <input type="date" name="date_to" class="form-control" value="{{ request.GET.date_to }}">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Áp dụng</button>
+                    <a href="{% url 'dashboard:order_management' %}" class="btn btn-secondary">Đặt lại</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Thêm modal này vào cuối file -->
+<div class="modal fade" id="updateStatusModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cập nhật trạng thái</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form id="updateStatusForm" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Trạng thái mới</label>
+                        <select name="status" class="form-control">
+                            {% for value, label in status_choices %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Ghi chú</label>
+                        <textarea name="note" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Cập nhật</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+function updateStatus(orderId) {
+    $('#updateStatusModal').modal('show');
+    $('#updateStatusForm').attr('action', `/dashboard/orders/${orderId}/update-status/`);
+}
+
+// Thêm DataTables
+$(document).ready(function() {
+    $('.table').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.10.24/i18n/Vietnamese.json'
+        },
+        order: [[5, 'desc']], // Sắp xếp theo ngày tạo
+        pageLength: 25
+    });
+});
+</script>
+{% endblock %} 

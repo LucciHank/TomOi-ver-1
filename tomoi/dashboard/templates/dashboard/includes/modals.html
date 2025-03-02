@@ -1,0 +1,96 @@
+<!-- Modal Hỏi hàng nhanh -->
+<div class="modal fade" id="inquireModal" tabindex="-1" role="dialog" aria-labelledby="inquireModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="inquireModalLabel">Hỏi hàng nhanh</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{% url 'dashboard:add_source_log' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <input type="hidden" name="source_id" id="inquireSourceId">
+                    <input type="hidden" name="log_type" value="inquiry">
+                    
+                    <div class="form-group">
+                        <label for="inquireProduct">Sản phẩm:</label>
+                        <select class="form-control" id="inquireProduct" name="source_product_id">
+                            <option value="">-- Chọn sản phẩm --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="inquireHasStock" name="has_stock">
+                            <label class="custom-control-label" for="inquireHasStock">Có hàng</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="inquireProcessingTime">Thời gian xử lý (phút):</label>
+                        <input type="number" class="form-control" id="inquireProcessingTime" name="processing_time" min="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="inquireNotes">Ghi chú:</label>
+                        <textarea class="form-control" id="inquireNotes" name="notes" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Lưu log</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nhập hàng nhanh -->
+<div class="modal fade" id="purchaseModal" tabindex="-1" role="dialog" aria-labelledby="purchaseModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="purchaseModalLabel">Nhập hàng nhanh</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{% url 'dashboard:add_source_log' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <input type="hidden" name="source_id" id="purchaseSourceId">
+                    <input type="hidden" name="log_type" value="purchase">
+                    <input type="hidden" name="has_stock" value="on">
+                    
+                    <div class="form-group">
+                        <label for="purchaseProduct">Sản phẩm:</label>
+                        <select class="form-control" id="purchaseProduct" name="source_product_id">
+                            <option value="">-- Chọn sản phẩm --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="purchaseProcessingTime">Thời gian xử lý (phút):</label>
+                        <input type="number" class="form-control" id="purchaseProcessingTime" name="processing_time" min="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="purchaseQuantity">Số lượng nhập:</label>
+                        <input type="number" class="form-control" id="purchaseQuantity" name="quantity" min="1" value="1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="purchaseNotes">Ghi chú:</label>
+                        <textarea class="form-control" id="purchaseNotes" name="notes" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Lưu nhập hàng</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div> 

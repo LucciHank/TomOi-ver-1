@@ -1,90 +1,230 @@
-<div id="layoutSidenav_nav">
-    <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
-        <div class="sb-sidenav-menu">
-            <div class="nav">
-                <div class="sb-sidenav-menu-heading">Tổng quan</div>
-                <a class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" 
-                   href="{% url 'dashboard:home' %}">
-                    <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                    Bảng điều khiển
-                </a>
-                
-                <div class="sb-sidenav-menu-heading">Sản phẩm</div>
-                <a class="nav-link {% if 'products' in request.path and not 'categories' in request.path %}active{% endif %}" 
-                   href="{% url 'dashboard:products' %}">
-                    <div class="sb-nav-link-icon"><i class="fas fa-box"></i></div>
-                    Quản lý sản phẩm
-                </a>
-                <a class="nav-link {% if 'categories' in request.path %}active{% endif %}" 
-                   href="{% url 'dashboard:categories' %}">
-                    <div class="sb-nav-link-icon"><i class="fas fa-list"></i></div>
-                    Danh mục
-                </a>
-                
-                <div class="sb-sidenav-menu-heading">Đơn hàng & Khách hàng</div>
-                <a class="nav-link {% if 'order' in request.resolver_match.url_name %}active{% endif %}" 
-                   href="{% url 'dashboard:orders' %}">
-                    <div class="sb-nav-link-icon"><i class="fas fa-shopping-cart"></i></div>
-                    Đơn hàng
-                </a>
-                <a class="nav-link {% if 'user' in request.resolver_match.url_name %}active{% endif %}" 
-                   href="{% url 'dashboard:users' %}">
-                    <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
-                    Người dùng
-                </a>
-                <a class="nav-link {% if 'discount' in request.resolver_match.url_name %}active{% endif %}" 
-                   href="{% url 'dashboard:discounts' %}">
-                    <div class="sb-nav-link-icon"><i class="fas fa-tags"></i></div>
-                    Mã giảm giá
-                </a>
-                
-                <div class="sb-sidenav-menu-heading">Tiếp thị & Nội dung</div>
-                <a class="nav-link {% if 'marketing' in request.resolver_match.url_name %}active{% endif %}" 
-                   href="{% url 'dashboard:marketing' %}">
-                    <div class="sb-nav-link-icon"><i class="fas fa-bullhorn"></i></div>
-                    Tiếp thị
-                </a>
-                <a class="nav-link {% if 'banner' in request.resolver_match.url_name %}active{% endif %}" 
-                   href="{% url 'dashboard:banners' %}">
-                    <div class="sb-nav-link-icon"><i class="fas fa-images"></i></div>
-                    Banner
-                </a>
-                <a class="nav-link {% if 'blog' in request.resolver_match.url_name %}active{% endif %}" 
-                   href="{% url 'dashboard:blogs' %}">
-                    <div class="sb-nav-link-icon"><i class="fas fa-blog"></i></div>
-                    Blog
-                </a>
-                
-                <div class="sb-sidenav-menu-heading">Phân tích & Báo cáo</div>
-                <a class="nav-link {% if 'analytics' in request.resolver_match.url_name %}active{% endif %}" 
-                   href="{% url 'dashboard:analytics' %}">
-                    <div class="sb-nav-link-icon"><i class="fas fa-chart-bar"></i></div>
-                    Thống kê & Báo cáo
-                </a>
-                
-                <div class="sb-sidenav-menu-heading">Tương tác khách hàng</div>
-                <a class="nav-link {% if 'email' in request.resolver_match.url_name %}active{% endif %}" 
-                   href="{% url 'dashboard:email_templates' %}">
-                    <div class="sb-nav-link-icon"><i class="fas fa-envelope"></i></div>
-                    Email Templates
-                </a>
-                <a class="nav-link {% if 'chatbot' in request.resolver_match.url_name %}active{% endif %}" 
-                   href="{% url 'dashboard:chatbot' %}">
-                    <div class="sb-nav-link-icon"><i class="fas fa-robot"></i></div>
-                    Chatbot
-                </a>
-                
-                <div class="sb-sidenav-menu-heading">Cài đặt</div>
-                <a class="nav-link {% if 'setting' in request.resolver_match.url_name %}active{% endif %}" 
-                   href="{% url 'dashboard:settings' %}">
-                    <div class="sb-nav-link-icon"><i class="fas fa-cog"></i></div>
-                    Cài đặt hệ thống
-                </a>
+<!-- Sidebar -->
+<ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+    <!-- Sidebar - Brand -->
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{% url 'dashboard:home' %}">
+        <div class="sidebar-brand-icon rotate-n-15">
+            <i class="fas fa-laugh-wink"></i>
+        </div>
+        <div class="sidebar-brand-text mx-3">TomOi Admin</div>
+    </a>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider my-0">
+
+    <!-- Nav Item - Dashboard -->
+    <li class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+        <a class="nav-link" href="{% url 'dashboard:home' %}">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Bảng điều khiển</span></a>
+    </li>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider">
+
+    <!-- Heading -->
+    <div class="sidebar-heading">
+        Phân tích
+    </div>
+
+    <!-- Nav Item - Analysis Collapse Menu -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseAnalysis"
+            aria-expanded="false" aria-controls="collapseAnalysis">
+            <i class="fas fa-fw fa-chart-area"></i>
+            <span>Phân tích & Báo cáo</span>
+        </a>
+        <div id="collapseAnalysis" class="collapse" aria-labelledby="headingAnalysis" data-bs-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Báo cáo:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:source_dashboard' %}">Nguồn nhập</a>
+                <a class="collapse-item" href="{% url 'dashboard:revenue_report' %}">Doanh thu</a>
+                <a class="collapse-item" href="{% url 'dashboard:popular_products' %}">Sản phẩm bán chạy</a>
+                <a class="collapse-item" href="{% url 'dashboard:processing_time' %}">Thời gian xử lý</a>
+                <a class="collapse-item" href="{% url 'dashboard:warranty_report' %}">Tỷ lệ bảo hành</a>
             </div>
         </div>
-        <div class="sb-sidenav-footer">
-            <div class="small">Đăng nhập với:</div>
-            {{ request.user.username }}
+    </li>
+    
+    <!-- Divider -->
+    <hr class="sidebar-divider">
+
+    <!-- Heading -->
+    <div class="sidebar-heading">
+        Quản lý
+    </div>
+
+    <!-- Quản lý nguồn nhập - tách riêng -->
+    <li class="nav-item {% if 'sources' in request.path %}active{% endif %}">
+        <a class="nav-link {% if 'sources' in request.path %}{% else %}collapsed{% endif %}" href="#" data-bs-toggle="collapse" data-bs-target="#collapseSource"
+            aria-expanded="{% if 'sources' in request.path %}true{% else %}false{% endif %}" aria-controls="collapseSource">
+            <i class="fas fa-fw fa-truck"></i>
+            <span>Quản lý nguồn nhập</span>
+        </a>
+        <div id="collapseSource" class="collapse {% if 'sources' in request.path %}show{% endif %}" aria-labelledby="headingSource"
+            data-bs-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản lý nguồn nhập:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:source_dashboard' %}">Bảng điều khiển</a>
+                <a class="collapse-item" href="{% url 'dashboard:source_list' %}">Danh sách nguồn</a>
+                <a class="collapse-item" href="{% url 'dashboard:source_add' %}">Thêm nguồn mới</a>
+                <a class="collapse-item" href="{% url 'dashboard:add_source_product' %}">Thêm sản phẩm</a>
+                <a class="collapse-item" href="{% url 'dashboard:source_log_list' %}">Nhật ký nguồn</a>
+                <a class="collapse-item" href="{% url 'dashboard:add_source_log' %}">Thêm nhật ký</a>
+            </div>
         </div>
-    </nav>
-</div> 
+    </li>
+
+    <!-- Tài khoản Premium -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseAccounts"
+            aria-expanded="false" aria-controls="collapseAccounts">
+            <i class="fas fa-fw fa-user-shield"></i>
+            <span>Tài khoản Premium</span>
+        </a>
+        <div id="collapseAccounts" class="collapse" aria-labelledby="headingAccounts" data-bs-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản lý tài khoản:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:account_types' %}">Loại tài khoản</a>
+                <a class="collapse-item" href="#">Danh sách tài khoản</a>
+                <a class="collapse-item" href="#">Thêm tài khoản</a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Đơn hàng -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseOrders"
+            aria-expanded="false" aria-controls="collapseOrders">
+            <i class="fas fa-fw fa-shopping-cart"></i>
+            <span>Đơn hàng</span>
+        </a>
+        <div id="collapseOrders" class="collapse" aria-labelledby="headingOrders" data-bs-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản lý đơn hàng:</h6>
+                <a class="collapse-item" href="#">Danh sách đơn hàng</a>
+                <a class="collapse-item" href="{% url 'dashboard:account_transactions' %}">Giao dịch</a>
+                <a class="collapse-item" href="#">Báo cáo bán hàng</a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Người dùng -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseUsers"
+            aria-expanded="false" aria-controls="collapseUsers">
+            <i class="fas fa-fw fa-users"></i>
+            <span>Người dùng</span>
+        </a>
+        <div id="collapseUsers" class="collapse" aria-labelledby="headingUsers" data-bs-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản lý người dùng:</h6>
+                <a class="collapse-item" href="#">Danh sách người dùng</a>
+                <a class="collapse-item" href="{% url 'dashboard:tcoin_accounts' %}">TCoin</a>
+                <a class="collapse-item" href="#">Phân quyền</a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Email -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseEmail"
+            aria-expanded="false" aria-controls="collapseEmail">
+            <i class="fas fa-fw fa-envelope"></i>
+            <span>Email</span>
+        </a>
+        <div id="collapseEmail" class="collapse" aria-labelledby="headingEmail" data-bs-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản lý email:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:email_templates' %}">Mẫu email</a>
+                <a class="collapse-item" href="{% url 'dashboard:email_logs' %}">Lịch sử gửi</a>
+                <a class="collapse-item" href="#">Chiến dịch email</a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Nav Item - Marketing Collapse Menu -->
+    <li class="nav-item {% if 'marketing' in request.path %}active{% endif %}">
+        <a class="nav-link {% if 'marketing' in request.path %}{% else %}collapsed{% endif %}" href="#" data-bs-toggle="collapse" data-bs-target="#collapseMarketing"
+            aria-expanded="{% if 'marketing' in request.path %}true{% else %}false{% endif %}" aria-controls="collapseMarketing">
+            <i class="fas fa-fw fa-bullhorn"></i>
+            <span>Marketing</span>
+        </a>
+        <div id="collapseMarketing" class="collapse {% if 'marketing' in request.path %}show{% endif %}" aria-labelledby="headingMarketing" data-bs-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản lý marketing:</h6>
+                <a class="collapse-item {% if request.resolver_match.url_name == 'marketing' %}active{% endif %}" href="{% url 'dashboard:marketing' %}">Tổng quan</a>
+                <a class="collapse-item {% if request.resolver_match.url_name == 'campaigns' %}active{% endif %}" href="{% url 'dashboard:campaigns' %}">Chiến dịch</a>
+                <a class="collapse-item {% if request.resolver_match.url_name == 'banners' %}active{% endif %}" href="{% url 'dashboard:banners' %}">Banners</a>
+                <a class="collapse-item" href="#">Mã giảm giá</a>
+                <a class="collapse-item" href="#">Email Marketing</a>
+                <a class="collapse-item" href="#">Chương trình giới thiệu</a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Blog -->
+    <li class="nav-item {% if 'blog' in request.path %}active{% endif %}">
+        <a class="nav-link {% if 'blog' in request.path %}{% else %}collapsed{% endif %}" href="#" data-bs-toggle="collapse" data-bs-target="#collapseBlog"
+            aria-expanded="{% if 'blog' in request.path %}true{% else %}false{% endif %}" aria-controls="collapseBlog">
+            <i class="fas fa-fw fa-blog"></i>
+            <span>Blog</span>
+        </a>
+        <div id="collapseBlog" class="collapse {% if 'blog' in request.path %}show{% endif %}" aria-labelledby="headingBlog" data-bs-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản lý blog:</h6>
+                <a class="collapse-item" href="#">Bài viết</a>
+                <a class="collapse-item" href="#">Danh mục</a>
+                <a class="collapse-item" href="#">Bình luận</a>
+                <a class="collapse-item" href="#">Tags</a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Nav Item - System Collapse Menu -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseSystem"
+            aria-expanded="false" aria-controls="collapseSystem">
+            <i class="fas fa-fw fa-cogs"></i>
+            <span>Hệ thống</span>
+        </a>
+        <div id="collapseSystem" class="collapse" aria-labelledby="headingSystem" data-bs-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản lý hệ thống:</h6>
+                <a class="collapse-item" href="#">Cấu hình</a>
+                <a class="collapse-item" href="#">Logs</a>
+                <a class="collapse-item" href="#">Sao lưu & Phục hồi</a>
+                <a class="collapse-item" href="#">Cập nhật hệ thống</a>
+                <a class="collapse-item" href="#">Tích hợp</a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Nav Item - Support Collapse Menu -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseSupport"
+            aria-expanded="false" aria-controls="collapseSupport">
+            <i class="fas fa-fw fa-headset"></i>
+            <span>Hỗ trợ</span>
+        </a>
+        <div id="collapseSupport" class="collapse" aria-labelledby="headingSupport" data-bs-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Hỗ trợ khách hàng:</h6>
+                <a class="collapse-item" href="#">Ticket hỗ trợ</a>
+                <a class="collapse-item" href="#">Chatbot</a>
+                <a class="collapse-item" href="#">FAQ</a>
+                <a class="collapse-item" href="#">Mẫu email</a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider d-none d-md-block">
+
+    <!-- Sidebar Toggler (Sidebar) -->
+    <div class="text-center d-none d-md-inline">
+        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+    </div>
+
+</ul>
+<!-- End of Sidebar --> 

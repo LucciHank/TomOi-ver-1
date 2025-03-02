@@ -1,0 +1,424 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Tỷ lệ bảo hành{% endblock %}
+
+{% block extra_css %}
+<style>
+    .color-picker-container {
+        display: inline-block;
+        margin-right: 10px;
+    }
+    
+    .color-picker {
+        width: 30px;
+        height: 30px;
+        border-radius: 5px;
+        display: inline-block;
+        cursor: pointer;
+        border: 1px solid #ddd;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Báo cáo tỷ lệ bảo hành</h1>
+    <p class="mb-4">Phân tích tỷ lệ bảo hành theo sản phẩm và xu hướng theo thời gian.</p>
+
+    <!-- Container cho phần tùy chỉnh màu sắc -->
+    <div id="colorControlsContainer"></div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Tỷ lệ bảo hành trung bình -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Tỷ lệ bảo hành trung bình</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ avg_warranty_rate }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-tools fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cải thiện -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Cải thiện so với tháng trước</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">-{{ improvement }}%</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-arrow-down fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vấn đề phổ biến nhất -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Vấn đề phổ biến nhất
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ most_common_issue }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tỷ lệ giải quyết -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Tỷ lệ giải quyết</div>
+                            <div class="row no-gutters align-items-center">
+                                <div class="col-auto">
+                                    {% with total=0 resolved=0 %}
+                                        {% for item in warranty_details %}
+                                            {% with total=total|add:item.total resolved=resolved|add:item.resolved %}
+                                            {% endwith %}
+                                        {% endfor %}
+                                        {% widthratio resolved total 100 as resolution_rate %}
+                                    {% endwith %}
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ resolution_rate }}%</div>
+                                </div>
+                                <div class="col">
+                                    <div class="progress progress-sm mr-2">
+                                        <div class="progress-bar bg-warning" role="progressbar"
+                                            style="width: {{ resolution_rate }}%" aria-valuenow="{{ resolution_rate }}" aria-valuemin="0"
+                                            aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-check fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Warranty Rate By Product Chart -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Tỷ lệ bảo hành theo sản phẩm</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-bar">
+                        <canvas id="warrantyByProductChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Warranty Rate Trend Chart -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Xu hướng tỷ lệ bảo hành</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="warrantyTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warranty Details Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Chi tiết bảo hành theo sản phẩm</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="warrantyDetailsTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th>Tỷ lệ bảo hành</th>
+                            <th>Vấn đề phổ biến</th>
+                            <th>Tổng yêu cầu</th>
+                            <th>Đã giải quyết</th>
+                            <th>Tỷ lệ giải quyết</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in warranty_details %}
+                        <tr>
+                            <td>{{ item.product }}</td>
+                            <td>{{ item.rate }}</td>
+                            <td>{{ item.common_issue }}</td>
+                            <td>{{ item.total }}</td>
+                            <td>{{ item.resolved }}</td>
+                            <td>
+                                {% widthratio item.resolved item.total 100 as resolution_percent %}
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" style="width: {{ resolution_percent }}%;" 
+                                        aria-valuenow="{{ resolution_percent }}" aria-valuemin="0" aria-valuemax="100">{{ resolution_percent }}%</div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js -->
+<script src="{% static 'dashboard/vendor/chart.js/Chart.min.js' %}"></script>
+
+<!-- Thêm thư viện Pickr cho color picker -->
+<script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css">
+
+<!-- File JS tùy chỉnh chart -->
+<script src="{% static 'dashboard/js/chart-colors.js' %}"></script>
+<script src="{% static 'dashboard/js/chart-customizer.js' %}"></script>
+<script src="{% static 'dashboard/js/chart-theme-manager.js' %}"></script>
+
+<script>
+// Khởi tạo DataTable
+$(document).ready(function() {
+    $('#warrantyDetailsTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json"
+        },
+        "order": [[1, "desc"]]
+    });
+});
+
+// Biểu đồ tỷ lệ bảo hành theo sản phẩm
+var ctx = document.getElementById("warrantyByProductChart");
+var warrantyByProductChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: {{ warranty_data.labels|safe }},
+        datasets: [{
+            label: "Tỷ lệ bảo hành",
+            backgroundColor: "#4e73df",
+            hoverBackgroundColor: "#2e59d9",
+            borderColor: "#4e73df",
+            data: {{ warranty_data.data|safe }},
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        layout: {
+            padding: {
+                left: 10,
+                right: 25,
+                top: 25,
+                bottom: 0
+            }
+        },
+        scales: {
+            xAxes: [{
+                gridLines: {
+                    display: false,
+                    drawBorder: false
+                },
+                ticks: {
+                    maxTicksLimit: 6
+                },
+                maxBarThickness: 25,
+            }],
+            yAxes: [{
+                ticks: {
+                    min: 0,
+                    max: 5,
+                    maxTicksLimit: 5,
+                    padding: 10,
+                    callback: function(value) {
+                        return value + "%";
+                    }
+                },
+                gridLines: {
+                    color: "rgb(234, 236, 244)",
+                    zeroLineColor: "rgb(234, 236, 244)",
+                    drawBorder: false,
+                    borderDash: [2],
+                    zeroLineBorderDash: [2]
+                }
+            }],
+        },
+        legend: {
+            display: false
+        },
+        tooltips: {
+            titleMarginBottom: 10,
+            titleFontColor: '#6e707e',
+            titleFontSize: 14,
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+            xPadding: 15,
+            yPadding: 15,
+            displayColors: false,
+            caretPadding: 10,
+            callbacks: {
+                label: function(tooltipItem, chart) {
+                    return "Tỷ lệ lỗi: " + tooltipItem.yLabel + "%";
+                }
+            }
+        },
+    }
+});
+
+// Biểu đồ xu hướng tỷ lệ bảo hành
+var ctx = document.getElementById("warrantyTrendChart");
+var warrantyTrendChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ trend_data.labels|safe }},
+        datasets: [{
+            label: "Tỷ lệ",
+            lineTension: 0.3,
+            backgroundColor: "rgba(78, 115, 223, 0.05)",
+            borderColor: "rgba(78, 115, 223, 1)",
+            pointRadius: 3,
+            pointBackgroundColor: "rgba(78, 115, 223, 1)",
+            pointBorderColor: "rgba(78, 115, 223, 1)",
+            pointHoverRadius: 3,
+            pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
+            pointHoverBorderColor: "rgba(78, 115, 223, 1)",
+            pointHitRadius: 10,
+            pointBorderWidth: 2,
+            data: {{ trend_data.data|safe }},
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        layout: {
+            padding: {
+                left: 10,
+                right: 25,
+                top: 25,
+                bottom: 0
+            }
+        },
+        scales: {
+            xAxes: [{
+                time: {
+                    unit: 'date'
+                },
+                gridLines: {
+                    display: false,
+                    drawBorder: false
+                },
+                ticks: {
+                    maxTicksLimit: 7
+                }
+            }],
+            yAxes: [{
+                ticks: {
+                    maxTicksLimit: 5,
+                    padding: 10,
+                    callback: function(value) {
+                        return value + "%";
+                    }
+                },
+                gridLines: {
+                    color: "rgb(234, 236, 244)",
+                    zeroLineColor: "rgb(234, 236, 244)",
+                    drawBorder: false,
+                    borderDash: [2],
+                    zeroLineBorderDash: [2]
+                }
+            }],
+        },
+        legend: {
+            display: false
+        },
+        tooltips: {
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            titleMarginBottom: 10,
+            titleFontColor: '#6e707e',
+            titleFontSize: 14,
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+            xPadding: 15,
+            yPadding: 15,
+            displayColors: false,
+            intersect: false,
+            mode: 'index',
+            caretPadding: 10,
+            callbacks: {
+                label: function(tooltipItem, chart) {
+                    return "Tỷ lệ bảo hành: " + tooltipItem.yLabel + "%";
+                }
+            }
+        }
+    }
+});
+
+// Cập nhật hàm updateChartColors để sử dụng theme manager
+function updateChartColors() {
+    const colors = window.chartThemeManager.getColors();
+    
+    // Cập nhật màu sắc cho biểu đồ xu hướng
+    warrantyTrendChart.data.datasets[0].borderColor = colors.primary;
+    warrantyTrendChart.data.datasets[0].pointBackgroundColor = colors.primary;
+    warrantyTrendChart.data.datasets[0].backgroundColor = hexToRgba(colors.primary, 0.1);
+    warrantyTrendChart.update();
+    
+    // Cập nhật màu sắc cho biểu đồ phân bố
+    warrantyDistributionChart.data.datasets[0].backgroundColor = [
+        colors.primary, 
+        colors.secondary,
+        colors.accent,
+        hexToRgba(colors.primary, 0.7),
+        hexToRgba(colors.secondary, 0.7),
+        hexToRgba(colors.accent, 0.7)
+    ];
+    warrantyDistributionChart.update();
+    
+    // Cập nhật biểu đồ theo sản phẩm
+    warrantyByProductChart.data.datasets[0].backgroundColor = colors.secondary;
+    warrantyByProductChart.data.datasets[0].hoverBackgroundColor = colors.primary;
+    warrantyByProductChart.update();
+}
+
+// Hàm hỗ trợ chuyển đổi hex sang rgba
+function hexToRgba(hex, alpha = 1) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+</script>
+{% endblock %} 

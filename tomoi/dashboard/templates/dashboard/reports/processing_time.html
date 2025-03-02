@@ -1,0 +1,371 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Thời gian xử lý{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Báo cáo thời gian xử lý</h1>
+    <p class="mb-4">Phân tích thời gian xử lý các đơn hàng trong hệ thống.</p>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Thời gian trung bình -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Thời gian trung bình</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ avg_processing_time }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cải thiện -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Cải thiện so với tháng trước</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">-{{ improvement }}%</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-arrow-down fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- % xử lý nhanh (<15 phút) -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Xử lý nhanh (<15 phút)
+                            </div>
+                            <div class="row no-gutters align-items-center">
+                                <div class="col-auto">
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ processing_data.data.0 }}%</div>
+                                </div>
+                                <div class="col">
+                                    <div class="progress progress-sm mr-2">
+                                        <div class="progress-bar bg-info" role="progressbar"
+                                            style="width: {{ processing_data.data.0 }}%" aria-valuenow="{{ processing_data.data.0 }}" aria-valuemin="0"
+                                            aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-tachometer-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- % xử lý chậm (>3 giờ) -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Xử lý chậm (>3 giờ)</div>
+                            <div class="row no-gutters align-items-center">
+                                <div class="col-auto">
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ processing_data.data.3|add:processing_data.data.4 }}%</div>
+                                </div>
+                                <div class="col">
+                                    <div class="progress progress-sm mr-2">
+                                        <div class="progress-bar bg-warning" role="progressbar"
+                                            style="width: {{ processing_data.data.3|add:processing_data.data.4 }}%" aria-valuenow="{{ processing_data.data.3|add:processing_data.data.4 }}" aria-valuemin="0"
+                                            aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Processing Time Distribution Chart -->
+    <div class="row">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Phân bố thời gian xử lý</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-bar">
+                        <canvas id="processingDistributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Processing Time Trend -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Xu hướng thời gian xử lý</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="processingTrendChart"></canvas>
+                    </div>
+                    <hr>
+                    <p class="text-center">Thời gian xử lý trung bình theo tháng (phút)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sources Processing Time Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thời gian xử lý theo nguồn</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="sourceProcessingTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Tên nguồn</th>
+                            <th>Nền tảng</th>
+                            <th>Thời gian trung bình</th>
+                            <th>Phân loại</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for source in source_processing %}
+                        <tr>
+                            <td>{{ source.name }}</td>
+                            <td>{{ source.platform }}</td>
+                            <td>{{ source.avg_time }}</td>
+                            <td>{{ source.percentage }}</td>
+                            <td>
+                                {% if source.status == 'Rất nhanh' %}
+                                <span class="badge bg-success">{{ source.status }}</span>
+                                {% elif source.status == 'Nhanh' %}
+                                <span class="badge bg-info">{{ source.status }}</span>
+                                {% elif source.status == 'Bình thường' %}
+                                <span class="badge bg-primary">{{ source.status }}</span>
+                                {% elif source.status == 'Lâu' %}
+                                <span class="badge bg-warning">{{ source.status }}</span>
+                                {% else %}
+                                <span class="badge bg-danger">{{ source.status }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js -->
+<script src="{% static 'dashboard/vendor/chart.js/Chart.min.js' %}"></script>
+
+<script>
+// Khởi tạo DataTable
+$(document).ready(function() {
+    $('#sourceProcessingTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json"
+        }
+    });
+});
+
+// Biểu đồ phân bố thời gian xử lý
+var ctx = document.getElementById("processingDistributionChart");
+var processingDistributionChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: {{ processing_data.labels|safe }},
+        datasets: [{
+            label: "Tỷ lệ",
+            backgroundColor: "#4e73df",
+            hoverBackgroundColor: "#2e59d9",
+            borderColor: "#4e73df",
+            data: {{ processing_data.data|safe }},
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        layout: {
+            padding: {
+                left: 10,
+                right: 25,
+                top: 25,
+                bottom: 0
+            }
+        },
+        scales: {
+            xAxes: [{
+                time: {
+                    unit: 'category'
+                },
+                gridLines: {
+                    display: false,
+                    drawBorder: false
+                },
+                ticks: {
+                    maxTicksLimit: 6
+                },
+                maxBarThickness: 50,
+            }],
+            yAxes: [{
+                ticks: {
+                    min: 0,
+                    max: 100,
+                    maxTicksLimit: 5,
+                    padding: 10,
+                    callback: function(value) {
+                        return value + "%";
+                    }
+                },
+                gridLines: {
+                    color: "rgb(234, 236, 244)",
+                    zeroLineColor: "rgb(234, 236, 244)",
+                    drawBorder: false,
+                    borderDash: [2],
+                    zeroLineBorderDash: [2]
+                }
+            }],
+        },
+        legend: {
+            display: false
+        },
+        tooltips: {
+            titleMarginBottom: 10,
+            titleFontColor: '#6e707e',
+            titleFontSize: 14,
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+            xPadding: 15,
+            yPadding: 15,
+            displayColors: false,
+            caretPadding: 10,
+            callbacks: {
+                label: function(tooltipItem, chart) {
+                    return tooltipItem.yLabel + "% đơn hàng";
+                }
+            }
+        },
+    }
+});
+
+// Biểu đồ xu hướng thời gian xử lý
+var ctx = document.getElementById("processingTrendChart");
+var processingTrendChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ trend_data.labels|safe }},
+        datasets: [{
+            label: "Thời gian",
+            lineTension: 0.3,
+            backgroundColor: "rgba(78, 115, 223, 0.05)",
+            borderColor: "rgba(78, 115, 223, 1)",
+            pointRadius: 3,
+            pointBackgroundColor: "rgba(78, 115, 223, 1)",
+            pointBorderColor: "rgba(78, 115, 223, 1)",
+            pointHoverRadius: 3,
+            pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
+            pointHoverBorderColor: "rgba(78, 115, 223, 1)",
+            pointHitRadius: 10,
+            pointBorderWidth: 2,
+            data: {{ trend_data.times|safe }},
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        layout: {
+            padding: {
+                left: 10,
+                right: 25,
+                top: 25,
+                bottom: 0
+            }
+        },
+        scales: {
+            xAxes: [{
+                time: {
+                    unit: 'date'
+                },
+                gridLines: {
+                    display: false,
+                    drawBorder: false
+                },
+                ticks: {
+                    maxTicksLimit: 7
+                }
+            }],
+            yAxes: [{
+                ticks: {
+                    maxTicksLimit: 5,
+                    padding: 10,
+                    callback: function(value) {
+                        return value + " phút";
+                    }
+                },
+                gridLines: {
+                    color: "rgb(234, 236, 244)",
+                    zeroLineColor: "rgb(234, 236, 244)",
+                    drawBorder: false,
+                    borderDash: [2],
+                    zeroLineBorderDash: [2]
+                }
+            }],
+        },
+        legend: {
+            display: false
+        },
+        tooltips: {
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            titleMarginBottom: 10,
+            titleFontColor: '#6e707e',
+            titleFontSize: 14,
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+            xPadding: 15,
+            yPadding: 15,
+            displayColors: false,
+            intersect: false,
+            mode: 'index',
+            caretPadding: 10,
+            callbacks: {
+                label: function(tooltipItem, chart) {
+                    return "Thời gian xử lý: " + tooltipItem.yLabel + " phút";
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %} 

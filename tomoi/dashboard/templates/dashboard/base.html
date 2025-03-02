@@ -5,350 +5,43 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>{% block title %}Dashboard - TomOi{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        /* CSS cải tiến cho dashboard */
-        :root {
-            --primary: #4e73df;
-            --success: #1cc88a;
-            --info: #36b9cc;
-            --warning: #f6c23e;
-            --danger: #e74a3b;
-            --secondary: #858796;
-            --light: #f8f9fc;
-            --dark: #5a5c69;
-            --sidebar-width: 250px;
-            --topnav-height: 56px;
-            --sidebar-dark-bg: #212529;
-            --sidebar-dark-color: rgba(255, 255, 255, 0.8);
-        }
-
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow-x: hidden;
-            background-color: #f8f9fc;
-        }
-
-        /* Layout chính */
-        .sb-nav-fixed {
-            padding-top: var(--topnav-height);
-        }
-
-        #layoutSidenav {
-            display: flex;
-        }
-
-        /* Sidebar */
-        #layoutSidenav_nav {
-            flex-basis: var(--sidebar-width);
-            flex-shrink: 0;
-            position: fixed;
-            width: var(--sidebar-width);
-            height: calc(100vh - var(--topnav-height));
-            top: var(--topnav-height);
-            left: 0;
-            z-index: 1000;
-            background: var(--sidebar-dark-bg);
-            color: var(--sidebar-dark-color);
-            overflow-y: auto;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-        }
-
-        .sb-sidenav {
-            padding-top: 0;
-            position: relative;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sb-sidenav-menu {
-            flex-grow: 1;
-            overflow-y: auto;
-        }
-
-        .sb-sidenav-menu .nav {
-            flex-direction: column;
-            padding-left: 0;
-            margin-bottom: 0;
-        }
-
-        .sb-sidenav-menu-heading {
-            padding: 1.1rem 1rem 0.5rem;
-            font-size: 0.75rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            opacity: 0.6;
-        }
-
-        .sb-sidenav-menu .nav-link {
-            color: var(--sidebar-dark-color);
-            padding: 0.75rem 1rem;
-            display: flex;
-            align-items: center;
-            position: relative;
-            text-decoration: none;
-        }
-
-        .sb-sidenav-menu .nav-link:hover {
-            color: white;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .sb-sidenav-menu .nav-link.active {
-            color: white;
-            background: var(--primary);
-        }
-
-        .sb-sidenav-menu .nav-link .sb-nav-link-icon {
-            width: 1.25rem;
-            margin-right: 0.5rem;
-            color: rgba(255, 255, 255, 0.5);
-            text-align: center;
-        }
-
-        .sb-sidenav-menu .nav-link.active .sb-nav-link-icon,
-        .sb-sidenav-menu .nav-link:hover .sb-nav-link-icon {
-            color: white;
-        }
-
-        .sb-sidenav-footer {
-            padding: 0.75rem;
-            background: rgba(0, 0, 0, 0.2);
-            font-size: 0.85rem;
-        }
-
-        /* Content area */
-        #layoutSidenav_content {
-            flex-grow: 1;
-            margin-left: var(--sidebar-width);
-            padding: 1.5rem;
-            overflow-x: hidden;
-        }
-
-        .container-fluid {
-            padding: 0 0.75rem;
-        }
-
-        /* Top navigation */
-        .sb-topnav {
-            height: var(--topnav-height);
-            position: fixed;
-            top: 0;
-            right: 0;
-            left: 0;
-            z-index: 1030;
-            background: #343a40;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-        }
-
-        /* Cards styling */
-        .card {
-            border: none;
-            border-radius: 0.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
-        }
-        
-        .card-header {
-            background-color: white;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            padding: 1rem 1.25rem;
-            font-weight: 500;
-        }
-        
-        .card-footer {
-            background-color: white;
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        /* Colors */
-        .bg-primary { background-color: var(--primary) !important; }
-        .bg-success { background-color: var(--success) !important; }
-        .bg-info { background-color: var(--info) !important; }
-        .bg-warning { background-color: var(--warning) !important; }
-        .bg-danger { background-color: var(--danger) !important; }
-
-        .border-left-primary { border-left: 0.25rem solid var(--primary) !important; }
-        .border-left-success { border-left: 0.25rem solid var(--success) !important; }
-        .border-left-info { border-left: 0.25rem solid var(--info) !important; }
-        .border-left-warning { border-left: 0.25rem solid var(--warning) !important; }
-        .border-left-danger { border-left: 0.25rem solid var(--danger) !important; }
-
-        /* Breadcrumb styling */
-        .breadcrumb {
-            background-color: transparent;
-            margin-bottom: 1.5rem;
-            padding: 0;
-        }
-
-        /* Responsive */
-        @media (max-width: 991.98px) {
-            #layoutSidenav_nav {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease-in-out;
-            }
-            
-            #layoutSidenav_content {
-                margin-left: 0;
-                transition: margin-left 0.3s ease-in-out;
-            }
-            
-            body.sb-sidenav-toggled #layoutSidenav_nav {
-                transform: translateX(0);
-            }
-        }
-    </style>
+    <title>{% block title %}Dashboard{% endblock %} - TomOi Admin</title>
+    
+    <!-- Custom fonts -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom styles -->
+    <link href="/static/dashboard/css/sb-admin-2.css" rel="stylesheet">
+    <link href="/static/dashboard/css/custom.css" rel="stylesheet">
     {% block extra_css %}{% endblock %}
 </head>
-<body class="sb-nav-fixed">
-    <!-- Top Navigation -->
-    <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
-        <!-- Navbar Brand-->
-        <a class="navbar-brand ps-3" href="{% url 'dashboard:home' %}">TomOi Admin</a>
-        <!-- Sidebar Toggle-->
-        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
-            <i class="fas fa-bars"></i>
-        </button>
+
+<body id="page-top">
+    <!-- Page Wrapper -->
+    <div id="wrapper">
         
-        <!-- Navbar Search-->
-        <div class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
-            <div class="input-group">
-                <input class="form-control" type="text" placeholder="Tìm kiếm..." aria-label="Tìm kiếm..." aria-describedby="btnNavbarSearch" />
-                <button class="btn btn-primary" id="btnNavbarSearch" type="button"><i class="fas fa-search"></i></button>
-            </div>
-        </div>
+        {% include 'dashboard/includes/sidebar.html' %}
         
-        <!-- Navbar-->
-        <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-user fa-fw"></i> {{ request.user.username }}
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                    <li><a class="dropdown-item" href="{% url 'dashboard:settings' %}"><i class="fas fa-cog fa-fw me-2"></i>Cài đặt</a></li>
-                    <li><a class="dropdown-item" href="#"><i class="fas fa-user-circle fa-fw me-2"></i>Hồ sơ</a></li>
-                    <li><hr class="dropdown-divider" /></li>
-                    <li><a class="dropdown-item" href="{% url 'dashboard:logout' %}"><i class="fas fa-sign-out-alt fa-fw me-2"></i>Đăng xuất</a></li>
-                </ul>
-            </li>
-        </ul>
-    </nav>
-    
-    <div id="layoutSidenav">
-        <!-- Sidebar Navigation -->
-        <div id="layoutSidenav_nav">
-            <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
-                <div class="sb-sidenav-menu">
-                    <div class="nav">
-                        <div class="sb-sidenav-menu-heading">Tổng quan</div>
-                        <a class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" href="{% url 'dashboard:home' %}">
-                            <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                            Bảng điều khiển
-                        </a>
-                        
-                        <div class="sb-sidenav-menu-heading">Sản phẩm</div>
-                        <a class="nav-link {% if '/dashboard/products/' in request.path %}active{% endif %}" href="{% url 'dashboard:products' %}">
-                            <div class="sb-nav-link-icon"><i class="fas fa-box"></i></div>
-                            Quản lý sản phẩm
-                        </a>
-                        <a class="nav-link {% if '/dashboard/categories/' in request.path %}active{% endif %}" href="{% url 'dashboard:categories' %}">
-                            <div class="sb-nav-link-icon"><i class="fas fa-list"></i></div>
-                            Danh mục
-                        </a>
-                        
-                        <div class="sb-sidenav-menu-heading">Đơn hàng & Khách hàng</div>
-                        <a class="nav-link {% if '/dashboard/orders/' in request.path %}active{% endif %}" href="{% url 'dashboard:orders' %}">
-                            <div class="sb-nav-link-icon"><i class="fas fa-shopping-cart"></i></div>
-                            Đơn hàng
-                        </a>
-                        <a class="nav-link {% if '/dashboard/users/' in request.path %}active{% endif %}" href="{% url 'dashboard:users' %}">
-                            <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
-                            Người dùng
-                        </a>
-                        <a class="nav-link {% if '/dashboard/discounts/' in request.path %}active{% endif %}" href="{% url 'dashboard:discounts' %}">
-                            <div class="sb-nav-link-icon"><i class="fas fa-percentage"></i></div>
-                            Mã giảm giá
-                        </a>
-                        
-                        <div class="sb-sidenav-menu-heading">Tiếp thị & Nội dung</div>
-                        <a class="nav-link {% if '/dashboard/marketing/' in request.path %}active{% endif %}" href="{% url 'dashboard:marketing' %}">
-                            <div class="sb-nav-link-icon"><i class="fas fa-bullhorn"></i></div>
-                            Tiếp thị
-                        </a>
-                        <a class="nav-link {% if '/dashboard/banners/' in request.path %}active{% endif %}" href="{% url 'dashboard:banners' %}">
-                            <div class="sb-nav-link-icon"><i class="fas fa-image"></i></div>
-                            Banner
-                        </a>
-                        <a class="nav-link {% if '/dashboard/blogs/' in request.path %}active{% endif %}" href="{% url 'dashboard:blogs' %}">
-                            <div class="sb-nav-link-icon"><i class="fas fa-blog"></i></div>
-                            Blog
-                        </a>
-                        
-                        <div class="sb-sidenav-menu-heading">Phân tích & Báo cáo</div>
-                        <a class="nav-link {% if '/dashboard/analytics/' in request.path %}active{% endif %}" href="{% url 'dashboard:analytics' %}">
-                            <div class="sb-nav-link-icon"><i class="fas fa-chart-bar"></i></div>
-                            Thống kê & Báo cáo
-                        </a>
-                        
-                        <div class="sb-sidenav-menu-heading">Tương tác khách hàng</div>
-                        <a class="nav-link {% if '/dashboard/email-templates/' in request.path %}active{% endif %}" href="{% url 'dashboard:email_templates' %}">
-                            <div class="sb-nav-link-icon"><i class="fas fa-envelope"></i></div>
-                            Email Templates
-                        </a>
-                        <a class="nav-link {% if '/dashboard/chatbot/' in request.path %}active{% endif %}" href="{% url 'dashboard:chatbot' %}">
-                            <div class="sb-nav-link-icon"><i class="fas fa-robot"></i></div>
-                            Chatbot
-                        </a>
-                        <a class="nav-link {% if '/dashboard/tickets/' in request.path %}active{% endif %}" href="{% url 'dashboard:tickets' %}">
-                            <div class="sb-nav-link-icon"><i class="fas fa-ticket-alt"></i></div>
-                            Hỗ trợ khách hàng
-                        </a>
-                        
-                        <div class="sb-sidenav-menu-heading">Cài đặt</div>
-                        <a class="nav-link {% if '/dashboard/settings/' in request.path %}active{% endif %}" href="{% url 'dashboard:settings' %}">
-                            <div class="sb-nav-link-icon"><i class="fas fa-cog"></i></div>
-                            Cài đặt hệ thống
-                        </a>
-                    </div>
-                </div>
-                <div class="sb-sidenav-footer">
-                    <div class="small">Đăng nhập với:</div>
-                    {{ request.user.username }}
-                </div>
-            </nav>
-        </div>
-        
-        <!-- Page Content -->
-        <div id="layoutSidenav_content">
-            <main>
-                <div class="container-fluid px-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div>
-                            <h1 class="mt-4 mb-0">{% block page_title %}Dashboard{% endblock %}</h1>
-                            <ol class="breadcrumb mb-2">
-                                <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
-                                {% block breadcrumb %}
-                                <li class="breadcrumb-item active">Tổng quan</li>
-                                {% endblock %}
-                            </ol>
-                            <div class="text-muted">{% block page_subtitle %}{% endblock %}</div>
-                        </div>
-                        <div>
-                            {% block page_actions %}{% endblock %}
-                        </div>
-                    </div>
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            
+            <!-- Main Content -->
+            <div id="content">
+                
+                {% include 'dashboard/includes/topbar.html' %}
+                
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
                     
                     {% if messages %}
-                    <div class="row mb-4">
+                    <div class="row">
                         <div class="col-12">
                             {% for message in messages %}
                             <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% elif message.tags == 'error' %}fa-times-circle{% else %}fa-info-circle{% endif %} me-2"></i>
                                 {{ message }}
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
@@ -358,71 +51,102 @@
                     {% endif %}
                     
                     {% block content %}{% endblock %}
+                    
                 </div>
-            </main>
-            <footer class="py-4 bg-light mt-auto">
-                <div class="container-fluid px-4">
-                    <div class="d-flex align-items-center justify-content-between small">
-                        <div class="text-muted">Copyright &copy; TomOi 2023</div>
-                        <div>
-                            <a href="#">Chính sách bảo mật</a>
-                            &middot;
-                            <a href="#">Điều khoản &amp; Điều kiện</a>
-                        </div>
-                    </div>
+                <!-- /.container-fluid -->
+                
+            </div>
+            <!-- End of Main Content -->
+            
+            {% include 'dashboard/includes/footer.html' %}
+            
+        </div>
+        <!-- End of Content Wrapper -->
+        
+    </div>
+    <!-- End of Page Wrapper -->
+    
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+    
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Bạn muốn đăng xuất?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
                 </div>
-            </footer>
+                <div class="modal-body">Chọn "Đăng xuất" bên dưới nếu bạn đã sẵn sàng kết thúc phiên làm việc hiện tại.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Hủy</button>
+                    <a class="btn btn-primary" href="{% url 'dashboard:logout' %}">Đăng xuất</a>
+                </div>
+            </div>
         </div>
     </div>
     
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <!-- Bootstrap core JavaScript-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Core plugin JavaScript-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+    
+    <!-- Custom scripts for all pages-->
+    <script src="/static/dashboard/js/sb-admin-2.js"></script>
+    
+    <!-- Page level plugins -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    {% block extra_js %}{% endblock %}
+
     <script>
-        // Script để toggle sidebar
-        document.addEventListener('DOMContentLoaded', function() {
-            // Toggle sidebar
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            if (sidebarToggle) {
-                sidebarToggle.addEventListener('click', function() {
-                    document.body.classList.toggle('sb-sidenav-toggled');
-                    localStorage.setItem('sb|sidebar-toggle', document.body.classList.contains('sb-sidenav-toggled'));
-                });
-            }
-            
-            // Check for saved state
-            if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
-                document.body.classList.add('sb-sidenav-toggled');
-            }
-            
-            // Activate current menu item
-            const currentPath = window.location.pathname;
-            const sideNavLinks = document.querySelectorAll('.sb-sidenav-menu .nav-link');
-            
-            sideNavLinks.forEach(link => {
-                const href = link.getAttribute('href');
-                if (href && currentPath.includes(href)) {
-                    link.classList.add('active');
+    // Fix for Bootstrap 5 compatibility with sb-admin-2
+    document.addEventListener('DOMContentLoaded', function() {
+        // Convert data-toggle to data-bs-toggle and data-target to data-bs-target
+        document.querySelectorAll('[data-toggle]').forEach(function(element) {
+            element.setAttribute('data-bs-' + element.getAttribute('data-toggle'), '');
+            element.removeAttribute('data-toggle');
+        });
+        
+        document.querySelectorAll('[data-target]').forEach(function(element) {
+            element.setAttribute('data-bs-' + element.getAttribute('data-target'), '');
+            element.removeAttribute('data-target');
+        });
+        
+        // Initialize Bootstrap 5 components
+        var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+        dropdownElementList.map(function(dropdownToggleEl) {
+            return new bootstrap.Dropdown(dropdownToggleEl);
+        });
+        
+        var collapseElementList = [].slice.call(document.querySelectorAll('.collapse'));
+        collapseElementList.map(function(collapseEl) {
+            return new bootstrap.Collapse(collapseEl, {toggle: false});
+        });
+        
+        // Handle sidebar toggle
+        document.querySelectorAll('#sidebarToggle, #sidebarToggleTop').forEach(function(element) {
+            element.addEventListener('click', function() {
+                document.body.classList.toggle('sidebar-toggled');
+                document.querySelector('.sidebar').classList.toggle('toggled');
+                
+                if (document.querySelector('.sidebar').classList.contains('toggled')) {
+                    document.querySelectorAll('.sidebar .collapse').forEach(function(collapse) {
+                        bootstrap.Collapse.getInstance(collapse).hide();
+                    });
                 }
             });
-            
-            // Initialize DataTables if present
-            if ($.fn.DataTable && document.getElementById('dataTable')) {
-                $('#dataTable').DataTable({
-                    language: {
-                        url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/vi.json',
-                    }
-                });
-            }
-            
-            // Bootstrap tooltips
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
         });
+    });
     </script>
-    {% block extra_js %}{% endblock %}
+
+    <!-- Thêm vào cuối, trước </body> -->
+    <script src="/static/dashboard/js/bootstrap5-fix.js"></script>
 </body>
 </html> 

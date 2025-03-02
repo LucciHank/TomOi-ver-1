@@ -1,0 +1,24 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Phân tích Marketing{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Phân tích Marketing</h1>
+    
+    <div class="row">
+        <div class="col-xl-12 col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Hiệu quả chiến dịch</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="campaignChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

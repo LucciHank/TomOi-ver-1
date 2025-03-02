@@ -1,0 +1,67 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Tạo yêu cầu bảo hành{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Tạo yêu cầu bảo hành mới</h1>
+    <p class="mb-4">Điền thông tin để tạo yêu cầu bảo hành mới.</p>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin yêu cầu</h6>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="customer">Khách hàng <span class="text-danger">*</span></label>
+                    <select class="form-control" id="customer" name="customer" required>
+                        <option value="">Chọn khách hàng</option>
+                        {% for customer in customers %}
+                        <option value="{{ customer.id }}">{{ customer.username }} ({{ customer.email }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="product">Sản phẩm</label>
+                    <select class="form-control" id="product" name="product">
+                        <option value="">Chọn sản phẩm (nếu có)</option>
+                        {% for product in products %}
+                        <option value="{{ product.id }}">{{ product.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="issue_description">Mô tả vấn đề <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="issue_description" name="issue_description" rows="5" required></textarea>
+                </div>
+                
+                <a href="{% url 'dashboard:warranty_management' %}" class="btn btn-secondary">Hủy</a>
+                <button type="submit" class="btn btn-primary">Tạo yêu cầu</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Thêm select2 để tìm kiếm dễ dàng
+    $('#customer').select2({
+        placeholder: "Tìm khách hàng...",
+        allowClear: true
+    });
+    
+    $('#product').select2({
+        placeholder: "Tìm sản phẩm...",
+        allowClear: true
+    });
+});
+</script>
+{% endblock %} 

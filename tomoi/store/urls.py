@@ -41,6 +41,7 @@ urlpatterns = [
     path('pay-with-balance/', views.pay_with_balance, name='pay_with_balance'),
     path('verify-payment/', views.verify_payment, name='verify_payment'),
     path('search/', views.search_products, name='search_products'),
+    path('wishlist/', views.wishlist, name='wishlist'),
     # path('payment/paypal/', views.paypal_payment, name='paypal_payment'),
     # path('payment/execute/', views.payment_execute, name='payment_execute'),
 ] 

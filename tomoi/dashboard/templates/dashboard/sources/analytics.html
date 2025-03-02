@@ -1,0 +1,771 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Phân tích nguồn nhập hàng{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Phân tích và báo cáo nguồn nhập</h1>
+    
+    <!-- Tổng quan -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Tổng nguồn nhập</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_sources }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-truck fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Tổng sản phẩm từ nguồn</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_products }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-box fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Tỉ lệ có hàng trung bình</div>
+                            <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ avg_availability|floatformat:1 }}%</div>
+                            <div class="row no-gutters align-items-center">
+                                <div class="col">
+                                    <div class="progress progress-sm mr-2">
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ avg_availability }}%"
+                                            aria-valuenow="{{ avg_availability }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Thời gian phản hồi TB</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ avg_response_time|floatformat:0 }} phút</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bộ lọc và cài đặt báo cáo -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Tùy chỉnh báo cáo</h6>
+            <div>
+                <button class="btn btn-sm btn-success" id="exportPDF">
+                    <i class="fas fa-file-pdf"></i> Xuất PDF
+                </button>
+                <button class="btn btn-sm btn-info" id="exportCSV">
+                    <i class="fas fa-file-csv"></i> Xuất CSV
+                </button>
+                <button class="btn btn-sm btn-secondary" id="shareReport">
+                    <i class="fas fa-share-alt"></i> Chia sẻ
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <form id="reportForm" method="GET" class="form-row">
+                <div class="col-md-3 mb-3">
+                    <label for="timeRange">Khoảng thời gian</label>
+                    <select class="form-control" id="timeRange" name="time_range">
+                        <option value="7" {% if time_range == 7 %}selected{% endif %}>7 ngày qua</option>
+                        <option value="30" {% if time_range == 30 %}selected{% endif %}>30 ngày qua</option>
+                        <option value="90" {% if time_range == 90 %}selected{% endif %}>3 tháng qua</option>
+                        <option value="180" {% if time_range == 180 %}selected{% endif %}>6 tháng qua</option>
+                        <option value="365" {% if time_range == 365 %}selected{% endif %}>1 năm qua</option>
+                        <option value="custom" {% if time_range == 'custom' %}selected{% endif %}>Tùy chỉnh</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3 timeRangeCustom {% if time_range != 'custom' %}d-none{% endif %}">
+                    <label for="dateFrom">Từ ngày</label>
+                    <input type="date" class="form-control" id="dateFrom" name="date_from" value="{{ date_from|date:'Y-m-d' }}">
+                </div>
+                <div class="col-md-3 mb-3 timeRangeCustom {% if time_range != 'custom' %}d-none{% endif %}">
+                    <label for="dateTo">Đến ngày</label>
+                    <input type="date" class="form-control" id="dateTo" name="date_to" value="{{ date_to|date:'Y-m-d' }}">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="productType">Loại sản phẩm</label>
+                    <select class="form-control" id="productType" name="product_type">
+                        <option value="">Tất cả</option>
+                        {% for type in product_types %}
+                        <option value="{{ type }}" {% if selected_type == type %}selected{% endif %}>{{ type }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="platform">Nền tảng</label>
+                    <select class="form-control" id="platform" name="platform">
+                        <option value="">Tất cả</option>
+                        {% for platform in platforms %}
+                        <option value="{{ platform }}" {% if selected_platform == platform %}selected{% endif %}>{{ platform|title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="chartType">Loại biểu đồ</label>
+                    <select class="form-control" id="chartType" name="chart_type">
+                        <option value="bar" {% if chart_type == 'bar' %}selected{% endif %}>Biểu đồ cột</option>
+                        <option value="line" {% if chart_type == 'line' %}selected{% endif %}>Biểu đồ đường</option>
+                        <option value="pie" {% if chart_type == 'pie' %}selected{% endif %}>Biểu đồ tròn</option>
+                        <option value="combo" {% if chart_type == 'combo' %}selected{% endif %}>Biểu đồ kết hợp</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3 align-self-end">
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-search"></i> Tạo báo cáo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Biểu đồ -->
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Biểu đồ giá nhập theo loại sản phẩm</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="priceChart"></canvas>
+                    </div>
+                    <div class="mt-3">
+                        <p class="text-center text-success">
+                            <i class="fas fa-info-circle"></i> Gợi ý: Giá nhập cho {{ high_price_type }} cao nhất, có thể tìm thêm nguồn nhập mới
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Tỉ lệ có hàng theo nguồn</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="availabilityChart"></canvas>
+                    </div>
+                    <div class="mt-3">
+                        <p class="text-center text-warning">
+                            <i class="fas fa-exclamation-triangle"></i> Cảnh báo: {{ low_stock_source.name }} có tỉ lệ hết hàng cao ({{ low_stock_source.stock_rate|floatformat:1 }}%)
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bảng top nguồn -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Top nguồn nhập theo hiệu quả</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="topSourcesTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Nguồn</th>
+                                    <th>Nền tảng</th>
+                                    <th>Loại sản phẩm</th>
+                                    <th>Giá TB</th>
+                                    <th>Tỉ lệ có hàng</th>
+                                    <th>Thời gian phản hồi</th>
+                                    <th>Tỉ lệ lỗi</th>
+                                    <th>Điểm hiệu quả</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for source in top_sources %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'dashboard:source_detail' source.id %}">{{ source.name }}</a>
+                                    </td>
+                                    <td>{{ source.platform|title }}</td>
+                                    <td>{{ source.product_type }}</td>
+                                    <td>{{ source.avg_price|floatformat:0 }}</td>
+                                    <td>
+                                        {% if source.availability_rate >= 80 %}
+                                            <span class="badge badge-success">{{ source.availability_rate|floatformat:1 }}%</span>
+                                        {% elif source.availability_rate >= 50 %}
+                                            <span class="badge badge-warning">{{ source.availability_rate|floatformat:1 }}%</span>
+                                        {% else %}
+                                            <span class="badge badge-danger">{{ source.availability_rate|floatformat:1 }}%</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ source.avg_processing_time|floatformat:0 }} phút</td>
+                                    <td>
+                                        {% if source.error_rate <= 5 %}
+                                            <span class="badge badge-success">{{ source.error_rate|floatformat:1 }}%</span>
+                                        {% elif source.error_rate <= 15 %}
+                                            <span class="badge badge-warning">{{ source.error_rate|floatformat:1 }}%</span>
+                                        {% else %}
+                                            <span class="badge badge-danger">{{ source.error_rate|floatformat:1 }}%</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar 
+                                                {% if source.efficiency_score >= 75 %}bg-success
+                                                {% elif source.efficiency_score >= 50 %}bg-info
+                                                {% elif source.efficiency_score >= 25 %}bg-warning
+                                                {% else %}bg-danger{% endif %}" 
+                                                role="progressbar" style="width: {{ source.efficiency_score }}%"
+                                                aria-valuenow="{{ source.efficiency_score }}" aria-valuemin="0" aria-valuemax="100">
+                                                {{ source.efficiency_score|floatformat:0 }}
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gợi ý tối ưu -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Gợi ý tối ưu nguồn nhập</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-3 border-left-info">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-lightbulb text-info"></i> Tối ưu hiệu quả nhập hàng</h5>
+                            <p class="card-text">Nguồn <strong>{{ best_source.name }}</strong> có hiệu quả cao nhất ({{ best_source.efficiency_score|floatformat:0 }}%). Nên tăng cường nhập hàng từ nguồn này.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mb-3 border-left-warning">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-exclamation-circle text-warning"></i> Cảnh báo</h5>
+                            <p class="card-text">Nguồn <strong>{{ worst_source.name }}</strong> có hiệu quả thấp nhất ({{ worst_source.efficiency_score|floatformat:0 }}%). Cân nhắc giảm hoặc ngừng nhập từ nguồn này.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mb-3 border-left-success">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-dollar-sign text-success"></i> Tiết kiệm chi phí</h5>
+                            <p class="card-text">Có thể tiết kiệm khoảng <strong>{{ potential_savings|floatformat:0 }}</strong> VNĐ/sản phẩm bằng cách chuyển từ nguồn {{ expensive_source.name }} sang nguồn {{ cheap_source.name }} cho sản phẩm {{ common_product }}.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mb-3 border-left-primary">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-search text-primary"></i> Đề xuất nguồn mới</h5>
+                            <p class="card-text">Nên tìm thêm nguồn cho loại sản phẩm <strong>{{ rare_product_type }}</strong> vì hiện tại chỉ có {{ rare_product_count }} nguồn cung cấp.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thêm vào phần sau card bộ lọc -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Gợi ý và phân tích</h6>
+                </div>
+                <div class="card-body">
+                    {% if insights %}
+                    <div class="row">
+                        {% for insight in insights %}
+                        <div class="col-lg-4 mb-4">
+                            <div class="card bg-{{ insight.type }} text-white shadow">
+                                <div class="card-body">
+                                    <i class="fas {{ insight.icon }} fa-fw"></i> {{ insight.message }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-center">Không có gợi ý nào trong khoảng thời gian này.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thêm vào phần biểu đồ hiệu quả -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Hiệu quả nguồn nhập theo thời gian</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                            aria-labelledby="dropdownMenuLink">
+                            <div class="dropdown-header">Tùy chọn:</div>
+                            <a class="dropdown-item chart-type" data-type="price" href="#">Giá trung bình</a>
+                            <a class="dropdown-item chart-type" data-type="availability" href="#">Tỉ lệ có hàng</a>
+                            <a class="dropdown-item chart-type" data-type="response_time" href="#">Thời gian phản hồi</a>
+                            <a class="dropdown-item chart-type" data-type="error_rate" href="#">Tỉ lệ lỗi</a>
+                            <a class="dropdown-item chart-type" data-type="efficiency" href="#">Điểm hiệu quả</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#" id="downloadChart">Tải xuống biểu đồ</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="sourceEfficiencyChart"></canvas>
+                    </div>
+                    <div class="text-center mt-4">
+                        <p class="text-muted"><i class="fas fa-info-circle"></i> Nhấp vào các tùy chọn phía trên để thay đổi loại biểu đồ</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Chia sẻ báo cáo -->
+<div class="modal fade" id="shareReportModal" tabindex="-1" role="dialog" aria-labelledby="shareReportModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="shareReportModalLabel">Chia sẻ báo cáo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="shareEmail">Email</label>
+                    <input type="email" class="form-control" id="shareEmail" placeholder="Nhập email người nhận">
+                </div>
+                <div class="form-group">
+                    <label for="shareNote">Ghi chú</label>
+                    <textarea class="form-control" id="shareNote" rows="3" placeholder="Nhập ghi chú cho báo cáo"></textarea>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="sharePassword">
+                    <label class="form-check-label" for="sharePassword">Bảo vệ bằng mật khẩu</label>
+                </div>
+                <div class="form-group mt-3 sharePasswordGroup d-none">
+                    <label for="reportPassword">Mật khẩu</label>
+                    <input type="password" class="form-control" id="reportPassword">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="btnShare">Chia sẻ</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js -->
+<script src="{% static 'dashboard/vendor/chart.js/Chart.min.js' %}"></script>
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // DataTable
+        $('#topSourcesTable').DataTable({
+            "order": [[7, "desc"]],
+            "pageLength": 10
+        });
+        
+        // Chart.js - Biểu đồ giá
+        var priceCtx = document.getElementById("priceChart");
+        var priceChart = new Chart(priceCtx, {
+            type: '{{ chart_type|default:"bar" }}',
+            data: {
+                labels: [{% for type in price_data.labels %}"{{ type }}",{% endfor %}],
+                datasets: [{
+                    label: "Giá trung bình (VNĐ)",
+                    backgroundColor: "#4e73df",
+                    hoverBackgroundColor: "#2e59d9",
+                    borderColor: "#4e73df",
+                    data: [{% for price in price_data.values %}{{ price }},{% endfor %}],
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 25,
+                        top: 25,
+                        bottom: 0
+                    }
+                },
+                scales: {
+                    xAxes: [{
+                        gridLines: {
+                            display: false,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            maxTicksLimit: 7
+                        }
+                    }],
+                    yAxes: [{
+                        ticks: {
+                            min: 0,
+                            maxTicksLimit: 5,
+                            padding: 10,
+                            callback: function(value, index, values) {
+                                return value.toLocaleString() + ' VNĐ';
+                            }
+                        },
+                        gridLines: {
+                            color: "rgb(234, 236, 244)",
+                            zeroLineColor: "rgb(234, 236, 244)",
+                            drawBorder: false,
+                            borderDash: [2],
+                            zeroLineBorderDash: [2]
+                        }
+                    }],
+                },
+                legend: {
+                    display: false
+                },
+                tooltips: {
+                    backgroundColor: "rgb(255,255,255)",
+                    bodyFontColor: "#858796",
+                    titleMarginBottom: 10,
+                    titleFontColor: '#6e707e',
+                    titleFontSize: 14,
+                    borderColor: '#dddfeb',
+                    borderWidth: 1,
+                    xPadding: 15,
+                    yPadding: 15,
+                    displayColors: false,
+                    caretPadding: 10,
+                    callbacks: {
+                        label: function(tooltipItem, chart) {
+                            return tooltipItem.yLabel.toLocaleString() + " VNĐ";
+                        }
+                    }
+                },
+            }
+        });
+        
+        // Chart.js - Biểu đồ tỉ lệ có hàng
+        var availabilityCtx = document.getElementById("availabilityChart");
+        var availabilityChart = new Chart(availabilityCtx, {
+            type: '{{ chart_type|default:"bar" }}',
+            data: {
+                labels: [{% for source in availability_data.labels %}"{{ source }}",{% endfor %}],
+                datasets: [{
+                    label: "Tỉ lệ có hàng (%)",
+                    backgroundColor: "#1cc88a",
+                    hoverBackgroundColor: "#17a673",
+                    borderColor: "#1cc88a",
+                    data: [{% for rate in availability_data.values %}{{ rate }},{% endfor %}],
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 25,
+                        top: 25,
+                        bottom: 0
+                    }
+                },
+                scales: {
+                    xAxes: [{
+                        gridLines: {
+                            display: false,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            maxTicksLimit: 7
+                        }
+                    }],
+                    yAxes: [{
+                        ticks: {
+                            min: 0,
+                            max: 100,
+                            maxTicksLimit: 5,
+                            padding: 10,
+                            callback: function(value, index, values) {
+                                return value + '%';
+                            }
+                        },
+                        gridLines: {
+                            color: "rgb(234, 236, 244)",
+                            zeroLineColor: "rgb(234, 236, 244)",
+                            drawBorder: false,
+                            borderDash: [2],
+                            zeroLineBorderDash: [2]
+                        }
+                    }],
+                },
+                legend: {
+                    display: false
+                },
+                tooltips: {
+                    backgroundColor: "rgb(255,255,255)",
+                    bodyFontColor: "#858796",
+                    titleMarginBottom: 10,
+                    titleFontColor: '#6e707e',
+                    titleFontSize: 14,
+                    borderColor: '#dddfeb',
+                    borderWidth: 1,
+                    xPadding: 15,
+                    yPadding: 15,
+                    displayColors: false,
+                    caretPadding: 10,
+                    callbacks: {
+                        label: function(tooltipItem, chart) {
+                            return tooltipItem.yLabel + "%";
+                        }
+                    }
+                },
+            }
+        });
+        
+        // Xử lý khoảng thời gian tùy chỉnh
+        $('#timeRange').change(function() {
+            if ($(this).val() === 'custom') {
+                $('.timeRangeCustom').removeClass('d-none');
+            } else {
+                $('.timeRangeCustom').addClass('d-none');
+            }
+        });
+        
+        // Xử lý xuất PDF
+        $('#exportPDF').click(function(e) {
+            e.preventDefault();
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Tiêu đề báo cáo
+            doc.setFontSize(18);
+            doc.text('Báo cáo phân tích nguồn nhập hàng', 14, 22);
+            
+            doc.setFontSize(12);
+            doc.text(`Ngày báo cáo: ${new Date().toLocaleDateString('vi-VN')}`, 14, 32);
+            
+            // Lọc đã áp dụng
+            doc.setFontSize(14);
+            doc.text('Bộ lọc áp dụng:', 14, 42);
+            doc.setFontSize(10);
+            doc.text(`- Khoảng thời gian: {{ time_range_display }}`, 18, 50);
+            doc.text(`- Loại sản phẩm: {{ selected_type|default:"Tất cả" }}`, 18, 57);
+            doc.text(`- Nền tảng: {{ selected_platform|default:"Tất cả"|title }}`, 18, 64);
+            
+            // Thống kê tổng quan
+            doc.setFontSize(14);
+            doc.text('Thống kê tổng quan:', 14, 75);
+            doc.setFontSize(10);
+            doc.text(`- Tổng số nguồn: {{ total_sources }}`, 18, 83);
+            doc.text(`- Tổng sản phẩm từ nguồn: {{ total_products }}`, 18, 90);
+            doc.text(`- Tỉ lệ có hàng trung bình: {{ avg_availability|floatformat:1 }}%`, 18, 97);
+            doc.text(`- Thời gian phản hồi trung bình: {{ avg_response_time|floatformat:0 }} phút`, 18, 104);
+            
+            // Bảng top nguồn
+            doc.setFontSize(14);
+            doc.text('Top nguồn nhập theo hiệu quả:', 14, 115);
+            
+            // Dữ liệu cho bảng
+            const tableColumn = ["Nguồn", "Nền tảng", "Loại SP", "Giá TB", "Tỉ lệ có hàng", "Thời gian", "Tỉ lệ lỗi", "Điểm"];
+            const tableRows = [];
+            
+            {% for source in top_sources|slice:":5" %}
+            tableRows.push([
+                "{{ source.name }}", 
+                "{{ source.platform|title }}", 
+                "{{ source.product_type }}", 
+                "{{ source.avg_price|floatformat:0 }}", 
+                "{{ source.availability_rate|floatformat:1 }}%", 
+                "{{ source.avg_processing_time|floatformat:0 }} phút", 
+                "{{ source.error_rate|floatformat:1 }}%", 
+                "{{ source.efficiency_score|floatformat:0 }}"
+            ]);
+            {% endfor %}
+            
+            // Tạo bảng
+            doc.autoTable({
+                head: [tableColumn],
+                body: tableRows,
+                startY: 120,
+                theme: 'grid',
+                styles: {
+                    fontSize: 8,
+                    cellPadding: 2,
+                },
+                headStyles: {
+                    fillColor: [66, 135, 245]
+                }
+            });
+            
+            // Gợi ý tối ưu
+            let finalY = doc.autoTable.previous.finalY + 10;
+            
+            doc.setFontSize(14);
+            doc.text('Gợi ý tối ưu:', 14, finalY);
+            
+            doc.setFontSize(10);
+            finalY += 8;
+            doc.text(`- Tối ưu hiệu quả: Nên tăng nhập từ nguồn {{ best_source.name }}`, 18, finalY);
+            
+            finalY += 7;
+            doc.text(`- Cảnh báo: Giảm nhập từ nguồn {{ worst_source.name }} (hiệu quả thấp)`, 18, finalY);
+            
+            finalY += 7;
+            doc.text(`- Tiết kiệm chi phí: Chuyển từ nguồn {{ expensive_source.name }} sang {{ cheap_source.name }}`, 18, finalY);
+            
+            // Lưu PDF
+            doc.save('bao-cao-nguon-nhap.pdf');
+        });
+        
+        // Xử lý xuất CSV
+        $('#exportCSV').click(function(e) {
+            e.preventDefault();
+            
+            // Chuẩn bị nội dung CSV
+            let csvContent = "data:text/csv;charset=utf-8,";
+            
+            // Tiêu đề
+            csvContent += "Nguồn,Nền tảng,Loại sản phẩm,Giá TB,Tỉ lệ có hàng,Thời gian phản hồi,Tỉ lệ lỗi,Điểm hiệu quả\n";
+            
+            // Dữ liệu
+            {% for source in top_sources %}
+            csvContent += "{{ source.name }},{{ source.platform }},{{ source.product_type }},{{ source.avg_price|floatformat:0 }},{{ source.availability_rate|floatformat:1 }}%,{{ source.avg_processing_time|floatformat:0 }} phút,{{ source.error_rate|floatformat:1 }}%,{{ source.efficiency_score|floatformat:0 }}\n";
+            {% endfor %}
+            
+            // Tạo link tải và kích hoạt
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "bao-cao-nguon-nhap.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+        
+        // Xử lý modal chia sẻ
+        $('#shareReport').click(function(e) {
+            e.preventDefault();
+            $('#shareReportModal').modal('show');
+        });
+        
+        $('#sharePassword').change(function() {
+            if ($(this).is(':checked')) {
+                $('.sharePasswordGroup').removeClass('d-none');
+            } else {
+                $('.sharePasswordGroup').addClass('d-none');
+            }
+        });
+        
+        $('#btnShare').click(function() {
+            const email = $('#shareEmail').val();
+            const note = $('#shareNote').val();
+            const passwordProtected = $('#sharePassword').is(':checked');
+            const password = $('#reportPassword').val();
+            
+            if (!email) {
+                alert('Vui lòng nhập email người nhận');
+                return;
+            }
+            
+            if (passwordProtected && !password) {
+                alert('Vui lòng nhập mật khẩu bảo vệ báo cáo');
+                return;
+            }
+            
+            // Ajax gửi báo cáo
+            $.ajax({
+                url: '{% url "dashboard:share_report" %}',
+                type: 'POST',
+                data: {
+                    email: email,
+                    note: note,
+                    password_protected: passwordProtected,
+                    password: password,
+                    report_type: 'source',
+                    report_params: JSON.stringify({
+                        time_range: '{{ time_range }}',
+                        date_from: '{{ date_from|date:"Y-m-d" }}',
+                        date_to: '{{ date_to|date:"Y-m-d" }}',
+                        product_type: '{{ selected_type }}',
+                        platform: '{{ selected_platform }}',
+                        chart_type: '{{ chart_type }}'
+                    }),
+                    csrf_token: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert('Đã gửi báo cáo thành công!');
+                        $('#shareReportModal').modal('hide');
+                    } else {
+                        alert('Lỗi: ' + response.error);
+                    }
+                },
+                error: function() {
+                    alert('Đã xảy ra lỗi khi gửi báo cáo.');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %} 

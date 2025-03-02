@@ -1,0 +1,159 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Quản lý loại tài khoản{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Quản lý loại tài khoản</h1>
+    <p class="mb-4">Quản lý các loại tài khoản premium trong hệ thống.</p>
+
+    <!-- Nút thêm mới -->
+    <div class="mb-4">
+        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAccountTypeModal">
+            <i class="fas fa-plus"></i> Thêm loại tài khoản mới
+        </a>
+    </div>
+
+    <!-- Danh sách loại tài khoản -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Loại tài khoản</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Tên loại</th>
+                            <th>Mô tả</th>
+                            <th>Giá (1 tháng)</th>
+                            <th>Giá (3 tháng)</th>
+                            <th>Giá (6 tháng)</th>
+                            <th>Giá (12 tháng)</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Dữ liệu mẫu -->
+                        <tr>
+                            <td>Netflix Basic</td>
+                            <td>Tài khoản Netflix cơ bản</td>
+                            <td>50,000 VNĐ</td>
+                            <td>135,000 VNĐ</td>
+                            <td>250,000 VNĐ</td>
+                            <td>450,000 VNĐ</td>
+                            <td><span class="badge badge-success">Hoạt động</span></td>
+                            <td>
+                                <a href="#" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="#" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Netflix Standard</td>
+                            <td>Tài khoản Netflix tiêu chuẩn</td>
+                            <td>80,000 VNĐ</td>
+                            <td>216,000 VNĐ</td>
+                            <td>400,000 VNĐ</td>
+                            <td>720,000 VNĐ</td>
+                            <td><span class="badge badge-success">Hoạt động</span></td>
+                            <td>
+                                <a href="#" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="#" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Netflix Premium</td>
+                            <td>Tài khoản Netflix cao cấp</td>
+                            <td>120,000 VNĐ</td>
+                            <td>324,000 VNĐ</td>
+                            <td>600,000 VNĐ</td>
+                            <td>1,080,000 VNĐ</td>
+                            <td><span class="badge badge-success">Hoạt động</span></td>
+                            <td>
+                                <a href="#" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="#" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thêm loại tài khoản -->
+<div class="modal fade" id="addAccountTypeModal" tabindex="-1" aria-labelledby="addAccountTypeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addAccountTypeModalLabel">Thêm loại tài khoản mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="typeName" class="form-label">Tên loại tài khoản</label>
+                        <input type="text" class="form-control" id="typeName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="typeDescription" class="form-label">Mô tả</label>
+                        <textarea class="form-control" id="typeDescription" rows="3"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label for="price1Month" class="form-label">Giá 1 tháng (VNĐ)</label>
+                            <input type="number" class="form-control" id="price1Month" min="0" step="1000" required>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="price3Month" class="form-label">Giá 3 tháng (VNĐ)</label>
+                            <input type="number" class="form-control" id="price3Month" min="0" step="1000">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="price6Month" class="form-label">Giá 6 tháng (VNĐ)</label>
+                            <input type="number" class="form-control" id="price6Month" min="0" step="1000">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="price12Month" class="form-label">Giá 12 tháng (VNĐ)</label>
+                            <input type="number" class="form-control" id="price12Month" min="0" step="1000">
+                        </div>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="isActive" checked>
+                        <label class="form-check-label" for="isActive">Kích hoạt</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('#dataTable').DataTable({
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json"
+            }
+        });
+    });
+</script>
+{% endblock %} 

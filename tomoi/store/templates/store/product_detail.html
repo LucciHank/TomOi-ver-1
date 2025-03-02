@@ -252,6 +252,24 @@
 .product-tab-item {
     transition: all 0.3s ease;
 }
+
+.wishlist-btn {
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-left: 10px;
+}
+
+.wishlist-btn:hover {
+    transform: scale(1.1);
+}
+
+.wishlist-btn.active {
+    color: #df2626;
+}
 </style>
 {% endblock %}
 
@@ -362,9 +380,26 @@
                         </div>
 
                         <!-- Action Buttons -->
-                        <div class="action-buttons">
-                            <button class="btn-buy-now" onclick="buyNow()">Mua ngay</button>
-                            <button class="btn-add-cart" onclick="addToCart()">Thêm vào giỏ</button>
+                        <div class="product-actions">
+                            <div class="quantity-controls">
+                                <!-- ... existing quantity controls ... -->
+                            </div>
+                            
+                            <div class="action-buttons">
+                                <button id="addToCartBtn" class="btn btn-danger">
+                                    <i class="fas fa-shopping-cart me-2"></i> Thêm vào giỏ
+                                </button>
+                                
+                                {% if user.is_authenticated %}
+                                <button class="wishlist-btn {% if product.id in wishlist_products %}active{% endif %}" data-product-id="{{ product.id }}">
+                                    {% if product.id in wishlist_products %}
+                                    <i class="fas fa-heart"></i>
+                                    {% else %}
+                                    <i class="far fa-heart"></i>
+                                    {% endif %}
+                                </button>
+                                {% endif %}
+                            </div>
                         </div>
 
                         <!-- Account Info Fields -->

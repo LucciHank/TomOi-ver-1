@@ -1,0 +1,363 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+
+{% block title %}Quản lý Chatbot{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Quản lý Chatbot Tư Vấn</h1>
+        <div>
+            <a href="{% url 'dashboard:chatbot_config' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+                <i class="fas fa-plus fa-sm text-white-50"></i> Tạo cấu hình mới
+            </a>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Tổng số cuộc hội thoại -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Tổng số đoạn hội thoại</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_chats }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-comments fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thành công -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Tỷ lệ giải quyết</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ resolution_rate }}%</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bị lọc -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Thời gian phản hồi TB</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ avg_response_time }}ms</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lỗi -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Đánh giá TB</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ avg_satisfaction }}/5</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-star fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Thống kê chat -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Thống kê cuộc hội thoại (7 ngày)</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="chatStatsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cấu hình hiện tại -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Cấu hình hiện tại</h6>
+                    {% if active_config %}
+                    <a href="{% url 'dashboard:chatbot_config_edit' active_config.id %}" class="btn btn-sm btn-info">
+                        <i class="fas fa-edit"></i> Chỉnh sửa
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if active_config %}
+                        <div>
+                            <h5>{{ active_config.name }}</h5>
+                            <div class="small text-gray-600 mb-2">Cập nhật: {{ active_config.updated_at|date:"d/m/Y H:i" }}</div>
+                            
+                            <div class="card bg-light mb-3">
+                                <div class="card-header">Base Prompt</div>
+                                <div class="card-body">
+                                    <p class="card-text" style="white-space: pre-wrap;">{{ active_config.base_prompt }}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-warning">
+                                <strong>Thông báo từ chối:</strong> {{ active_config.rejection_message }}
+                            </div>
+                            
+                            <h6>Danh mục được phép:</h6>
+                            <ul>
+                                {% for category in active_config.allowed_categories.all %}
+                                <li>{{ category.category.name }}</li>
+                                {% empty %}
+                                <li>Chưa có danh mục được phép</li>
+                                {% endfor %}
+                            </ul>
+                            
+                            <h6>Từ khóa cấm:</h6>
+                            <div class="badge-group">
+                                {% for keyword in active_config.forbidden_keywords.all %}
+                                <span class="badge badge-danger">{{ keyword.keyword }}</span>
+                                {% empty %}
+                                <span class="text-muted">Chưa có từ khóa cấm</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="text-center my-5">
+                            <div class="error mx-auto" data-text="404">!</div>
+                            <p class="lead text-gray-800 mb-4">Chưa có cấu hình nào</p>
+                            <p class="text-gray-500 mb-0">Vui lòng tạo cấu hình chatbot mới</p>
+                            <a href="{% url 'dashboard:chatbot_config' %}" class="btn btn-primary mt-3">
+                                <i class="fas fa-plus"></i> Tạo cấu hình
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Quản lý Chatbot</h6>
+                </div>
+                <div class="card-body text-center">
+                    <div class="btn-group-lg">
+                        <a href="{% url 'dashboard:chatbot_config' %}" class="btn btn-primary m-2">
+                            <i class="fas fa-cog mr-1"></i> Cấu hình Chatbot
+                        </a>
+                        <a href="{% url 'dashboard:api_integration' %}" class="btn btn-info m-2">
+                            <i class="fas fa-plug mr-1"></i> Tích hợp API
+                        </a>
+                        <a href="{% url 'dashboard:chat_logs' %}" class="btn btn-success m-2">
+                            <i class="fas fa-history mr-1"></i> Lịch sử hội thoại
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Hội thoại gần đây</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Người dùng</th>
+                                    <th>Câu hỏi</th>
+                                    <th>Thời gian</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in recent_logs %}
+                                <tr>
+                                    <td>{{ log.id }}</td>
+                                    <td>{{ log.user.username|default:"Khách" }}</td>
+                                    <td>{{ log.user_query|truncatechars:50 }}</td>
+                                    <td>{{ log.created_at|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        {% if log.status == 'success' %}
+                                            <span class="badge badge-success">Thành công</span>
+                                        {% elif log.status == 'filtered' %}
+                                            <span class="badge badge-warning">Bị lọc</span>
+                                        {% else %}
+                                            <span class="badge badge-danger">Lỗi</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'dashboard:chat_logs' %}?id={{ log.id }}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center">Chưa có dữ liệu</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Vẽ biểu đồ thống kê chat
+    var ctx = document.getElementById("chatStatsChart");
+    var chatStatsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [{% for stat in daily_stats reversed %}"{{ stat.created_at__date|date:'d/m' }}",{% endfor %}],
+            datasets: [
+                {
+                    label: "Thành công",
+                    lineTension: 0.3,
+                    backgroundColor: "rgba(28, 200, 138, 0.05)",
+                    borderColor: "rgba(28, 200, 138, 1)",
+                    pointRadius: 3,
+                    pointBackgroundColor: "rgba(28, 200, 138, 1)",
+                    pointBorderColor: "rgba(28, 200, 138, 1)",
+                    pointHoverRadius: 3,
+                    pointHoverBackgroundColor: "rgba(28, 200, 138, 1)",
+                    pointHoverBorderColor: "rgba(28, 200, 138, 1)",
+                    pointHitRadius: 10,
+                    pointBorderWidth: 2,
+                    data: [{% for stat in daily_stats reversed %}{{ stat.success }},{% endfor %}],
+                },
+                {
+                    label: "Bị lọc",
+                    lineTension: 0.3,
+                    backgroundColor: "rgba(246, 194, 62, 0.05)",
+                    borderColor: "rgba(246, 194, 62, 1)",
+                    pointRadius: 3,
+                    pointBackgroundColor: "rgba(246, 194, 62, 1)",
+                    pointBorderColor: "rgba(246, 194, 62, 1)",
+                    pointHoverRadius: 3,
+                    pointHoverBackgroundColor: "rgba(246, 194, 62, 1)",
+                    pointHoverBorderColor: "rgba(246, 194, 62, 1)",
+                    pointHitRadius: 10,
+                    pointBorderWidth: 2,
+                    data: [{% for stat in daily_stats reversed %}{{ stat.filtered }},{% endfor %}],
+                },
+                {
+                    label: "Lỗi",
+                    lineTension: 0.3,
+                    backgroundColor: "rgba(231, 74, 59, 0.05)",
+                    borderColor: "rgba(231, 74, 59, 1)",
+                    pointRadius: 3,
+                    pointBackgroundColor: "rgba(231, 74, 59, 1)",
+                    pointBorderColor: "rgba(231, 74, 59, 1)",
+                    pointHoverRadius: 3,
+                    pointHoverBackgroundColor: "rgba(231, 74, 59, 1)",
+                    pointHoverBorderColor: "rgba(231, 74, 59, 1)",
+                    pointHitRadius: 10,
+                    pointBorderWidth: 2,
+                    data: [{% for stat in daily_stats reversed %}{{ stat.error }},{% endfor %}],
+                }
+            ],
+        },
+        options: {
+            maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    left: 10,
+                    right: 25,
+                    top: 25,
+                    bottom: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    time: {
+                        unit: 'date'
+                    },
+                    gridLines: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        maxTicksLimit: 7
+                    }
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        padding: 10,
+                        beginAtZero: true
+                    },
+                    gridLines: {
+                        color: "rgb(234, 236, 244)",
+                        zeroLineColor: "rgb(234, 236, 244)",
+                        drawBorder: false,
+                        borderDash: [2],
+                        zeroLineBorderDash: [2]
+                    }
+                }],
+            },
+            legend: {
+                display: true
+            },
+            tooltips: {
+                backgroundColor: "rgb(255,255,255)",
+                bodyFontColor: "#858796",
+                titleMarginBottom: 10,
+                titleFontColor: '#6e707e',
+                titleFontSize: 14,
+                borderColor: '#dddfeb',
+                borderWidth: 1,
+                xPadding: 15,
+                yPadding: 15,
+                displayColors: false,
+                intersect: false,
+                mode: 'index',
+                caretPadding: 10
+            }
+        }
+    });
+</script>
+{% endblock %} 

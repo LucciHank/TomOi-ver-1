@@ -1,0 +1,67 @@
+/* Fix for Bootstrap 5 compatibility */
+.sidebar .nav-item .collapse {
+  position: relative;
+  left: 0;
+  z-index: 1;
+  top: 0;
+  animation: none;
+}
+
+.sidebar .nav-item .collapse.show,
+.sidebar .nav-item .collapsing {
+  display: block;
+}
+
+.sidebar .nav-item .collapse .collapse-inner {
+  border-radius: 0.35rem;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+.sidebar .nav-item .collapsing {
+  display: block;
+  transition: height 0.15s ease;
+}
+
+.sidebar .nav-item .collapse,
+.sidebar .nav-item .collapsing {
+  margin: 0 1rem;
+}
+
+/* Fix for dropdown menus */
+.dropdown-menu.show {
+  display: block;
+}
+
+/* Fix for sidebar toggle in mobile view */
+@media (max-width: 768px) {
+  .sidebar.toggled {
+    overflow: visible;
+    width: 6.5rem!important;
+  }
+  
+  .sidebar.toggled .nav-item .collapse {
+    position: absolute;
+    left: calc(6.5rem + 1.5rem / 2);
+    z-index: 1;
+    top: 2px;
+    animation: none;
+  }
+  
+  .sidebar.toggled .nav-item .collapse.show {
+    display: block;
+  }
+  
+  .sidebar.toggled .nav-item .collapsing {
+    display: block;
+    transition: height 0.15s ease;
+  }
+  
+  .sidebar.toggled .nav-item .collapse,
+  .sidebar.toggled .nav-item .collapsing {
+    margin: 0;
+  }
+  
+  .sidebar.toggled .nav-item:last-child {
+    margin-bottom: 1rem;
+  }
+} 

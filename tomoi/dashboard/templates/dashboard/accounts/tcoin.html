@@ -1,0 +1,231 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Quản lý tài khoản TCoin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Quản lý tài khoản TCoin</h1>
+    <p class="mb-4">Quản lý số dư và giao dịch TCoin của người dùng.</p>
+
+    <!-- Thống kê -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Tổng TCoin trong hệ thống</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">1,250,000</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-coins fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                TCoin đã sử dụng (tháng này)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">215,000</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                TCoin đã nạp (tháng này)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">350,000</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-credit-card fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Số người dùng có TCoin</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">38</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danh sách tài khoản TCoin -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">Tài khoản TCoin</h6>
+            <div class="dropdown no-arrow">
+                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                    aria-labelledby="dropdownMenuLink">
+                    <div class="dropdown-header">Tùy chọn:</div>
+                    <a class="dropdown-item" href="#">Xuất Excel</a>
+                    <a class="dropdown-item" href="#">Thêm TCoin hàng loạt</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#">Lịch sử giao dịch</a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Tên người dùng</th>
+                            <th>Email</th>
+                            <th>Số dư hiện tại</th>
+                            <th>Tổng đã nạp</th>
+                            <th>Tổng đã dùng</th>
+                            <th>Cập nhật lần cuối</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Dữ liệu mẫu -->
+                        <tr>
+                            <td>user123</td>
+                            <td>user123@example.com</td>
+                            <td>50,000</td>
+                            <td>200,000</td>
+                            <td>150,000</td>
+                            <td>01/03/2025 14:30</td>
+                            <td>
+                                <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addTCoinModal">
+                                    <i class="fas fa-plus"></i>
+                                </a>
+                                <a href="#" class="btn btn-sm btn-info">
+                                    <i class="fas fa-history"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>user456</td>
+                            <td>user456@example.com</td>
+                            <td>25,000</td>
+                            <td>100,000</td>
+                            <td>75,000</td>
+                            <td>01/03/2025 15:45</td>
+                            <td>
+                                <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addTCoinModal">
+                                    <i class="fas fa-plus"></i>
+                                </a>
+                                <a href="#" class="btn btn-sm btn-info">
+                                    <i class="fas fa-history"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>user789</td>
+                            <td>user789@example.com</td>
+                            <td>5,000</td>
+                            <td>20,000</td>
+                            <td>15,000</td>
+                            <td>01/03/2025 16:20</td>
+                            <td>
+                                <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addTCoinModal">
+                                    <i class="fas fa-plus"></i>
+                                </a>
+                                <a href="#" class="btn btn-sm btn-info">
+                                    <i class="fas fa-history"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thêm TCoin -->
+<div class="modal fade" id="addTCoinModal" tabindex="-1" aria-labelledby="addTCoinModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addTCoinModalLabel">Thêm TCoin cho người dùng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Tên người dùng</label>
+                        <input type="text" class="form-control" id="username" value="user123" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="currentBalance" class="form-label">Số dư hiện tại</label>
+                        <input type="text" class="form-control" id="currentBalance" value="50,000" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="addAmount" class="form-label">Số TCoin cần thêm</label>
+                        <input type="number" class="form-control" id="addAmount" min="1000" step="1000" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="reason" class="form-label">Lý do</label>
+                        <select class="form-control" id="reason" required>
+                            <option value="">-- Chọn lý do --</option>
+                            <option value="purchase">Mua TCoin</option>
+                            <option value="bonus">Thưởng</option>
+                            <option value="refund">Hoàn tiền</option>
+                            <option value="promotion">Khuyến mãi</option>
+                            <option value="other">Khác</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="note" class="form-label">Ghi chú</label>
+                        <textarea class="form-control" id="note" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary">Thêm TCoin</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('#dataTable').DataTable({
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json"
+            }
+        });
+    });
+</script>
+{% endblock %} 

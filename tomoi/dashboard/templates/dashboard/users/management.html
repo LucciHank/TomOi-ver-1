@@ -1,0 +1,315 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Quản lý Người dùng{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-gray-800">Quản lý Người dùng</h1>
+        <div>
+            <button class="btn btn-primary" data-toggle="modal" data-target="#filterModal">
+                <i class="fas fa-filter"></i> Lọc
+            </button>
+            <a href="{% url 'dashboard:export_users' %}" class="btn btn-success">
+                <i class="fas fa-file-excel"></i> Xuất Excel
+            </a>
+        </div>
+    </div>
+    
+    <!-- Thống kê -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Tổng người dùng
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ total_users }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Người dùng mới hôm nay
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ new_users_today }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-plus fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Người dùng hoạt động
+                            </div>
+                            <div class="row no-gutters align-items-center">
+                                <div class="col-auto">
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
+                                        {{ active_users_30d }}
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="progress progress-sm mr-2">
+                                        <div class="progress-bar bg-info" role="progressbar" 
+                                             style="width: {% widthratio active_users_30d total_users 100 %}%">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-check fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Đơn hàng/người dùng
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ orders_per_user|floatformat:1 }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-shopping-bag fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Danh sách người dùng -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách người dùng</h6>
+            <div class="input-group" style="width: 300px;">
+                <input type="text" class="form-control" placeholder="Tìm kiếm..." id="searchInput">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên người dùng</th>
+                            <th>Email</th>
+                            <th>Số điện thoại</th>
+                            <th>Ngày đăng ký</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>
+                                <a href="{% url 'dashboard:user_detail' user.id %}">
+                                    {{ user.username }}
+                                    {% if user.is_staff %}
+                                    <span class="badge badge-primary">Staff</span>
+                                    {% endif %}
+                                </a>
+                            </td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.phone }}</td>
+                            <td>{{ user.date_joined|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if user.is_active %}
+                                <span class="badge badge-success">Hoạt động</span>
+                                {% else %}
+                                <span class="badge badge-danger">Vô hiệu hóa</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'dashboard:user_detail' user.id %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button class="btn btn-sm btn-warning" onclick="toggleStatus({{ user.id }})">
+                                    {% if user.is_active %}
+                                    <i class="fas fa-ban"></i>
+                                    {% else %}
+                                    <i class="fas fa-check"></i>
+                                    {% endif %}
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">Không có người dùng nào</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Top chi tiêu -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Top người dùng chi tiêu nhiều nhất</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Người dùng</th>
+                            <th>Email</th>
+                            <th>Tổng chi tiêu</th>
+                            <th>Số đơn hàng</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in top_spenders %}
+                        <tr>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.total_spent|floatformat:0 }}đ</td>
+                            <td>{{ user.orders.count }}</td>
+                            <td>
+                                <a href="{% url 'dashboard:user_detail' user.id %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Lọc người dùng</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="get">
+                    <div class="form-group">
+                        <label>Vai trò</label>
+                        <select name="role" class="form-control">
+                            <option value="">Tất cả</option>
+                            <option value="staff" {% if request.GET.role == 'staff' %}selected{% endif %}>
+                                Nhân viên
+                            </option>
+                            <option value="customer" {% if request.GET.role == 'customer' %}selected{% endif %}>
+                                Khách hàng
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Trạng thái</label>
+                        <select name="status" class="form-control">
+                            <option value="">Tất cả</option>
+                            <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>
+                                Hoạt động
+                            </option>
+                            <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>
+                                Vô hiệu hóa
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Từ ngày</label>
+                        <input type="date" name="date_from" class="form-control" value="{{ request.GET.date_from }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Đến ngày</label>
+                        <input type="date" name="date_to" class="form-control" value="{{ request.GET.date_to }}">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Áp dụng</button>
+                    <a href="{% url 'dashboard:user_management' %}" class="btn btn-secondary">Đặt lại</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // DataTables
+    $('.table').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.10.24/i18n/Vietnamese.json'
+        },
+        pageLength: 25
+    });
+    
+    // Search functionality
+    $('#searchInput').on('keyup', function() {
+        $('.table').DataTable().search($(this).val()).draw();
+    });
+});
+
+function toggleStatus(userId) {
+    if (confirm('Bạn có chắc chắn muốn thay đổi trạng thái người dùng này?')) {
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/dashboard/users/${userId}/toggle-status/`;
+        
+        var csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = 'csrfmiddlewaretoken';
+        csrfToken.value = '{{ csrf_token }}';
+        
+        form.appendChild(csrfToken);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %} 

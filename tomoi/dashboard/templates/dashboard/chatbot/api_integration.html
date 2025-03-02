@@ -1,0 +1,407 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+
+{% block title %}Tích hợp API Chatbot{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Tích hợp API Chatbot</h1>
+        <a href="{% url 'dashboard:chatbot_dashboard' %}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Quay lại
+        </a>
+    </div>
+
+    <!-- Cấu hình hiện tại -->
+    <div class="row">
+        <div class="col-12 col-xl-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Cấu hình API hiện tại</h6>
+                </div>
+                <div class="card-body">
+                    {% if active_integration %}
+                        <div class="mb-4">
+                            <h5>{{ active_integration.name }}</h5>
+                            <span class="badge badge-success">Đang kích hoạt</span>
+                            <div class="small text-gray-600 mt-2">Cập nhật: {{ active_integration.updated_at|date:"d/m/Y H:i" }}</div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <strong>Loại API:</strong> 
+                                    <span class="ml-2">{{ active_integration.get_api_type_display }}</span>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>URL:</strong> 
+                                    <span class="ml-2">{{ active_integration.api_url }}</span>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Phiên bản:</strong> 
+                                    <span class="ml-2">{{ active_integration.api_version|default:"Mặc định" }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <strong>Thời gian chờ:</strong> 
+                                    <span class="ml-2">{{ active_integration.timeout }} giây</span>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Số lần thử lại:</strong> 
+                                    <span class="ml-2">{{ active_integration.retry_count }}</span>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>API Key:</strong> 
+                                    <span class="ml-2">•••••••••••••••••</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <a href="#" class="btn btn-info btn-sm edit-api" data-id="{{ active_integration.id }}">
+                                <i class="fas fa-edit"></i> Chỉnh sửa
+                            </a>
+                            <form method="post" action="{% url 'dashboard:api_integration' %}" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="deactivate">
+                                <input type="hidden" name="integration_id" value="{{ active_integration.id }}">
+                                <button type="submit" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-power-off"></i> Tắt kích hoạt
+                                </button>
+                            </form>
+                            <button class="btn btn-success btn-sm ml-2 test-api" data-id="{{ active_integration.id }}">
+                                <i class="fas fa-vial"></i> Kiểm tra kết nối
+                            </button>
+                        </div>
+                    {% else %}
+                        <div class="text-center my-5">
+                            <div class="error mx-auto" data-text="404">!</div>
+                            <p class="lead text-gray-800 mb-4">Chưa có cấu hình API nào</p>
+                            <p class="text-gray-500 mb-0">Vui lòng tạo cấu hình API mới</p>
+                            <button class="btn btn-primary mt-3" data-toggle="modal" data-target="#apiModal">
+                                <i class="fas fa-plus"></i> Tạo cấu hình API
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Danh sách cấu hình -->
+        <div class="col-12 col-xl-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Danh sách cấu hình API</h6>
+                    <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#apiModal">
+                        <i class="fas fa-plus"></i> Thêm mới
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Tên</th>
+                                    <th>Loại API</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for integration in integrations %}
+                                <tr>
+                                    <td>{{ integration.name }}</td>
+                                    <td>{{ integration.get_api_type_display }}</td>
+                                    <td>
+                                        {% if integration.is_active %}
+                                        <span class="badge badge-success">Đang hoạt động</span>
+                                        {% else %}
+                                        <span class="badge badge-secondary">Không hoạt động</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="#" class="btn btn-info btn-sm edit-api" data-id="{{ integration.id }}">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        {% if not integration.is_active %}
+                                        <form method="post" action="{% url 'dashboard:api_integration' %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="activate">
+                                            <input type="hidden" name="integration_id" value="{{ integration.id }}">
+                                            <button type="submit" class="btn btn-success btn-sm">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                        <form method="post" action="{% url 'dashboard:api_integration' %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="integration_id" value="{{ integration.id }}">
+                                            <button type="submit" class="btn btn-danger btn-sm" 
+                                                    onclick="return confirm('Bạn có chắc chắn muốn xóa cấu hình này?');">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">Chưa có cấu hình API nào</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="apiModal" tabindex="-1" role="dialog" aria-labelledby="apiModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="apiModalLabel">Cấu hình API</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{% url 'dashboard:api_integration' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="save">
+                <input type="hidden" name="integration_id" id="integration_id" value="">
+                
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label for="name" class="col-sm-3 col-form-label">Tên cấu hình</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group row">
+                        <label for="api_type" class="col-sm-3 col-form-label">Loại API</label>
+                        <div class="col-sm-9">
+                            <select class="form-control" id="api_type" name="api_type" required>
+                                <option value="gemini">Google Gemini</option>
+                                <option value="openai">OpenAI</option>
+                                <option value="azure">Azure OpenAI</option>
+                                <option value="anthropic">Anthropic Claude</option>
+                                <option value="other">Khác</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group row">
+                        <label for="api_url" class="col-sm-3 col-form-label">URL Endpoint</label>
+                        <div class="col-sm-9">
+                            <input type="url" class="form-control" id="api_url" name="api_url" required>
+                            <small class="form-text text-muted api-url-helper">
+                                URL mặc định sẽ được điền tự động dựa trên loại API.
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group row">
+                        <label for="api_key" class="col-sm-3 col-form-label">API Key</label>
+                        <div class="col-sm-9">
+                            <input type="password" class="form-control" id="api_key" name="api_key" required>
+                            <small class="form-text text-muted">
+                                API Key được sử dụng để xác thực với dịch vụ.
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group row">
+                        <label for="api_version" class="col-sm-3 col-form-label">Phiên bản API</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="api_version" name="api_version">
+                            <small class="form-text text-muted api-version-helper">
+                                Ví dụ: "gpt-3.5-turbo" cho OpenAI, "gemini-pro" cho Gemini.
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group row">
+                        <label for="timeout" class="col-sm-3 col-form-label">Thời gian chờ</label>
+                        <div class="col-sm-9">
+                            <input type="number" class="form-control" id="timeout" name="timeout" value="30" min="1" max="120">
+                            <small class="form-text text-muted">
+                                Thời gian tối đa (giây) chờ phản hồi từ API.
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group row">
+                        <label for="retry_count" class="col-sm-3 col-form-label">Số lần thử lại</label>
+                        <div class="col-sm-9">
+                            <input type="number" class="form-control" id="retry_count" name="retry_count" value="3" min="0" max="10">
+                            <small class="form-text text-muted">
+                                Số lần thử lại kết nối khi gặp lỗi.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Lưu cấu hình</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Kết quả kiểm tra API Modal -->
+<div class="modal fade" id="testResultModal" tabindex="-1" role="dialog" aria-labelledby="testResultModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="testResultModalLabel">Kết quả kiểm tra API</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="testLoader" class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Đang kiểm tra...</span>
+                    </div>
+                    <p class="mt-2">Đang kiểm tra kết nối...</p>
+                </div>
+                
+                <div id="testSuccess" class="d-none">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-check-circle fa-4x text-success"></i>
+                    </div>
+                    <div class="alert alert-success">
+                        <h5>Kết nối thành công!</h5>
+                        <p>Đã kết nối thành công đến API. Thời gian phản hồi: <span id="responseTime">0</span>ms</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Phản hồi từ API:</label>
+                        <textarea class="form-control" id="apiResponse" rows="5" readonly></textarea>
+                    </div>
+                </div>
+                
+                <div id="testError" class="d-none">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-times-circle fa-4x text-danger"></i>
+                    </div>
+                    <div class="alert alert-danger">
+                        <h5>Lỗi kết nối!</h5>
+                        <p id="errorMessage">Không thể kết nối đến API. Vui lòng kiểm tra cấu hình.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Xử lý chọn loại API để tự động điền URL và thông tin khác
+        $('#api_type').on('change', function() {
+            const apiType = $(this).val();
+            let apiUrl = '';
+            let apiVersionHelper = '';
+            
+            switch(apiType) {
+                case 'gemini':
+                    apiUrl = 'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent';
+                    apiVersionHelper = 'Để trống để sử dụng mặc định "gemini-pro"';
+                    break;
+                case 'openai':
+                    apiUrl = 'https://api.openai.com/v1/chat/completions';
+                    apiVersionHelper = 'Ví dụ: "gpt-3.5-turbo", "gpt-4"';
+                    break;
+                case 'anthropic':
+                    apiUrl = 'https://api.anthropic.com/v1/messages';
+                    apiVersionHelper = 'Ví dụ: "claude-3-opus-20240229"';
+                    break;
+                case 'azure':
+                    apiUrl = 'https://YOUR_RESOURCE_NAME.openai.azure.com/openai/deployments/YOUR_DEPLOYMENT_NAME/chat/completions?api-version=2023-05-15';
+                    apiVersionHelper = 'Tên deployment của bạn trên Azure';
+                    break;
+            }
+            
+            $('#api_url').val(apiUrl);
+            $('.api-version-helper').text(apiVersionHelper);
+        });
+        
+        // Xử lý sự kiện để mở modal chỉnh sửa
+        $('.edit-api').on('click', function(e) {
+            e.preventDefault();
+            const apiId = $(this).data('id');
+            
+            // Gọi API để lấy thông tin chi tiết
+            $.ajax({
+                url: `/dashboard/api/chatbot/api-integration/${apiId}/`,
+                method: 'GET',
+                success: function(data) {
+                    $('#integration_id').val(data.id);
+                    $('#name').val(data.name);
+                    $('#api_type').val(data.api_type).trigger('change');
+                    $('#api_url').val(data.api_url);
+                    $('#api_version').val(data.api_version);
+                    $('#timeout').val(data.timeout);
+                    $('#retry_count').val(data.retry_count);
+                    // API key không hiển thị vì lý do bảo mật
+                    
+                    $('#apiModal').modal('show');
+                },
+                error: function(xhr) {
+                    alert('Có lỗi xảy ra khi tải thông tin cấu hình API');
+                }
+            });
+        });
+        
+        // Xử lý thêm mới
+        $('#addNewApi').on('click', function() {
+            $('#integration_id').val('');
+            $('#apiForm').trigger('reset');
+            $('#api_type').trigger('change');
+            $('#apiModal').modal('show');
+        });
+        
+        // Xử lý kiểm tra kết nối API
+        $('.test-api').on('click', function() {
+            const apiId = $(this).data('id');
+            
+            // Reset modal state
+            $('#testLoader').removeClass('d-none');
+            $('#testSuccess').addClass('d-none');
+            $('#testError').addClass('d-none');
+            
+            // Show modal
+            $('#testResultModal').modal('show');
+            
+            // Gọi API để test kết nối
+            $.ajax({
+                url: `/dashboard/api/chatbot/test-api/${apiId}/`,
+                method: 'POST',
+                success: function(data) {
+                    $('#testLoader').addClass('d-none');
+                    $('#testSuccess').removeClass('d-none');
+                    $('#responseTime').text(data.response_time);
+                    $('#apiResponse').val(data.response);
+                },
+                error: function(xhr) {
+                    $('#testLoader').addClass('d-none');
+                    $('#testError').removeClass('d-none');
+                    $('#errorMessage').text(xhr.responseJSON?.error || 'Không thể kết nối đến API. Vui lòng kiểm tra cấu hình.');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

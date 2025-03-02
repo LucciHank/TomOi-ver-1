@@ -1,0 +1,138 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Báo cáo bảo hành{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Báo cáo bảo hành</h1>
+        <div>
+            <a href="{% url 'dashboard:warranty_management' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left fa-sm"></i> Quay lại danh sách
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Thống kê theo trạng thái -->
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thống kê theo trạng thái</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Trạng thái</th>
+                                    <th>Số lượng</th>
+                                    <th>Tỷ lệ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% with total_tickets=status_stats|length %}
+                                {% for stat in status_stats %}
+                                <tr>
+                                    <td>
+                                        {% if stat.status == 'pending' %}
+                                        <span class="badge bg-warning text-dark">Chờ xử lý</span>
+                                        {% elif stat.status == 'processing' %}
+                                        <span class="badge bg-info">Đang xử lý</span>
+                                        {% elif stat.status == 'resolved' %}
+                                        <span class="badge bg-success">Đã xử lý</span>
+                                        {% else %}
+                                        <span class="badge bg-danger">Từ chối</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ stat.count }}</td>
+                                    <td>{{ stat.count|div:total_tickets|mul:100|floatformat:1 }}%</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">Không có dữ liệu</td>
+                                </tr>
+                                {% endfor %}
+                                {% endwith %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Thống kê theo gói đăng ký -->
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thống kê theo gói đăng ký</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Gói đăng ký</th>
+                                    <th>Số lượng yêu cầu</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in plan_stats %}
+                                <tr>
+                                    <td>{{ stat.subscription__plan__name }}</td>
+                                    <td>{{ stat.count }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="2" class="text-center">Không có dữ liệu</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Top người dùng cần bảo hành nhiều nhất -->
+        <div class="col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Top người dùng cần bảo hành nhiều nhất</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Tên người dùng</th>
+                                    <th>Email</th>
+                                    <th>Số lần bảo hành</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i, user in top_users|enumerate %}
+                                <tr>
+                                    <td>{{ i|add:"1" }}</td>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>{{ user.warranty_count }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">Không có dữ liệu</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,113 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">{{ title }}</h1>
+    <p class="mb-4">Nhập thông tin chi tiết cho nguồn nhập.</p>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin nguồn nhập</h6>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-group row">
+                    <label for="id_name" class="col-sm-2 col-form-label">Tên nguồn</label>
+                    <div class="col-sm-10">
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.name.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="id_platform" class="col-sm-2 col-form-label">Nền tảng</label>
+                    <div class="col-sm-10">
+                        {{ form.platform }}
+                        {% if form.platform.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.platform.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="id_product_type" class="col-sm-2 col-form-label">Loại sản phẩm</label>
+                    <div class="col-sm-10">
+                        {{ form.product_type }}
+                        {% if form.product_type.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.product_type.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="id_base_price" class="col-sm-2 col-form-label">Giá nhập chuẩn</label>
+                    <div class="col-sm-10">
+                        {{ form.base_price }}
+                        {% if form.base_price.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.base_price.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="id_availability_rate" class="col-sm-2 col-form-label">Tỷ lệ có hàng (%)</label>
+                    <div class="col-sm-10">
+                        {{ form.availability_rate }}
+                        {% if form.availability_rate.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.availability_rate.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="id_priority" class="col-sm-2 col-form-label">Mức độ ưu tiên</label>
+                    <div class="col-sm-10">
+                        {{ form.priority }}
+                        {% if form.priority.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.priority.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="id_notes" class="col-sm-2 col-form-label">Ghi chú</label>
+                    <div class="col-sm-10">
+                        {{ form.notes }}
+                        {% if form.notes.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.notes.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <div class="col-sm-10 offset-sm-2">
+                        <button type="submit" class="btn btn-primary">Lưu nguồn nhập</button>
+                        <a href="{% url 'dashboard:source_list' %}" class="btn btn-secondary">Hủy</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -5,7 +5,7 @@ register = template.Library()
 
 @register.filter
 def div(value, arg):
-    """Chia hai số"""
+    """Divide the value by the argument"""
     try:
         return float(value) / float(arg)
     except (ValueError, ZeroDivisionError):

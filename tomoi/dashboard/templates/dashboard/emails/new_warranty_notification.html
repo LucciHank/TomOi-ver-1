@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Yêu cầu bảo hành mới</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .content {
+            padding: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #777;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4e73df;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .info-table th, .info-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .info-table th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Yêu cầu bảo hành mới</h2>
+        </div>
+        <div class="content">
+            <p>Bạn nhận được yêu cầu bảo hành mới từ khách hàng:</p>
+            
+            <h3>Thông tin khách hàng:</h3>
+            <table class="info-table">
+                <tr>
+                    <th>Tên người dùng</th>
+                    <td>{{ user.username }}</td>
+                </tr>
+                <tr>
+                    <th>Email</th>
+                    <td>{{ user.email }}</td>
+                </tr>
+                <tr>
+                    <th>Thời gian yêu cầu</th>
+                    <td>{{ ticket.created_at|date:"d/m/Y H:i" }}</td>
+                </tr>
+            </table>
+            
+            <h3>Thông tin gói đăng ký:</h3>
+            <table class="info-table">
+                <tr>
+                    <th>Tên gói</th>
+                    <td>{{ subscription.plan.name }}</td>
+                </tr>
+                <tr>
+                    <th>Ngày bắt đầu</th>
+                    <td>{{ subscription.start_date|date:"d/m/Y" }}</td>
+                </tr>
+                <tr>
+                    <th>Ngày hết hạn</th>
+                    <td>{{ subscription.end_date|date:"d/m/Y" }}</td>
+                </tr>
+                <tr>
+                    <th>Số lần bảo hành</th>
+                    <td>{{ subscription.warranty_count }}/{{ subscription.plan.max_warranty_count }}</td>
+                </tr>
+            </table>
+            
+            <h3>Chi tiết yêu cầu:</h3>
+            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px;">
+                {{ ticket.issue_description|linebreaks }}
+            </div>
+            
+            {% if ticket.attachment %}
+            <p><strong>Tệp đính kèm:</strong> <a href="{{ site_url }}{{ ticket.attachment.url }}">Xem tệp đính kèm</a></p>
+            {% endif %}
+            
+            <a href="{{ site_url }}{% url 'dashboard:warranty_detail' ticket.id %}" class="button">Xem chi tiết và xử lý</a>
+        </div>
+        <div class="footer">
+            <p>Email này được gửi tự động từ hệ thống. Vui lòng không trả lời.</p>
+        </div>
+    </div>
+</body>
+</html> 

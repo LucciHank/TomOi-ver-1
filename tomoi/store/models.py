@@ -7,19 +7,29 @@ from datetime import timedelta
 from django.utils import timezone
 from django.utils.text import slugify
 from django_ckeditor_5.fields import CKEditor5Field
+from django.urls import reverse
+import uuid
 
 def default_expiry_date():
     return now() + timedelta(days=30)
 
 # Mô hình danh mục sản phẩm (Category)
 class Category(models.Model):
-    name = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255, unique=True)
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=100, unique=True)
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='children')
     description = models.TextField(blank=True)
-    image = models.ImageField(upload_to='categories/', null=True, blank=True)
-
+    image = models.ImageField(upload_to='categories/', blank=True, null=True)
+    discount = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    
+    class Meta:
+        verbose_name_plural = 'Categories'
+        
     def __str__(self):
         return self.name
+    
+    def get_absolute_url(self):
+        return reverse('store:category_detail', args=[self.slug])
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -87,6 +97,7 @@ class Product(models.Model):
     cross_sale_products = models.ManyToManyField('self', blank=True)
     cross_sale_discount = models.IntegerField(default=0, help_text="Phần trăm giảm giá khi mua kèm")
     is_active = models.BooleanField(default=True)
+    product_code = models.CharField(max_length=50, blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -140,14 +151,8 @@ class Product(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.product_code:
-            # Tự động tạo mã sản phẩm nếu không được nhập
-            prefix = 'PRD'
-            last_product = Product.objects.order_by('-id').first()
-            if last_product:
-                last_id = last_product.id + 1
-            else:
-                last_id = 1
-            self.product_code = f'{prefix}{last_id:06d}'
+            # Tạo mã sản phẩm tự động nếu chưa có
+            self.product_code = f"PRD-{uuid.uuid4().hex[:8].upper()}"
         super().save(*args, **kwargs)
 
     def get_main_image_url(self):
@@ -175,16 +180,10 @@ class Product(models.Model):
 
 # Mô hình hình ảnh sản phẩm (ProductImage)
 class ProductImage(models.Model):
-    product = models.ForeignKey(
-        Product, 
-        related_name='images',
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True
-    )
+    product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='products/')
     is_primary = models.BooleanField(default=False)
-
+    
     def save(self, *args, **kwargs):
         if self.is_primary:
             ProductImage.objects.filter(product=self.product, is_primary=True).exclude(id=self.id).update(is_primary=False)
@@ -255,21 +254,34 @@ class ProductImageForm(forms.ModelForm):
 # Mô hình đơn hàng (Order)
 class Order(models.Model):
     STATUS_CHOICES = (
-        ('pending', 'Chờ thanh toán'),
-        ('paid', 'Đã thanh toán'),
+        ('pending', 'Chờ xử lý'),
+        ('processing', 'Đang xử lý'),
+        ('shipped', 'Đã giao hàng'),
         ('completed', 'Hoàn thành'),
         ('cancelled', 'Đã hủy'),
     )
     
-    PAYMENT_METHODS = (
-        ('balance', 'Số dư'),
+    PAYMENT_STATUS_CHOICES = (
+        ('pending', 'Chờ thanh toán'),
+        ('paid', 'Đã thanh toán'),
+        ('failed', 'Thanh toán thất bại'),
+        ('refunded', 'Đã hoàn tiền'),
+    )
+    
+    PAYMENT_METHOD_CHOICES = (
+        ('cod', 'Thanh toán khi nhận hàng'),
+        ('bank_transfer', 'Chuyển khoản ngân hàng'),
         ('vnpay', 'VNPay'),
+        ('momo', 'MoMo'),
+        ('zalopay', 'ZaloPay'),
+        ('balance', 'Số dư tài khoản'),
     )
     
     user = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE, related_name='store_orders')
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS, null=True, blank=True)
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, null=True, blank=True)
+    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -444,7 +456,7 @@ class Discount(models.Model):
     valid_from = models.DateTimeField()
     valid_to = models.DateTimeField()
     products = models.ManyToManyField(Product, blank=True)
-    categories = models.ManyToManyField(Category, blank=True)
+    categories = models.ManyToManyField(Category, blank=True, related_name='discount_codes')
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

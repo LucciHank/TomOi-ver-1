@@ -1,0 +1,308 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Bảng điều khiển nguồn nhập{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Bảng điều khiển nguồn nhập</h1>
+    <p class="mb-4">Tổng quan về các nguồn nhập hàng trong hệ thống.</p>
+
+    <!-- Thống kê -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Tổng số nguồn</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_sources }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-truck fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Nguồn hoạt động tốt</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ active_sources }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Tỷ lệ có hàng TB</div>
+                            <div class="row no-gutters align-items-center">
+                                <div class="col-auto">
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ avg_availability|floatformat:1 }}%</div>
+                                </div>
+                                <div class="col">
+                                    <div class="progress progress-sm mr-2">
+                                        <div class="progress-bar bg-info" role="progressbar"
+                                            style="width: {{ avg_availability|floatformat:0 }}%"
+                                            aria-valuenow="{{ avg_availability|floatformat:0 }}"
+                                            aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Nhật ký gần đây</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ recent_logs|length }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-history fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nhật ký gần đây -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Nhật ký gần đây</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Nguồn</th>
+                            <th>Trạng thái</th>
+                            <th>Giá</th>
+                            <th>Thời gian xử lý</th>
+                            <th>Người tạo</th>
+                            <th>Thời gian</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in recent_logs %}
+                        <tr>
+                            <td>{{ log.source.name }}</td>
+                            <td>
+                                {% if log.status == 'available' %}
+                                <span class="badge badge-success">{{ log.get_status_display }}</span>
+                                {% elif log.status == 'unavailable' %}
+                                <span class="badge badge-danger">{{ log.get_status_display }}</span>
+                                {% elif log.status == 'pending' %}
+                                <span class="badge badge-warning">{{ log.get_status_display }}</span>
+                                {% else %}
+                                <span class="badge badge-info">{{ log.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ log.formatted_price }} VNĐ</td>
+                            <td>{{ log.processing_time }} phút</td>
+                            <td>{{ log.created_by.username|default:"Hệ thống" }}</td>
+                            <td>{{ log.created_at|date:"d/m/Y H:i" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">Chưa có nhật ký nào</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js -->
+<script src="{% static 'dashboard/vendor/chart.js/Chart.min.js' %}"></script>
+
+<script>
+// Biểu đồ hiệu quả theo thời gian
+var ctx = document.getElementById("sourceEfficiencyChart");
+var efficiencyChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ efficiency_dates|safe }},
+        datasets: [{
+            label: "Tỉ lệ có hàng (%)",
+            lineTension: 0.3,
+            backgroundColor: "rgba(78, 115, 223, 0.05)",
+            borderColor: "rgba(78, 115, 223, 1)",
+            pointRadius: 3,
+            pointBackgroundColor: "rgba(78, 115, 223, 1)",
+            pointBorderColor: "rgba(78, 115, 223, 1)",
+            pointHoverRadius: 3,
+            pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
+            pointHoverBorderColor: "rgba(78, 115, 223, 1)",
+            pointHitRadius: 10,
+            pointBorderWidth: 2,
+            data: {{ efficiency_data|safe }},
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        layout: {
+            padding: {
+                left: 10,
+                right: 25,
+                top: 25,
+                bottom: 0
+            }
+        },
+        scales: {
+            xAxes: [{
+                time: {
+                    unit: 'date'
+                },
+                gridLines: {
+                    display: false,
+                    drawBorder: false
+                },
+                ticks: {
+                    maxTicksLimit: 7
+                }
+            }],
+            yAxes: [{
+                ticks: {
+                    maxTicksLimit: 5,
+                    padding: 10,
+                    callback: function(value, index, values) {
+                        return value + '%';
+                    }
+                },
+                gridLines: {
+                    color: "rgb(234, 236, 244)",
+                    zeroLineColor: "rgb(234, 236, 244)",
+                    drawBorder: false,
+                    borderDash: [2],
+                    zeroLineBorderDash: [2]
+                }
+            }],
+        },
+        legend: {
+            display: false
+        },
+        tooltips: {
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            titleMarginBottom: 10,
+            titleFontColor: '#6e707e',
+            titleFontSize: 14,
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+            xPadding: 15,
+            yPadding: 15,
+            displayColors: false,
+            intersect: false,
+            mode: 'index',
+            caretPadding: 10,
+            callbacks: {
+                label: function(tooltipItem, chart) {
+                    var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+                    return datasetLabel + ': ' + tooltipItem.yLabel + '%';
+                }
+            }
+        }
+    }
+});
+
+// Biểu đồ phân bố nền tảng
+var ctx = document.getElementById("platformDistributionChart");
+var platformChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ platform_labels|safe }},
+        datasets: [{
+            data: {{ platform_data|safe }},
+            backgroundColor: {{ platform_colors|safe }},
+            hoverBackgroundColor: {{ platform_hover_colors|safe }},
+            hoverBorderColor: "rgba(234, 236, 244, 1)",
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        tooltips: {
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+            xPadding: 15,
+            yPadding: 15,
+            displayColors: false,
+            caretPadding: 10,
+        },
+        legend: {
+            display: false
+        },
+        cutoutPercentage: 80,
+    },
+});
+</script>
+
+<style>
+.activity-feed {
+    padding: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.feed-item {
+    border-left: 2px solid #f0f0f0;
+    padding-left: 15px;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.feed-item:last-child {
+    margin-bottom: 0;
+}
+
+.feed-item:before {
+    content: "";
+    display: block;
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4e73df;
+    left: -5px;
+    top: 5px;
+}
+
+.feed-item .date {
+    display: block;
+    margin-bottom: 4px;
+}
+</style>
+{% endblock %} 

@@ -1,0 +1,186 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Cài đặt thanh toán{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Cài đặt thanh toán</h1>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- VNPay Settings -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">VNPay</h6>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="vnpay_active" {% if vnpay_active %}checked{% endif %}>
+                        <label class="form-check-label" for="vnpay_active">Kích hoạt</label>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'dashboard:update_vnpay_settings' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="vnpay_merchant_id" class="form-label">Merchant ID</label>
+                            <input type="text" class="form-control" id="vnpay_merchant_id" name="vnpay_merchant_id" value="{{ vnpay_merchant_id }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="vnpay_secret_key" class="form-label">Secret Key</label>
+                            <input type="password" class="form-control" id="vnpay_secret_key" name="vnpay_secret_key" placeholder="••••••••">
+                            <small class="form-text text-muted">Để trống nếu không muốn thay đổi</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="vnpay_endpoint" class="form-label">API Endpoint</label>
+                            <input type="text" class="form-control" id="vnpay_endpoint" name="vnpay_endpoint" value="{{ vnpay_endpoint }}">
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="vnpay_sandbox" name="vnpay_sandbox" {% if vnpay_sandbox %}checked{% endif %}>
+                            <label class="form-check-label" for="vnpay_sandbox">Chế độ thử nghiệm (Sandbox)</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Lưu cài đặt</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- MoMo Settings -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">MoMo</h6>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="momo_active" {% if momo_active %}checked{% endif %}>
+                        <label class="form-check-label" for="momo_active">Kích hoạt</label>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'dashboard:update_momo_settings' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="momo_partner_code" class="form-label">Partner Code</label>
+                            <input type="text" class="form-control" id="momo_partner_code" name="momo_partner_code" value="{{ momo_partner_code }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="momo_access_key" class="form-label">Access Key</label>
+                            <input type="text" class="form-control" id="momo_access_key" name="momo_access_key" value="{{ momo_access_key }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="momo_secret_key" class="form-label">Secret Key</label>
+                            <input type="password" class="form-control" id="momo_secret_key" name="momo_secret_key" placeholder="••••••••">
+                            <small class="form-text text-muted">Để trống nếu không muốn thay đổi</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="momo_endpoint" class="form-label">API Endpoint</label>
+                            <input type="text" class="form-control" id="momo_endpoint" name="momo_endpoint" value="{{ momo_endpoint }}">
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="momo_sandbox" name="momo_sandbox" {% if momo_sandbox %}checked{% endif %}>
+                            <label class="form-check-label" for="momo_sandbox">Chế độ thử nghiệm (Sandbox)</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Lưu cài đặt</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- COD Settings -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Thanh toán khi nhận hàng (COD)</h6>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="cod_active" {% if cod_active %}checked{% endif %}>
+                        <label class="form-check-label" for="cod_active">Kích hoạt</label>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'dashboard:update_cod_settings' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="cod_min_amount" class="form-label">Số tiền tối thiểu (VNĐ)</label>
+                            <input type="number" class="form-control" id="cod_min_amount" name="cod_min_amount" value="{{ cod_min_amount|default:0 }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="cod_max_amount" class="form-label">Số tiền tối đa (VNĐ)</label>
+                            <input type="number" class="form-control" id="cod_max_amount" name="cod_max_amount" value="{{ cod_max_amount|default:10000000 }}">
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="cod_require_verification" name="cod_require_verification" {% if cod_require_verification %}checked{% endif %}>
+                            <label class="form-check-label" for="cod_require_verification">Yêu cầu xác minh số điện thoại</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Lưu cài đặt</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thông tin</h6>
+                </div>
+                <div class="card-body">
+                    <p>Cài đặt các phương thức thanh toán cho cửa hàng của bạn. Đảm bảo rằng bạn đã đăng ký tài khoản với các nhà cung cấp dịch vụ thanh toán trước khi kích hoạt.</p>
+                    <p>Các phương thức thanh toán hiện hỗ trợ:</p>
+                    <ul>
+                        <li>VNPay</li>
+                        <li>MoMo</li>
+                        <li>Thanh toán khi nhận hàng (COD)</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Hướng dẫn</h6>
+                </div>
+                <div class="card-body">
+                    <p>Để cài đặt VNPay:</p>
+                    <ol>
+                        <li>Đăng ký tài khoản tại <a href="https://vnpay.vn" target="_blank">VNPay</a></li>
+                        <li>Lấy thông tin Merchant ID và Secret Key</li>
+                        <li>Nhập thông tin vào form bên trái</li>
+                    </ol>
+                    
+                    <p>Để cài đặt MoMo:</p>
+                    <ol>
+                        <li>Đăng ký tài khoản tại <a href="https://business.momo.vn" target="_blank">MoMo Business</a></li>
+                        <li>Lấy thông tin Partner Code, Access Key và Secret Key</li>
+                        <li>Nhập thông tin vào form bên trái</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Toggle VNPay active state
+        $('#vnpay_active').change(function() {
+            $.post('{% url "dashboard:toggle_payment_method" %}', {
+                method: 'vnpay',
+                active: $(this).is(':checked'),
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            });
+        });
+        
+        // Toggle MoMo active state
+        $('#momo_active').change(function() {
+            $.post('{% url "dashboard:toggle_payment_method" %}', {
+                method: 'momo',
+                active: $(this).is(':checked'),
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            });
+        });
+        
+        // Toggle COD active state
+        $('#cod_active').change(function() {
+            $.post('{% url "dashboard:toggle_payment_method" %}', {
+                method: 'cod',
+                active: $(this).is(':checked'),
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            });
+        });
+    });
+</script>
+{% endblock %} 

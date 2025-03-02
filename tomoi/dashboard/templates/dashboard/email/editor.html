@@ -1,0 +1,1150 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Email Editor{% endblock %}
+
+{% block extra_css %}
+<style>
+    #emailEditorContainer {
+        display: flex;
+        height: calc(100vh - 200px);
+        min-height: 600px;
+    }
+    
+    #emailComponents {
+        width: 250px;
+        border-right: 1px solid #e3e6f0;
+        overflow-y: auto;
+        padding: 15px;
+    }
+    
+    #emailEditor {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    #emailCanvas {
+        flex: 1;
+        border: 1px solid #e3e6f0;
+        overflow: auto;
+        background-color: #f8f9fc;
+        padding: 20px;
+    }
+    
+    #emailProperties {
+        width: 300px;
+        border-left: 1px solid #e3e6f0;
+        overflow-y: auto;
+        padding: 15px;
+    }
+    
+    .component-item {
+        border: 1px solid #e3e6f0;
+        border-radius: 4px;
+        padding: 10px;
+        margin-bottom: 10px;
+        cursor: move;
+        background-color: white;
+    }
+    
+    .component-item:hover {
+        background-color: #f8f9fc;
+        border-color: #4e73df;
+    }
+    
+    .editor-toolbar {
+        padding: 10px;
+        border-bottom: 1px solid #e3e6f0;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .canvas-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: white;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    
+    .email-block {
+        border: 1px dashed transparent;
+        padding: 10px;
+        margin-bottom: 10px;
+        position: relative;
+    }
+    
+    .email-block:hover {
+        border-color: #4e73df;
+    }
+    
+    .email-block.selected {
+        border-color: #4e73df;
+        background-color: rgba(78, 115, 223, 0.05);
+    }
+    
+    .block-actions {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background-color: white;
+        border: 1px solid #e3e6f0;
+        border-radius: 4px;
+        padding: 2px;
+        display: none;
+    }
+    
+    .email-block:hover .block-actions {
+        display: block;
+    }
+    
+    .block-action {
+        border: none;
+        background: transparent;
+        font-size: 12px;
+        color: #858796;
+        cursor: pointer;
+        padding: 2px 5px;
+    }
+    
+    .block-action:hover {
+        color: #4e73df;
+    }
+    
+    .form-group label {
+        font-weight: 500;
+        font-size: 14px;
+    }
+    
+    .variable-tag {
+        display: inline-block;
+        background-color: #4e73df;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 12px;
+        margin-right: 5px;
+        margin-bottom: 5px;
+        cursor: pointer;
+    }
+    
+    .template-preview {
+        border: 1px solid #e3e6f0;
+        padding: 20px;
+    }
+    
+    .dropover {
+        border: 2px dashed #4e73df;
+        background-color: rgba(78, 115, 223, 0.05);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Soạn thảo mẫu email</h1>
+        <div>
+            <button class="d-none d-sm-inline-block btn btn-sm btn-outline-primary shadow-sm" id="previewButton">
+                <i class="fas fa-eye fa-sm"></i> Xem trước
+            </button>
+            <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" id="saveButton">
+                <i class="fas fa-save fa-sm text-white-50"></i> Lưu mẫu
+            </button>
+        </div>
+    </div>
+
+    <!-- Email Editor -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Soạn thảo mẫu</h6>
+            <div class="btn-group">
+                <button class="btn btn-sm btn-outline-secondary" id="undoButton" disabled>
+                    <i class="fas fa-undo"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" id="redoButton" disabled>
+                    <i class="fas fa-redo"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div id="emailEditorContainer">
+                <div id="emailComponents">
+                    <h6 class="text-primary font-weight-bold">Thành phần</h6>
+                    <div class="component-item" draggable="true" data-component="header">
+                        <i class="fas fa-heading mr-2"></i> Tiêu đề
+                    </div>
+                    <div class="component-item" draggable="true" data-component="text">
+                        <i class="fas fa-paragraph mr-2"></i> Đoạn văn bản
+                    </div>
+                    <div class="component-item" draggable="true" data-component="image">
+                        <i class="fas fa-image mr-2"></i> Hình ảnh
+                    </div>
+                    <div class="component-item" draggable="true" data-component="button">
+                        <i class="fas fa-mouse-pointer mr-2"></i> Nút nhấn
+                    </div>
+                    <div class="component-item" draggable="true" data-component="divider">
+                        <i class="fas fa-minus mr-2"></i> Đường phân cách
+                    </div>
+                    <div class="component-item" draggable="true" data-component="spacer">
+                        <i class="fas fa-arrows-alt-v mr-2"></i> Khoảng cách
+                    </div>
+                    <div class="component-item" draggable="true" data-component="social">
+                        <i class="fas fa-share-alt mr-2"></i> Mạng xã hội
+                    </div>
+                    <div class="component-item" draggable="true" data-component="footer">
+                        <i class="fas fa-copyright mr-2"></i> Chân trang
+                    </div>
+                    
+                    <h6 class="text-primary font-weight-bold mt-4">Mẫu có sẵn</h6>
+                    <div class="template-item mb-2">
+                        <img src="{% static 'dashboard/img/email-templates/welcome.jpg' %}" class="img-fluid mb-2" alt="Welcome template">
+                        <div>Chào mừng</div>
+                    </div>
+                    <div class="template-item mb-2">
+                        <img src="{% static 'dashboard/img/email-templates/order.jpg' %}" class="img-fluid mb-2" alt="Order template">
+                        <div>Đơn hàng</div>
+                    </div>
+                    <div class="template-item mb-2">
+                        <img src="{% static 'dashboard/img/email-templates/newsletter.jpg' %}" class="img-fluid mb-2" alt="Newsletter template">
+                        <div>Bản tin</div>
+                    </div>
+                </div>
+                
+                <div id="emailEditor">
+                    <div class="editor-toolbar">
+                        <div>
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Tiêu đề</span>
+                                </div>
+                                <input type="text" class="form-control" id="emailSubject" placeholder="Nhập tiêu đề email">
+                            </div>
+                        </div>
+                        <div>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-secondary" id="mobileViewButton">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary active" id="desktopViewButton">
+                                    <i class="fas fa-desktop"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="emailCanvas">
+                        <div class="canvas-container">
+                            <!-- Email blocks will be added here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="emailProperties">
+                    <h6 class="text-primary">Thuộc tính</h6>
+                    <div id="noSelectionProperties">
+                        <p class="text-muted">Chọn một thành phần để chỉnh sửa thuộc tính.</p>
+                    </div>
+                    <div id="textProperties" style="display: none;">
+                        <div class="form-group">
+                            <label for="textContent">Nội dung</label>
+                            <textarea class="form-control" id="textContent" rows="5"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="textFont">Font chữ</label>
+                            <select class="form-control" id="textFont">
+                                <option value="Arial">Arial</option>
+                                <option value="Helvetica">Helvetica</option>
+                                <option value="Times New Roman">Times New Roman</option>
+                                <option value="Verdana">Verdana</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="textSize">Cỡ chữ</label>
+                            <select class="form-control" id="textSize">
+                                <option value="12px">12px</option>
+                                <option value="14px">14px</option>
+                                <option value="16px">16px</option>
+                                <option value="18px">18px</option>
+                                <option value="20px">20px</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="textColor">Màu chữ</label>
+                            <input type="color" class="form-control" id="textColor" value="#333333">
+                        </div>
+                        <div class="form-group">
+                            <label for="textAlign">Căn chỉnh</label>
+                            <div class="btn-group w-100" role="group">
+                                <button type="button" class="btn btn-outline-secondary" data-align="left">
+                                    <i class="fas fa-align-left"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" data-align="center">
+                                    <i class="fas fa-align-center"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" data-align="right">
+                                    <i class="fas fa-align-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="headerProperties" style="display: none;">
+                        <div class="form-group">
+                            <label for="headerText">Tiêu đề</label>
+                            <input type="text" class="form-control" id="headerText">
+                        </div>
+                        <div class="form-group">
+                            <label for="headerSize">Cỡ chữ</label>
+                            <select class="form-control" id="headerSize">
+                                <option value="h1">Lớn</option>
+                                <option value="h2" selected>Vừa</option>
+                                <option value="h3">Nhỏ</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="headerColor">Màu chữ</label>
+                            <input type="color" class="form-control" id="headerColor" value="#ffffff">
+                        </div>
+                        <div class="form-group">
+                            <label for="headerBgColor">Màu nền</label>
+                            <input type="color" class="form-control" id="headerBgColor" value="#4e73df">
+                        </div>
+                    </div>
+                    <div id="buttonProperties" style="display: none;">
+                        <div class="form-group">
+                            <label for="buttonText">Nội dung</label>
+                            <input type="text" class="form-control" id="buttonText">
+                        </div>
+                        <div class="form-group">
+                            <label for="buttonUrl">URL</label>
+                            <input type="url" class="form-control" id="buttonUrl" placeholder="https://">
+                        </div>
+                        <div class="form-group">
+                            <label for="buttonColor">Màu chữ</label>
+                            <input type="color" class="form-control" id="buttonColor" value="#ffffff">
+                        </div>
+                        <div class="form-group">
+                            <label for="buttonBgColor">Màu nút</label>
+                            <input type="color" class="form-control" id="buttonBgColor" value="#1cc88a">
+                        </div>
+                        <div class="form-group">
+                            <label for="buttonAlign">Vị trí</label>
+                            <select class="form-control" id="buttonAlign">
+                                <option value="left">Trái</option>
+                                <option value="center" selected>Giữa</option>
+                                <option value="right">Phải</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="imageProperties" style="display: none;">
+                        <!-- Thuộc tính hình ảnh -->
+                    </div>
+                    <div id="footerProperties" style="display: none;">
+                        <div class="form-group">
+                            <label for="footerContent">Nội dung</label>
+                            <textarea class="form-control" id="footerContent" rows="4"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="footerColor">Màu chữ</label>
+                            <input type="color" class="form-control" id="footerColor" value="#858796">
+                        </div>
+                        <div class="form-group">
+                            <label for="footerBgColor">Màu nền</label>
+                            <input type="color" class="form-control" id="footerBgColor" value="#f8f9fc">
+                        </div>
+                    </div>
+                    
+                    <h6 class="text-primary mt-4">Biến động</h6>
+                    <div>
+                        <div class="variable-tag" data-var="{name}">Tên khách hàng</div>
+                        <div class="variable-tag" data-var="{email}">Email</div>
+                        <div class="variable-tag" data-var="{order_id}">Mã đơn hàng</div>
+                        <div class="variable-tag" data-var="{product_name}">Tên sản phẩm</div>
+                        <div class="variable-tag" data-var="{total_price}">Tổng tiền</div>
+                        <div class="variable-tag" data-var="{shipping_address}">Địa chỉ giao hàng</div>
+                        <div class="variable-tag" data-var="{discount_code}">Mã giảm giá</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xem trước email -->
+<div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-labelledby="previewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="previewModalLabel">Xem trước email</h5>
+                <button class="close" type="button" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Tiêu đề email</label>
+                    <input type="text" class="form-control" id="previewSubject" readonly>
+                </div>
+                <div class="template-preview">
+                    <div id="previewContent"></div>
+                </div>
+                <div class="mt-3">
+                    <h6>Dữ liệu mẫu</h6>
+                    <p><small>Dữ liệu dưới đây được sử dụng để thay thế các biến động trong nội dung email:</small></p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-sm">
+                                <tr>
+                                    <td>Tên khách hàng:</td>
+                                    <td>Nguyễn Văn A</td>
+                                </tr>
+                                <tr>
+                                    <td>Email:</td>
+                                    <td>nguyenvana@example.com</td>
+                                </tr>
+                                <tr>
+                                    <td>Mã đơn hàng:</td>
+                                    <td>#ORD-12345</td>
+                                </tr>
+                                <tr>
+                                    <td>Tên sản phẩm:</td>
+                                    <td>Điện thoại XYZ Pro</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-sm">
+                                <tr>
+                                    <td>Tổng tiền:</td>
+                                    <td>5.999.000 đ</td>
+                                </tr>
+                                <tr>
+                                    <td>Địa chỉ giao hàng:</td>
+                                    <td>123 Đường ABC, Quận 1, TP HCM</td>
+                                </tr>
+                                <tr>
+                                    <td>Mã giảm giá:</td>
+                                    <td>SUMMER25</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Đóng</button>
+                <button class="btn btn-primary" type="button" id="sendTestEmail">Gửi email thử nghiệm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal lưu mẫu email -->
+<div class="modal fade" id="saveTemplateModal" tabindex="-1" role="dialog" aria-labelledby="saveTemplateModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="saveTemplateModalLabel">Lưu mẫu email</h5>
+                <button class="close" type="button" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="templateTitleInput">Tên mẫu</label>
+                        <input type="text" class="form-control" id="templateTitleInput" placeholder="Nhập tên mẫu email">
+                    </div>
+                    <div class="form-group">
+                        <label for="templateCategorySelect">Danh mục</label>
+                        <select class="form-control" id="templateCategorySelect">
+                            <option value="welcome">Chào mừng</option>
+                            <option value="order">Đơn hàng</option>
+                            <option value="promotion">Khuyến mãi</option>
+                            <option value="notification">Thông báo</option>
+                            <option value="password">Khôi phục mật khẩu</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="templateActiveCheckbox" checked>
+                            <label class="custom-control-label" for="templateActiveCheckbox">Kích hoạt mẫu</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Hủy</button>
+                <button class="btn btn-primary" type="button" id="confirmSaveTemplate">Lưu mẫu</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Biến toàn cục
+    let currentSelectedBlock = null;
+    let dragSrc = null;
+    let ghostImage = null;
+    let editorHistory = ['<div class="canvas-container"></div>'];
+    let historyIndex = 0;
+    
+    // Xử lý chọn khối email
+    $(document).on('click', '.email-block', function(e) {
+        if (!$(e.target).is('.block-action')) {
+            $('.email-block').removeClass('selected');
+            $(this).addClass('selected');
+            currentSelectedBlock = $(this);
+            
+            // Hiển thị thuộc tính tương ứng
+            $('#noSelectionProperties').hide();
+            $('#textProperties, #headerProperties, #buttonProperties, #imageProperties, #footerProperties').hide();
+            
+            var blockType = $(this).data('type');
+            loadBlockProperties(blockType, $(this));
+        }
+    });
+    
+    // Xử lý khi click vào canvas (bỏ chọn)
+    $('#emailCanvas').on('click', function(e) {
+        if ($(e.target).is('#emailCanvas') || $(e.target).is('.canvas-container')) {
+            $('.email-block').removeClass('selected');
+            currentSelectedBlock = null;
+            $('#noSelectionProperties').show();
+            $('#textProperties, #headerProperties, #buttonProperties, #imageProperties, #footerProperties').hide();
+        }
+    });
+    
+    // Xử lý kéo thả thành phần
+    $('.component-item').on('dragstart', function(e) {
+        dragSrc = $(this);
+        const dt = e.originalEvent.dataTransfer;
+        dt.effectAllowed = 'copy';
+        dt.setData('text/plain', $(this).data('component'));
+        
+        // Tạo ảnh ma để hiển thị khi kéo
+        ghostImage = $(this).clone();
+        ghostImage.css({
+            'position': 'absolute',
+            'top': '-1000px',
+            'opacity': '0.8'
+        });
+        $('body').append(ghostImage);
+        dt.setDragImage(ghostImage[0], 0, 0);
+    });
+    
+    $('.component-item').on('dragend', function(e) {
+        ghostImage.remove();
+    });
+    
+    $('#emailCanvas').on('dragover', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $('.canvas-container').addClass('dropover');
+    });
+    
+    $('#emailCanvas').on('dragleave', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $('.canvas-container').removeClass('dropover');
+    });
+    
+    $('#emailCanvas').on('drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $('.canvas-container').removeClass('dropover');
+        
+        const componentType = e.originalEvent.dataTransfer.getData('text/plain');
+        addComponentToCanvas(componentType);
+    });
+    
+    // Xử lý xóa khối
+    $(document).on('click', '.delete-block', function() {
+        const block = $(this).closest('.email-block');
+        if (currentSelectedBlock && currentSelectedBlock.is(block)) {
+            currentSelectedBlock = null;
+            $('#noSelectionProperties').show();
+            $('#textProperties, #headerProperties, #buttonProperties, #imageProperties, #footerProperties').hide();
+        }
+        block.remove();
+        saveEditorState();
+    });
+    
+    // Xử lý sao chép khối
+    $(document).on('click', '.copy-block', function() {
+        const block = $(this).closest('.email-block');
+        const clone = block.clone(true);
+        block.after(clone);
+        saveEditorState();
+    });
+    
+    // Hàm thêm thành phần mới vào canvas
+    function addComponentToCanvas(componentType) {
+        let newBlock;
+        
+        switch(componentType) {
+            case 'header':
+                newBlock = $(`
+                    <div class="email-block" data-type="header">
+                        <div class="block-actions">
+                            <button class="block-action move-block"><i class="fas fa-arrows-alt"></i></button>
+                            <button class="block-action copy-block"><i class="fas fa-copy"></i></button>
+                            <button class="block-action delete-block"><i class="fas fa-trash"></i></button>
+                        </div>
+                        <div style="background-color: #4e73df; color: white; padding: 20px; text-align: center;">
+                            <h2>Tiêu đề mới</h2>
+                        </div>
+                    </div>
+                `);
+                break;
+            case 'text':
+                newBlock = $(`
+                    <div class="email-block" data-type="text">
+                        <div class="block-actions">
+                            <button class="block-action move-block"><i class="fas fa-arrows-alt"></i></button>
+                            <button class="block-action copy-block"><i class="fas fa-copy"></i></button>
+                            <button class="block-action delete-block"><i class="fas fa-trash"></i></button>
+                        </div>
+                        <div style="padding: 20px;">
+                            <p>Nhập nội dung văn bản của bạn ở đây...</p>
+                        </div>
+                    </div>
+                `);
+                break;
+            case 'button':
+                newBlock = $(`
+                    <div class="email-block" data-type="button">
+                        <div class="block-actions">
+                            <button class="block-action move-block"><i class="fas fa-arrows-alt"></i></button>
+                            <button class="block-action copy-block"><i class="fas fa-copy"></i></button>
+                            <button class="block-action delete-block"><i class="fas fa-trash"></i></button>
+                        </div>
+                        <div style="padding: 20px; text-align: center;">
+                            <a href="#" style="background-color: #1cc88a; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Nút nhấn</a>
+                        </div>
+                    </div>
+                `);
+                break;
+            case 'footer':
+                newBlock = $(`
+                    <div class="email-block" data-type="footer">
+                        <div class="block-actions">
+                            <button class="block-action move-block"><i class="fas fa-arrows-alt"></i></button>
+                            <button class="block-action copy-block"><i class="fas fa-copy"></i></button>
+                            <button class="block-action delete-block"><i class="fas fa-trash"></i></button>
+                        </div>
+                        <div style="background-color: #f8f9fc; padding: 15px; font-size: 12px; text-align: center;">
+                            <p>© TomOi 2025. Địa chỉ: 123 Đường ABC, Quận XYZ, TP HCM.</p>
+                            <p>Điện thoại: 1900-6868. Email: support@tomoi.vn</p>
+                        </div>
+                    </div>
+                `);
+                break;
+            case 'image':
+                newBlock = $(`
+                    <div class="email-block" data-type="image">
+                        <div class="block-actions">
+                            <button class="block-action move-block"><i class="fas fa-arrows-alt"></i></button>
+                            <button class="block-action copy-block"><i class="fas fa-copy"></i></button>
+                            <button class="block-action delete-block"><i class="fas fa-trash"></i></button>
+                        </div>
+                        <div style="padding: 20px; text-align: center;">
+                            <img src="https://via.placeholder.com/600x200?text=Hình+ảnh" style="max-width: 100%;" alt="Mô tả hình ảnh">
+                        </div>
+                    </div>
+                `);
+                break;
+            case 'divider':
+                newBlock = $(`
+                    <div class="email-block" data-type="divider">
+                        <div class="block-actions">
+                            <button class="block-action move-block"><i class="fas fa-arrows-alt"></i></button>
+                            <button class="block-action copy-block"><i class="fas fa-copy"></i></button>
+                            <button class="block-action delete-block"><i class="fas fa-trash"></i></button>
+                        </div>
+                        <div style="padding: 20px;">
+                            <hr style="border-top: 1px solid #e3e6f0;">
+                        </div>
+                    </div>
+                `);
+                break;
+            // Thêm các trường hợp khác ở đây
+        }
+        
+        if (newBlock) {
+            $('.canvas-container').append(newBlock);
+            saveEditorState();
+        }
+    }
+    
+    // Xử lý di chuyển khối
+    $(document).on('mousedown', '.move-block', function(e) {
+        e.preventDefault();
+        
+        const block = $(this).closest('.email-block');
+        block.addClass('dragging');
+        dragSrc = block;
+        
+        const startY = e.pageY;
+        const blockOffset = block.offset();
+        
+        $(document).on('mousemove.blockdrag', function(e) {
+            const currentY = e.pageY;
+            const diff = currentY - startY;
+            
+            block.offset({
+                top: blockOffset.top + diff,
+                left: blockOffset.left
+            });
+            
+            // Xác định vị trí mới dựa trên vị trí chuột
+            const allBlocks = $('.email-block:not(.dragging)');
+            let targetBlock = null;
+            let targetPosition = null;
+            
+            allBlocks.each(function() {
+                const thisBlock = $(this);
+                const thisOffset = thisBlock.offset();
+                const thisHeight = thisBlock.outerHeight();
+                
+                if (currentY >= thisOffset.top && currentY <= thisOffset.top + thisHeight) {
+                    targetBlock = thisBlock;
+                    targetPosition = currentY < thisOffset.top + thisHeight / 2 ? 'before' : 'after';
+                    return false;
+                }
+            });
+            
+            if (targetBlock && targetPosition) {
+                if (targetPosition === 'before') {
+                    targetBlock.before(block);
+                } else {
+                    targetBlock.after(block);
+                }
+            }
+        });
+        
+        $(document).on('mouseup.blockdrag', function() {
+            $(document).off('mousemove.blockdrag mouseup.blockdrag');
+            dragSrc.removeClass('dragging');
+            if (ghostImage) ghostImage.remove();
+            dragSrc = null;
+            
+            // Lưu trạng thái cho chức năng hoàn tác
+            saveEditorState();
+        });
+    });
+    
+    // Xử lý khi thay đổi thuộc tính
+    $('#textContent').on('input', function() {
+        if (currentSelectedBlock) {
+            currentSelectedBlock.find('div').html($(this).val());
+            saveEditorState();
+        }
+    });
+    
+    $('#textFont, #textSize, #textColor').on('change', function() {
+        if (currentSelectedBlock && currentSelectedBlock.data('type') === 'text') {
+            updateTextStyles();
+            saveEditorState();
+        }
+    });
+    
+    $('.btn-group button[data-align]').on('click', function() {
+        if (currentSelectedBlock && currentSelectedBlock.data('type') === 'text') {
+            $(this).siblings().removeClass('active');
+            $(this).addClass('active');
+            
+            const align = $(this).data('align');
+            currentSelectedBlock.find('div').css('text-align', align);
+            saveEditorState();
+        }
+    });
+    
+    // Xử lý thuộc tính tiêu đề
+    $('#headerText, #headerSize, #headerColor, #headerBgColor').on('change input', function() {
+        if (currentSelectedBlock && currentSelectedBlock.data('type') === 'header') {
+            updateHeaderStyles();
+            saveEditorState();
+        }
+    });
+    
+    // Xử lý thuộc tính nút nhấn
+    $('#buttonText, #buttonUrl, #buttonColor, #buttonBgColor, #buttonAlign').on('change input', function() {
+        if (currentSelectedBlock && currentSelectedBlock.data('type') === 'button') {
+            updateButtonStyles();
+            saveEditorState();
+        }
+    });
+    
+    // Xử lý thuộc tính chân trang
+    $('#footerContent, #footerColor, #footerBgColor').on('change input', function() {
+        if (currentSelectedBlock && currentSelectedBlock.data('type') === 'footer') {
+            updateFooterStyles();
+            saveEditorState();
+        }
+    });
+    
+    // Chèn biến động
+    $('.variable-tag').on('click', function() {
+        if (currentSelectedBlock) {
+            const variable = $(this).data('var');
+            
+            if (currentSelectedBlock.data('type') === 'text') {
+                const textarea = $('#textContent');
+                const cursorPos = textarea[0].selectionStart;
+                const textBefore = textarea.val().substring(0, cursorPos);
+                const textAfter = textarea.val().substring(cursorPos);
+                
+                textarea.val(textBefore + variable + textAfter);
+                currentSelectedBlock.find('div').html(textarea.val());
+            } else if (currentSelectedBlock.data('type') === 'header') {
+                const input = $('#headerText');
+                const cursorPos = input[0].selectionStart;
+                const textBefore = input.val().substring(0, cursorPos);
+                const textAfter = input.val().substring(cursorPos);
+                
+                input.val(textBefore + variable + textAfter);
+                updateHeaderStyles();
+            } else if (currentSelectedBlock.data('type') === 'button') {
+                const input = $('#buttonText');
+                const cursorPos = input[0].selectionStart;
+                const textBefore = input.val().substring(0, cursorPos);
+                const textAfter = input.val().substring(cursorPos);
+                
+                input.val(textBefore + variable + textAfter);
+                updateButtonStyles();
+            }
+            
+            saveEditorState();
+        }
+    });
+    
+    // Lưu trạng thái editor
+    function saveEditorState() {
+        const state = $('.canvas-container').html();
+        
+        // Cắt bớt lịch sử nếu đã thực hiện thay đổi sau khi hoàn tác
+        if (historyIndex < editorHistory.length - 1) {
+            editorHistory = editorHistory.slice(0, historyIndex + 1);
+        }
+        
+        editorHistory.push(state);
+        historyIndex = editorHistory.length - 1;
+        
+        // Cập nhật trạng thái nút hoàn tác/làm lại
+        updateUndoRedoButtons();
+    }
+    
+    // Cập nhật trạng thái nút hoàn tác/làm lại
+    function updateUndoRedoButtons() {
+        $('#undoButton').prop('disabled', historyIndex <= 0);
+        $('#redoButton').prop('disabled', historyIndex >= editorHistory.length - 1);
+    }
+    
+    // Hoàn tác
+    $('#undoButton').on('click', function() {
+        if (historyIndex > 0) {
+            historyIndex--;
+            $('.canvas-container').html(editorHistory[historyIndex]);
+            currentSelectedBlock = null;
+            $('#noSelectionProperties').show();
+            $('#textProperties, #headerProperties, #buttonProperties, #imageProperties, #footerProperties').hide();
+            updateUndoRedoButtons();
+        }
+    });
+    
+    // Làm lại
+    $('#redoButton').on('click', function() {
+        if (historyIndex < editorHistory.length - 1) {
+            historyIndex++;
+            $('.canvas-container').html(editorHistory[historyIndex]);
+            currentSelectedBlock = null;
+            $('#noSelectionProperties').show();
+            $('#textProperties, #headerProperties, #buttonProperties, #imageProperties, #footerProperties').hide();
+            updateUndoRedoButtons();
+        }
+    });
+    
+    // Các hàm cập nhật style
+    function updateTextStyles() {
+        const font = $('#textFont').val();
+        const size = $('#textSize').val();
+        const color = $('#textColor').val();
+        
+        currentSelectedBlock.find('div').css({
+            'font-family': font,
+            'font-size': size,
+            'color': color
+        });
+    }
+    
+    function updateHeaderStyles() {
+        const text = $('#headerText').val();
+        const size = $('#headerSize').val();
+        const color = $('#headerColor').val();
+        const bgColor = $('#headerBgColor').val();
+        
+        currentSelectedBlock.find('h2').text(text);
+        currentSelectedBlock.find('div').css({
+            'background-color': bgColor,
+            'color': color
+        });
+        
+        if (size === 'h1') {
+            currentSelectedBlock.find('h2').css('font-size', '28px');
+        } else if (size === 'h2') {
+            currentSelectedBlock.find('h2').css('font-size', '24px');
+        } else if (size === 'h3') {
+            currentSelectedBlock.find('h2').css('font-size', '20px');
+        }
+    }
+    
+    function updateButtonStyles() {
+        const text = $('#buttonText').val();
+        const url = $('#buttonUrl').val();
+        const color = $('#buttonColor').val();
+        const bgColor = $('#buttonBgColor').val();
+        const align = $('#buttonAlign').val();
+        
+        currentSelectedBlock.find('a').text(text);
+        currentSelectedBlock.find('a').attr('href', url);
+        currentSelectedBlock.find('a').css({
+            'color': color,
+            'background-color': bgColor
+        });
+        
+        currentSelectedBlock.find('div').css('text-align', align);
+    }
+    
+    function updateFooterStyles() {
+        const content = $('#footerContent').val();
+        const color = $('#footerColor').val();
+        const bgColor = $('#footerBgColor').val();
+        
+        currentSelectedBlock.find('div').html(content);
+        currentSelectedBlock.find('div').css({
+            'color': color,
+            'background-color': bgColor
+        });
+    }
+    
+    function updateImageStyles() {
+        const url = $('#imageUrl').val();
+        const alt = $('#imageAlt').val();
+        const width = $('#imageWidth').val();
+        const align = $('#imageAlign').val();
+        
+        currentSelectedBlock.find('img').attr('src', url);
+        currentSelectedBlock.find('img').attr('alt', alt);
+        currentSelectedBlock.find('img').css('max-width', width + '%');
+        currentSelectedBlock.find('div').css('text-align', align);
+    }
+    
+    // Chuyển đổi mã màu RGB sang HEX
+    function rgbToHex(rgb) {
+        if (!rgb) return '#000000';
+        if (rgb.indexOf('#') === 0) return rgb;
+        
+        const rgbValues = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+        if (!rgbValues) return '#000000';
+        
+        function hex(x) {
+            return ("0" + parseInt(x).toString(16)).slice(-2);
+        }
+        
+        return "#" + hex(rgbValues[1]) + hex(rgbValues[2]) + hex(rgbValues[3]);
+    }
+    
+    // Chức năng xem trước
+    $('#previewButton').on('click', function() {
+        // Lưu nội dung hiện tại
+        const emailContent = $('.canvas-container').html();
+        const emailSubject = $('#emailSubject').val();
+        
+        // Tạo tab mới để xem trước
+        const previewWindow = window.open('', '_blank');
+        
+        // CSS cơ bản để hiển thị email
+        const previewCSS = `
+            body {
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            h1, h2, h3 { margin-top: 0; }
+            img { max-width: 100%; height: auto; }
+            .preview-info {
+                background-color: #f8f9fc;
+                border: 1px solid #e3e6f0;
+                border-radius: 4px;
+                padding: 10px;
+                margin-bottom: 20px;
+            }
+            .block-actions { display: none; }
+            .email-block { border: none !important; }
+        `;
+        
+        // HTML cho preview
+        previewWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Xem trước email: ${emailSubject}</title>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <style>${previewCSS}</style>
+            </head>
+            <body>
+                <div class="preview-info">
+                    <strong>Chủ đề:</strong> ${emailSubject || 'Chưa có chủ đề'}<br>
+                    <strong>Chế độ xem trước</strong> - Email này sẽ được hiển thị tương tự khi gửi đi.
+                </div>
+                <div class="email-content">
+                    ${emailContent}
+                </div>
+            </body>
+            </html>
+        `);
+        
+        // Đóng tài liệu để hoàn thành tải trang
+        previewWindow.document.close();
+    });
+    
+    // Xử lý lưu mẫu
+    $('#saveButton').on('click', function() {
+        const emailSubject = $('#emailSubject').val();
+        const emailContent = $('.canvas-container').html();
+        
+        if (!emailSubject) {
+            alert('Vui lòng nhập tiêu đề email!');
+            return;
+        }
+        
+        // Hiển thị modal xác nhận lưu
+        $('#saveTemplateModal').modal('show');
+        $('#templateTitleInput').val(emailSubject);
+    });
+    
+    // Xử lý lưu mẫu từ modal
+    $('#confirmSaveTemplate').on('click', function() {
+        const templateName = $('#templateTitleInput').val();
+        const templateCategory = $('#templateCategorySelect').val();
+        const isActive = $('#templateActiveCheckbox').is(':checked');
+        
+        // Nội dung email và tiêu đề
+        const emailSubject = $('#emailSubject').val();
+        const emailContent = $('.canvas-container').html();
+        
+        // Gửi dữ liệu lên server để lưu mẫu
+        $.ajax({
+            url: '/dashboard/email/save-template/',
+            type: 'POST',
+            data: {
+                name: templateName,
+                category: templateCategory,
+                is_active: isActive,
+                subject: emailSubject,
+                content: emailContent,
+                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function(response) {
+                // Đóng modal
+                $('#saveTemplateModal').modal('hide');
+                
+                // Hiển thị thông báo thành công
+                alert('Lưu mẫu thành công!');
+                
+                // Chuyển hướng về trang quản lý mẫu nếu cần
+                if (response.redirect) {
+                    window.location.href = response.redirect;
+                }
+            },
+            error: function(xhr) {
+                alert('Có lỗi xảy ra khi lưu mẫu: ' + xhr.responseText);
+            }
+        });
+    });
+    
+    // Cấu hình màu sắc và tùy chỉnh
+    $('#applyColorSchemeButton').on('click', function() {
+        const primaryColor = $('#primaryColor').val();
+        const secondaryColor = $('#secondaryColor').val();
+        const accentColor = $('#accentColor').val();
+        
+        // Cập nhật màu sắc cho các thành phần trong email
+        $('.email-block[data-type="header"] div').css('background-color', primaryColor);
+        $('.email-block[data-type="button"] a').css('background-color', secondaryColor);
+        $('.email-block[data-type="footer"] div').css('background-color', accentColor);
+        
+        // Lưu lại trạng thái
+        saveEditorState();
+    });
+    
+    // Tùy chỉnh giao diện editor
+    $('#mobileViewButton').on('click', function() {
+        $('#desktopViewButton').removeClass('active');
+        $(this).addClass('active');
+        $('.canvas-container').css('max-width', '360px');
+    });
+    
+    $('#desktopViewButton').on('click', function() {
+        $('#mobileViewButton').removeClass('active');
+        $(this).addClass('active');
+        $('.canvas-container').css('max-width', '600px');
+    });
+    
+    // Khởi tạo ban đầu
+    saveEditorState();
+});
+</script>
+
+<!-- Save Template Modal -->
+<div class="modal fade" id="saveTemplateModal" tabindex="-1" role="dialog" aria-labelledby="saveTemplateModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="saveTemplateModalLabel">Lưu mẫu email</h5>
+                <button class="close" type="button" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="templateTitleInput">Tên mẫu</label>
+                        <input type="text" class="form-control" id="templateTitleInput" placeholder="Nhập tên mẫu email">
+                    </div>
+                    <div class="form-group">
+                        <label for="templateCategorySelect">Danh mục</label>
+                        <select class="form-control" id="templateCategorySelect">
+                            <option value="welcome">Chào mừng</option>
+                            <option value="order">Đơn hàng</option>
+                            <option value="promotion">Khuyến mãi</option>
+                            <option value="notification">Thông báo</option>
+                            <option value="password">Khôi phục mật khẩu</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="templateActiveCheckbox" checked>
+                            <label class="custom-control-label" for="templateActiveCheckbox">Kích hoạt mẫu</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Hủy</button>
+                <button class="btn btn-primary" type="button" id="confirmSaveTemplate">Lưu mẫu</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

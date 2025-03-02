@@ -98,7 +98,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'accounts.middleware.EmailVerificationMiddleware',
     'accounts.middleware.RequestBodyMiddleware',
-    'dashboard.middleware.AnalyticsMiddleware',
+    # 'dashboard.middleware.AnalyticsMiddleware',  # Vô hiệu hóa tạm thời
+    'dashboard.middleware.APILoggingMiddleware',
+    'dashboard.middleware.APIRateLimitMiddleware',
+    'dashboard.middleware.APISecurityMiddleware',
+    # 'dashboard.middleware.VisitorTrackingMiddleware',  # Đã vô hiệu hóa
+    # 'dashboard.middleware.APIAuthMiddleware',  # Đã vô hiệu hóa
 ]
 
 ROOT_URLCONF = 'tomoi.urls'
@@ -118,6 +123,8 @@ TEMPLATES = [
                 'social_django.context_processors.backends',
                 'social_django.context_processors.login_redirect',
                 'store.context_processors.banners',
+                'store.context_processors.categories',
+                'store.context_processors.wishlist_status',
                 'dashboard.context_processors.dashboard_settings',
             ],
         },
@@ -127,11 +134,9 @@ WSGI_APPLICATION = 'tomoi.wsgi.application'
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-    BASE_DIR / 'accounts' / 'static',
-    BASE_DIR / 'store' / 'static',
+    os.path.join(BASE_DIR, 'static'),
 ]
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Thêm cấu hình này
 STATICFILES_FINDERS = [
@@ -281,3 +286,8 @@ ANALYTICS_SETTINGS = {
     ],
     'SESSION_TIMEOUT': 30 * 60,  # 30 minutes
 }
+
+# API Settings
+API_SIGNING_KEY = 'your-secret-key-here'  # Thay đổi key này trong production
+API_RATE_LIMIT = 100  # requests per minute
+API_RATE_WINDOW = 60  # seconds

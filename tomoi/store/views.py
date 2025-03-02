@@ -596,31 +596,38 @@ def get_cart_items(request):
 @login_required
 @require_POST
 def toggle_wishlist(request):
-    try:
-        data = json.loads(request.body)
-        product_id = data.get('product_id')
-        product = get_object_or_404(Product, id=product_id)
-        
-        wishlist_item = Wishlist.objects.filter(user=request.user, product=product)
-        if wishlist_item.exists():
-            wishlist_item.delete()
-            return JsonResponse({
-                'status': 'removed',
-                'message': 'Đã xóa khỏi danh sách yêu thích'
-            })
-        else:
-            Wishlist.objects.create(user=request.user, product=product)
-            return JsonResponse({
-                'status': 'added',
-                'message': 'Đã thêm vào danh sách yêu thích'
-            })
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            product_id = data.get('product_id')
+            product = get_object_or_404(Product, id=product_id)
             
-    except Exception as e:
-        print(f"Error in toggle_wishlist: {str(e)}")
-        return JsonResponse({
-            'status': 'error',
-            'message': str(e)
-        }, status=400)
+            # Kiểm tra xem sản phẩm đã được yêu thích chưa
+            wishlist_item = Wishlist.objects.filter(user=request.user, product=product).first()
+            
+            if wishlist_item:
+                # Nếu đã tồn tại, xóa khỏi danh sách yêu thích
+                wishlist_item.delete()
+                return JsonResponse({'status': 'removed', 'message': 'Đã xóa khỏi danh sách yêu thích'})
+            else:
+                # Nếu chưa tồn tại, thêm vào danh sách yêu thích
+                Wishlist.objects.create(user=request.user, product=product)
+                return JsonResponse({'status': 'added', 'message': 'Đã thêm vào danh sách yêu thích'})
+                
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    
+    return JsonResponse({'status': 'error', 'message': 'Phương thức không được hỗ trợ'}, status=405)
+
+@login_required
+def wishlist(request):
+    wishlist_items = Wishlist.objects.filter(user=request.user).select_related('product')
+    
+    context = {
+        'wishlist_items': wishlist_items
+    }
+    
+    return render(request, 'store/wishlist.html', context)
 
 @csrf_exempt 
 def vnpay_order_return(request):

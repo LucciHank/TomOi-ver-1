@@ -1,0 +1,86 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Nhật ký nguồn nhập{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Nhật ký nguồn nhập</h1>
+    <p class="mb-4">Lịch sử hoạt động với các nguồn nhập hàng.</p>
+
+    <!-- Nút thêm mới -->
+    <div class="mb-4">
+        <a href="{% url 'dashboard:add_source_log' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Thêm nhật ký mới
+        </a>
+        <a href="{% url 'dashboard:source_list' %}" class="btn btn-secondary">
+            <i class="fas fa-list"></i> Danh sách nguồn
+        </a>
+    </div>
+
+    <!-- Danh sách nhật ký -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Nhật ký nguồn nhập</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Nguồn</th>
+                            <th>Trạng thái</th>
+                            <th>Giá</th>
+                            <th>Thời gian xử lý</th>
+                            <th>Người tạo</th>
+                            <th>Thời gian</th>
+                            <th>Ghi chú</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td>{{ log.source.name }}</td>
+                            <td>
+                                {% if log.status == 'available' %}
+                                <span class="badge badge-success">{{ log.get_status_display }}</span>
+                                {% elif log.status == 'unavailable' %}
+                                <span class="badge badge-danger">{{ log.get_status_display }}</span>
+                                {% elif log.status == 'pending' %}
+                                <span class="badge badge-warning">{{ log.get_status_display }}</span>
+                                {% else %}
+                                <span class="badge badge-info">{{ log.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ log.formatted_price }} VNĐ</td>
+                            <td>{{ log.processing_time }} phút</td>
+                            <td>{{ log.created_by.username|default:"Hệ thống" }}</td>
+                            <td>{{ log.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>{{ log.notes|truncatechars:50 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">Chưa có nhật ký nào</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('#dataTable').DataTable({
+            "order": [[5, "desc"]],
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json"
+            }
+        });
+    });
+</script>
+{% endblock %} 

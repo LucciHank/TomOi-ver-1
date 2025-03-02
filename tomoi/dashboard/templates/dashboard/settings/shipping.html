@@ -1,0 +1,419 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Cài đặt vận chuyển{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Cài đặt vận chuyển</h1>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- General Shipping Settings -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Cài đặt chung</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'dashboard:update_shipping_settings' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="default_shipping_fee" class="form-label">Phí vận chuyển mặc định (VNĐ)</label>
+                            <input type="number" class="form-control" id="default_shipping_fee" name="default_shipping_fee" value="{{ default_shipping_fee }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="free_shipping_threshold" class="form-label">Ngưỡng miễn phí vận chuyển (VNĐ)</label>
+                            <input type="number" class="form-control" id="free_shipping_threshold" name="free_shipping_threshold" value="{{ free_shipping_threshold }}">
+                            <small class="form-text text-muted">Đơn hàng có giá trị lớn hơn hoặc bằng số tiền này sẽ được miễn phí vận chuyển. Nhập 0 để tắt tính năng này.</small>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="enable_free_shipping" name="enable_free_shipping" {% if enable_free_shipping %}checked{% endif %}>
+                            <label class="form-check-label" for="enable_free_shipping">Cho phép miễn phí vận chuyển</label>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="calculate_by_weight" name="calculate_by_weight" {% if calculate_by_weight %}checked{% endif %}>
+                            <label class="form-check-label" for="calculate_by_weight">Tính phí vận chuyển theo cân nặng</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Lưu cài đặt</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Shipping Zones -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Khu vực vận chuyển</h6>
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addZoneModal">
+                        <i class="fas fa-plus fa-sm"></i> Thêm khu vực
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="shippingZonesTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Tên khu vực</th>
+                                    <th>Các tỉnh/thành phố</th>
+                                    <th>Phí vận chuyển (VNĐ)</th>
+                                    <th>Thời gian giao hàng</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for zone in shipping_zones %}
+                                <tr>
+                                    <td>{{ zone.name }}</td>
+                                    <td>{{ zone.provinces|join:", " }}</td>
+                                    <td>{{ zone.shipping_fee|floatformat:0 }}</td>
+                                    <td>{{ zone.delivery_time }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary edit-zone" 
+                                                data-id="{{ zone.id }}"
+                                                data-name="{{ zone.name }}"
+                                                data-provinces="{{ zone.provinces|join:"," }}"
+                                                data-fee="{{ zone.shipping_fee }}"
+                                                data-time="{{ zone.delivery_time }}"
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#editZoneModal">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger delete-zone" data-id="{{ zone.id }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">Chưa có khu vực vận chuyển nào</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Weight-based Shipping -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Phí vận chuyển theo cân nặng</h6>
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addWeightRuleModal">
+                        <i class="fas fa-plus fa-sm"></i> Thêm quy tắc
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="weightRulesTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Cân nặng từ (kg)</th>
+                                    <th>Cân nặng đến (kg)</th>
+                                    <th>Phí vận chuyển (VNĐ)</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for rule in weight_rules %}
+                                <tr>
+                                    <td>{{ rule.weight_from }}</td>
+                                    <td>{{ rule.weight_to }}</td>
+                                    <td>{{ rule.shipping_fee|floatformat:0 }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary edit-weight-rule" 
+                                                data-id="{{ rule.id }}"
+                                                data-from="{{ rule.weight_from }}"
+                                                data-to="{{ rule.weight_to }}"
+                                                data-fee="{{ rule.shipping_fee }}"
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#editWeightRuleModal">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger delete-weight-rule" data-id="{{ rule.id }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">Chưa có quy tắc nào</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thông tin</h6>
+                </div>
+                <div class="card-body">
+                    <p>Cài đặt các phương thức vận chuyển và phí vận chuyển cho cửa hàng của bạn.</p>
+                    <p>Bạn có thể cài đặt:</p>
+                    <ul>
+                        <li>Phí vận chuyển mặc định</li>
+                        <li>Phí vận chuyển theo khu vực</li>
+                        <li>Phí vận chuyển theo cân nặng</li>
+                    </ul>
+                    <p>Nếu bạn bật tính năng "Tính phí vận chuyển theo cân nặng", hệ thống sẽ ưu tiên sử dụng phương pháp này thay vì phí vận chuyển theo khu vực.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Zone Modal -->
+    <div class="modal fade" id="addZoneModal" tabindex="-1" aria-labelledby="addZoneModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addZoneModalLabel">Thêm khu vực vận chuyển</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addZoneForm" method="post" action="{% url 'dashboard:add_shipping_zone' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="zone_name" class="form-label">Tên khu vực</label>
+                            <input type="text" class="form-control" id="zone_name" name="zone_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="zone_provinces" class="form-label">Các tỉnh/thành phố</label>
+                            <select class="form-control" id="zone_provinces" name="zone_provinces[]" multiple required>
+                                {% for province in provinces %}
+                                <option value="{{ province }}">{{ province }}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="form-text text-muted">Giữ Ctrl để chọn nhiều tỉnh/thành phố</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="zone_fee" class="form-label">Phí vận chuyển (VNĐ)</label>
+                            <input type="number" class="form-control" id="zone_fee" name="zone_fee" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="zone_time" class="form-label">Thời gian giao hàng</label>
+                            <input type="text" class="form-control" id="zone_time" name="zone_time" placeholder="VD: 2-3 ngày" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" form="addZoneForm" class="btn btn-primary">Thêm khu vực</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Zone Modal -->
+    <div class="modal fade" id="editZoneModal" tabindex="-1" aria-labelledby="editZoneModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editZoneModalLabel">Chỉnh sửa khu vực vận chuyển</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editZoneForm" method="post" action="">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="edit_zone_name" class="form-label">Tên khu vực</label>
+                            <input type="text" class="form-control" id="edit_zone_name" name="zone_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_zone_provinces" class="form-label">Các tỉnh/thành phố</label>
+                            <select class="form-control" id="edit_zone_provinces" name="zone_provinces[]" multiple required>
+                                {% for province in provinces %}
+                                <option value="{{ province }}">{{ province }}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="form-text text-muted">Giữ Ctrl để chọn nhiều tỉnh/thành phố</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_zone_fee" class="form-label">Phí vận chuyển (VNĐ)</label>
+                            <input type="number" class="form-control" id="edit_zone_fee" name="zone_fee" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_zone_time" class="form-label">Thời gian giao hàng</label>
+                            <input type="text" class="form-control" id="edit_zone_time" name="zone_time" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" form="editZoneForm" class="btn btn-primary">Lưu thay đổi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Weight Rule Modal -->
+    <div class="modal fade" id="addWeightRuleModal" tabindex="-1" aria-labelledby="addWeightRuleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addWeightRuleModalLabel">Thêm quy tắc vận chuyển theo cân nặng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addWeightRuleForm" method="post" action="{% url 'dashboard:add_weight_rule' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="weight_from" class="form-label">Cân nặng từ (kg)</label>
+                            <input type="number" step="0.1" class="form-control" id="weight_from" name="weight_from" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="weight_to" class="form-label">Cân nặng đến (kg)</label>
+                            <input type="number" step="0.1" class="form-control" id="weight_to" name="weight_to" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="weight_fee" class="form-label">Phí vận chuyển (VNĐ)</label>
+                            <input type="number" class="form-control" id="weight_fee" name="weight_fee" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" form="addWeightRuleForm" class="btn btn-primary">Thêm quy tắc</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Weight Rule Modal -->
+    <div class="modal fade" id="editWeightRuleModal" tabindex="-1" aria-labelledby="editWeightRuleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editWeightRuleModalLabel">Chỉnh sửa quy tắc vận chuyển theo cân nặng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editWeightRuleForm" method="post" action="">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="edit_weight_from" class="form-label">Cân nặng từ (kg)</label>
+                            <input type="number" step="0.1" class="form-control" id="edit_weight_from" name="weight_from" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_weight_to" class="form-label">Cân nặng đến (kg)</label>
+                            <input type="number" step="0.1" class="form-control" id="edit_weight_to" name="weight_to" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_weight_fee" class="form-label">Phí vận chuyển (VNĐ)</label>
+                            <input type="number" class="form-control" id="edit_weight_fee" name="weight_fee" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" form="editWeightRuleForm" class="btn btn-primary">Lưu thay đổi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Initialize DataTables
+        $('#shippingZonesTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/vi.json'
+            }
+        });
+        
+        $('#weightRulesTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/vi.json'
+            }
+        });
+        
+        // Edit shipping zone
+        $('.edit-zone').click(function() {
+            var id = $(this).data('id');
+            var name = $(this).data('name');
+            var provinces = $(this).data('provinces').split(',');
+            var fee = $(this).data('fee');
+            var time = $(this).data('time');
+            
+            $('#edit_zone_name').val(name);
+            $('#edit_zone_fee').val(fee);
+            $('#edit_zone_time').val(time);
+            
+            // Select provinces
+            $('#edit_zone_provinces option').prop('selected', false);
+            provinces.forEach(function(province) {
+                $('#edit_zone_provinces option[value="' + province.trim() + '"]').prop('selected', true);
+            });
+            
+            $('#editZoneForm').attr('action', '/dashboard/settings/shipping/zones/' + id + '/edit/');
+        });
+        
+        // Delete shipping zone
+        $('.delete-zone').click(function() {
+            var id = $(this).data('id');
+            
+            if (confirm('Bạn có chắc muốn xóa khu vực vận chuyển này?')) {
+                $.post('/dashboard/settings/shipping/zones/' + id + '/delete/', {
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                }, function(data) {
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert('Có lỗi xảy ra: ' + data.error);
+                    }
+                });
+            }
+        });
+        
+        // Edit weight rule
+        $('.edit-weight-rule').click(function() {
+            var id = $(this).data('id');
+            var from = $(this).data('from');
+            var to = $(this).data('to');
+            var fee = $(this).data('fee');
+            
+            $('#edit_weight_from').val(from);
+            $('#edit_weight_to').val(to);
+            $('#edit_weight_fee').val(fee);
+            
+            $('#editWeightRuleForm').attr('action', '/dashboard/settings/shipping/weight-rules/' + id + '/edit/');
+        });
+        
+        // Delete weight rule
+        $('.delete-weight-rule').click(function() {
+            var id = $(this).data('id');
+            
+            if (confirm('Bạn có chắc muốn xóa quy tắc vận chuyển này?')) {
+                $.post('/dashboard/settings/shipping/weight-rules/' + id + '/delete/', {
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                }, function(data) {
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert('Có lỗi xảy ra: ' + data.error);
+                    }
+                });
+            }
+        });
+        
+        // Validate weight rule forms
+        $('#addWeightRuleForm, #editWeightRuleForm').on('submit', function(e) {
+            var from = parseFloat($(this).find('[name="weight_from"]').val());
+            var to = parseFloat($(this).find('[name="weight_to"]').val());
+            
+            if (from >= to) {
+                e.preventDefault();
+                alert('Cân nặng "từ" phải nhỏ hơn cân nặng "đến"');
+                return false;
+            }
+            
+            return true;
+        });
+    });
+</script>
+{% endblock %} 

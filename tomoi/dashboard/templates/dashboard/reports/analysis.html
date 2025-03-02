@@ -1,0 +1,765 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Phân tích dữ liệu{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Phân tích dữ liệu</h1>
+    <p class="mb-4">Phân tích toàn diện về hoạt động của hệ thống.</p>
+
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs mb-4" id="analysisTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="sources-tab" data-bs-toggle="tab" data-bs-target="#sources" type="button" role="tab" aria-controls="sources" aria-selected="true">Nguồn nhập</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="revenue-tab" data-bs-toggle="tab" data-bs-target="#revenue" type="button" role="tab" aria-controls="revenue" aria-selected="false">Doanh thu</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="popular-tab" data-bs-toggle="tab" data-bs-target="#popular" type="button" role="tab" aria-controls="popular" aria-selected="false">Sản phẩm bán chạy</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="processing-tab" data-bs-toggle="tab" data-bs-target="#processing" type="button" role="tab" aria-controls="processing" aria-selected="false">Thời gian xử lý</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="warranty-tab" data-bs-toggle="tab" data-bs-target="#warranty" type="button" role="tab" aria-controls="warranty" aria-selected="false">Tỷ lệ bảo hành</button>
+        </li>
+    </ul>
+
+    <!-- Tab content -->
+    <div class="tab-content" id="analysisTabContent">
+        <!-- Nguồn nhập -->
+        <div class="tab-pane fade show active" id="sources" role="tabpanel" aria-labelledby="sources-tab">
+            <div class="row">
+                <div class="col-xl-8 col-lg-7">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">Phân bố nguồn nhập theo nền tảng</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-pie pt-4 pb-2">
+                                <canvas id="sourcesPlatformChart"></canvas>
+                            </div>
+                            <div class="mt-4 text-center small">
+                                <span class="mr-2">
+                                    <i class="fas fa-circle text-primary"></i> Facebook
+                                </span>
+                                <span class="mr-2">
+                                    <i class="fas fa-circle text-success"></i> Zalo
+                                </span>
+                                <span class="mr-2">
+                                    <i class="fas fa-circle text-info"></i> Instagram
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4 col-lg-5">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">Tỷ lệ có hàng</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-pie pt-4 pb-2">
+                                <canvas id="sourcesAvailabilityChart"></canvas>
+                            </div>
+                            <div class="mt-4 text-center small">
+                                <span class="mr-2">
+                                    <i class="fas fa-circle text-success"></i> Có hàng (75%)
+                                </span>
+                                <span class="mr-2">
+                                    <i class="fas fa-circle text-danger"></i> Không có hàng (25%)
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Thống kê nguồn nhập</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Nguồn</th>
+                                            <th>Nền tảng</th>
+                                            <th>Loại sản phẩm</th>
+                                            <th>Giá nhập TB</th>
+                                            <th>Tỷ lệ có hàng</th>
+                                            <th>Thời gian xử lý</th>
+                                            <th>Tỷ lệ lỗi</th>
+                                            <th>Mức ưu tiên</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Facebook của A</td>
+                                            <td>Facebook</td>
+                                            <td>Netflix</td>
+                                            <td>120.000đ</td>
+                                            <td><span class="badge bg-success">85%</span></td>
+                                            <td><span class="badge bg-primary">Rất nhanh</span></td>
+                                            <td>5%</td>
+                                            <td><span class="badge bg-success">Cao</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Zalo của B</td>
+                                            <td>Zalo</td>
+                                            <td>Spotify</td>
+                                            <td>80.000đ</td>
+                                            <td><span class="badge bg-warning">60%</span></td>
+                                            <td><span class="badge bg-warning">Bình thường</span></td>
+                                            <td>12%</td>
+                                            <td><span class="badge bg-warning">Trung bình</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doanh thu -->
+        <div class="tab-pane fade" id="revenue" role="tabpanel" aria-labelledby="revenue-tab">
+            <div class="row">
+                <div class="col-xl-12 col-lg-12">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">Doanh thu theo tháng</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-area">
+                                <canvas id="revenueMonthlyChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xl-6 col-lg-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Thống kê doanh thu theo sản phẩm</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="revenueProductTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Sản phẩm</th>
+                                            <th>Doanh thu</th>
+                                            <th>% Tổng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Dữ liệu sẽ được thêm bằng JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-6 col-lg-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Phân bố doanh thu theo kênh</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-pie pt-4 pb-2">
+                                <canvas id="revenueChannelChart"></canvas>
+                            </div>
+                            <div class="mt-4 text-center small">
+                                <span class="mr-2">
+                                    <i class="fas fa-circle text-primary"></i> Website
+                                </span>
+                                <span class="mr-2">
+                                    <i class="fas fa-circle text-success"></i> Đại lý
+                                </span>
+                                <span class="mr-2">
+                                    <i class="fas fa-circle text-info"></i> Khác
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sản phẩm bán chạy -->
+        <div class="tab-pane fade" id="popular" role="tabpanel" aria-labelledby="popular-tab">
+            <div class="row">
+                <div class="col-xl-8 col-lg-7">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">Top 5 sản phẩm bán chạy</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-bar">
+                                <canvas id="popularProductsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4 col-lg-5">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Chi tiết sản phẩm bán chạy</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="popularProductsTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Sản phẩm</th>
+                                            <th>Số lượng</th>
+                                            <th>Doanh thu</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for product in popular_products %}
+                                        <tr>
+                                            <td>{{ product.name }}</td>
+                                            <td>{{ product.sold }}</td>
+                                            <td>{{ product.revenue|intcomma }}đ</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thời gian xử lý -->
+        <div class="tab-pane fade" id="processing" role="tabpanel" aria-labelledby="processing-tab">
+            <div class="row">
+                <div class="col-xl-8 col-lg-7">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">Phân bố thời gian xử lý</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-pie pt-4 pb-2">
+                                <canvas id="processingTimeChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4 col-lg-5">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Thời gian xử lý theo nguồn</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="processingTimeTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Nguồn</th>
+                                            <th>Thời gian xử lý TB</th>
+                                            <th>Đánh giá</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Facebook của A</td>
+                                            <td>10 phút</td>
+                                            <td><span class="badge bg-success">Rất nhanh</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Zalo của B</td>
+                                            <td>25 phút</td>
+                                            <td><span class="badge bg-success">Nhanh</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>TikTok của C</td>
+                                            <td>1.5 giờ</td>
+                                            <td><span class="badge bg-warning">Bình thường</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Instagram của D</td>
+                                            <td>4 giờ</td>
+                                            <td><span class="badge bg-danger">Lâu</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Telegram của E</td>
+                                            <td>15 giờ</td>
+                                            <td><span class="badge bg-danger">Rất lâu</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tỷ lệ bảo hành -->
+        <div class="tab-pane fade" id="warranty" role="tabpanel" aria-labelledby="warranty-tab">
+            <div class="row">
+                <div class="col-xl-8 col-lg-7">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">Tỷ lệ bảo hành theo sản phẩm</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-bar">
+                                <canvas id="warrantyRateChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4 col-lg-5">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Chi tiết bảo hành</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="warrantyTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Sản phẩm</th>
+                                            <th>% Lỗi</th>
+                                            <th>Lý do phổ biến</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Netflix Premium</td>
+                                            <td>3.5%</td>
+                                            <td>Lỗi đăng nhập</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Spotify Family</td>
+                                            <td>2.2%</td>
+                                            <td>Lỗi kết nối thiết bị</td>
+                                        </tr>
+                                        <tr>
+                                            <td>YouTube Premium</td>
+                                            <td>1.8%</td>
+                                            <td>Lỗi thanh toán</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Disney+</td>
+                                            <td>2.5%</td>
+                                            <td>Lỗi phát nội dung</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Apple Music</td>
+                                            <td>1.5%</td>
+                                            <td>Lỗi đồng bộ</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js -->
+<script src="{% static 'dashboard/vendor/chart.js/Chart.min.js' %}"></script>
+
+<script>
+// Biểu đồ phân bố nền tảng 
+var ctx = document.getElementById("sourcesPlatformChart");
+var sourcesPlatformChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ platform_labels|safe }},
+        datasets: [{
+            data: {{ platform_data|safe }},
+            backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796', '#5a5c69'],
+            hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617', '#60616f', '#373840'],
+            hoverBorderColor: "rgba(234, 236, 244, 1)",
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        tooltips: {
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+            xPadding: 15,
+            yPadding: 15,
+            displayColors: false,
+            caretPadding: 10,
+        },
+        legend: {
+            display: false
+        },
+        cutoutPercentage: 80,
+    },
+});
+
+// Biểu đồ tỷ lệ có hàng
+var ctx2 = document.getElementById("sourcesAvailabilityChart");
+var sourcesAvailabilityChart = new Chart(ctx2, {
+    type: 'doughnut',
+    data: {
+        labels: ["Có hàng", "Không có hàng"],
+        datasets: [{
+            data: {{ availability_data|safe }},
+            backgroundColor: ['#1cc88a', '#e74a3b'],
+            hoverBackgroundColor: ['#17a673', '#be2617'],
+            hoverBorderColor: "rgba(234, 236, 244, 1)",
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        tooltips: {
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+            xPadding: 15,
+            yPadding: 15,
+            displayColors: false,
+            caretPadding: 10,
+        },
+        legend: {
+            display: false
+        },
+        cutoutPercentage: 80,
+    },
+});
+
+// Biểu đồ doanh thu theo tháng
+var ctx3 = document.getElementById("revenueMonthlyChart");
+var revenueMonthlyChart = new Chart(ctx3, {
+    type: 'line',
+    data: {
+        labels: {{ revenue_months|safe }},
+        datasets: [{
+            label: "Doanh thu",
+            lineTension: 0.3,
+            backgroundColor: "rgba(78, 115, 223, 0.05)",
+            borderColor: "rgba(78, 115, 223, 1)",
+            pointRadius: 3,
+            pointBackgroundColor: "rgba(78, 115, 223, 1)",
+            pointBorderColor: "rgba(78, 115, 223, 1)",
+            pointHoverRadius: 3,
+            pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
+            pointHoverBorderColor: "rgba(78, 115, 223, 1)",
+            pointHitRadius: 10,
+            pointBorderWidth: 2,
+            data: {{ revenue_data|safe }},
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        layout: {
+            padding: {
+                left: 10,
+                right: 25,
+                top: 25,
+                bottom: 0
+            }
+        },
+        scales: {
+            xAxes: [{
+                time: {
+                    unit: 'date'
+                },
+                gridLines: {
+                    display: false,
+                    drawBorder: false
+                },
+                ticks: {
+                    maxTicksLimit: 12
+                }
+            }],
+            yAxes: [{
+                ticks: {
+                    maxTicksLimit: 5,
+                    padding: 10,
+                    callback: function(value, index, values) {
+                        return number_format(value) + 'đ';
+                    }
+                },
+                gridLines: {
+                    color: "rgb(234, 236, 244)",
+                    zeroLineColor: "rgb(234, 236, 244)",
+                    drawBorder: false,
+                    borderDash: [2],
+                    zeroLineBorderDash: [2]
+                }
+            }],
+        },
+        legend: {
+            display: false
+        },
+        tooltips: {
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            titleMarginBottom: 10,
+            titleFontColor: '#6e707e',
+            titleFontSize: 14,
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+            xPadding: 15,
+            yPadding: 15,
+            displayColors: false,
+            intersect: false,
+            mode: 'index',
+            caretPadding: 10,
+            callbacks: {
+                label: function(tooltipItem, chart) {
+                    var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+                    return datasetLabel + ': ' + number_format(tooltipItem.yLabel) + 'đ';
+                }
+            }
+        }
+    }
+});
+
+// Biểu đồ phân bố doanh thu theo kênh
+var ctx4 = document.getElementById("revenueChannelChart");
+var revenueChannelChart = new Chart(ctx4, {
+    type: 'doughnut',
+    data: {
+        labels: ["Website", "Đại lý", "Khác"],
+        datasets: [{
+            data: [70, 25, 5],
+            backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc'],
+            hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf'],
+            hoverBorderColor: "rgba(234, 236, 244, 1)",
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        tooltips: {
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+            xPadding: 15,
+            yPadding: 15,
+            displayColors: false,
+            caretPadding: 10,
+        },
+        legend: {
+            display: false
+        },
+        cutoutPercentage: 80,
+    },
+});
+
+// Biểu đồ top 5 sản phẩm bán chạy
+var ctx5 = document.getElementById("popularProductsChart");
+var popularProductsChart = new Chart(ctx5, {
+    type: 'bar',
+    data: {
+        labels: ["Netflix Premium", "Spotify Family", "YouTube Premium", "Disney+ Premium", "Apple Music"],
+        datasets: [{
+            label: "Số lượng",
+            backgroundColor: "#4e73df",
+            hoverBackgroundColor: "#2e59d9",
+            borderColor: "#4e73df",
+            data: [250, 180, 150, 120, 90],
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        layout: {
+            padding: {
+                left: 10,
+                right: 25,
+                top: 25,
+                bottom: 0
+            }
+        },
+        scales: {
+            xAxes: [{
+                gridLines: {
+                    display: false,
+                    drawBorder: false
+                },
+                maxBarThickness: 50,
+            }],
+            yAxes: [{
+                ticks: {
+                    min: 0,
+                    max: 300,
+                    maxTicksLimit: 5,
+                    padding: 10,
+                },
+                gridLines: {
+                    color: "rgb(234, 236, 244)",
+                    zeroLineColor: "rgb(234, 236, 244)",
+                    drawBorder: false,
+                    borderDash: [2],
+                    zeroLineBorderDash: [2]
+                }
+            }],
+        },
+        legend: {
+            display: false
+        },
+        tooltips: {
+            titleMarginBottom: 10,
+            titleFontColor: '#6e707e',
+            titleFontSize: 14,
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+            xPadding: 15,
+            yPadding: 15,
+            displayColors: false,
+            caretPadding: 10,
+        },
+    }
+});
+
+// Biểu đồ thời gian xử lý
+var ctx6 = document.getElementById("processingTimeChart");
+var processingTimeChart = new Chart(ctx6, {
+    type: 'doughnut',
+    data: {
+        labels: {{ processing_labels|safe }},
+        datasets: [{
+            data: {{ processing_data|safe }},
+            backgroundColor: ['#1cc88a', '#4e73df', '#36b9cc', '#f6c23e', '#e74a3b'],
+            hoverBackgroundColor: ['#17a673', '#2e59d9', '#2c9faf', '#dda20a', '#be2617'],
+            hoverBorderColor: "rgba(234, 236, 244, 1)",
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        tooltips: {
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+            xPadding: 15,
+            yPadding: 15,
+            displayColors: false,
+            caretPadding: 10,
+        },
+        legend: {
+            display: true,
+            position: 'bottom'
+        },
+        cutoutPercentage: 70,
+    },
+});
+
+// Biểu đồ tỷ lệ bảo hành
+var ctx7 = document.getElementById("warrantyRateChart");
+var warrantyRateChart = new Chart(ctx7, {
+    type: 'bar',
+    data: {
+        labels: {{ warranty_labels|safe }},
+        datasets: [{
+            label: "Tỷ lệ lỗi (%)",
+            backgroundColor: "#e74a3b",
+            hoverBackgroundColor: "#be2617",
+            borderColor: "#e74a3b",
+            data: {{ warranty_data|safe }},
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        layout: {
+            padding: {
+                left: 10,
+                right: 25,
+                top: 25,
+                bottom: 0
+            }
+        },
+        scales: {
+            xAxes: [{
+                gridLines: {
+                    display: false,
+                    drawBorder: false
+                },
+                maxBarThickness: 50,
+            }],
+            yAxes: [{
+                ticks: {
+                    min: 0,
+                    max: 5,
+                    maxTicksLimit: 5,
+                    padding: 10,
+                    callback: function(value) {
+                        return value + '%';
+                    }
+                },
+                gridLines: {
+                    color: "rgb(234, 236, 244)",
+                    zeroLineColor: "rgb(234, 236, 244)",
+                    drawBorder: false,
+                    borderDash: [2],
+                    zeroLineBorderDash: [2]
+                }
+            }],
+        },
+        legend: {
+            display: false
+        },
+        tooltips: {
+            titleMarginBottom: 10,
+            titleFontColor: '#6e707e',
+            titleFontSize: 14,
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+            xPadding: 15,
+            yPadding: 15,
+            displayColors: false,
+            caretPadding: 10,
+            callbacks: {
+                label: function(tooltipItem, chart) {
+                    return 'Tỷ lệ lỗi: ' + tooltipItem.yLabel + '%';
+                }
+            }
+        },
+    }
+});
+
+// Format số
+function number_format(number, decimals, dec_point, thousands_sep) {
+    number = (number + '').replace(',', '').replace(' ', '');
+    var n = !isFinite(+number) ? 0 : +number,
+        prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+        sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
+        dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
+        s = '',
+        toFixedFix = function(n, prec) {
+            var k = Math.pow(10, prec);
+            return '' + Math.round(n * k) / k;
+        };
+    s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+    if (s[0].length > 3) {
+        s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+    }
+    if ((s[1] || '').length < prec) {
+        s[1] = s[1] || '';
+        s[1] += new Array(prec - s[1].length + 1).join('0');
+    }
+    return s.join(dec);
+}
+</script>
+{% endblock %} 

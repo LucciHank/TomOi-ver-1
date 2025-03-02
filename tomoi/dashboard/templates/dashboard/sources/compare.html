@@ -1,0 +1,118 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}So sánh nguồn nhập{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">So sánh nguồn nhập</h1>
+    <p class="mb-4">So sánh các thông số giữa các nguồn nhập khác nhau.</p>
+
+    <!-- Form chọn nguồn -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Chọn nguồn để so sánh</h6>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <select name="sources" class="form-control select2" multiple="multiple" style="width: 100%;">
+                        {% for source in sources %}
+                        <option value="{{ source.id }}" {% if source in selected_sources %}selected{% endif %}>{{ source.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">So sánh</button>
+            </form>
+        </div>
+    </div>
+
+    {% if selected_sources %}
+    <!-- Bảng so sánh -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Kết quả so sánh</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Tiêu chí</th>
+                            {% for source in selected_sources %}
+                            <th>{{ source.name }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Nền tảng</td>
+                            {% for source in selected_sources %}
+                            <td>{{ source.get_platform_display }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td>Loại sản phẩm</td>
+                            {% for source in selected_sources %}
+                            <td>{{ source.get_product_type_display }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td>Giá cơ bản</td>
+                            {% for source in selected_sources %}
+                            <td>{{ source.base_price|floatformat:0 }} đ</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td>Tỷ lệ có hàng</td>
+                            {% for source in selected_sources %}
+                            <td>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ source.availability_rate }}%"
+                                        aria-valuenow="{{ source.availability_rate }}" aria-valuemin="0" aria-valuemax="100">
+                                        {{ source.availability_rate|floatformat:1 }}%
+                                    </div>
+                                </div>
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td>Độ ưu tiên</td>
+                            {% for source in selected_sources %}
+                            <td>
+                                {% if source.priority == 'high' %}
+                                <span class="badge badge-success">Cao</span>
+                                {% elif source.priority == 'medium' %}
+                                <span class="badge badge-warning">Trung bình</span>
+                                {% else %}
+                                <span class="badge badge-secondary">Thấp</span>
+                                {% endif %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td>Ghi chú</td>
+                            {% for source in selected_sources %}
+                            <td>{{ source.notes|default:"--" }}</td>
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({
+            placeholder: "Chọn các nguồn để so sánh",
+            allowClear: true
+        });
+    });
+</script>
+{% endblock %} 

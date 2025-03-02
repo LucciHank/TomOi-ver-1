@@ -1,0 +1,146 @@
+<!-- Sidebar -->
+<ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+    <!-- Sidebar - Brand -->
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{% url 'dashboard:index' %}">
+        <div class="sidebar-brand-icon rotate-n-15">
+            <i class="fas fa-laugh-wink"></i>
+        </div>
+        <div class="sidebar-brand-text mx-3">TomOi Admin</div>
+    </a>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider my-0">
+
+    <!-- Nav Item - Dashboard -->
+    <li class="nav-item active">
+        <a class="nav-link" href="{% url 'dashboard:index' %}">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Tổng quan</span></a>
+    </li>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider">
+
+    <!-- Heading -->
+    <div class="sidebar-heading">
+        Quản lý
+    </div>
+
+    <!-- Nav Item - Orders -->
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'dashboard:orders' %}">
+            <i class="fas fa-fw fa-shopping-cart"></i>
+            <span>Đơn hàng</span></a>
+    </li>
+
+    <!-- Nav Item - Products Collapse Menu -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProducts"
+            aria-expanded="true" aria-controls="collapseProducts">
+            <i class="fas fa-fw fa-box"></i>
+            <span>Sản phẩm</span>
+        </a>
+        <div id="collapseProducts" class="collapse" aria-labelledby="headingProducts" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản lý sản phẩm:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:products' %}">Danh sách sản phẩm</a>
+                <a class="collapse-item" href="{% url 'dashboard:add_product' %}">Thêm sản phẩm</a>
+                <a class="collapse-item" href="{% url 'dashboard:categories' %}">Danh mục</a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Nav Item - Customers -->
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'dashboard:customers' %}">
+            <i class="fas fa-fw fa-users"></i>
+            <span>Khách hàng</span></a>
+    </li>
+
+    <!-- Nav Item - Sources Collapse Menu -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSources"
+            aria-expanded="true" aria-controls="collapseSources">
+            <i class="fas fa-fw fa-store"></i>
+            <span>Nguồn nhập</span>
+        </a>
+        <div id="collapseSources" class="collapse" aria-labelledby="headingSources" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản lý nguồn nhập:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:source_dashboard' %}">Tổng quan</a>
+                <a class="collapse-item" href="{% url 'dashboard:source_list' %}">Danh sách nguồn</a>
+                <a class="collapse-item" href="{% url 'dashboard:source_add' %}">Thêm nguồn mới</a>
+                <a class="collapse-item" href="{% url 'dashboard:source_log_list' %}">Nhật ký</a>
+                <a class="collapse-item" href="{% url 'dashboard:compare_sources' %}">So sánh nguồn</a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Nav Item - Marketing Collapse Menu -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMarketing"
+            aria-expanded="true" aria-controls="collapseMarketing">
+            <i class="fas fa-fw fa-bullhorn"></i>
+            <span>Marketing</span>
+        </a>
+        <div id="collapseMarketing" class="collapse" aria-labelledby="headingMarketing" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản lý marketing:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:campaign_list' %}">Chiến dịch</a>
+                <a class="collapse-item" href="{% url 'dashboard:banners' %}">Banner</a>
+                <a class="collapse-item" href="{% url 'dashboard:discounts' %}">Mã giảm giá</a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider">
+
+    <!-- Heading -->
+    <div class="sidebar-heading">
+        Phân tích
+    </div>
+
+    <!-- Nav Item - Reports Collapse Menu -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReports"
+            aria-expanded="true" aria-controls="collapseReports">
+            <i class="fas fa-fw fa-chart-area"></i>
+            <span>Báo cáo</span>
+        </a>
+        <div id="collapseReports" class="collapse" aria-labelledby="headingReports" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Báo cáo phân tích:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:sales_report' %}">Doanh số</a>
+                <a class="collapse-item" href="{% url 'dashboard:product_report' %}">Sản phẩm</a>
+                <a class="collapse-item" href="{% url 'dashboard:customer_report' %}">Khách hàng</a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider">
+
+    <!-- Heading -->
+    <div class="sidebar-heading">
+        Hệ thống
+    </div>
+
+    <!-- Nav Item - Settings -->
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'dashboard:settings' %}">
+            <i class="fas fa-fw fa-cog"></i>
+            <span>Cài đặt</span></a>
+    </li>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider d-none d-md-block">
+
+    <!-- Sidebar Toggler (Sidebar) -->
+    <div class="text-center d-none d-md-inline">
+        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+    </div>
+
+</ul>
+<!-- End of Sidebar --> 

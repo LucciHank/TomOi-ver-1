@@ -1,0 +1,145 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Thêm người dùng mới{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Thêm người dùng mới</h1>
+        <a href="{% url 'dashboard:users' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left fa-sm"></i> Quay lại
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin người dùng</h6>
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% url 'dashboard:user_add' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    <strong>Có lỗi xảy ra:</strong>
+                    <ul>
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <li>{{ field }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="username" class="form-label">Tên đăng nhập <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                        <small class="form-text text-muted">Tên đăng nhập không được chứa dấu cách và ký tự đặc biệt</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="first_name" class="form-label">Họ</label>
+                        <input type="text" class="form-control" id="first_name" name="first_name">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="last_name" class="form-label">Tên</label>
+                        <input type="text" class="form-control" id="last_name" name="last_name">
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="password1" class="form-label">Mật khẩu <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="password1" name="password1" required>
+                        <small class="form-text text-muted">Mật khẩu phải có ít nhất 8 ký tự</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="password2" class="form-label">Xác nhận mật khẩu <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="password2" name="password2" required>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="phone" class="form-label">Số điện thoại</label>
+                        <input type="text" class="form-control" id="phone" name="phone">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="avatar" class="form-label">Ảnh đại diện</label>
+                        <input type="file" class="form-control" id="avatar" name="avatar" accept="image/*">
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="role" class="form-label">Vai trò</label>
+                        <select class="form-control" id="role" name="role">
+                            <option value="customer">Khách hàng</option>
+                            <option value="staff">Nhân viên</option>
+                            <option value="admin">Quản trị viên</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check mt-4">
+                            <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+                            <label class="form-check-label" for="is_active">
+                                Kích hoạt tài khoản
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-user-plus me-1"></i> Tạo người dùng
+                    </button>
+                    <button type="reset" class="btn btn-secondary">
+                        <i class="fas fa-undo me-1"></i> Làm lại
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Kiểm tra mật khẩu khớp nhau
+        $('#password2').on('keyup', function() {
+            if ($('#password1').val() == $('#password2').val()) {
+                $('#password2').removeClass('is-invalid').addClass('is-valid');
+            } else {
+                $('#password2').removeClass('is-valid').addClass('is-invalid');
+            }
+        });
+        
+        // Kiểm tra form trước khi submit
+        $('form').on('submit', function(e) {
+            if ($('#password1').val() != $('#password2').val()) {
+                e.preventDefault();
+                alert('Mật khẩu xác nhận không khớp!');
+                return false;
+            }
+            
+            if ($('#password1').val().length < 8) {
+                e.preventDefault();
+                alert('Mật khẩu phải có ít nhất 8 ký tự!');
+                return false;
+            }
+            
+            return true;
+        });
+    });
+</script>
+{% endblock %} 

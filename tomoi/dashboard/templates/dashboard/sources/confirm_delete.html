@@ -1,0 +1,29 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Xóa nguồn nhập{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Xóa nguồn nhập</h1>
+    <p class="mb-4">Bạn có chắc chắn muốn xóa nguồn nhập này không?</p>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Xác nhận xóa</h6>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-danger">
+                <p>Bạn đang chuẩn bị xóa nguồn nhập: <strong>{{ source.name }}</strong></p>
+                <p>Hành động này không thể hoàn tác. Tất cả dữ liệu liên quan đến nguồn nhập này sẽ bị xóa vĩnh viễn.</p>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Xác nhận xóa</button>
+                <a href="{% url 'dashboard:source_list' %}" class="btn btn-secondary">Hủy</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

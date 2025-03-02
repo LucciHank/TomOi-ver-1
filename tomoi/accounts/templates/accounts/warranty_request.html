@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Yêu cầu bảo hành{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Gửi yêu cầu bảo hành</h4>
+                </div>
+                <div class="card-body">
+                    {% if subscription.warranty_count >= subscription.plan.max_warranty_count %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i> Bạn đã sử dụng hết số lần bảo hành cho phép ({{ subscription.warranty_count }}/{{ subscription.plan.max_warranty_count }})
+                    </div>
+                    {% else %}
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <h5>Thông tin gói đăng ký</h5>
+                            <div class="card bg-light mb-3">
+                                <div class="card-body">
+                                    <p><strong>Tên gói:</strong> {{ subscription.plan.name }}</p>
+                                    <p><strong>Ngày bắt đầu:</strong> {{ subscription.start_date|date:"d/m/Y" }}</p>
+                                    <p><strong>Ngày hết hạn:</strong> {{ subscription.end_date|date:"d/m/Y" }}</p>
+                                    <p><strong>Số lần bảo hành đã sử dụng:</strong> {{ subscription.warranty_count }}/{{ subscription.plan.max_warranty_count }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="issue_description" class="form-label">Mô tả vấn đề <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="issue_description" name="issue_description" rows="5" required></textarea>
+                            <div class="form-text">Vui lòng mô tả chi tiết vấn đề bạn đang gặp phải</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="attachment" class="form-label">Tệp đính kèm (nếu có)</label>
+                            <input class="form-control" type="file" id="attachment" name="attachment">
+                            <div class="form-text">Hỗ trợ các định dạng: JPG, PNG, PDF. Kích thước tối đa: 5MB</div>
+                        </div>
+                        
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="terms" required>
+                            <label class="form-check-label" for="terms">
+                                Tôi xác nhận thông tin trên là chính xác và hiểu rằng mỗi lần bảo hành sẽ được tính vào số lần bảo hành tối đa của gói.
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Gửi yêu cầu bảo hành</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Lịch sử bảo hành -->
+            <div class="card shadow mt-4">
+                <div class="card-header bg-secondary text-white">
+                    <h4 class="mb-0">Lịch sử bảo hành</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Mã yêu cầu</th>
+                                    <th>Ngày gửi</th>
+                                    <th>Trạng thái</th>
+                                    <th>Chi tiết</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ticket in warranty_tickets %}
+                                <tr>
+                                    <td>#{{ ticket.id }}</td>
+                                    <td>{{ ticket.created_at|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        {% if ticket.status == 'pending' %}
+                                        <span class="badge bg-warning text-dark">Chờ xử lý</span>
+                                        {% elif ticket.status == 'processing' %}
+                                        <span class="badge bg-info">Đang xử lý</span>
+                                        {% elif ticket.status == 'resolved' %}
+                                        <span class="badge bg-success">Đã xử lý</span>
+                                        {% else %}
+                                        <span class="badge bg-danger">Từ chối</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'warranty_ticket_detail' ticket.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> Xem
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">Bạn chưa có yêu cầu bảo hành nào</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

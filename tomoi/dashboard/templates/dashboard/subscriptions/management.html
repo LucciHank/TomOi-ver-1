@@ -1,0 +1,131 @@
+{% extends 'dashboard/base.html' %}
+{% load humanize %}
+
+{% block title %}Quản lý đăng ký{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Quản lý đăng ký</h1>
+    
+    <!-- Stats Cards -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Đang hoạt động</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_active }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Hết hạn</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_expired }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-times fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Doanh thu</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_revenue|intcomma }} VNĐ</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Bộ lọc</h6>
+        </div>
+        <div class="card-body">
+            <form method="GET" class="form-inline">
+                <div class="form-group mx-sm-3 mb-2">
+                    <select name="status" class="form-control">
+                        <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Tất cả</option>
+                        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Đang hoạt động</option>
+                        <option value="expired" {% if status_filter == 'expired' %}selected{% endif %}>Hết hạn</option>
+                    </select>
+                </div>
+                <div class="form-group mx-sm-3 mb-2">
+                    <input type="text" name="search" class="form-control" placeholder="Tìm kiếm..." value="{{ search_query }}">
+                </div>
+                <button type="submit" class="btn btn-primary mb-2">Lọc</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Subscriptions List -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách đăng ký</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Người dùng</th>
+                            <th>Gói</th>
+                            <th>Ngày bắt đầu</th>
+                            <th>Ngày kết thúc</th>
+                            <th>Trạng thái</th>
+                            <th>Bảo hành</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sub in subscriptions %}
+                        <tr>
+                            <td>{{ sub.user.username }}</td>
+                            <td>{{ sub.plan.name }}</td>
+                            <td>{{ sub.start_date|date:"d/m/Y" }}</td>
+                            <td>{{ sub.end_date|date:"d/m/Y" }}</td>
+                            <td>
+                                {% if sub.end_date > now %}
+                                <span class="badge badge-success">Hoạt động</span>
+                                {% else %}
+                                <span class="badge badge-danger">Hết hạn</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ sub.warranty_count }}/{{ sub.plan.max_warranty_count }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-info">Chi tiết</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

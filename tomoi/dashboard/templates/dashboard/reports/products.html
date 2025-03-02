@@ -1,0 +1,152 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Báo cáo sản phẩm{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Báo cáo sản phẩm</h1>
+    <p class="mb-4">Phân tích hiệu suất sản phẩm.</p>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Biểu đồ phân bố danh mục -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Phân bố sản phẩm theo danh mục</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie pt-4 pb-2">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center small">
+                        {% for category in categories %}
+                        <span class="mr-2">
+                            <i class="fas fa-circle" style="color: rgba({{ forloop.counter0 * 30 }}, {{ 100 + forloop.counter0 * 20 }}, {{ 200 - forloop.counter0 * 15 }}, 1)"></i> {{ category.name }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top sản phẩm xem nhiều -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Top sản phẩm xem nhiều</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th>Lượt xem</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in top_viewed_products %}
+                                <tr>
+                                    <td>{{ product.name }}</td>
+                                    <td>{{ product.view_count }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="2" class="text-center">Chưa có dữ liệu</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Top sản phẩm chuyển đổi cao -->
+        <div class="col-xl-12 col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Top sản phẩm có tỷ lệ chuyển đổi cao</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th>Lượt xem</th>
+                                    <th>Đơn hàng</th>
+                                    <th>Tỷ lệ chuyển đổi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in top_conversion_products %}
+                                <tr>
+                                    <td>{{ product.name }}</td>
+                                    <td>{{ product.view_count }}</td>
+                                    <td>{{ product.order_count }}</td>
+                                    <td>{{ product.conversion_rate|floatformat:2 }}%</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">Chưa có dữ liệu</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Biểu đồ phân bố danh mục
+var ctx = document.getElementById("categoryChart");
+var categoryChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: [{% for category in categories %}"{{ category.name }}",{% endfor %}],
+        datasets: [{
+            data: [{% for category in categories %}{{ category.product_count }},{% endfor %}],
+            backgroundColor: [
+                {% for category in categories %}
+                "rgba({{ forloop.counter0 * 30 }}, {{ 100 + forloop.counter0 * 20 }}, {{ 200 - forloop.counter0 * 15 }}, 0.8)",
+                {% endfor %}
+            ],
+            hoverBackgroundColor: [
+                {% for category in categories %}
+                "rgba({{ forloop.counter0 * 30 }}, {{ 100 + forloop.counter0 * 20 }}, {{ 200 - forloop.counter0 * 15 }}, 1)",
+                {% endfor %}
+            ],
+            hoverBorderColor: "rgba(234, 236, 244, 1)",
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        tooltips: {
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+            xPadding: 15,
+            yPadding: 15,
+            displayColors: false,
+            caretPadding: 10,
+        },
+        legend: {
+            display: false
+        },
+        cutoutPercentage: 80,
+    },
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Xác nhận yêu cầu bảo hành</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .content {
+            padding: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #777;
+        }
+        .ticket-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #004085;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Xác nhận yêu cầu bảo hành</h2>
+        </div>
+        <div class="content">
+            <p>Xin chào {{ user.username }},</p>
+            
+            <p>Chúng tôi đã nhận được yêu cầu bảo hành của bạn và đang tiến hành xử lý. Chúng tôi sẽ cố gắng giải quyết vấn đề của bạn trong thời gian sớm nhất.</p>
+            
+            <div class="ticket-info">
+                <p><strong>Mã yêu cầu:</strong> #{{ ticket.ticket_id }}</p>
+                <p><strong>Thời gian gửi:</strong> {{ ticket.created_at|date:"d/m/Y H:i" }}</p>
+                <p><strong>Loại vấn đề:</strong> {{ ticket.get_issue_type_display }}</p>
+                <p><strong>Mô tả:</strong> {{ ticket.issue_description|linebreaks }}</p>
+            </div>
+            
+            <p>Bạn có thể theo dõi trạng thái yêu cầu bảo hành này tại khu vực cá nhân trên trang web của chúng tôi.</p>
+            
+            <p>Nếu bạn có thông tin bổ sung hoặc câu hỏi, vui lòng trả lời email này hoặc liên hệ với chúng tôi qua kênh hỗ trợ.</p>
+        </div>
+        <div class="footer">
+            <p>Email này được gửi tự động từ hệ thống. Vui lòng không trả lời.</p>
+            <p>Nếu bạn cần hỗ trợ thêm, vui lòng liên hệ với chúng tôi qua email: support@tomoi.vn</p>
+        </div>
+    </div>
+</body>
+</html> 

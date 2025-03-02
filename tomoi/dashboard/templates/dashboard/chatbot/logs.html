@@ -115,50 +115,67 @@
 </div>
 
 <!-- Modal xem chi tiết cuộc trò chuyện -->
-<div class="modal fade" id="viewConversationModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+<div class="modal fade" id="viewConversationModal" tabindex="-1" aria-labelledby="viewConversationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Chi tiết cuộc trò chuyện</h5>
+                <h5 class="modal-title" id="viewConversationModalLabel">Chi tiết cuộc trò chuyện</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="mb-3 row">
+                <div class="row mb-3">
                     <div class="col-md-6">
                         <p><strong>Người dùng:</strong> <span id="conversationUser"></span></p>
                         <p><strong>Email:</strong> <span id="conversationEmail"></span></p>
+                        <p><strong>Thời gian:</strong> <span id="conversationTime"></span></p>
                     </div>
                     <div class="col-md-6">
-                        <p><strong>Thời gian:</strong> <span id="conversationTime"></span></p>
                         <p><strong>Đánh giá:</strong> <span id="conversationRating"></span></p>
-                    </div>
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label">Trạng thái</label>
-                    <select class="form-select" id="conversationStatus">
-                        <option value="1">Đã giải quyết</option>
-                        <option value="0">Chưa giải quyết</option>
-                    </select>
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label">Nội dung cuộc trò chuyện</label>
-                    <div class="conversation-container p-3 border rounded bg-light" style="max-height: 300px; overflow-y: auto;">
-                        <div id="conversationContent">
-                            <div class="text-center">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Đang tải...</span>
-                                </div>
-                                <p class="mt-2">Đang tải dữ liệu...</p>
-                            </div>
+                        <div class="d-flex align-items-center">
+                            <strong class="me-2">Trạng thái:</strong>
+                            <select class="form-select form-select-sm w-auto" id="conversationStatus">
+                                <option value="1">Đã giải quyết</option>
+                                <option value="0">Chưa giải quyết</option>
+                            </select>
+                            <button class="btn btn-sm btn-primary ms-2" id="saveStatusBtn">Lưu</button>
                         </div>
                     </div>
                 </div>
+                
+                <hr>
+                
+                <h6 class="mb-3">Nội dung cuộc trò chuyện</h6>
+                <div class="chat-container p-3 border rounded" style="height: 300px; overflow-y: auto;">
+                    <div id="conversationContent"></div>
+                </div>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" id="exportConversationBtn">
+                    <i class="fas fa-download me-1"></i>Xuất PDF
+                </button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                <button type="button" class="btn btn-primary" id="saveStatusBtn">Lưu trạng thái</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xác nhận xóa -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xóa cuộc trò chuyện này không? Hành động này không thể hoàn tác.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <form method="post" id="deleteForm">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Xóa</button>
+                </form>
             </div>
         </div>
     </div>

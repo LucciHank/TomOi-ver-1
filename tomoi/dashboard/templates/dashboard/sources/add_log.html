@@ -1,0 +1,79 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Thêm nhật ký nguồn nhập{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Thêm nhật ký nguồn nhập</h1>
+    <p class="mb-4">Nhập thông tin chi tiết cho nhật ký nguồn nhập.</p>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin nhật ký</h6>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-group row">
+                    <label for="source" class="col-sm-2 col-form-label">Nguồn nhập</label>
+                    <div class="col-sm-10">
+                        <select class="form-control" id="source" name="source" required>
+                            <option value="">-- Chọn nguồn nhập --</option>
+                            {% for source in sources %}
+                            <option value="{{ source.id }}">{{ source.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="status" class="col-sm-2 col-form-label">Trạng thái</label>
+                    <div class="col-sm-10">
+                        <select class="form-control" id="status" name="status">
+                            <option value="available">Có hàng</option>
+                            <option value="unavailable">Không có hàng</option>
+                            <option value="pending">Đang chờ</option>
+                            <option value="processing">Đang xử lý</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="price" class="col-sm-2 col-form-label">Giá</label>
+                    <div class="col-sm-10">
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="price" name="price" step="1000">
+                            <div class="input-group-append">
+                                <span class="input-group-text">VNĐ</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="processing_time" class="col-sm-2 col-form-label">Thời gian xử lý (phút)</label>
+                    <div class="col-sm-10">
+                        <input type="number" class="form-control" id="processing_time" name="processing_time" min="0">
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="notes" class="col-sm-2 col-form-label">Ghi chú</label>
+                    <div class="col-sm-10">
+                        <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <div class="col-sm-10 offset-sm-2">
+                        <button type="submit" class="btn btn-primary">Lưu nhật ký</button>
+                        <a href="{% url 'dashboard:source_log_list' %}" class="btn btn-secondary">Hủy</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

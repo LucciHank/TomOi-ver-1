@@ -1,0 +1,55 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Thêm Banner{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Thêm Banner Mới</h1>
+    
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin Banner</h6>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="title">Tiêu đề</label>
+                    <input type="text" class="form-control" id="title" name="title" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="image">Hình ảnh</label>
+                    <input type="file" class="form-control" id="image" name="image" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="url">URL</label>
+                    <input type="url" class="form-control" id="url" name="url" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="position">Vị trí</label>
+                    <select class="form-control" id="position" name="position">
+                        <option value="home_top">Trang chủ - Trên</option>
+                        <option value="home_middle">Trang chủ - Giữa</option>
+                        <option value="home_bottom">Trang chủ - Dưới</option>
+                        <option value="sidebar">Thanh bên</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="is_active" name="is_active" checked>
+                        <label class="custom-control-label" for="is_active">Kích hoạt</label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Thêm Banner</button>
+                <a href="{% url 'dashboard:banners' %}" class="btn btn-secondary">Hủy</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 
