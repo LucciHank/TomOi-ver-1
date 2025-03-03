@@ -1,170 +1,409 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
+{% load humanize %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .user-avatar-container {
+        width: 150px;
+        height: 150px;
+        margin: 0 auto 20px;
+        position: relative;
+    }
+    
+    .user-avatar {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid #4e73df;
+    }
+    
+    .avatar-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 3rem;
+        border-radius: 50%;
+        background-color: #4e73df;
+    }
+    
+    .avatar-upload {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background-color: #fff;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        cursor: pointer;
+        color: #4e73df;
+    }
+    
+    .section-title {
+        font-weight: 700;
+        color: #4e73df;
+        margin-bottom: 1.2rem;
+        padding-bottom: 0.7rem;
+        border-bottom: 2px solid #e3e6f0;
+    }
+    
+    .form-card {
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        border: none;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        transition: all 0.3s;
+    }
+    
+    .form-card:hover {
+        box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.25);
+    }
+    
+    .form-group label {
+        font-weight: 600;
+        color: #5a5c69;
+    }
+    
+    .form-control:focus {
+        border-color: #4e73df;
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+    }
+    
+    .btn-save {
+        padding: 0.5rem 2rem;
+        font-weight: 600;
+    }
+    
+    .btn-danger {
+        margin-top: 1rem;
+    }
+    
+    .user-stats {
+        background-color: #f8f9fc;
+        border-radius: 0.5rem;
+        padding: 1.2rem;
+    }
+    
+    .stat-item {
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e3e6f0;
+    }
+    
+    .stat-item:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+    
+    .stat-label {
+        color: #5a5c69;
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+    
+    .stat-value {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #4e73df;
+    }
+</style>
+{% endblock %}
 
 {% block title %}Chỉnh sửa người dùng{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Chỉnh sửa người dùng</h1>
-        <div>
-            <a href="{% url 'dashboard:user_detail' user.id %}" class="btn btn-info btn-sm">
-                <i class="fas fa-eye fa-sm"></i> Xem chi tiết
-            </a>
-            <a href="{% url 'dashboard:users' %}" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left fa-sm"></i> Quay lại
-            </a>
+    <!-- Page Heading -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h3 text-gray-800">Chỉnh sửa người dùng</h1>
+                <div>
+                    <a href="{% url 'dashboard:user_permissions' user.id %}" class="btn btn-info mr-2">
+                        <i class="fas fa-user-shield mr-1"></i> Phân quyền
+                    </a>
+                    <button type="button" class="btn btn-danger delete-user-btn" data-user-id="{{ user.id }}" data-username="{{ user.username }}">
+                        <i class="fas fa-trash mr-1"></i> Xóa tài khoản
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Thông tin người dùng</h6>
-        </div>
-        <div class="card-body">
-            <form method="post" action="{% url 'dashboard:user_edit' user.id %}" enctype="multipart/form-data">
-                {% csrf_token %}
-                
-                {% if form.errors %}
-                <div class="alert alert-danger">
-                    <strong>Có lỗi xảy ra:</strong>
-                    <ul>
-                        {% for field, errors in form.errors.items %}
-                            {% for error in errors %}
-                                <li>{{ field }}: {{ error }}</li>
-                            {% endfor %}
-                        {% endfor %}
-                    </ul>
+    <div class="row">
+        <!-- Thông tin cá nhân -->
+        <div class="col-lg-8">
+            <div class="card form-card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thông tin cá nhân</h6>
                 </div>
-                {% endif %}
-                
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="username" class="form-label">Tên đăng nhập</label>
-                        <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" readonly>
-                        <small class="form-text text-muted">Tên đăng nhập không thể thay đổi</small>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
-                    </div>
-                </div>
-                
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="first_name" class="form-label">Họ</label>
-                        <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}">
-                    </div>
-                    <div class="col-md-6">
-                        <label for="last_name" class="form-label">Tên</label>
-                        <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}">
-                    </div>
-                </div>
-                
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="new_password" class="form-label">Mật khẩu mới</label>
-                        <input type="password" class="form-control" id="new_password" name="new_password">
-                        <small class="form-text text-muted">Để trống nếu không muốn thay đổi mật khẩu</small>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="confirm_password" class="form-label">Xác nhận mật khẩu mới</label>
-                        <input type="password" class="form-control" id="confirm_password" name="confirm_password">
-                    </div>
-                </div>
-                
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="phone" class="form-label">Số điện thoại</label>
-                        <input type="text" class="form-control" id="phone" name="phone" value="{{ user.phone }}">
-                    </div>
-                    <div class="col-md-6">
-                        <label for="avatar" class="form-label">Ảnh đại diện</label>
-                        <input type="file" class="form-control" id="avatar" name="avatar" accept="image/*">
-                        {% if user.avatar %}
-                        <div class="mt-2">
-                            <img src="{{ user.avatar.url }}" alt="Avatar" class="img-thumbnail" style="max-height: 100px;">
-                            <div class="form-check mt-1">
-                                <input class="form-check-input" type="checkbox" id="remove_avatar" name="remove_avatar">
-                                <label class="form-check-label" for="remove_avatar">
-                                    Xóa ảnh đại diện
-                                </label>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="user-avatar-container">
+                            {% if user.avatar %}
+                            <img src="{{ user.avatar.url }}" alt="{{ user.username }}" class="user-avatar">
+                            {% else %}
+                            <div class="avatar-placeholder">
+                                {{ user.username|first|upper }}
                             </div>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-                
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="role" class="form-label">Vai trò</label>
-                        <select class="form-control" id="role" name="role">
-                            <option value="customer" {% if user.role == 'customer' %}selected{% endif %}>Khách hàng</option>
-                            <option value="staff" {% if user.role == 'staff' %}selected{% endif %}>Nhân viên</option>
-                            <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Quản trị viên</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-check mt-4">
-                            <input class="form-check-input" type="checkbox" id="is_active" name="is_active" {% if user.is_active %}checked{% endif %}>
-                            <label class="form-check-label" for="is_active">
-                                Kích hoạt tài khoản
+                            {% endif %}
+                            <label for="id_avatar" class="avatar-upload">
+                                <i class="fas fa-camera"></i>
+                                <input type="file" name="avatar" id="id_avatar" style="display:none">
                             </label>
                         </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_username">Tên đăng nhập</label>
+                                    <input type="text" class="form-control" id="id_username" name="username" value="{{ user.username }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_email">Email</label>
+                                    <input type="email" class="form-control" id="id_email" name="email" value="{{ user.email }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_first_name">Họ</label>
+                                    <input type="text" class="form-control" id="id_first_name" name="first_name" value="{{ user.first_name }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_last_name">Tên</label>
+                                    <input type="text" class="form-control" id="id_last_name" name="last_name" value="{{ user.last_name }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_phone">Số điện thoại</label>
+                                    <input type="text" class="form-control" id="id_phone" name="phone" value="{{ user.phone|default:'' }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_account_type">Loại tài khoản</label>
+                                    <select class="form-control" id="id_account_type" name="account_type">
+                                        <option value="regular" {% if user.account_type == 'regular' %}selected{% endif %}>Thường</option>
+                                        <option value="premium" {% if user.account_type == 'premium' %}selected{% endif %}>Premium</option>
+                                        <option value="vip" {% if user.account_type == 'vip' %}selected{% endif %}>VIP</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_is_active">Trạng thái</label>
+                                    <select class="form-control" id="id_is_active" name="is_active">
+                                        <option value="1" {% if user.is_active %}selected{% endif %}>Hoạt động</option>
+                                        <option value="0" {% if not user.is_active %}selected{% endif %}>Không hoạt động</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_gender">Giới tính</label>
+                                    <select class="form-control" id="id_gender" name="gender">
+                                        <option value="male" {% if user.gender == 'male' %}selected{% endif %}>Nam</option>
+                                        <option value="female" {% if user.gender == 'female' %}selected{% endif %}>Nữ</option>
+                                        <option value="other" {% if user.gender == 'other' %}selected{% endif %}>Khác</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-save">
+                                <i class="fas fa-save mr-2"></i>Lưu thay đổi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card form-card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Đặt lại mật khẩu</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="id_new_password">Mật khẩu mới</label>
+                                <input type="password" class="form-control" id="id_new_password" name="new_password">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="id_confirm_password">Xác nhận mật khẩu</label>
+                                <input type="password" class="form-control" id="id_confirm_password" name="confirm_password">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <button id="resetPasswordBtn" class="btn btn-warning">
+                            <i class="fas fa-key mr-2"></i>Đặt lại mật khẩu
+                        </button>
                     </div>
                 </div>
-                
-                <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-1"></i> Lưu thay đổi
-                    </button>
-                    <a href="{% url 'dashboard:users' %}" class="btn btn-secondary">
-                        <i class="fas fa-times me-1"></i> Hủy
-                    </a>
+            </div>
+        </div>
+        
+        <!-- Thông tin tài khoản và thống kê -->
+        <div class="col-lg-4">
+            <div class="card form-card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thông tin tài khoản</h6>
                 </div>
-            </form>
+                <div class="card-body">
+                    <div class="user-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Số dư</div>
+                            <div class="stat-value">{{ user.balance|default:'0' }}đ</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">TCoin</div>
+                            <div class="stat-value">{{ user.tcoin_balance|default:'0' }}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Ngày tham gia</div>
+                            <div class="stat-value">{{ user.date_joined|date:"d/m/Y" }}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Đăng nhập gần nhất</div>
+                            <div class="stat-value">
+                                {% if user.last_login %}
+                                {{ user.last_login|date:"d/m/Y H:i" }}
+                                {% else %}
+                                Chưa đăng nhập
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <button type="button" class="btn btn-danger btn-block delete-user-btn" data-user-id="{{ user.id }}" data-username="{{ user.username }}">
+                            <i class="fas fa-trash mr-2"></i>Xóa tài khoản
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-    $(document).ready(function() {
-        // Kiểm tra mật khẩu khớp nhau
-        $('#confirm_password').on('keyup', function() {
-            if ($('#new_password').val() == $('#confirm_password').val()) {
-                $('#confirm_password').removeClass('is-invalid').addClass('is-valid');
-            } else {
-                $('#confirm_password').removeClass('is-valid').addClass('is-invalid');
-            }
-        });
+$(document).ready(function() {
+    // Xử lý xem trước ảnh avatar
+    $('#id_avatar').on('change', function() {
+        var file = this.files[0];
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('.avatar-placeholder').hide();
+                if ($('.user-avatar').length) {
+                    $('.user-avatar').attr('src', e.target.result);
+                } else {
+                    $('.user-avatar-container').prepend('<img src="' + e.target.result + '" alt="Preview" class="user-avatar">');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // Xử lý nút đặt lại mật khẩu
+    $('#resetPasswordBtn').on('click', function(e) {
+        e.preventDefault();
         
-        // Kiểm tra form trước khi submit
-        $('form').on('submit', function(e) {
-            if ($('#new_password').val() && $('#new_password').val() != $('#confirm_password').val()) {
-                e.preventDefault();
-                alert('Mật khẩu xác nhận không khớp!');
-                return false;
-            }
-            
-            if ($('#new_password').val() && $('#new_password').val().length < 8) {
-                e.preventDefault();
-                alert('Mật khẩu phải có ít nhất 8 ký tự!');
-                return false;
-            }
-            
-            return true;
-        });
+        var newPassword = $('#id_new_password').val();
+        var confirmPassword = $('#id_confirm_password').val();
         
-        // Xử lý khi chọn xóa avatar
-        $('#remove_avatar').on('change', function() {
-            if ($(this).is(':checked')) {
-                $('#avatar').prop('disabled', true);
-            } else {
-                $('#avatar').prop('disabled', false);
+        if (newPassword !== confirmPassword) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Mật khẩu xác nhận không khớp!'
+            });
+            return;
+        }
+        
+        $.ajax({
+            url: '{% url "dashboard:user_reset_password" user.id %}',
+            method: 'POST',
+            data: {
+                'new_password': newPassword,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công',
+                    text: 'Mật khẩu đã được đặt lại thành công!'
+                });
+                $('#id_new_password').val('');
+                $('#id_confirm_password').val('');
+            },
+            error: function(error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Không thể đặt lại mật khẩu. Vui lòng thử lại sau.'
+                });
             }
         });
     });
+    
+    // Xử lý nút xóa tài khoản
+    $('.delete-user-btn').on('click', function(e) {
+        e.preventDefault();
+        
+        var userId = $(this).data('user-id');
+        var username = $(this).data('username');
+        
+        Swal.fire({
+            title: 'Xác nhận xóa?',
+            text: `Bạn có chắc chắn muốn xóa người dùng "${username}"?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Xóa',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/dashboard/users/${userId}/delete/`,
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            title: 'Đã xóa!',
+                            text: `Người dùng "${username}" đã được xóa thành công.`,
+                            icon: 'success'
+                        }).then(() => {
+                            window.location.href = '{% url "dashboard:user_list" %}';
+                        });
+                    },
+                    error: function(error) {
+                        Swal.fire({
+                            title: 'Lỗi!',
+                            text: 'Không thể xóa người dùng. Vui lòng thử lại sau.',
+                            icon: 'error'
+                        });
+                    }
+                });
+            }
+        });
+    });
+});
 </script>
 {% endblock %} 

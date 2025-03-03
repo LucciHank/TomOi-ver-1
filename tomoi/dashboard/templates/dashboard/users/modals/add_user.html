@@ -5,33 +5,33 @@
                 <h5 class="modal-title">Thêm người dùng mới</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="{% url 'dashboard:add_user' %}" method="POST">
+            <form action="{% url 'dashboard:user_add' %}" method="POST">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Họ tên</label>
-                        <input type="text" class="form-control" name="full_name" required>
+                        <label for="username" class="form-label">Tên đăng nhập</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <input type="email" class="form-control" name="email" required>
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Mật khẩu</label>
-                        <input type="password" class="form-control" name="password" required>
+                        <label for="password" class="form-label">Mật khẩu</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Vai trò</label>
-                        <select class="form-select" name="role">
-                            <option value="user">Người dùng</option>
-                            <option value="staff">Nhân viên</option>
-                            <option value="admin">Admin</option>
+                        <label for="user_type" class="form-label">Loại tài khoản</label>
+                        <select class="form-select" id="user_type" name="user_type">
+                            <option value="regular">Thường</option>
+                            <option value="premium">Premium</option>
+                            <option value="vip">VIP</option>
                         </select>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-link text-gray ms-auto" data-bs-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-primary">Thêm người dùng</button>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Tạo người dùng</button>
                 </div>
             </form>
         </div>

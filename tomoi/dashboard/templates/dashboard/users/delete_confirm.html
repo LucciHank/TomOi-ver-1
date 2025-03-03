@@ -1,0 +1,28 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Xác nhận xóa người dùng{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Xác nhận xóa người dùng</h6>
+        </div>
+        <div class="card-body">
+            <p>Bạn có chắc chắn muốn xóa người dùng <strong>{{ user.username }}</strong>?</p>
+            <p>Hành động này không thể hoàn tác.</p>
+            
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash-alt me-1"></i> Xác nhận xóa
+                </button>
+                <a href="{% url 'dashboard:user_detail' user.id %}" class="btn btn-secondary">
+                    <i class="fas fa-times me-1"></i> Hủy
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,471 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Phân quyền người dùng{% endblock %}
+
+{% block extra_css %}
+<style>
+    .permission-group {
+        border: 1px solid #e3e6f0;
+        border-radius: 0.35rem;
+        margin-bottom: 1.5rem;
+    }
+    .permission-group-header {
+        padding: 1rem;
+        background-color: #f8f9fc;
+        border-bottom: 1px solid #e3e6f0;
+        font-weight: bold;
+    }
+    .permission-group-body {
+        padding: 1rem;
+    }
+    .permission-item {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f8f9fc;
+    }
+    .permission-item:last-child {
+        border-bottom: none;
+    }
+    .nav-tabs .nav-link {
+        color: #5a5c69;
+        font-weight: 600;
+        padding: 0.75rem 1.25rem;
+        border-radius: 0.35rem 0.35rem 0 0;
+    }
+    .nav-tabs .nav-link.active {
+        background-color: #4e73df;
+        color: white;
+        border-color: #4e73df;
+    }
+    .tab-content {
+        border: 1px solid #e3e6f0;
+        border-top: none;
+        border-radius: 0 0 0.35rem 0.35rem;
+        padding: 1.5rem;
+        background-color: #fff;
+    }
+    .btn-action {
+        padding: 0.25rem 0.5rem;
+        margin: 0 0.25rem;
+    }
+    .form-check-input:checked {
+        background-color: #4e73df;
+        border-color: #4e73df;
+    }
+    .group-card {
+        border-radius: 0.35rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s;
+    }
+    .group-card:hover {
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    }
+    .group-item {
+        cursor: pointer;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #e3e6f0;
+    }
+    .group-item:last-child {
+        border-bottom: none;
+    }
+    .group-item:hover {
+        background-color: #f8f9fc;
+    }
+    .group-item.active {
+        background-color: #4e73df;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Phân quyền cho {{ user.get_full_name }}</h1>
+        <div>
+            <a href="{% url 'dashboard:user_detail' user.id %}" class="btn btn-info btn-sm">
+                <i class="fas fa-eye mr-2"></i> Xem chi tiết
+            </a>
+            <a href="{% url 'dashboard:user_list' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left mr-2"></i> Quay lại
+            </a>
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="row">
+            <!-- Nhóm người dùng -->
+            <div class="col-lg-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Nhóm người dùng</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-3">Gán người dùng vào các nhóm để được hưởng quyền hạn của nhóm đó.</p>
+                        
+                        <div class="d-flex justify-content-end mb-3">
+                            <a href="{% url 'dashboard:user_groups' %}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-cogs mr-1"></i> Quản lý nhóm
+                            </a>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="groupSelect">Chọn nhóm người dùng:</label>
+                            <select multiple class="form-control" id="groupSelect" name="groups" size="8">
+                                {% for group in groups %}
+                                <option value="{{ group.id }}" 
+                                        {% if group in user.groups.all %}selected{% endif %}>
+                                    {{ group.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <small class="form-text text-muted">
+                                Giữ phím Ctrl (hoặc Command trên Mac) để chọn nhiều nhóm.
+                            </small>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h6 class="font-weight-bold">Nhóm hiện tại:</h6>
+                            <ul class="list-group">
+                                {% for group in user.groups.all %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ group.name }}
+                                    <button type="button" class="btn btn-sm btn-outline-danger remove-group" 
+                                            data-group-id="{{ group.id }}">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </li>
+                                {% empty %}
+                                <li class="list-group-item text-muted">Người dùng chưa thuộc nhóm nào</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quyền hạn cụ thể -->
+            <div class="col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Quyền hạn cụ thể</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-3">Chọn các quyền hạn cụ thể cho người dùng:</p>
+                        
+                        <ul class="nav nav-tabs" id="permissionTabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="products-tab" data-toggle="tab" href="#products" role="tab">
+                                    <i class="fas fa-box mr-1"></i>Sản phẩm
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="orders-tab" data-toggle="tab" href="#orders" role="tab">
+                                    <i class="fas fa-shopping-cart mr-1"></i>Đơn hàng
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="users-tab" data-toggle="tab" href="#users" role="tab">
+                                    <i class="fas fa-users mr-1"></i>Người dùng
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="other-tab" data-toggle="tab" href="#other" role="tab">
+                                    <i class="fas fa-cog mr-1"></i>Khác
+                                </a>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content mt-3" id="permissionsTabContent">
+                            <!-- Quyền quản lý sản phẩm -->
+                            <div class="tab-pane fade show active" id="products" role="tabpanel">
+                                <div class="permission-group">
+                                    <div class="permission-group-header">
+                                        <i class="fas fa-box mr-2"></i>Quản Lý Sản Phẩm
+                                    </div>
+                                    <div class="permission-group-body">
+                                        <p class="text-muted mb-3">Quyền hạn liên quan đến quản lý sản phẩm, danh mục và kho hàng</p>
+                                        
+                                        <div class="permission-section mb-4">
+                                            <h6 class="font-weight-bold">Sản phẩm</h6>
+                                            <div class="permission-items">
+                                                <div class="form-check permission-item">
+                                                    <input class="form-check-input" type="checkbox" name="permissions" 
+                                                           id="perm_add_product" value="store.add_product"
+                                                           {% if "store.add_product" in user_permissions %}checked{% endif %}>
+                                                    <label class="form-check-label" for="perm_add_product">
+                                                        Có thể thêm sản phẩm
+                                                    </label>
+                                                </div>
+                                                <div class="form-check permission-item">
+                                                    <input class="form-check-input" type="checkbox" name="permissions" 
+                                                           id="perm_change_product" value="store.change_product"
+                                                           {% if "store.change_product" in user_permissions %}checked{% endif %}>
+                                                    <label class="form-check-label" for="perm_change_product">
+                                                        Có thể chỉnh sửa sản phẩm
+                                                    </label>
+                                                </div>
+                                                <div class="form-check permission-item">
+                                                    <input class="form-check-input" type="checkbox" name="permissions" 
+                                                           id="perm_delete_product" value="store.delete_product"
+                                                           {% if "store.delete_product" in user_permissions %}checked{% endif %}>
+                                                    <label class="form-check-label" for="perm_delete_product">
+                                                        Có thể xóa sản phẩm
+                                                    </label>
+                                                </div>
+                                                <div class="form-check permission-item">
+                                                    <input class="form-check-input" type="checkbox" name="permissions" 
+                                                           id="perm_view_product" value="store.view_product"
+                                                           {% if "store.view_product" in user_permissions %}checked{% endif %}>
+                                                    <label class="form-check-label" for="perm_view_product">
+                                                        Có thể xem sản phẩm
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="permission-section">
+                                            <h6 class="font-weight-bold">Danh mục</h6>
+                                            <div class="permission-items">
+                                                <div class="form-check permission-item">
+                                                    <input class="form-check-input" type="checkbox" name="permissions" 
+                                                           id="perm_add_category" value="store.add_category"
+                                                           {% if "store.add_category" in user_permissions %}checked{% endif %}>
+                                                    <label class="form-check-label" for="perm_add_category">
+                                                        Có thể thêm danh mục
+                                                    </label>
+                                                </div>
+                                                <div class="form-check permission-item">
+                                                    <input class="form-check-input" type="checkbox" name="permissions" 
+                                                           id="perm_change_category" value="store.change_category"
+                                                           {% if "store.change_category" in user_permissions %}checked{% endif %}>
+                                                    <label class="form-check-label" for="perm_change_category">
+                                                        Có thể chỉnh sửa danh mục
+                                                    </label>
+                                                </div>
+                                                <div class="form-check permission-item">
+                                                    <input class="form-check-input" type="checkbox" name="permissions" 
+                                                           id="perm_delete_category" value="store.delete_category"
+                                                           {% if "store.delete_category" in user_permissions %}checked{% endif %}>
+                                                    <label class="form-check-label" for="perm_delete_category">
+                                                        Có thể xóa danh mục
+                                                    </label>
+                                                </div>
+                                                <div class="form-check permission-item">
+                                                    <input class="form-check-input" type="checkbox" name="permissions" 
+                                                           id="perm_view_category" value="store.view_category"
+                                                           {% if "store.view_category" in user_permissions %}checked{% endif %}>
+                                                    <label class="form-check-label" for="perm_view_category">
+                                                        Có thể xem danh mục
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Quyền quản lý đơn hàng -->
+                            <div class="tab-pane fade" id="orders" role="tabpanel">
+                                <div class="permission-group">
+                                    <div class="permission-group-header">
+                                        <i class="fas fa-shopping-cart mr-2"></i>Quản Lý Đơn Hàng
+                                    </div>
+                                    <div class="permission-group-body">
+                                        <p class="text-muted mb-3">Quyền hạn liên quan đến xử lý đơn hàng và giao dịch</p>
+                                        
+                                        <div class="permission-items">
+                                            <div class="form-check permission-item">
+                                                <input class="form-check-input" type="checkbox" name="permissions" 
+                                                       id="perm_add_order" value="store.add_order"
+                                                       {% if "store.add_order" in user_permissions %}checked{% endif %}>
+                                                <label class="form-check-label" for="perm_add_order">
+                                                    Có thể tạo đơn hàng
+                                                </label>
+                                            </div>
+                                            <div class="form-check permission-item">
+                                                <input class="form-check-input" type="checkbox" name="permissions" 
+                                                       id="perm_change_order" value="store.change_order"
+                                                       {% if "store.change_order" in user_permissions %}checked{% endif %}>
+                                                <label class="form-check-label" for="perm_change_order">
+                                                    Có thể cập nhật đơn hàng
+                                                </label>
+                                            </div>
+                                            <div class="form-check permission-item">
+                                                <input class="form-check-input" type="checkbox" name="permissions" 
+                                                       id="perm_delete_order" value="store.delete_order"
+                                                       {% if "store.delete_order" in user_permissions %}checked{% endif %}>
+                                                <label class="form-check-label" for="perm_delete_order">
+                                                    Có thể hủy đơn hàng
+                                                </label>
+                                            </div>
+                                            <div class="form-check permission-item">
+                                                <input class="form-check-input" type="checkbox" name="permissions" 
+                                                       id="perm_view_order" value="store.view_order"
+                                                       {% if "store.view_order" in user_permissions %}checked{% endif %}>
+                                                <label class="form-check-label" for="perm_view_order">
+                                                    Có thể xem đơn hàng
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Quyền quản lý người dùng -->
+                            <div class="tab-pane fade" id="users" role="tabpanel">
+                                <div class="permission-group">
+                                    <div class="permission-group-header">
+                                        <i class="fas fa-users mr-2"></i>Quản Lý Người Dùng
+                                    </div>
+                                    <div class="permission-group-body">
+                                        <p class="text-muted mb-3">Quyền hạn liên quan đến quản lý tài khoản người dùng</p>
+                                        
+                                        <div class="permission-items">
+                                            <div class="form-check permission-item">
+                                                <input class="form-check-input" type="checkbox" name="permissions" 
+                                                       id="perm_add_user" value="accounts.add_customuser"
+                                                       {% if "accounts.add_customuser" in user_permissions %}checked{% endif %}>
+                                                <label class="form-check-label" for="perm_add_user">
+                                                    Có thể thêm tài khoản
+                                                </label>
+                                            </div>
+                                            <div class="form-check permission-item">
+                                                <input class="form-check-input" type="checkbox" name="permissions" 
+                                                       id="perm_change_user" value="accounts.change_customuser"
+                                                       {% if "accounts.change_customuser" in user_permissions %}checked{% endif %}>
+                                                <label class="form-check-label" for="perm_change_user">
+                                                    Có thể chỉnh sửa tài khoản
+                                                </label>
+                                            </div>
+                                            <div class="form-check permission-item">
+                                                <input class="form-check-input" type="checkbox" name="permissions" 
+                                                       id="perm_delete_user" value="accounts.delete_customuser"
+                                                       {% if "accounts.delete_customuser" in user_permissions %}checked{% endif %}>
+                                                <label class="form-check-label" for="perm_delete_user">
+                                                    Có thể xóa tài khoản
+                                                </label>
+                                            </div>
+                                            <div class="form-check permission-item">
+                                                <input class="form-check-input" type="checkbox" name="permissions" 
+                                                       id="perm_view_user" value="accounts.view_customuser"
+                                                       {% if "accounts.view_customuser" in user_permissions %}checked{% endif %}>
+                                                <label class="form-check-label" for="perm_view_user">
+                                                    Có thể xem tài khoản
+                                                </label>
+                                            </div>
+                                            <div class="form-check permission-item">
+                                                <input class="form-check-input" type="checkbox" name="permissions" 
+                                                       id="perm_change_account_type" value="accounts.change_account_type"
+                                                       {% if "accounts.change_account_type" in user_permissions %}checked{% endif %}>
+                                                <label class="form-check-label" for="perm_change_account_type">
+                                                    Có thể thay đổi loại tài khoản
+                                                </label>
+                                            </div>
+                                            <div class="form-check permission-item">
+                                                <input class="form-check-input" type="checkbox" name="permissions" 
+                                                       id="perm_manage_balance" value="accounts.manage_balance"
+                                                       {% if "accounts.manage_balance" in user_permissions %}checked{% endif %}>
+                                                <label class="form-check-label" for="perm_manage_balance">
+                                                    Có thể quản lý số dư tài khoản
+                                                </label>
+                                            </div>
+                                            <div class="form-check permission-item">
+                                                <input class="form-check-input" type="checkbox" name="permissions" 
+                                                       id="perm_manage_user_status" value="accounts.manage_user_status"
+                                                       {% if "accounts.manage_user_status" in user_permissions %}checked{% endif %}>
+                                                <label class="form-check-label" for="perm_manage_user_status">
+                                                    Có thể quản lý trạng thái người dùng
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Quyền khác -->
+                            <div class="tab-pane fade" id="other" role="tabpanel">
+                                <div class="permission-group">
+                                    <div class="permission-group-header">
+                                        <i class="fas fa-cog mr-2"></i>Quyền Hạn Khác
+                                    </div>
+                                    <div class="permission-group-body">
+                                        <p class="text-muted mb-3">Các quyền hạn khác trong hệ thống</p>
+                                        
+                                        <div class="permission-items">
+                                            <div class="form-check permission-item">
+                                                <input class="form-check-input" type="checkbox" name="permissions" 
+                                                       id="perm_view_dashboard" value="accounts.view_dashboard"
+                                                       {% if "accounts.view_dashboard" in user_permissions %}checked{% endif %}>
+                                                <label class="form-check-label" for="perm_view_dashboard">
+                                                    Có thể xem dashboard
+                                                </label>
+                                            </div>
+                                            <div class="form-check permission-item">
+                                                <input class="form-check-input" type="checkbox" name="permissions" 
+                                                       id="perm_view_reports" value="accounts.view_reports"
+                                                       {% if "accounts.view_reports" in user_permissions %}checked{% endif %}>
+                                                <label class="form-check-label" for="perm_view_reports">
+                                                    Có thể xem báo cáo
+                                                </label>
+                                            </div>
+                                            <!-- Thêm các quyền khác -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-success btn-lg px-5">
+                <i class="fas fa-save mr-2"></i>Lưu phân quyền
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Kích hoạt tabs
+    $('#permissionTabs a').on('click', function (e) {
+        e.preventDefault();
+        $(this).tab('show');
+    });
+    
+    // Xử lý khi click nút xóa nhóm
+    $('.remove-group').on('click', function() {
+        var groupId = $(this).data('group-id');
+        var groupSelect = document.getElementById('groupSelect');
+        
+        for (var i = 0; i < groupSelect.options.length; i++) {
+            if (groupSelect.options[i].value == groupId) {
+                groupSelect.options[i].selected = false;
+                break;
+            }
+        }
+        
+        $(this).closest('li').remove();
+    });
+    
+    // Chọn tất cả quyền trong một nhóm
+    $('.select-all-perms').on('click', function() {
+        var tabId = $(this).data('tab');
+        $('#' + tabId + ' input[type="checkbox"]').prop('checked', true);
+    });
+    
+    // Bỏ chọn tất cả quyền trong một nhóm
+    $('.deselect-all-perms').on('click', function() {
+        var tabId = $(this).data('tab');
+        $('#' + tabId + ' input[type="checkbox"]').prop('checked', false);
+    });
+});
+</script>
+{% endblock %} 

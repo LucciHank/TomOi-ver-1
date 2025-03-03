@@ -1,152 +1,1120 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
+{% load humanize %}
 
-{% block title %}{{ user.get_full_name }} | Chi tiết người dùng{% endblock %}
+{% block title %}Thông tin người dùng{% endblock %}
+
+{% block extra_css %}
+<style>
+    .user-profile {
+        padding: 2rem 0;
+    }
+    
+    .user-avatar-container {
+        width: 150px;
+        height: 150px;
+        margin: 0 auto 20px;
+        position: relative;
+    }
+    
+    .user-avatar {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid #4e73df;
+    }
+    
+    .avatar-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 3rem;
+        border-radius: 50%;
+        background-color: #4e73df;
+    }
+    
+    .user-name {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #5a5c69;
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+    
+    .user-username {
+        font-size: 1rem;
+        color: #858796;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .user-contact {
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    
+    .contact-item {
+        margin-bottom: 0.5rem;
+    }
+    
+    .contact-item i {
+        color: #4e73df;
+        margin-right: 0.5rem;
+        width: 16px;
+        text-align: center;
+    }
+    
+    .user-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .info-card {
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        border: none;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s;
+    }
+    
+    .info-card:hover {
+        box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.25);
+    }
+    
+    .card-header {
+        background-color: #f8f9fc;
+        border-bottom: 1px solid #e3e6f0;
+    }
+    
+    .info-item {
+        padding: 1rem;
+        border-bottom: 1px solid #e3e6f0;
+    }
+    
+    .info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: #5a5c69;
+        margin-bottom: 0.5rem;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+    }
+    
+    .info-value {
+        font-size: 1.1rem;
+        color: #4e73df;
+    }
+    
+    .stats-card {
+        box-shadow: 0 0.35rem 1.2rem rgba(78, 115, 223, 0.18);
+        transition: all 0.3s ease;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        border: none;
+        margin-bottom: 1.5rem;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1.5rem rgba(78, 115, 223, 0.25);
+    }
+    
+    .stats-card .card-body {
+        padding: 1.25rem;
+    }
+    
+    .stats-card .stats-icon {
+        width: 3rem;
+        height: 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.5rem;
+        font-size: 1.5rem;
+        margin-right: 1rem;
+    }
+    
+    .stats-card .stats-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        font-weight: 600;
+        color: #5a5c69;
+        margin-bottom: 0.25rem;
+    }
+    
+    .stats-card .stats-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0;
+    }
+    
+    .bg-balance {
+        background-color: #4e73df;
+        color: white;
+    }
+    
+    .text-balance {
+        color: #4e73df;
+    }
+    
+    .bg-tcoin {
+        background-color: #1cc88a;
+        color: white;
+    }
+    
+    .text-tcoin {
+        color: #1cc88a;
+    }
+    
+    .bg-order {
+        background-color: #f6c23e;
+        color: white;
+    }
+    
+    .text-order {
+        color: #f6c23e;
+    }
+    
+    .bg-transaction {
+        background-color: #e74a3b;
+        color: white;
+    }
+    
+    .text-transaction {
+        color: #e74a3b;
+    }
+    
+    .nav-tabs .nav-item .nav-link {
+        border: none;
+        color: #5a5c69;
+        font-weight: 600;
+        padding: 1rem 1.5rem;
+        border-bottom: 3px solid transparent;
+    }
+    
+    .nav-tabs .nav-item .nav-link:hover {
+        border-color: rgba(78, 115, 223, 0.3);
+    }
+    
+    .nav-tabs .nav-item .nav-link.active {
+        border-color: #4e73df;
+        color: #4e73df;
+        background-color: transparent;
+    }
+    
+    .note-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        border-left: 4px solid #4e73df;
+        margin-bottom: 1rem;
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
+    }
+    
+    .note-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.1);
+    }
+    
+    .note-actions {
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    
+    .note-card:hover .note-actions {
+        opacity: 1;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12 col-xl-8">
-        <div class="card card-body border-0 shadow mb-4">
-            <h2 class="h5 mb-4">Thông tin chung</h2>
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <div class="avatar-upload text-center">
-                        <img src="{{ user.get_avatar_url }}" class="rounded-circle avatar-xl mb-3" alt="Avatar">
-                        <button class="btn btn-gray-800 btn-sm" data-bs-toggle="modal" data-bs-target="#uploadAvatarModal">
-                            <i class="fas fa-camera me-2"></i>Đổi ảnh
-                        </button>
-                    </div>
-                </div>
-                <div class="col-md-8 mb-3">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="form-group">
-                                <label for="first_name">Họ</label>
-                                <input class="form-control" id="first_name" type="text" value="{{ user.first_name }}" readonly>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="form-group">
-                                <label for="last_name">Tên</label>
-                                <input class="form-control" id="last_name" type="text" value="{{ user.last_name }}" readonly>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="form-group">
-                                <label for="email">Email</label>
-                                <input class="form-control" id="email" type="email" value="{{ user.email }}" readonly>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="form-group">
-                                <label for="phone">Số điện thoại</label>
-                                <input class="form-control" id="phone" type="text" value="{{ user.phone }}" readonly>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Lịch sử đơn hàng -->
-        <div class="card border-0 shadow mb-4">
-            <div class="card-header">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h2 class="fs-5 fw-bold mb-0">Lịch sử đơn hàng</h2>
-                    </div>
-                </div>
-            </div>
-            <div class="table-responsive">
-                <table class="table align-items-center table-flush">
-                    <thead class="thead-light">
-                        <tr>
-                            <th class="border-bottom" scope="col">#</th>
-                            <th class="border-bottom" scope="col">Ngày đặt</th>
-                            <th class="border-bottom" scope="col">Sản phẩm</th>
-                            <th class="border-bottom" scope="col">Tổng tiền</th>
-                            <th class="border-bottom" scope="col">Trạng thái</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for order in user.orders.all %}
-                        <tr>
-                            <td>{{ order.id }}</td>
-                            <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
-                            <td>{{ order.items.count }} sản phẩm</td>
-                            <td>{{ order.total_price|floatformat:0 }}đ</td>
-                            <td>
-                                <span class="badge bg-{{ order.get_status_color }}">
-                                    {{ order.get_status_display }}
-                                </span>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center">Chưa có đơn hàng nào</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-gray-800">
+            <i class="fas fa-user mr-2"></i>Thông tin người dùng
+        </h1>
+        <div>
+            <a href="{% url 'dashboard:user_list' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left mr-2"></i>Quay lại danh sách
+            </a>
+            <a href="{% url 'dashboard:user_edit' user.id %}" class="btn btn-primary btn-sm ml-2">
+                <i class="fas fa-edit mr-2"></i>Chỉnh sửa
+            </a>
         </div>
     </div>
 
-    <div class="col-12 col-xl-4">
-        <!-- Thông tin tài khoản -->
-        <div class="card border-0 shadow mb-4">
-            <div class="card-body">
-                <h2 class="h5 mb-4">Thông tin tài khoản</h2>
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <span>Trạng thái</span>
-                    <span class="badge bg-{{ user.is_active|yesno:'success,danger' }}">
-                        {{ user.is_active|yesno:'Hoạt động,Đã khóa' }}
-                    </span>
+    <div class="row">
+        <!-- Cột thông tin cá nhân -->
+        <div class="col-lg-4">
+            <div class="card info-card shadow">
+                <div class="card-body user-profile">
+                    <div class="user-avatar-container">
+                        {% if user.avatar %}
+                        <img src="{{ user.avatar.url }}" alt="{{ user.username }}" class="user-avatar">
+                        {% else %}
+                        <div class="avatar-placeholder">
+                            {{ user.username|first|upper }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <h4 class="user-name">{{ user.get_full_name|default:user.username }}</h4>
+                    <div class="user-username">@{{ user.username }}</div>
+                    
+                    <div class="user-contact">
+                        {% if user.email %}
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>{{ user.email }}
+                        </div>
+                        {% endif %}
+                        
+                        {% if user.phone %}
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>{{ user.phone }}
+                        </div>
+                        {% endif %}
+                        
+                        {% if user.address %}
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>{{ user.address }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="user-actions">
+                        <button type="button" class="btn btn-outline-primary" id="sendMessageBtn">
+                            <i class="fas fa-envelope mr-1"></i>Gửi tin nhắn
+                        </button>
+                        <button type="button" class="btn btn-danger delete-user-btn" data-user-id="{{ user.id }}" data-username="{{ user.username }}">
+                            <i class="fas fa-trash mr-1"></i>Xóa
+                        </button>
+                    </div>
                 </div>
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <span>Vai trò</span>
-                    <span class="badge bg-{{ user.get_role_color }}">
-                        {{ user.get_role_display }}
-                    </span>
+            </div>
+            
+            <!-- Thống kê tổng quan -->
+            <div class="row">
+                <div class="col-xl-3 col-md-6">
+                    <div class="card stats-card">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="stats-icon bg-balance">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <div>
+                                <div class="stats-label">Số dư</div>
+                                <h4 class="stats-value text-balance">{{ user.balance|default:"0"|intcomma }}đ</h4>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <span>Ngày tham gia</span>
-                    <span>{{ user.date_joined|date:"d/m/Y" }}</span>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card stats-card">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="stats-icon bg-tcoin">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <div>
+                                <div class="stats-label">TCoin</div>
+                                <h4 class="stats-value text-tcoin">{{ user.tcoin_balance|default:"0"|intcomma }}</h4>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="d-flex align-items-center justify-content-between">
-                    <span>Đăng nhập cuối</span>
-                    <span>{{ user.last_login|date:"d/m/Y H:i" }}</span>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card stats-card">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="stats-icon bg-order">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div>
+                                <div class="stats-label">Đơn hàng</div>
+                                <h4 class="stats-value text-order">{{ user.order_count|default:"0"|intcomma }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card stats-card">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="stats-icon bg-transaction">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                            <div>
+                                <div class="stats-label">Giao dịch</div>
+                                <h4 class="stats-value text-transaction">{{ user.transaction_count|default:"0"|intcomma }}</h4>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <!-- Hoạt động gần đây -->
-        <div class="card border-0 shadow">
-            <div class="card-header">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h2 class="fs-5 fw-bold mb-0">Hoạt động gần đây</h2>
+        
+        <!-- Cột thông tin chi tiết -->
+        <div class="col-lg-8">
+            <div class="card info-card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thông tin tài khoản</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <div class="info-label">ID</div>
+                                <div class="info-value">{{ user.id }}</div>
+                            </div>
+                            
+                            <div class="info-item">
+                                <div class="info-label">Trạng thái</div>
+                                <div class="info-value">
+                                    {% if user.is_active %}
+                                    <span class="badge bg-success">Hoạt động</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">Không hoạt động</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="info-item">
+                                <div class="info-label">Loại tài khoản</div>
+                                <div class="info-value">
+                                    {% if user.is_superuser %}
+                                    <span class="badge bg-danger">Quản trị viên</span>
+                                    {% elif user.is_staff %}
+                                    <span class="badge bg-warning">Nhân viên</span>
+                                    {% else %}
+                                    <span class="badge bg-primary">Khách hàng</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <div class="info-label">Ngày tham gia</div>
+                                <div class="info-value">{{ user.date_joined|date:"d/m/Y" }}</div>
+                            </div>
+                            
+                            <div class="info-item">
+                                <div class="info-label">Đăng nhập gần nhất</div>
+                                <div class="info-value">
+                                    {% if user.last_login %}
+                                    {{ user.last_login|date:"d/m/Y H:i" }}
+                                    {% else %}
+                                    <span class="text-muted">Chưa đăng nhập</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="info-item">
+                                <div class="info-label">Email đã xác thực</div>
+                                <div class="info-value">
+                                    {% if user.email_verified %}
+                                    <span class="text-success"><i class="fas fa-check-circle mr-1"></i>Đã xác thực</span>
+                                    {% else %}
+                                    <span class="text-danger"><i class="fas fa-times-circle mr-1"></i>Chưa xác thực</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="card-body">
-                {% for activity in user.activities.all|slice:":10" %}
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <div>
-                        <h3 class="fs-6 mb-0">{{ activity.description }}</h3>
-                        <small class="text-gray-500">{{ activity.created_at|timesince }} trước</small>
+            
+            <!-- Tab thông tin -->
+            <div class="card info-card shadow">
+                <div class="card-header py-3">
+                    <ul class="nav nav-tabs card-header-tabs" id="userTabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="activity-tab" data-toggle="tab" href="#activity" role="tab">
+                                <i class="fas fa-history mr-1"></i>Hoạt động gần đây
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="orders-tab" data-toggle="tab" href="#orders" role="tab">
+                                <i class="fas fa-shopping-cart mr-1"></i>Đơn hàng
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="transactions-tab" data-toggle="tab" href="#transactions" role="tab">
+                                <i class="fas fa-exchange-alt mr-1"></i>Giao dịch
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="notes-tab" data-toggle="tab" href="#notes" role="tab">
+                                <i class="fas fa-sticky-note mr-1"></i>Ghi chú
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="tab-content" id="userTabContent">
+                    <!-- Tab hoạt động -->
+                    <div class="tab-pane fade show active" id="activity" role="tabpanel">
+                        {% if user_activities %}
+                        <div class="activity-list">
+                            {% for activity in user_activities %}
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas {% if activity.activity_type == 'login' %}fa-sign-in-alt{% elif activity.activity_type == 'purchase' %}fa-shopping-cart{% elif activity.activity_type == 'account_update' %}fa-user-edit{% else %}fa-info-circle{% endif %}"></i>
+                                </div>
+                                <div class="activity-time">{{ activity.timestamp|date:"d/m/Y H:i" }}</div>
+                                <div class="activity-description">{{ activity.description }}</div>
+                                <div class="clearfix"></div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-history fa-2x mb-3"></i>
+                            <p>Không có hoạt động nào gần đây</p>
+                        </div>
+                        {% endif %}
                     </div>
-                    <div class="icon-shape icon-sm bg-light text-dark rounded-circle">
-                        <i class="{{ activity.get_icon_class }}"></i>
+                    
+                    <!-- Tab đơn hàng -->
+                    <div class="tab-pane fade" id="orders" role="tabpanel">
+                        {% if user.orders.all %}
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Mã đơn</th>
+                                        <th>Ngày đặt</th>
+                                        <th>Tổng tiền</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in user.orders.all|slice:":10" %}
+                                    <tr>
+                                        <td><a href="{% url 'dashboard:order_detail' order.id %}" class="font-weight-bold">#{{ order.order_number }}</a></td>
+                                        <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                                        <td>{{ order.total_amount|intcomma }}đ</td>
+                                        <td>
+                                            <span class="badge {% if order.status == 'completed' %}bg-success{% elif order.status == 'processing' %}bg-primary{% elif order.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                                                {{ order.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'dashboard:order_detail' order.id %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% if user.orders.count > 10 %}
+                        <div class="text-center mt-3">
+                            <a href="{% url 'dashboard:user_orders' user.id %}" class="btn btn-outline-primary btn-sm">
+                                Xem tất cả {{ user.orders.count }} đơn hàng
+                            </a>
+                        </div>
+                        {% endif %}
+                        {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-shopping-cart fa-2x mb-3"></i>
+                            <p>Người dùng chưa có đơn hàng nào</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Tab giao dịch -->
+                    <div class="tab-pane fade" id="transactions" role="tabpanel">
+                        {% if user.transactions.all %}
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Mã GD</th>
+                                        <th>Ngày</th>
+                                        <th>Loại</th>
+                                        <th>Số tiền</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for transaction in user.transactions.all|slice:":10" %}
+                                    <tr>
+                                        <td><span class="font-weight-bold">{{ transaction.transaction_code }}</span></td>
+                                        <td>{{ transaction.created_at|date:"d/m/Y H:i" }}</td>
+                                        <td>{{ transaction.get_transaction_type_display }}</td>
+                                        <td class="{% if transaction.amount > 0 %}text-success{% else %}text-danger{% endif %}">
+                                            {{ transaction.amount|intcomma }}đ
+                                        </td>
+                                        <td>
+                                            <span class="badge {% if transaction.status == 'completed' %}bg-success{% elif transaction.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                                                {{ transaction.get_status_display }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% if user.transactions.count > 10 %}
+                        <div class="text-center mt-3">
+                            <a href="{% url 'dashboard:user_transactions' user.id %}" class="btn btn-outline-primary btn-sm">
+                                Xem tất cả {{ user.transactions.count }} giao dịch
+                            </a>
+                        </div>
+                        {% endif %}
+                        {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-exchange-alt fa-2x mb-3"></i>
+                            <p>Người dùng chưa có giao dịch nào</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Tab ghi chú -->
+                    <div class="tab-pane fade" id="notes" role="tabpanel" aria-labelledby="notes-tab">
+                        <div class="card">
+                            <div class="card-header bg-white">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="m-0 font-weight-bold text-primary">Ghi chú về người dùng</h6>
+                                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addNoteModal">
+                                        <i class="fas fa-plus-circle mr-1"></i> Thêm ghi chú
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div id="notesList">
+                                    {% if notes %}
+                                        {% for note in notes %}
+                                        <div class="card note-card mb-3" data-note-id="{{ note.id }}">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <div class="text-primary font-weight-bold">{{ note.created_by.username }}</div>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="text-muted small mr-3">{{ note.created_at|date:"d/m/Y H:i" }}</div>
+                                                        <div class="note-actions">
+                                                            <button class="btn btn-sm btn-outline-primary edit-note-btn mr-1" data-note-id="{{ note.id }}" data-content="{{ note.content }}">
+                                                                <i class="fas fa-edit"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-outline-danger delete-note-btn" data-note-id="{{ note.id }}">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <p class="mb-0 note-content">{{ note.content }}</p>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div id="noNotesMessage" class="text-center text-muted py-4">
+                                            <i class="fas fa-sticky-note fa-3x mb-3"></i>
+                                            <p>Chưa có ghi chú nào về người dùng này.</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                {% empty %}
-                <p class="text-center mb-0">Chưa có hoạt động nào</p>
-                {% endfor %}
             </div>
         </div>
     </div>
 </div>
-{% endblock %} 
+
+<!-- Form ẩn để điều chỉnh số dư -->
+<form id="adjustBalanceForm" action="{% url 'dashboard:adjust_balance' user.id %}" method="POST" style="display: none;">
+    {% csrf_token %}
+    <input type="hidden" name="amount" id="hiddenBalanceAmount">
+    <input type="hidden" name="description" id="hiddenBalanceDescription">
+</form>
+
+<!-- Form ẩn để điều chỉnh TCoin -->
+<form id="adjustTCoinForm" action="{% url 'dashboard:adjust_tcoin' user.id %}" method="POST" style="display: none;">
+    {% csrf_token %}
+    <input type="hidden" name="amount" id="hiddenTCoinAmount">
+    <input type="hidden" name="description" id="hiddenTCoinDescription">
+</form>
+
+<!-- Modal thêm ghi chú -->
+<div class="modal fade" id="addNoteModal" tabindex="-1" role="dialog" aria-labelledby="addNoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addNoteModalLabel">Thêm ghi chú mới</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="noteContent">Nội dung ghi chú</label>
+                    <textarea class="form-control" id="noteContent" rows="4" placeholder="Nhập nội dung ghi chú..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="saveNoteBtn">Lưu ghi chú</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal sửa ghi chú -->
+<div class="modal fade" id="editNoteModal" tabindex="-1" role="dialog" aria-labelledby="editNoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editNoteModalLabel">Sửa ghi chú</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editNoteId">
+                <div class="form-group">
+                    <label for="editNoteContent">Nội dung ghi chú</label>
+                    <textarea class="form-control" id="editNoteContent" rows="4" placeholder="Nhập nội dung ghi chú..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="updateNoteBtn">Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Xử lý xóa người dùng
+    $('.delete-user-btn').on('click', function(e) {
+        e.preventDefault();
+        
+        var userId = $(this).data('user-id');
+        var username = $(this).data('username');
+        
+        Swal.fire({
+            title: 'Xác nhận xóa?',
+            text: `Bạn có chắc chắn muốn xóa người dùng "${username}"?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Xóa',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/dashboard/users/${userId}/delete/`,
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            title: 'Đã xóa!',
+                            text: `Người dùng "${username}" đã được xóa thành công.`,
+                            icon: 'success'
+                        }).then(() => {
+                            window.location.href = '{% url "dashboard:user_list" %}';
+                        });
+                    },
+                    error: function(error) {
+                        Swal.fire({
+                            title: 'Lỗi!',
+                            text: 'Không thể xóa người dùng. Vui lòng thử lại sau.',
+                            icon: 'error'
+                        });
+                    }
+                });
+            }
+        });
+    });
+    
+    // Thêm ghi chú mới
+    $('#saveNoteBtn').on('click', function() {
+        var content = $('#noteContent').val().trim();
+        
+        if (!content) {
+            Swal.fire({
+                title: 'Lỗi!',
+                text: 'Vui lòng nhập nội dung ghi chú.',
+                icon: 'error'
+            });
+            return;
+        }
+        
+        $.ajax({
+            url: "{% url 'dashboard:user_notes' user.id %}",
+            method: 'POST',
+            data: {
+                'content': content,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                // Ẩn thông báo không có ghi chú
+                $('#noNotesMessage').hide();
+                
+                // Tạo HTML cho ghi chú mới
+                var noteHtml = `
+                <div class="card note-card mb-3" data-note-id="${response.id}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="text-primary font-weight-bold">${response.created_by}</div>
+                            <div class="d-flex align-items-center">
+                                <div class="text-muted small mr-3">${response.created_at}</div>
+                                <div class="note-actions">
+                                    <button class="btn btn-sm btn-outline-primary edit-note-btn mr-1" data-note-id="${response.id}" data-content="${response.content}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger delete-note-btn" data-note-id="${response.id}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="mb-0 note-content">${response.content}</p>
+                    </div>
+                </div>
+                `;
+                
+                // Thêm ghi chú vào danh sách
+                $('#notesList').prepend(noteHtml);
+                
+                // Xóa nội dung đã nhập và đóng modal
+                $('#noteContent').val('');
+                $('#addNoteModal').modal('hide');
+                
+                // Hiển thị thông báo thành công
+                Swal.fire({
+                    title: 'Thành công!',
+                    text: 'Đã thêm ghi chú mới.',
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            },
+            error: function(error) {
+                Swal.fire({
+                    title: 'Lỗi!',
+                    text: 'Không thể thêm ghi chú. Vui lòng thử lại sau.',
+                    icon: 'error'
+                });
+            }
+        });
+    });
+    
+    // Xử lý sửa ghi chú
+    $(document).on('click', '.edit-note-btn', function() {
+        var noteId = $(this).data('note-id');
+        var content = $(this).data('content');
+        
+        // Điền dữ liệu vào form sửa
+        $('#editNoteId').val(noteId);
+        $('#editNoteContent').val(content);
+        
+        // Hiển thị modal sửa
+        $('#editNoteModal').modal('show');
+    });
+    
+    // Cập nhật ghi chú
+    $('#updateNoteBtn').on('click', function() {
+        var noteId = $('#editNoteId').val();
+        var content = $('#editNoteContent').val().trim();
+        
+        if (!content) {
+            Swal.fire({
+                title: 'Lỗi!',
+                text: 'Vui lòng nhập nội dung ghi chú.',
+                icon: 'error'
+            });
+            return;
+        }
+        
+        $.ajax({
+            url: `/dashboard/users/notes/${noteId}/update/`,
+            method: 'POST',
+            data: {
+                'content': content,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                // Cập nhật nội dung ghi chú trên giao diện
+                $(`[data-note-id="${noteId}"] .note-content`).text(content);
+                
+                // Cập nhật data-content cho nút sửa
+                $(`[data-note-id="${noteId}"] .edit-note-btn`).attr('data-content', content);
+                
+                // Đóng modal
+                $('#editNoteModal').modal('hide');
+                
+                // Hiển thị thông báo thành công
+                Swal.fire({
+                    title: 'Thành công!',
+                    text: 'Đã cập nhật ghi chú.',
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            },
+            error: function(error) {
+                Swal.fire({
+                    title: 'Lỗi!',
+                    text: 'Không thể cập nhật ghi chú. Vui lòng thử lại sau.',
+                    icon: 'error'
+                });
+            }
+        });
+    });
+    
+    // Xử lý xóa ghi chú
+    $(document).on('click', '.delete-note-btn', function() {
+        var noteId = $(this).data('note-id');
+        var noteCard = $(`[data-note-id="${noteId}"]`);
+        
+        Swal.fire({
+            title: 'Xác nhận xóa?',
+            text: 'Bạn có chắc chắn muốn xóa ghi chú này?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Xóa',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/dashboard/users/notes/${noteId}/delete/`,
+                    method: 'POST',
+                    data: {
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        // Xóa ghi chú khỏi giao diện
+                        noteCard.fadeOut('slow', function() {
+                            $(this).remove();
+                            
+                            // Hiển thị thông báo không có ghi chú nếu đã xóa hết
+                            if ($('#notesList .note-card').length === 0) {
+                                $('#noNotesMessage').show();
+                            }
+                        });
+                        
+                        // Hiển thị thông báo thành công
+                        Swal.fire({
+                            title: 'Đã xóa!',
+                            text: 'Ghi chú đã được xóa thành công.',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    },
+                    error: function(error) {
+                        Swal.fire({
+                            title: 'Lỗi!',
+                            text: 'Không thể xóa ghi chú. Vui lòng thử lại sau.',
+                            icon: 'error'
+                        });
+                    }
+                });
+            }
+        });
+    });
+    
+    // Xử lý gửi tin nhắn
+    $('#sendMessageBtn').on('click', function() {
+        Swal.fire({
+            title: 'Gửi tin nhắn',
+            input: 'textarea',
+            inputLabel: 'Nội dung tin nhắn',
+            inputPlaceholder: 'Nhập nội dung tin nhắn...',
+            showCancelButton: true,
+            confirmButtonText: 'Gửi',
+            cancelButtonText: 'Hủy',
+            showLoaderOnConfirm: true,
+            preConfirm: (message) => {
+                if (!message) {
+                    Swal.showValidationMessage('Vui lòng nhập nội dung tin nhắn')
+                    return false;
+                }
+                
+                return $.ajax({
+                    url: `/dashboard/users/${user.id}/send-message/`,
+                    method: 'POST',
+                    data: {
+                        'message': message,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    }
+                }).then(response => {
+                    return response;
+                }).catch(error => {
+                    Swal.showValidationMessage(`Lỗi: ${error.responseText || 'Không thể gửi tin nhắn'}`)
+                });
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Đã gửi!',
+                    text: 'Tin nhắn đã được gửi thành công.',
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            }
+        });
+    });
+    
+    // Xử lý reset mật khẩu
+    $('#resetPasswordBtn').on('click', function() {
+        Swal.fire({
+            title: 'Đặt lại mật khẩu',
+            html: `
+                <p>Bạn có thể nhập mật khẩu mới hoặc hệ thống sẽ tự động tạo mật khẩu ngẫu nhiên.</p>
+                <div class="form-group text-left">
+                    <label for="swal-password">Mật khẩu mới</label>
+                    <input type="password" id="swal-password" class="form-control">
+                    <small class="form-text text-muted">Để trống nếu muốn hệ thống tự tạo mật khẩu ngẫu nhiên.</small>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Đặt lại mật khẩu',
+            cancelButtonText: 'Hủy',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                const password = document.getElementById('swal-password').value;
+                
+                return $.ajax({
+                    url: `{% url 'dashboard:user_reset_password' user.id %}`,
+                    method: 'POST',
+                    data: {
+                        'new_password': password,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    }
+                }).then(response => {
+                    return response;
+                }).catch(error => {
+                    Swal.showValidationMessage(`Lỗi: ${error.responseText || 'Không thể đặt lại mật khẩu'}`)
+                });
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if (result.value.password) {
+                    Swal.fire({
+                        title: 'Mật khẩu đã được đặt lại!',
+                        html: `
+                            <p>Mật khẩu mới là: <strong>${result.value.password}</strong></p>
+                            <p class="text-danger">Hãy lưu lại thông tin này vì bạn sẽ không thể xem lại mật khẩu sau khi đóng thông báo này.</p>
+                        `,
+                        icon: 'success'
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Thành công!',
+                        text: 'Mật khẩu đã được đặt lại thành công.',
+                        icon: 'success'
+                    });
+                }
+            }
+        });
+    });
+    
+    // Xử lý điều chỉnh số dư
+    $('#adjustBalanceBtn').on('click', function() {
+        Swal.fire({
+            title: 'Điều chỉnh số dư',
+            html: `
+                <div class="form-group text-left">
+                    <label for="swal-amount">Số tiền</label>
+                    <input type="number" id="swal-amount" class="form-control" placeholder="Nhập số tiền (dương: cộng, âm: trừ)">
+                </div>
+                <div class="form-group text-left">
+                    <label for="swal-description">Mô tả</label>
+                    <textarea id="swal-description" class="form-control" placeholder="Nhập mô tả lý do điều chỉnh số dư"></textarea>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Cập nhật',
+            cancelButtonText: 'Hủy',
+            preConfirm: () => {
+                const amount = document.getElementById('swal-amount').value;
+                const description = document.getElementById('swal-description').value;
+                
+                if (!amount) {
+                    Swal.showValidationMessage('Vui lòng nhập số tiền');
+                    return false;
+                }
+                
+                if (!description) {
+                    Swal.showValidationMessage('Vui lòng nhập mô tả');
+                    return false;
+                }
+                
+                return { amount, description };
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Gửi form ẩn
+                $('#hiddenBalanceAmount').val(result.value.amount);
+                $('#hiddenBalanceDescription').val(result.value.description);
+                $('#adjustBalanceForm').submit();
+            }
+        });
+    });
+    
+    // Xử lý điều chỉnh TCoin
+    $('#adjustTCoinBtn').on('click', function() {
+        Swal.fire({
+            title: 'Điều chỉnh TCoin',
+            html: `
+                <div class="form-group text-left">
+                    <label for="swal-tcoin-amount">Số lượng</label>
+                    <input type="number" id="swal-tcoin-amount" class="form-control" placeholder="Nhập số lượng (dương: cộng, âm: trừ)">
+                </div>
+                <div class="form-group text-left">
+                    <label for="swal-tcoin-description">Mô tả</label>
+                    <textarea id="swal-tcoin-description" class="form-control" placeholder="Nhập mô tả lý do điều chỉnh TCoin"></textarea>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Cập nhật',
+            cancelButtonText: 'Hủy',
+            preConfirm: () => {
+                const amount = document.getElementById('swal-tcoin-amount').value;
+                const description = document.getElementById('swal-tcoin-description').value;
+                
+                if (!amount) {
+                    Swal.showValidationMessage('Vui lòng nhập số lượng');
+                    return false;
+                }
+                
+                if (!description) {
+                    Swal.showValidationMessage('Vui lòng nhập mô tả');
+                    return false;
+                }
+                
+                return { amount, description };
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Gửi form ẩn
+                $('#hiddenTCoinAmount').val(result.value.amount);
+                $('#hiddenTCoinDescription').val(result.value.description);
+                $('#adjustTCoinForm').submit();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

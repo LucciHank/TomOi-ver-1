@@ -1,0 +1,243 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<style>
+    .activity-card {
+        border-radius: 10px;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    }
+    .activity-timeline {
+        position: relative;
+        padding-left: 3rem;
+    }
+    .activity-timeline::before {
+        content: '';
+        position: absolute;
+        left: 1rem;
+        top: 0;
+        height: 100%;
+        width: 2px;
+        background: #e3e6f0;
+    }
+    .timeline-item {
+        position: relative;
+        padding-bottom: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid #e3e6f0;
+    }
+    .timeline-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -2.1rem;
+        top: 0.25rem;
+        width: 1rem;
+        height: 1rem;
+        border-radius: 50%;
+        background: #4e73df;
+        border: 2px solid white;
+    }
+    .timeline-item.warning::before {
+        background: #f6c23e;
+    }
+    .timeline-item.danger::before {
+        background: #e74a3b;
+    }
+    .timeline-item.success::before {
+        background: #1cc88a;
+    }
+    .activity-icon {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin-right: 1rem;
+    }
+    .filter-card {
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 text-gray-800">
+                <i class="fas fa-history mr-2"></i>Lịch Sử Hoạt Động
+            </h1>
+            <p class="text-muted mb-0">
+                Theo dõi hoạt động của {{ user.get_full_name }}
+            </p>
+        </div>
+        <a href="{% url 'dashboard:user_detail' user.id %}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left mr-2"></i>Quay lại
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Filters -->
+        <div class="col-lg-3">
+            <div class="card filter-card">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="m-0 font-weight-bold">Bộ Lọc</h6>
+                </div>
+                <div class="card-body">
+                    <form id="filterForm">
+                        <div class="form-group mb-3">
+                            <label>Loại hoạt động</label>
+                            <select class="form-control" name="activity_type">
+                                <option value="">Tất cả</option>
+                                <option value="login">Đăng nhập</option>
+                                <option value="order">Đơn hàng</option>
+                                <option value="profile">Thông tin cá nhân</option>
+                                <option value="security">Bảo mật</option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label>Thời gian</label>
+                            <select class="form-control" name="time_range">
+                                <option value="24h">24 giờ qua</option>
+                                <option value="7d">7 ngày qua</option>
+                                <option value="30d">30 ngày qua</option>
+                                <option value="all">Tất cả</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <i class="fas fa-filter mr-2"></i>Lọc
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Activity Stats -->
+            <div class="card filter-card">
+                <div class="card-header bg-info text-white">
+                    <h6 class="m-0 font-weight-bold">Thống Kê</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="text-muted">Tổng số hoạt động</label>
+                        <h4 class="mb-0">{{ activities.count }}</h4>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted">Hoạt động gần đây</label>
+                        <h4 class="mb-0">{{ recent_activities }}</h4>
+                    </div>
+                    <div>
+                        <label class="text-muted">Mức độ hoạt động</label>
+                        <div class="progress">
+                            <div class="progress-bar bg-info" role="progressbar" 
+                                 style="width: {{ activity_level }}%">
+                                {{ activity_level }}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Timeline -->
+        <div class="col-lg-9">
+            <div class="card activity-card">
+                <div class="card-body">
+                    <div class="activity-timeline">
+                        {% for activity in activities %}
+                        <div class="timeline-item {{ activity.get_severity_class }}">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="activity-icon bg-{{ activity.get_type_color }}">
+                                    <i class="fas {{ activity.get_type_icon }}"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 font-weight-bold">{{ activity.action }}</h6>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        {{ activity.timestamp|timesince }} trước
+                                    </small>
+                                </div>
+                            </div>
+                            {% if activity.details %}
+                            <p class="mb-0 ml-5 pl-2">{{ activity.details }}</p>
+                            {% endif %}
+                            {% if activity.metadata %}
+                            <div class="ml-5 pl-2 mt-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-map-marker-alt mr-1"></i>{{ activity.metadata.location }}
+                                    <i class="fas fa-desktop ml-3 mr-1"></i>{{ activity.metadata.device }}
+                                    <i class="fas fa-globe ml-3 mr-1"></i>{{ activity.metadata.browser }}
+                                </small>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% empty %}
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-history fa-3x mb-3"></i>
+                            <p>Chưa có hoạt động nào được ghi nhận</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if activities.has_other_pages %}
+                    <nav class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if activities.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ activities.previous_page_number }}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            {% for i in activities.paginator.page_range %}
+                            <li class="page-item {% if activities.number == i %}active{% endif %}">
+                                <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                            </li>
+                            {% endfor %}
+
+                            {% if activities.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ activities.next_page_number }}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Handle filter form submission
+    $('#filterForm').on('submit', function(e) {
+        e.preventDefault();
+        var formData = $(this).serialize();
+        window.location.href = '?'+ formData;
+    });
+
+    // Auto-refresh timeline
+    setInterval(function() {
+        $.get(window.location.href, function(data) {
+            $('.activity-timeline').html($(data).find('.activity-timeline').html());
+        });
+    }, 60000); // Refresh every minute
+});
+</script>
+{% endblock %} 

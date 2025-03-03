@@ -6,7 +6,42 @@
   top: 0;
   animation: none;
 }
+/* Thêm vào file CSS của bạn */
+.sidebar.toggled {
+  width: 6.5rem!important;
+  overflow: visible;
+}
 
+.sidebar.toggled .nav-item .nav-link {
+  text-align: center;
+  padding: 0.75rem 1rem;
+  width: 6.5rem;
+}
+
+.sidebar.toggled .nav-item .nav-link span {
+  display: none;
+}
+
+.sidebar.toggled .nav-item .nav-link i {
+  margin-right: 0;
+  font-size: 1.25rem;
+}
+
+.sidebar.toggled .sidebar-brand .sidebar-brand-text {
+  display: none;
+}
+
+#sidebarToggle {
+  width: 2.5rem;
+  height: 2.5rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  cursor: pointer;
+}
+
+#sidebarToggle:hover {
+  background-color: rgba(255,255,255,.1);
+}
 .sidebar .nav-item .collapse.show,
 .sidebar .nav-item .collapsing {
   display: block;
@@ -64,4 +99,5 @@
   .sidebar.toggled .nav-item:last-child {
     margin-bottom: 1rem;
   }
+
 } 

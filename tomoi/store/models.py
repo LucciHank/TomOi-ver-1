@@ -46,6 +46,30 @@ class ProductLabel(models.Model):
         return self.name
 
 
+# Mô hình thương hiệu sản phẩm (Brand)
+class Brand(models.Model):
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255, unique=True)
+    description = models.TextField(blank=True)
+    logo = models.ImageField(upload_to='brands/', null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'Thương hiệu'
+        verbose_name_plural = 'Thương hiệu'
+
+
 # Mô hình sản phẩm (Product)
 class Product(models.Model):
     DURATION_CHOICES = [
@@ -66,15 +90,15 @@ class Product(models.Model):
         ('hbo', 'HBO GO'),
     ]
 
-    name = models.CharField(max_length=200)
-    brand = models.CharField(max_length=50, choices=BRAND_CHOICES)
+    name = models.CharField(max_length=255)
+    brand = models.ForeignKey('Brand', on_delete=models.SET_NULL, null=True, blank=True)
     duration = models.CharField(max_length=20, choices=DURATION_CHOICES)
     description = CKEditor5Field(
         'Mô tả', 
         config_name='default',
         blank=True
     )
-    price = models.DecimalField(max_digits=10, decimal_places=0)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     old_price = models.DecimalField(max_digits=10, decimal_places=0, null=True, blank=True)
     label = models.ForeignKey(ProductLabel, on_delete=models.SET_NULL, null=True, blank=True)
     category = models.ForeignKey(Category, related_name="products", on_delete=models.CASCADE, null=True, blank=True)
@@ -379,6 +403,7 @@ class CartItem(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='order_items')
     product_name = models.CharField(max_length=255)
     variant_name = models.CharField(max_length=255, null=True, blank=True)
     quantity = models.IntegerField(default=1)
@@ -388,7 +413,7 @@ class OrderItem(models.Model):
     account_username = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    
     def __str__(self):
         return f"{self.product_name} - {self.order.id}"
 

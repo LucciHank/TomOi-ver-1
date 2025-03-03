@@ -12,11 +12,40 @@
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- Custom styles -->
     <link href="/static/dashboard/css/sb-admin-2.css" rel="stylesheet">
     <link href="/static/dashboard/css/custom.css" rel="stylesheet">
+    <style>
+        /* Custom styles cho submenu */
+        .collapse-inner {
+            padding: .5rem 1rem;
+            min-width: 10rem;
+            font-size: 0.85rem;
+        }
+        
+        .collapse-item {
+            display: block;
+            padding: .5rem 1rem;
+            margin: 0 .5rem;
+            color: #3a3b45;
+            text-decoration: none;
+            border-radius: .35rem;
+            white-space: nowrap;
+        }
+        
+        .collapse-item:hover {
+            background-color: #eaecf4;
+            text-decoration: none;
+            color: #3a3b45;
+        }
+        
+        .collapse-item i {
+            margin-right: 0.5rem;
+            font-size: 0.85rem;
+        }
+    </style>
     {% block extra_css %}{% endblock %}
 </head>
 
@@ -24,7 +53,148 @@
     <!-- Page Wrapper -->
     <div id="wrapper">
         
-        {% include 'dashboard/includes/sidebar.html' %}
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{% url 'dashboard:home' %}">
+                <div class="sidebar-brand-icon">
+                    <img src="{% static 'images/logo.png' %}" alt="Logo" style="width: 40px;">
+                </div>
+                <div class="sidebar-brand-text mx-3">TomOi Admin</div>
+            </a>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'dashboard:home' %}">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Bảng điều khiển</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Analytics -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'dashboard:analytics' %}">
+                    <i class="fas fa-fw fa-chart-area"></i>
+                    <span>Phân tích</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Reports -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'dashboard:reports' %}">
+                    <i class="fas fa-fw fa-file-alt"></i>
+                    <span>Phân tích & Báo cáo</span>
+                </a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Quản lý
+            </div>
+
+            <!-- Nav Item - Sources -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'dashboard:source_dashboard' %}">
+                    <i class="fas fa-fw fa-database"></i>
+                    <span>Quản lý nguồn nhập</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Premium Accounts -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'dashboard:subscription_management' %}">
+                    <i class="fas fa-fw fa-crown"></i>
+                    <span>Tài khoản Premium</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Orders -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'dashboard:orders' %}">
+                    <i class="fas fa-fw fa-shopping-cart"></i>
+                    <span>Đơn hàng</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Users -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#collapseUsers" data-toggle="collapse" 
+                    aria-expanded="false" aria-controls="collapseUsers">
+                    <i class="fas fa-fw fa-users"></i>
+                    <span>Người dùng</span>
+                </a>
+                <div id="collapseUsers" class="collapse" aria-labelledby="headingUsers">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Quản lý người dùng:</h6>
+                        <a class="collapse-item" href="{% url 'dashboard:user_dashboard' %}">
+                            <i class="fas fa-fw fa-list"></i> Tổng quan
+                        </a>
+                        <a class="collapse-item" href="{% url 'dashboard:user_list' %}">
+                            <i class="fas fa-fw fa-user-friends"></i> Danh sách
+                        </a>
+                        <a class="collapse-item" href="{% url 'dashboard:user_analytics' %}">
+                            <i class="fas fa-fw fa-chart-pie"></i> Phân tích
+                        </a>
+                    </div>
+                </div>
+            </li>
+
+            <!-- Nav Item - Email -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'dashboard:email_logs' %}">
+                    <i class="fas fa-fw fa-envelope"></i>
+                    <span>Email</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Marketing -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'dashboard:marketing' %}">
+                    <i class="fas fa-fw fa-bullhorn"></i>
+                    <span>Marketing</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Blog -->
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-fw fa-blog"></i>
+                    <span>Blog</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Settings -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'dashboard:settings' %}">
+                    <i class="fas fa-fw fa-cog"></i>
+                    <span>Hệ thống</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Support -->
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-fw fa-headset"></i>
+                    <span>Hỗ trợ</span>
+                </a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <!-- Sidebar Toggler (Sidebar) -->
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle">
+                    <i class="fas fa-angle-left"></i>
+                </button>
+            </div>
+        </ul>
         
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
@@ -49,6 +219,35 @@
                         </div>
                     </div>
                     {% endif %}
+                    
+                    <div class="nav-tabs-custom">
+                        <ul class="nav nav-tabs">
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}" 
+                                   href="{% url 'dashboard:home' %}">
+                                    Tổng Quan
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.resolver_match.url_name == 'analytics' %}active{% endif %}" 
+                                   href="{% url 'dashboard:analytics' %}">
+                                    Phân Tích
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.resolver_match.url_name == 'reports' %}active{% endif %}" 
+                                   href="{% url 'dashboard:reports' %}">
+                                    Báo Cáo
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.resolver_match.url_name == 'performance' %}active{% endif %}" 
+                                   href="{% url 'dashboard:performance' %}">
+                                    Hiệu Suất
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                     
                     {% block content %}{% endblock %}
                     
@@ -92,7 +291,7 @@
     
     <!-- Bootstrap core JavaScript-->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Core plugin JavaScript-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
@@ -106,42 +305,24 @@
     {% block extra_js %}{% endblock %}
 
     <script>
-    // Fix for Bootstrap 5 compatibility with sb-admin-2
-    document.addEventListener('DOMContentLoaded', function() {
-        // Convert data-toggle to data-bs-toggle and data-target to data-bs-target
-        document.querySelectorAll('[data-toggle]').forEach(function(element) {
-            element.setAttribute('data-bs-' + element.getAttribute('data-toggle'), '');
-            element.removeAttribute('data-toggle');
+    $(document).ready(function() {
+        // Xử lý active menu item
+        var currentUrl = window.location.pathname;
+        $('.collapse-item').each(function() {
+            if ($(this).attr('href') === currentUrl) {
+                $(this).addClass('active');
+                $(this).closest('.collapse').addClass('show');
+                $(this).closest('.nav-item').find('.nav-link').removeClass('collapsed');
+            }
         });
-        
-        document.querySelectorAll('[data-target]').forEach(function(element) {
-            element.setAttribute('data-bs-' + element.getAttribute('data-target'), '');
-            element.removeAttribute('data-target');
-        });
-        
-        // Initialize Bootstrap 5 components
-        var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
-        dropdownElementList.map(function(dropdownToggleEl) {
-            return new bootstrap.Dropdown(dropdownToggleEl);
-        });
-        
-        var collapseElementList = [].slice.call(document.querySelectorAll('.collapse'));
-        collapseElementList.map(function(collapseEl) {
-            return new bootstrap.Collapse(collapseEl, {toggle: false});
-        });
-        
-        // Handle sidebar toggle
-        document.querySelectorAll('#sidebarToggle, #sidebarToggleTop').forEach(function(element) {
-            element.addEventListener('click', function() {
-                document.body.classList.toggle('sidebar-toggled');
-                document.querySelector('.sidebar').classList.toggle('toggled');
-                
-                if (document.querySelector('.sidebar').classList.contains('toggled')) {
-                    document.querySelectorAll('.sidebar .collapse').forEach(function(collapse) {
-                        bootstrap.Collapse.getInstance(collapse).hide();
-                    });
-                }
-            });
+
+        // Xử lý toggle sidebar
+        $("#sidebarToggle").on('click', function(e) {
+            $("body").toggleClass("sidebar-toggled");
+            $(".sidebar").toggleClass("toggled");
+            if ($(".sidebar").hasClass("toggled")) {
+                $('.sidebar .collapse').collapse('hide');
+            }
         });
     });
     </script>

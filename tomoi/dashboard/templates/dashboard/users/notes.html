@@ -1,0 +1,157 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Ghi chú người dùng{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Ghi chú người dùng: {{ user.get_full_name|default:user.username }}</h1>
+        <div>
+            <a href="{% url 'dashboard:user_detail' user.id %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left mr-2"></i>Quay lại
+            </a>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNoteModal">
+                <i class="fas fa-plus mr-2"></i>Thêm ghi chú
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Lịch sử ghi chú</h6>
+                </div>
+                <div class="card-body">
+                    <div class="notes-container">
+                        {% for note in notes %}
+                        <div class="note-item mb-4 p-3 border rounded">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <strong>{{ note.created_by.get_full_name }}</strong>
+                                    <span class="text-muted ml-2">
+                                        {{ note.created_at|date:"d/m/Y H:i" }}
+                                    </span>
+                                    {% if note.created_at != note.updated_at %}
+                                    <small class="text-muted ml-2">
+                                        (Đã chỉnh sửa: {{ note.updated_at|date:"d/m/Y H:i" }})
+                                    </small>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <button class="btn btn-sm btn-info edit-note-btn" data-note-id="{{ note.id }}" data-note-content="{{ note.content }}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger delete-note-btn" data-note-id="{{ note.id }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="note-content p-3 bg-light rounded">
+                                {{ note.content|linebreaks }}
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-sticky-note fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Chưa có ghi chú nào cho người dùng này.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal thêm ghi chú -->
+<div class="modal fade" id="addNoteModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm ghi chú</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'dashboard:user_add_note' user.id %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="note_content" class="form-label">Nội dung</label>
+                        <textarea class="form-control" id="note_content" name="content" rows="4" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu ghi chú</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal sửa ghi chú -->
+<div class="modal fade" id="editNoteModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sửa ghi chú</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editNoteForm" action="" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="edit_note_content" class="form-label">Nội dung</label>
+                        <textarea class="form-control" id="edit_note_content" name="content" rows="4" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Cập nhật</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Xử lý khi click nút sửa ghi chú
+    $('.edit-note-btn').on('click', function() {
+        var noteId = $(this).data('note-id');
+        var noteContent = $(this).data('note-content');
+        
+        $('#edit_note_content').val(noteContent);
+        $('#editNoteForm').attr('action', '{% url "dashboard:user_edit_note" user.id %}' + noteId + '/');
+        
+        // Hiển thị modal
+        var editModal = new bootstrap.Modal(document.getElementById('editNoteModal'));
+        editModal.show();
+    });
+    
+    // Xử lý khi click nút xóa ghi chú
+    $('.delete-note-btn').on('click', function() {
+        var noteId = $(this).data('note-id');
+        
+        Swal.fire({
+            title: 'Xác nhận xóa?',
+            text: "Bạn có chắc chắn muốn xóa ghi chú này?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Xóa',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '{% url "dashboard:user_delete_note" user.id %}' + noteId + '/';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

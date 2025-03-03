@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'accounts.apps.AccountsConfig',
     'store',
     'payment',
@@ -83,7 +84,6 @@ INSTALLED_APPS = [
     'django_ckeditor_5',
     'colorfield',
     'admin_interface',
-    'django.contrib.humanize',
     'blog',
     'dashboard',
 ]

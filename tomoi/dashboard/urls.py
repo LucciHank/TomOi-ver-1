@@ -6,6 +6,12 @@ from . import chatbot_views
 from .main_views import index  # Import index từ main_views
 from .auth_views import dashboard_login, dashboard_logout  # Import các hàm xác thực
 from .order_views import order_management, order_detail, update_order_status, export_orders
+from .views import (
+    analytics, 
+    reports, 
+    performance,
+    user_views
+)
 
 app_name = 'dashboard'
 
@@ -23,7 +29,7 @@ urlpatterns = [
     path('orders/export/', export_orders, name='export_orders'),
     
     # Analytics URLs
-    path('analytics/', views.analytics_dashboard, name='analytics_dashboard'),
+    path('analytics/', analytics, name='analytics'),
     path('analytics/sales/', views.sales_report, name='sales_report'),
     path('analytics/users/', views.user_analytics, name='user_analytics'),
     path('analytics/marketing/', views.marketing_analytics, name='marketing_analytics'),
@@ -83,13 +89,21 @@ urlpatterns = [
     path('api/chat/feedback/', chatbot_views.chat_feedback, name='chat_feedback'),
     
     # User Management URLs
-    path('users/', views.user_list, name='users'),
-    path('users/management/', views.user_management, name='user_management'),
-    path('users/<int:user_id>/', views.user_detail, name='user_detail'),
-    path('users/<int:user_id>/toggle-status/', views.toggle_user_status, name='toggle_user_status'),
+    path('users/', user_views.user_dashboard, name='user_dashboard'),
+    path('users/list/', views.user_list, name='user_list'),
+    path('users/add/', user_views.user_add, name='user_add'),
+    path('users/<int:user_id>/', user_views.user_detail, name='user_detail'),
+    path('users/<int:user_id>/edit/', user_views.user_edit, name='user_edit'),
+    path('users/<int:user_id>/permissions/', user_views.user_permissions, name='user_permissions'),
+    path('users/<int:user_id>/activity/', user_views.user_activity, name='user_activity'),
+    path('users/<int:user_id>/transactions/', user_views.user_transactions, name='user_transactions'),
+    path('users/<int:user_id>/notes/', user_views.user_notes, name='user_notes'),
     path('users/export/', views.export_users, name='export_users'),
-    path('users/add/', views.add_user, name='add_user'),
-    path('users/<int:user_id>/delete/', views.delete_user, name='delete_user'),
+    path('users/analytics/', user_views.user_analytics, name='user_analytics'),
+    path('users/<int:user_id>/adjust-balance/', user_views.adjust_balance, name='adjust_balance'),
+    path('users/<int:user_id>/adjust-tcoin/', user_views.adjust_tcoin, name='adjust_tcoin'),
+    path('users/import/', user_views.import_users, name='import_users'),
+    path('users/<int:user_id>/reset-password/', user_views.user_reset_password, name='user_reset_password'),
     
     # Warranty Management
     path('warranty/', views.warranty_management, name='warranty_management'),
@@ -141,4 +155,20 @@ urlpatterns = [
     path('email/editor/', views.email_editor, name='email_editor'),
     path('email/editor/<int:template_id>/', views.email_editor, name='email_editor_edit'),
     path('email/save-template/', views.email_save_template, name='email_save_template'),
+    
+    # Tab phụ Dashboard
+    path('reports/', reports, name='reports'),
+    path('performance/', performance, name='performance'),
+    
+    # User group management
+    path('user-groups/', user_views.user_groups, name='user_groups'),
+    path('user-groups/add/', user_views.add_group, name='add_group'),
+    path('user-groups/<int:group_id>/edit/', user_views.edit_group, name='edit_group'),
+    path('user-groups/<int:group_id>/delete/', user_views.delete_group, name='delete_group'),
+    path('users/<int:user_id>/delete/', user_views.delete_user, name='delete_user'),
+    path('users/<int:user_id>/notes/add/', user_views.user_add_note, name='user_add_note'),
+    path('users/<int:user_id>/notes/<int:note_id>/edit/', user_views.user_edit_note, name='user_edit_note'),
+    path('users/<int:user_id>/notes/<int:note_id>/delete/', user_views.user_delete_note, name='user_delete_note'),
+    path('users/notes/<int:note_id>/update/', user_views.update_user_note, name='update_user_note'),
+    path('users/notes/<int:note_id>/delete/', user_views.delete_user_note, name='delete_user_note'),
 ] 

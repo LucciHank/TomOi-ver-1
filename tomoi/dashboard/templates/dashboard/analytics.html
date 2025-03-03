@@ -1,0 +1,257 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.min.css">
+<style>
+    .dashboard-card {
+        transition: transform 0.3s, box-shadow 0.3s;
+        cursor: pointer;
+    }
+    .dashboard-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .kpi-icon {
+        font-size: 2.5rem;
+        opacity: 0.6;
+    }
+    .chart-container {
+        position: relative;
+        height: 300px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 text-gray-800">
+                <i class="fas fa-chart-line mr-2"></i>Bảng Điều Khiển Tổng Quan
+            </h1>
+            <p class="text-muted">Cập nhật lúc: {% now "H:i d/m/Y" %}</p>
+        </div>
+    </div>
+
+    <!-- KPIs Section -->
+    <div class="row">
+        <!-- Tổng Người Dùng -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow dashboard-card h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Tổng Người Dùng
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ total_users|intcomma }}
+                                <i class="fas fa-users float-right kpi-icon text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Người Dùng Mới -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow dashboard-card h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Người Dùng Mới (24h)
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ new_users_24h|intcomma }}
+                                <i class="fas fa-user-plus float-right kpi-icon text-success"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tỷ Lệ Tăng Trưởng -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow dashboard-card h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Tỷ Lệ Tăng Trưởng
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ user_growth_rate|floatformat:2 }}%
+                                <i class="fas fa-chart-line float-right kpi-icon text-warning"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hoạt Động Hệ Thống -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow dashboard-card h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Hoạt Động Hệ Thống
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                Ổn Định
+                                <i class="fas fa-server float-right kpi-icon text-info"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Biểu Đồ & Chi Tiết -->
+    <div class="row">
+        <!-- Biểu Đồ Tăng Trưởng Người Dùng -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-area mr-2"></i>Tăng Trưởng Người Dùng
+                    </h6>
+                    <div class="dropdown no-arrow">
+                        <a href="#" class="dropdown-toggle" role="button" data-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow">
+                            <a href="#" class="dropdown-item">Chi Tiết</a>
+                            <a href="#" class="dropdown-item">Xuất Báo Cáo</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body chart-container">
+                    <canvas id="userGrowthChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nguồn Truy Cập -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-globe mr-2"></i>Nguồn Truy Cập
+                    </h6>
+                    <div class="dropdown no-arrow">
+                        <a href="#" class="dropdown-toggle" role="button" data-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow">
+                            <a href="#" class="dropdown-item">Chi Tiết</a>
+                            <a href="#" class="dropdown-item">Phân Tích</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body chart-container">
+                    <canvas id="trafficSourceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thông Báo Hệ Thống -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-bell mr-2"></i>Thông Báo Hệ Thống
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% for notification in notifications %}
+                    <div class="alert alert-{{ notification.severity }} d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ notification.title }}</strong>
+                            <p class="mb-0">{{ notification.content }}</p>
+                        </div>
+                        <span class="badge badge-light">{{ notification.created_at|timesince }} trước</span>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-muted">
+                        <i class="fas fa-info-circle mr-2"></i>Không có thông báo mới
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Biểu đồ tăng trưởng người dùng
+    var userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
+    var userGrowthData = {{ user_growth_chart|safe }};
+    
+    new Chart(userGrowthCtx, {
+        type: 'line',
+        data: {
+            labels: userGrowthData.map(item => item.day),
+            datasets: [{
+                label: 'Người Dùng Mới',
+                data: userGrowthData.map(item => item.count),
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Biểu đồ nguồn truy cập
+    var trafficSourceCtx = document.getElementById('trafficSourceChart').getContext('2d');
+    var trafficSourceData = {{ traffic_sources|safe }};
+    
+    new Chart(trafficSourceCtx, {
+        type: 'doughnut',
+        data: {
+            labels: trafficSourceData.map(item => item.registration_source || 'Không xác định'),
+            datasets: [{
+                data: trafficSourceData.map(item => item.count),
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.8)',
+                    'rgba(54, 162, 235, 0.8)',
+                    'rgba(255, 206, 86, 0.8)',
+                    'rgba(75, 192, 192, 0.8)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 

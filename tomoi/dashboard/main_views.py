@@ -4,8 +4,9 @@ from django.db.models import Sum, Count
 from django.utils import timezone
 from datetime import timedelta
 from accounts.models import CustomUser
-from store.models import Order, Product
+from store.models import Order, Product, OrderItem
 from .models.base import SupportTicket
+from django.db.models.functions import TruncDate
 
 @staff_member_required
 def index(request):
@@ -20,7 +21,7 @@ def index(request):
     
     # Tổng doanh thu
     revenue = Order.objects.filter(status='completed').aggregate(
-        total=Sum('total_price')
+        total=Sum('total_amount')
     )['total'] or 0
     
     # Số lượng người dùng
@@ -34,7 +35,7 @@ def index(request):
     
     # Sản phẩm bán chạy
     top_products = Product.objects.annotate(
-        sold=Count('orderitem')
+        sold=Count('order_items')
     ).order_by('-sold')[:5]
     
     # Dữ liệu ticket hỗ trợ
@@ -43,6 +44,37 @@ def index(request):
     
     # Dữ liệu giao dịch bảo hành - bỏ qua phần này
     warranty_requests = 0  # Giá trị mặc định
+    
+    # Đơn hàng trong ngày
+    today = timezone.now().date()
+    orders_today = Order.objects.filter(
+        created_at__date=today
+    ).count()
+    
+    # Dữ liệu cho biểu đồ doanh thu 7 ngày
+    last_7_days = timezone.now() - timedelta(days=7)
+    daily_revenue = Order.objects.filter(
+        status='completed',
+        created_at__gte=last_7_days
+    ).annotate(
+        date=TruncDate('created_at')
+    ).values('date').annotate(
+        revenue=Sum('total_amount')
+    ).order_by('date')
+    
+    revenue_labels = [entry['date'].strftime('%d/%m') for entry in daily_revenue]
+    revenue_data = [float(entry['revenue'] or 0) for entry in daily_revenue]
+    
+    # Thống kê trạng thái đơn hàng
+    order_status = Order.objects.values('status').annotate(
+        count=Count('id')
+    )
+    
+    status_labels = []
+    status_data = []
+    for status in order_status:
+        status_labels.append(status['status'])
+        status_data.append(status['count'])
     
     context = {
         'total_orders': total_orders,
@@ -56,7 +88,12 @@ def index(request):
         'top_products': top_products,
         'pending_tickets': pending_tickets,
         'total_tickets': total_tickets,
-        'warranty_requests': warranty_requests
+        'warranty_requests': warranty_requests,
+        'orders_today': orders_today,
+        'revenue_labels': revenue_labels,
+        'revenue_data': revenue_data,
+        'status_labels': status_labels,
+        'status_data': status_data
     }
     
     return render(request, 'dashboard/index.html', context) 

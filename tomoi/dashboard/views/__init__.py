@@ -5,6 +5,35 @@
 
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
+from .dashboard import *
+from .marketing import *
+from .settings import *
+from .api import *
+from .chatbot import *
+from .source import *
+from .user import (
+    user_list,
+    user_detail,
+    user_edit,
+    user_permissions,
+    user_activity_log,
+    user_login_history,
+    terminate_session,
+    terminate_all_sessions,
+    toggle_user_status,
+    user_add,
+    user_delete,
+    import_users,
+    user_report,
+    user_stats
+)
+from django.contrib.admin.views.decorators import staff_member_required
+from django.db.models import Sum, Count, Avg
+from store.models import Order, Product, OrderItem
+from accounts.models import CustomUser
+from django.utils import timezone
+from datetime import timedelta
+from dashboard.models import SystemNotification
 
 # Hàm tạm thời cho các view chưa được triển khai
 def not_implemented(request, *args, **kwargs):
@@ -12,12 +41,14 @@ def not_implemented(request, *args, **kwargs):
         'message': 'Chức năng này đang được phát triển'
     })
 
-# Gán các hàm tạm thời cho tất cả các view chưa được triển khai
-# Order Management
+# Gán các hàm tạm thời cho các view chưa triển khai
 order_management = not_implemented
 order_detail = not_implemented
 update_order_status = not_implemented
 export_orders = not_implemented
+user_management = not_implemented
+export_users = not_implemented
+warranty_management = not_implemented
 
 # Analytics
 analytics_dashboard = not_implemented
@@ -69,16 +100,10 @@ api_source_products = not_implemented
 get_source_base_price = not_implemented
 
 # User Management
-user_list = not_implemented
-user_management = not_implemented
-user_detail = not_implemented
-toggle_user_status = not_implemented
-export_users = not_implemented
 add_user = not_implemented
 delete_user = not_implemented
 
 # Warranty Management
-warranty_management = not_implemented
 warranty_detail = not_implemented
 warranty_report = not_implemented
 send_new_account = not_implemented
@@ -128,4 +153,93 @@ chat_sessions = not_implemented
 email_logs = not_implemented
 email_templates = not_implemented
 email_editor = not_implemented
-email_save_template = not_implemented 
+email_save_template = not_implemented
+
+@staff_member_required
+def analytics(request):
+    # Thống kê người dùng
+    total_users = CustomUser.objects.count()
+    new_users_24h = CustomUser.objects.filter(
+        date_joined__gte=timezone.now() - timedelta(hours=24)
+    ).count()
+    
+    # Tỷ lệ tăng trưởng người dùng
+    users_last_week = CustomUser.objects.filter(
+        date_joined__gte=timezone.now() - timedelta(days=7)
+    ).count()
+    user_growth_rate = ((new_users_24h - users_last_week) / users_last_week * 100) if users_last_week > 0 else 0
+
+    # Nguồn truy cập
+    traffic_sources = CustomUser.objects.values('registration_source').annotate(
+        count=Count('id')
+    )
+
+    # Thiết bị sử dụng
+    device_usage = CustomUser.objects.values('last_login_device').annotate(
+        count=Count('id')
+    )
+
+    # Biểu đồ người dùng mới theo ngày
+    user_growth_chart = CustomUser.objects.extra({
+        'day': "date(date_joined)"
+    }).values('day').annotate(
+        count=Count('id')
+    ).order_by('day')
+
+    context = {
+        'total_users': total_users,
+        'new_users_24h': new_users_24h,
+        'user_growth_rate': user_growth_rate,
+        'traffic_sources': list(traffic_sources),
+        'device_usage': list(device_usage),
+        'user_growth_chart': list(user_growth_chart),
+        'notifications': SystemNotification.objects.filter(is_active=True)[:5]
+    }
+    return render(request, 'dashboard/analytics.html', context)
+
+@staff_member_required
+def reports(request):
+    """Trang báo cáo"""
+    context = {
+        'sales_report': generate_sales_report(),
+        'user_activity_report': generate_user_activity_report(),
+    }
+    return render(request, 'dashboard/reports.html', context)
+
+@staff_member_required
+def performance(request):
+    """Trang hiệu suất hệ thống"""
+    context = {
+        'server_metrics': get_server_performance_metrics(),
+        'database_performance': analyze_database_performance(),
+    }
+    return render(request, 'dashboard/performance.html', context)
+
+# Các hàm hỗ trợ (bạn cần triển khai chi tiết)
+def calculate_user_growth_rate():
+    # Logic tính toán tỷ lệ tăng trưởng người dùng
+    pass
+
+def calculate_bounce_rate():
+    # Logic tính toán tỷ lệ thoát
+    pass
+
+def calculate_conversion_rate():
+    # Logic tính toán tỷ lệ chuyển đổi
+    pass
+
+def generate_sales_report():
+    # Logic tạo báo cáo doanh số
+    pass
+
+def generate_user_activity_report():
+    # Logic tạo báo cáo hoạt động người dùng
+    pass
+
+def get_server_performance_metrics():
+    # Logic lấy các chỉ số hiệu suất server
+    pass
+
+def analyze_database_performance():
+    # Logic phân tích hiệu suất database
+    pass 

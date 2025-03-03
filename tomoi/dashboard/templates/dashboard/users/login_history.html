@@ -1,0 +1,154 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Lịch sử đăng nhập - {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Lịch sử đăng nhập: {{ user.username }}</h1>
+        <a href="{% url 'dashboard:user_detail' user.id %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Các phiên đăng nhập</h6>
+            <button class="btn btn-danger btn-sm" onclick="terminateAllSessions()">
+                <i class="fas fa-power-off"></i> Đăng xuất tất cả phiên
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Thời gian</th>
+                            <th>IP</th>
+                            <th>Thiết bị</th>
+                            <th>Trình duyệt</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for login in login_history %}
+                        <tr>
+                            <td>{{ login.login_time|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {{ login.ip_address }}
+                                {% if login.is_suspicious %}
+                                <span class="badge bg-warning" title="Địa chỉ IP khác thường">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>{{ login.device_type }}</td>
+                            <td>{{ login.browser }}</td>
+                            <td>
+                                {% if login.is_active %}
+                                <span class="badge bg-success">Đang hoạt động</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Đã kết thúc</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if login.is_active %}
+                                <button class="btn btn-danger btn-sm" 
+                                        onclick="terminateSession('{{ login.session_id }}')">
+                                    <i class="fas fa-times"></i> Kết thúc
+                                </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">Chưa có lịch sử đăng nhập</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if login_history.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if login_history.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ login_history.previous_page_number }}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for i in login_history.paginator.page_range %}
+                    <li class="page-item {% if login_history.number == i %}active{% endif %}">
+                        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {% if login_history.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ login_history.next_page_number }}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function terminateSession(sessionId) {
+    if (confirm('Bạn có chắc muốn kết thúc phiên đăng nhập này?')) {
+        $.ajax({
+            url: '{% url "dashboard:terminate_session" user.id %}',
+            method: 'POST',
+            data: {
+                session_id: sessionId,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert('Có lỗi xảy ra: ' + response.error);
+                }
+            },
+            error: function() {
+                alert('Có lỗi xảy ra khi kết thúc phiên');
+            }
+        });
+    }
+}
+
+function terminateAllSessions() {
+    if (confirm('Bạn có chắc muốn kết thúc tất cả phiên đăng nhập?')) {
+        $.ajax({
+            url: '{% url "dashboard:terminate_all_sessions" user.id %}',
+            method: 'POST',
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert('Có lỗi xảy ra: ' + response.error);
+                }
+            },
+            error: function() {
+                alert('Có lỗi xảy ra khi kết thúc phiên');
+            }
+        });
+    }
+}
+</script>
+{% endblock %} 

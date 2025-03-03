@@ -1,0 +1,351 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Tổng quan người dùng{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<style>
+    .user-stats-card {
+        transition: all 0.3s ease;
+        border-radius: 10px;
+    }
+    .user-stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .stat-icon {
+        font-size: 2rem;
+        opacity: 0.7;
+    }
+    .chart-container {
+        height: 300px;
+        margin-bottom: 1rem;
+    }
+    .user-table th {
+        white-space: nowrap;
+    }
+    .status-badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+    }
+    .status-active { background-color: #e8f5e9; color: #2e7d32; }
+    .status-pending { background-color: #fff3e0; color: #ef6c00; }
+    .status-blocked { background-color: #ffebee; color: #c62828; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Tổng quan người dùng</h1>
+        <div>
+            <a href="{% url 'dashboard:user_add' %}" class="btn btn-primary">
+                <i class="fas fa-user-plus mr-2"></i>Thêm Người Dùng
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card user-stats-card border-left-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Tổng Người Dùng
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ total_users|intcomma }}
+                            </div>
+                        </div>
+                        <i class="fas fa-users stat-icon text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card user-stats-card border-left-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Đang Hoạt Động
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ active_users|intcomma }}
+                            </div>
+                        </div>
+                        <i class="fas fa-user-check stat-icon text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card user-stats-card border-left-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Chờ Xác Minh
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ pending_users|intcomma }}
+                            </div>
+                        </div>
+                        <i class="fas fa-user-clock stat-icon text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card user-stats-card border-left-danger">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Bị Khóa
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ blocked_users|intcomma }}
+                            </div>
+                        </div>
+                        <i class="fas fa-user-lock stat-icon text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-xl-8">
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-line mr-2"></i>Xu Hướng Đăng Ký
+                    </h6>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-link dropdown-toggle" type="button" id="timeRangeDropdown" data-bs-toggle="dropdown">
+                            7 Ngày
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="#" onclick="updateChart('7d')">7 Ngày</a>
+                            <a class="dropdown-item" href="#" onclick="updateChart('30d')">30 Ngày</a>
+                            <a class="dropdown-item" href="#" onclick="updateChart('90d')">90 Ngày</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="registrationTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-pie mr-2"></i>Phân Bố Người Dùng
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="userDistributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Table -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Người dùng mới đăng ký</h6>
+                    <a href="{% url 'dashboard:user_list' %}" class="btn btn-sm btn-primary">Xem tất cả</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Người dùng</th>
+                                    <th>Ngày đăng ký</th>
+                                    <th>Nền tảng</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in recent_users %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ user.get_avatar_url }}" class="rounded-circle mr-2" 
+                                                 style="width: 40px; height: 40px; object-fit: cover;">
+                                            <div>
+                                                <div class="font-weight-bold">{{ user.get_full_name|default:user.username }}</div>
+                                                <div class="small text-muted">{{ user.email }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ user.date_joined|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        {% if user.social_auth.count > 0 %}
+                                            {% with auth=user.social_auth.first %}
+                                                {% if auth.provider == 'google-oauth2' %}
+                                                    <span class="badge bg-danger">Google</span>
+                                                {% elif auth.provider == 'facebook' %}
+                                                    <span class="badge bg-primary">Facebook</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ auth.provider|title }}</span>
+                                                {% endif %}
+                                            {% endwith %}
+                                        {% else %}
+                                            <span class="badge bg-secondary">Đăng ký trực tiếp</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if user.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                            {% if user.is_active %}Hoạt động{% else %}Chưa kích hoạt{% endif %}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">Chưa có người dùng mới</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Đăng ký theo nền tảng</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie pt-4">
+                        <canvas id="platformChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center small">
+                        <span class="mr-2">
+                            <i class="fas fa-circle text-primary"></i> Trực tiếp
+                        </span>
+                        <span class="mr-2">
+                            <i class="fas fa-circle text-danger"></i> Google
+                        </span>
+                        <span class="mr-2">
+                            <i class="fas fa-circle text-info"></i> Facebook
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm Người Dùng Mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <!-- Form fields here -->
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Initialize DataTable
+    $('#userTable').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/vi.json'
+        }
+    });
+
+    // Initialize Charts
+    initializeCharts();
+});
+
+function initializeCharts() {
+    // Registration Trend Chart
+    const trendCtx = document.getElementById('registrationTrendChart').getContext('2d');
+    new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: {{ chart_labels|safe }},
+            datasets: [{
+                label: 'Người Dùng Mới',
+                data: {{ registration_data|safe }},
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // User Distribution Chart
+    const distributionCtx = document.getElementById('userDistributionChart').getContext('2d');
+    new Chart(distributionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['VIP', 'Thường', 'Mới'],
+            datasets: [{
+                data: [{{ vip_users }}, {{ regular_users }}, {{ new_users }}],
+                backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+function confirmDelete(userId) {
+    if (confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
+        // Handle delete action
+    }
+}
+
+function exportUserData() {
+    window.location.href = "{% url 'dashboard:export_users' %}";
+}
+
+function updateChart(timeRange) {
+    // Handle chart update based on time range
+}
+</script>
+{% endblock %} 

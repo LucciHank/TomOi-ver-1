@@ -4,6 +4,8 @@ from django.utils.html import format_html
 from django.contrib.auth.hashers import check_password
 import random
 from datetime import datetime
+from django.utils import timezone
+import json
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, username, email, password=None, **extra_fields):
@@ -66,29 +68,24 @@ class AccountType(models.Model):
         return self.name
 
 class CustomUser(AbstractUser):
-    GENDER_CHOICES = [
-        ('M', 'Nam'),
-        ('F', 'Nữ'),
-        ('O', 'Khác')
-    ]
-    gender = models.CharField(
-        max_length=1, 
-        choices=GENDER_CHOICES,
-        null=True,
-        blank=True
-    )
     USER_TYPE_CHOICES = (
-        ('admin', 'Quản trị viên'),
-        ('staff', 'Nhân viên'),
         ('customer', 'Khách hàng'),
+        ('staff', 'Nhân viên'),
+        ('admin', 'Admin'),
     )
     
-    user_type = models.CharField(
-        max_length=20, 
-        choices=USER_TYPE_CHOICES, 
-        default='customer',
-        verbose_name='Chức vụ'
-    )
+    user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES, default='customer')
+    phone_number = models.CharField(max_length=15, blank=True, verbose_name="Số điện thoại")
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    
+    # Thêm các trường bổ sung
+    address = models.TextField(blank=True, verbose_name="Địa chỉ")
+    birth_date = models.DateField(null=True, blank=True, verbose_name="Ngày sinh")
+    gender = models.CharField(max_length=10, choices=(
+        ('male', 'Nam'),
+        ('female', 'Nữ'),
+        ('other', 'Khác')
+    ), blank=True)
     
     account_label = models.ForeignKey(
         AccountType,
@@ -96,23 +93,6 @@ class CustomUser(AbstractUser):
         null=True,
         blank=True,
         verbose_name='Loại tài khoản'
-    )
-    avatar = models.ImageField(
-        upload_to='avatars/', 
-        null=True, 
-        blank=True,
-        verbose_name='Ảnh đại diện'
-    )
-    phone_number = models.CharField(
-        max_length=15, 
-        null=True, 
-        blank=True,
-        verbose_name='Số điện thoại'
-    )
-    birth_date = models.DateField(
-        null=True, 
-        blank=True,
-        verbose_name='Ngày sinh'
     )
     balance = models.DecimalField(
         max_digits=10, 
@@ -178,6 +158,72 @@ class CustomUser(AbstractUser):
 
     tcoin = models.IntegerField(default=0)
 
+    # Thêm các field mới
+    ACCOUNT_TYPE_CHOICES = [
+        ('regular', 'Tài khoản thường'),
+        ('vip', 'Tài khoản VIP'),
+        ('premium', 'Tài khoản Premium')
+    ]
+    
+    account_type = models.CharField(
+        max_length=20,
+        choices=ACCOUNT_TYPE_CHOICES,
+        default='regular',
+        verbose_name='Loại tài khoản'
+    )
+    
+    is_verified = models.BooleanField(
+        default=False,
+        verbose_name='Đã xác thực'
+    )
+    
+    bio = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name='Giới thiệu'
+    )
+
+    # Các field bổ sung khác
+    phone_number = models.CharField(
+        max_length=15, 
+        blank=True,
+        null=True,
+        verbose_name='Số điện thoại'
+    )
+    
+    address = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name='Địa chỉ'
+    )
+    
+    avatar = models.ImageField(
+        upload_to='avatars/',
+        blank=True,
+        null=True,
+        verbose_name='Ảnh đại diện'
+    )
+
+    birth_date = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name='Ngày sinh'
+    )
+
+    GENDER_CHOICES = [
+        ('M', 'Nam'),
+        ('F', 'Nữ'),
+        ('O', 'Khác')
+    ]
+    
+    gender = models.CharField(
+        max_length=1,
+        choices=GENDER_CHOICES,
+        blank=True,
+        null=True,
+        verbose_name='Giới tính'
+    )
+
     objects = CustomUserManager()
 
     class Meta:
@@ -228,7 +274,7 @@ class CustomUser(AbstractUser):
     get_status_display.short_description = 'Trạng thái'
 
     def __str__(self):
-        return f"{self.username} ({self.get_full_name() or self.email})"
+        return self.username
 
     def get_user_type_display(self):
         USER_TYPE_CHOICES = {
@@ -243,6 +289,21 @@ class CustomUser(AbstractUser):
         if not self.two_factor_password:
             return False
         return check_password(password, self.two_factor_password)
+
+    # Các phương thức bổ sung
+    def get_avatar_url(self):
+        if self.avatar:
+            return self.avatar.url
+        return '/static/images/default-avatar.png'
+
+    def get_full_address(self):
+        return self.address or 'Chưa cập nhật'
+
+    def get_account_type_display_name(self):
+        return dict(self.ACCOUNT_TYPE_CHOICES).get(self.account_type, 'Không xác định')
+
+    def get_verification_status(self):
+        return 'Đã xác thực' if self.is_verified else 'Chưa xác thực'
 
 class Order(models.Model):
     user = models.ForeignKey('CustomUser', on_delete=models.CASCADE, related_name='account_orders')
@@ -421,3 +482,70 @@ def generate_deposit_transaction_id():
     transaction_id = f"NT{year}{month}{random_digits}{day}"
     
     return transaction_id
+
+class UserActivity(models.Model):
+    """Model lưu trữ lịch sử hoạt động của người dùng"""
+    
+    TYPE_CHOICES = [
+        ('login', 'Đăng nhập'),
+        ('order', 'Đơn hàng'),
+        ('profile', 'Thông tin cá nhân'),
+        ('security', 'Bảo mật'),
+        ('other', 'Khác')
+    ]
+    
+    SEVERITY_CHOICES = [
+        ('normal', 'Bình thường'),
+        ('warning', 'Cảnh báo'),
+        ('danger', 'Nguy hiểm')
+    ]
+
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='activities')
+    action = models.CharField(max_length=255)
+    action_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='other')
+    severity = models.CharField(max_length=20, choices=SEVERITY_CHOICES, default='normal')
+    details = models.TextField(blank=True)
+    metadata = models.JSONField(default=dict)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+
+    def get_severity_class(self):
+        return self.severity
+
+    def get_type_color(self):
+        colors = {
+            'login': 'primary',
+            'order': 'success', 
+            'profile': 'info',
+            'security': 'danger',
+            'other': 'secondary'
+        }
+        return colors.get(self.action_type, 'secondary')
+
+    def get_type_icon(self):
+        icons = {
+            'login': 'fa-sign-in-alt',
+            'order': 'fa-shopping-cart',
+            'profile': 'fa-user-edit',
+            'security': 'fa-shield-alt',
+            'other': 'fa-circle'
+        }
+        return icons.get(self.action_type, 'fa-circle')
+
+    class Meta:
+        ordering = ['-timestamp']
+        verbose_name = 'Hoạt động người dùng'
+        verbose_name_plural = 'Hoạt động người dùng'
+
+class UserNote(models.Model):
+    """Model lưu trữ ghi chú về người dùng"""
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='notes')
+    content = models.TextField()
+    created_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='created_notes')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Ghi chú người dùng'
+        verbose_name_plural = 'Ghi chú người dùng'

@@ -1623,50 +1623,264 @@ def api_analytics(request):
 
 @staff_member_required
 def export_users(request):
-    """Export users to Excel"""
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Users"
-
-    # Add headers with style
-    headers = [
-        'ID', 'Tên người dùng', 'Email', 'Số điện thoại',
-        'Ngày đăng ký', 'Trạng thái', 'Vai trò', 'Đơn hàng', 'Chi tiêu'
-    ]
+    """Export users in different formats"""
+    # Lấy định dạng xuất và các tham số lọc từ request
+    export_format = request.GET.get('format', 'excel')
+    only_filtered = request.GET.get('filtered', 'false') == 'true'
     
-    header_font = Font(bold=True, color='FFFFFF')
-    header_fill = PatternFill(start_color='4472C4', end_color='4472C4', fill_type='solid')
+    # Khởi tạo queryset
+    users = CustomUser.objects.all()
     
-    for col, header in enumerate(headers, 1):
-        cell = ws.cell(row=1, column=col, value=header)
-        cell.font = header_font
-        cell.fill = header_fill
-        ws.column_dimensions[cell.column_letter].width = 15
-
-    # Add data
-    users = CustomUser.objects.annotate(
-        order_count=Count('orders'),
-        total_spent=Sum('orders__total_amount')
-    ).order_by('-date_joined')
+    # Áp dụng bộ lọc nếu cần
+    if only_filtered:
+        # Thêm logic lọc theo các tham số từ request
+        status = request.GET.getlist('status')
+        if status:
+            status_map = {'active': True, 'inactive': False}
+            users = users.filter(is_active__in=[status_map.get(s) for s in status if s in status_map])
+        
+        account_type = request.GET.getlist('accountType')
+        if account_type:
+            users = users.filter(account_type__in=account_type)
+        
+        search = request.GET.get('search')
+        if search:
+            users = users.filter(
+                Q(username__icontains=search) | 
+                Q(email__icontains=search) | 
+                Q(first_name__icontains=search) | 
+                Q(last_name__icontains=search)
+            )
     
-    for row, user in enumerate(users, 2):
-        ws.cell(row=row, column=1, value=user.id)
-        ws.cell(row=row, column=2, value=user.username)
-        ws.cell(row=row, column=3, value=user.email)
-        ws.cell(row=row, column=4, value=user.phone)
-        ws.cell(row=row, column=5, value=user.date_joined.strftime('%d/%m/%Y %H:%M'))
-        ws.cell(row=row, column=6, value='Hoạt động' if user.is_active else 'Vô hiệu hóa')
-        ws.cell(row=row, column=7, value='Nhân viên' if user.is_staff else 'Khách hàng')
-        ws.cell(row=row, column=8, value=user.order_count or 0)
-        ws.cell(row=row, column=9, value=float(user.total_spent or 0))
+    # Chuẩn bị dữ liệu
+    data = []
+    for user in users:
+        full_name = f"{user.first_name} {user.last_name}".strip()
+        data.append({
+            'ID': user.id,
+            'Tên đăng nhập': user.username,
+            'Email': user.email,
+            'Họ tên': full_name if full_name else '(Chưa cập nhật)',
+            'Số điện thoại': getattr(user, 'phone', '') or '(Chưa cập nhật)',
+            'Trạng thái': 'Hoạt động' if user.is_active else 'Không hoạt động',
+            'Ngày tham gia': user.date_joined.strftime('%d/%m/%Y'),
+            'Đăng nhập gần nhất': user.last_login.strftime('%d/%m/%Y %H:%M') if user.last_login else 'Chưa đăng nhập',
+            'Số dư': getattr(user, 'balance', 0),
+            'TCoin': getattr(user, 'tcoin_balance', 0)
+        })
+    
+    # Xử lý theo định dạng
+    if export_format == 'excel':
+        return export_excel(data)
+    elif export_format == 'csv':
+        return export_csv(data)
+    elif export_format == 'pdf':
+        return export_pdf(data)
+    else:
+        return HttpResponse("Định dạng không được hỗ trợ", status=400)
 
-    # Save to response
+def export_excel(data):
+    """Export users to Excel format"""
+    df = pd.DataFrame(data)
+    buffer = io.BytesIO()
+    
+    # Sử dụng xlsxwriter để tạo file Excel
+    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+        df.to_excel(writer, sheet_name='Người dùng', index=False)
+        workbook = writer.book
+        worksheet = writer.sheets['Người dùng']
+        
+        # Định dạng header
+        header_format = workbook.add_format({
+            'bold': True, 
+            'bg_color': '#4e73df', 
+            'color': 'white',
+            'border': 1,
+            'align': 'center',
+            'valign': 'vcenter'
+        })
+        
+        # Định dạng nội dung
+        content_format = workbook.add_format({
+            'border': 1,
+            'align': 'left',
+            'valign': 'vcenter'
+        })
+        
+        # Định dạng số
+        number_format = workbook.add_format({
+            'border': 1,
+            'align': 'right',
+            'valign': 'vcenter',
+            'num_format': '#,##0'
+        })
+        
+        # Áp dụng định dạng cho header và điều chỉnh chiều rộng cột
+        for col_num, value in enumerate(df.columns.values):
+            worksheet.write(0, col_num, value, header_format)
+            max_len = max(df[value].astype(str).map(len).max(), len(value)) + 2
+            worksheet.set_column(col_num, col_num, max_len)
+            
+            # Áp dụng định dạng cho cột số
+            if value in ['Số dư', 'TCoin']:
+                for row_num in range(1, len(df) + 1):
+                    worksheet.write(row_num, col_num, df.iloc[row_num-1][value], number_format)
+            else:
+                for row_num in range(1, len(df) + 1):
+                    worksheet.write(row_num, col_num, df.iloc[row_num-1][value], content_format)
+    
+    buffer.seek(0)
     response = HttpResponse(
+        buffer.getvalue(),
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
-    response['Content-Disposition'] = 'attachment; filename=users_export.xlsx'
-    wb.save(response)
+    response['Content-Disposition'] = 'attachment; filename="danh_sach_nguoi_dung.xlsx"'
+    return response
+
+def export_csv(data):
+    """Export users to CSV format"""
+    df = pd.DataFrame(data)
+    buffer = io.StringIO()
+    df.to_csv(buffer, index=False, encoding='utf-8')
     
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    response['Content-Disposition'] = 'attachment; filename="danh_sach_nguoi_dung.csv"'
+    
+    # Thêm BOM để Excel có thể nhận dạng UTF-8
+    response.write('\ufeff')
+    response.write(buffer.getvalue())
+    return response
+
+def export_pdf(data):
+    """Export users to PDF format"""
+    buffer = io.BytesIO()
+    
+    # Cấu hình font chữ hỗ trợ tiếng Việt nếu cần
+    try:
+        pdfmetrics.registerFont(TTFont('DejaVuSans', 'DejaVuSans.ttf'))
+        font_name = 'DejaVuSans'
+    except:
+        font_name = 'Helvetica'
+    
+    # Tạo PDF với ReportLab
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        title="Danh sách người dùng",
+        author="Hệ thống quản trị",
+        rightMargin=30,
+        leftMargin=30,
+        topMargin=30,
+        bottomMargin=30
+    )
+    
+    styles = getSampleStyleSheet()
+    
+    # Tạo style cho tiêu đề
+    title_style = ParagraphStyle(
+        'TitleStyle',
+        parent=styles['Heading1'],
+        fontName=font_name,
+        fontSize=16,
+        textColor=colors.darkblue,
+        alignment=1,  # Center
+        spaceAfter=20
+    )
+    
+    # Tạo style cho header bảng
+    header_style = ParagraphStyle(
+        'HeaderStyle',
+        parent=styles['Normal'],
+        fontName=font_name,
+        fontSize=10,
+        textColor=colors.white,
+        alignment=1  # Center
+    )
+    
+    # Tạo style cho nội dung bảng
+    cell_style = ParagraphStyle(
+        'CellStyle',
+        parent=styles['Normal'],
+        fontName=font_name,
+        fontSize=9
+    )
+    
+    elements = []
+    
+    # Thêm tiêu đề
+    title = Paragraph("DANH SÁCH NGƯỜI DÙNG", title_style)
+    elements.append(title)
+    
+    # Chuẩn bị dữ liệu cho bảng
+    df = pd.DataFrame(data)
+    
+    # Chọn các cột quan trọng cho PDF
+    selected_columns = ['ID', 'Tên đăng nhập', 'Email', 'Họ tên', 'Số điện thoại', 'Trạng thái', 'Ngày tham gia']
+    df_selected = df[selected_columns]
+    
+    # Tạo dữ liệu bảng
+    header = [Paragraph(col, header_style) for col in df_selected.columns]
+    table_data = [header]
+    
+    for _, row in df_selected.iterrows():
+        table_row = [Paragraph(str(cell), cell_style) for cell in row.values]
+        table_data.append(table_row)
+    
+    # Tạo bảng
+    col_widths = [30, 80, 120, 100, 80, 70, 70]  # Điều chỉnh chiều rộng từng cột
+    table = Table(table_data, colWidths=col_widths, repeatRows=1)
+    
+    # Định dạng bảng
+    table_style = TableStyle([
+        # Header
+        ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), font_name),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        
+        # Body
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+        ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
+        ('ALIGN', (0, 1), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 1), (-1, -1), font_name),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 8),
+        
+        # Borders
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        
+        # Zebra striping
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.lightgrey])
+    ])
+    table.setStyle(table_style)
+    
+    elements.append(table)
+    
+    # Thêm thông tin xuất dữ liệu
+    footer_style = ParagraphStyle(
+        'FooterStyle',
+        parent=styles['Normal'],
+        fontName=font_name,
+        fontSize=8,
+        textColor=colors.grey,
+        alignment=1,  # Center
+        spaceBefore=15
+    )
+    
+    from datetime import datetime
+    now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    footer = Paragraph(f"Dữ liệu được xuất lúc: {now}", footer_style)
+    elements.append(footer)
+    
+    # Tạo PDF
+    doc.build(elements)
+    
+    # Trả về response
+    buffer.seek(0)
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="danh_sach_nguoi_dung.pdf"'
     return response
 
 @staff_member_required

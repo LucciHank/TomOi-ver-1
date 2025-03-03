@@ -1,0 +1,51 @@
+<div class="modal fade" id="deleteUserModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa người dùng <strong id="deleteUserName"></strong>?</p>
+                <p class="text-danger mb-0">Hành động này không thể hoàn tác!</p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-link text-gray ms-auto" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let userIdToDelete = null;
+
+function showDeleteModal(userId, username) {
+    userIdToDelete = userId;
+    $('#deleteUserName').text(username);
+    $('#deleteUserModal').modal('show');
+}
+
+$('#confirmDelete').click(function() {
+    if (userIdToDelete) {
+        $.ajax({
+            url: `/dashboard/users/${userIdToDelete}/delete/`,
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    window.location.reload();
+                } else {
+                    alert('Có lỗi xảy ra: ' + response.error);
+                }
+            },
+            error: function() {
+                alert('Có lỗi xảy ra khi xóa người dùng');
+            }
+        });
+    }
+    $('#deleteUserModal').modal('hide');
+});
+</script> 

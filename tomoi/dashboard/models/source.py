@@ -9,31 +9,26 @@ User = get_user_model()
 
 class Source(models.Model):
     """Nguồn cung cấp sản phẩm"""
-    PLATFORM_CHOICES = [
-        ('facebook', 'Facebook'),
-        ('zalo', 'Zalo'),
-        ('instagram', 'Instagram'),
-        ('tiktok', 'TikTok'),
-        ('discord', 'Discord'),
-        ('telegram', 'Telegram'),
+    PLATFORM_CHOICES = (
+        ('shopee', 'Shopee'),
+        ('lazada', 'Lazada'),
+        ('tiki', 'Tiki'),
         ('other', 'Khác'),
-    ]
+    )
     
-    PRIORITY_CHOICES = [
-        (1, '1 - Cao nhất'),
-        (2, '2 - Cao'),
-        (3, '3 - Trung bình'),
-        (4, '4 - Thấp'),
-        (5, '5 - Thấp nhất'),
-    ]
+    PRIORITY_CHOICES = (
+        (1, 'Cao'),
+        (2, 'Trung bình'),
+        (3, 'Thấp'),
+    )
     
-    name = models.CharField(max_length=100, verbose_name="Tên nguồn")
-    url = models.URLField(blank=True, verbose_name="URL nguồn")
-    platform = models.CharField(max_length=20, choices=PLATFORM_CHOICES, default='other', verbose_name="Nền tảng")
-    product_type = models.CharField(max_length=100, blank=True, verbose_name="Loại sản phẩm")
-    base_price = models.DecimalField(max_digits=12, decimal_places=0, default=0, verbose_name="Giá chuẩn")
-    availability_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0, verbose_name="Tỷ lệ có hàng (%)")
-    priority = models.IntegerField(choices=PRIORITY_CHOICES, default=3, verbose_name="Mức độ ưu tiên")
+    name = models.CharField(max_length=255, verbose_name="Tên nguồn")
+    url = models.URLField(verbose_name="URL nguồn")
+    platform = models.CharField(max_length=20, choices=PLATFORM_CHOICES, verbose_name="Nền tảng")
+    product_type = models.CharField(max_length=100, verbose_name="Loại sản phẩm")
+    base_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Giá chuẩn")
+    availability_rate = models.IntegerField(default=100, verbose_name="Tỷ lệ có hàng (%)")
+    priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2, verbose_name="Mức độ ưu tiên")
     notes = models.TextField(blank=True, verbose_name="Ghi chú")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -68,19 +63,19 @@ class Source(models.Model):
         return None
 
     class Meta:
-        verbose_name = "Nguồn nhập"
-        verbose_name_plural = "Nguồn nhập"
+        verbose_name = "Nguồn cung cấp"
+        verbose_name_plural = "Nguồn cung cấp"
         ordering = ['priority', 'name']
 
 class SourceProduct(models.Model):
     """Sản phẩm từ nguồn cụ thể"""
     source = models.ForeignKey(Source, on_delete=models.CASCADE, related_name='products', verbose_name="Nguồn nhập")
-    product = models.ForeignKey('store.Product', on_delete=models.CASCADE, related_name='source_products', verbose_name="Sản phẩm")
+    product = models.ForeignKey('store.Product', on_delete=models.SET_NULL, null=True, blank=True, related_name='source_products', verbose_name="Sản phẩm")
     name = models.CharField(max_length=255, verbose_name="Tên sản phẩm tại nguồn")
     description = models.TextField(blank=True, verbose_name="Mô tả")
     product_url = models.URLField(blank=True, verbose_name="URL sản phẩm")
-    price = models.DecimalField(max_digits=12, decimal_places=0, default=0, verbose_name="Giá nhập")
-    error_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0, verbose_name="Tỷ lệ lỗi (%)")
+    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Giá nhập")
+    error_rate = models.FloatField(default=0, verbose_name="Tỷ lệ lỗi (%)")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -92,35 +87,35 @@ class SourceProduct(models.Model):
         return "{:,.0f}".format(self.price)
     
     class Meta:
-        verbose_name = "Sản phẩm nguồn"
-        verbose_name_plural = "Sản phẩm nguồn"
+        verbose_name = "Sản phẩm từ nguồn"
+        verbose_name_plural = "Sản phẩm từ nguồn"
         unique_together = ('source', 'product')
 
 class SourceLog(models.Model):
     """Log hoạt động với nguồn"""
-    STATUS_CHOICES = [
-        ('available', 'Có hàng'),
-        ('unavailable', 'Không có hàng'),
-        ('pending', 'Đang chờ'),
-        ('processing', 'Đang xử lý'),
-    ]
+    LOG_TYPE_CHOICES = (
+        ('check', 'Kiểm tra'),
+        ('order', 'Đặt hàng'),
+        ('error', 'Lỗi'),
+    )
     
     source = models.ForeignKey(Source, on_delete=models.CASCADE, related_name='logs', verbose_name="Nguồn nhập")
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name="Trạng thái")
-    price = models.DecimalField(max_digits=12, decimal_places=0, default=0, verbose_name="Giá")
-    processing_time = models.IntegerField(default=0, verbose_name="Thời gian xử lý (phút)")
+    source_product = models.ForeignKey(SourceProduct, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Sản phẩm nguồn")
+    log_type = models.CharField(max_length=20, choices=LOG_TYPE_CHOICES, verbose_name="Loại log")
+    has_stock = models.BooleanField(default=True, verbose_name="Có hàng")
+    processing_time = models.IntegerField(null=True, blank=True, verbose_name="Thời gian xử lý (phút)")
     notes = models.TextField(blank=True, verbose_name="Ghi chú")
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Người tạo")
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        return f"{self.source.name} - {self.get_status_display()} - {self.created_at.strftime('%d/%m/%Y %H:%M')}"
+        return f"{self.source.name} - {self.log_type} - {self.created_at}"
     
     def format_price(self):
         """Format giá với dấu phân cách hàng nghìn"""
         return "{:,.0f}".format(self.price)
     
     class Meta:
-        verbose_name = "Nhật ký nguồn"
-        verbose_name_plural = "Nhật ký nguồn"
+        verbose_name = "Log nguồn"
+        verbose_name_plural = "Log nguồn"
         ordering = ['-created_at'] 

@@ -99,70 +99,30 @@ class TCoinHistoryInline(admin.TabularInline):
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
-    list_display = (
-        'username', 
-        'email', 
-        'full_name',
-        'balance_display',
-        'tcoin_display',        # Thêm hiển thị TCoin
-        'account_label_display',
-        'get_status_display',
-        'phone_display',
-        'date_joined',
-        'user_type_display',
-        'two_factor_method',
-        'remove_2fa_button',
-    )
-    list_filter = ('is_active', 'account_label', 'user_type', 'groups', 'status', 'two_factor_method')
-    search_fields = ('username', 'email', 'first_name', 'last_name', 'phone_number')
-    ordering = ('-date_joined',)
+    list_display = ['username', 'email', 'first_name', 'last_name', 'phone_number', 'user_type', 'is_active']
+    list_filter = ['user_type', 'is_active', 'date_joined']
+    search_fields = ['username', 'email', 'phone_number', 'first_name', 'last_name']
+    ordering = ['-date_joined']
     
     fieldsets = (
-        ('Thông tin đăng nhập', {
-            'fields': ('username', 'password', 'email')
-        }),
-        ('Thông tin cá nhân', {
-            'fields': ('first_name', 'last_name', 'avatar', 'phone_number', 'birth_date')
-        }),
-        ('Quản lý tài khoản', {
-            'fields': (
-                'is_active',
-                'account_label',
-                'user_type',
-                'status',
-                'suspension_reason',
-            ),
-            'description': 'Quản lý trạng thái và phân loại tài khoản',
-        }),
-        ('Số dư & TCoin', {
-            'fields': ('balance', 'tcoin'),
-            'description': 'Quản lý số dư và TCoin của tài khoản',
-        }),
-        ('Bảo mật', {
-            'fields': ('two_factor_method', 'two_factor_password', 'google_auth_secret'),
-            'description': 'Quản lý xác thực 2 lớp',
-        }),
-        ('Phân quyền nâng cao', {
-            'fields': ('is_staff', 'is_superuser', 'groups', 'user_permissions'),
-            'classes': ('collapse',),
-        }),
-        ('Thông tin hệ thống', {
-            'fields': ('join_date', 'last_login', 'last_login_ip', 'failed_login_attempts'),
-            'classes': ('collapse',),
-        }),
+        (None, {'fields': ('username', 'password')}),
+        ('Thông tin cá nhân', {'fields': (
+            'first_name', 'last_name', 'email', 'phone_number',
+            'address', 'birth_date', 'gender', 'avatar'
+        )}),
+        ('Phân quyền', {'fields': (
+            'user_type', 'is_active', 'is_staff', 'is_superuser',
+            'groups', 'user_permissions'
+        )}),
     )
     
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
             'fields': (
-                'username', 
-                'email', 
-                'password1', 
-                'password2',
-                'user_type',
-                'is_active',
-                'account_label',
+                'username', 'email', 'password1', 'password2',
+                'first_name', 'last_name', 'phone_number', 'user_type',
+                'is_active', 'is_staff'
             ),
         }),
     )
@@ -197,9 +157,9 @@ class CustomUserAdmin(UserAdmin):
         return '-'
     account_label_display.short_description = 'Loại tài khoản'
 
-    def phone_display(self, obj):
+    def phone_number(self, obj):
         return obj.phone_number or '-'
-    phone_display.short_description = 'Số điện thoại'
+    phone_number.short_description = 'Số điện thoại'
 
     def get_status_display(self, obj):
         status_colors = {
