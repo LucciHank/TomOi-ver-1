@@ -348,13 +348,20 @@ class UserForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = [
-            'first_name', 'last_name', 'email', 'phone_number',
-            'avatar', 'account_type', 'is_active', 'is_verified',
-            'address', 'bio'
+            'username', 
+            'email', 
+            'first_name', 
+            'last_name', 
+            'gender', 
+            'birth_date', 
+            'account_type',  # Bỏ field 'role' vì không có trong model
+            'bio'
         ]
         widgets = {
             'bio': forms.Textarea(attrs={'rows': 3}),
-            'address': forms.Textarea(attrs={'rows': 2}),
+            'birth_date': forms.DateInput(attrs={'type': 'date'}),
+            'gender': forms.Select(attrs={'class': 'form-control'}),
+            'account_type': forms.Select(attrs={'class': 'form-control'}),
         }
 
     def clean(self):
@@ -367,6 +374,15 @@ class UserForm(forms.ModelForm):
 
         return cleaned_data
 
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if username == self.instance.username:
+            return username
+            
+        if CustomUser.objects.filter(username=username).exists():
+            raise forms.ValidationError('Tên đăng nhập này đã được sử dụng')
+        return username
+
     def save(self, commit=True):
         user = super().save(commit=False)
         password = self.cleaned_data.get('password')
@@ -375,7 +391,26 @@ class UserForm(forms.ModelForm):
             user.set_password(password)
             
         if commit:
-            user.save()
+            try:
+                user.save()
+                # Log thay đổi nếu có admin user
+                if hasattr(self, 'admin_user'):
+                    changes = []
+                    for field in self.changed_data:
+                        old_value = getattr(self.instance, field)
+                        new_value = self.cleaned_data[field]
+                        if old_value != new_value:
+                            changes.append(f"{field}: {old_value} -> {new_value}")
+                    
+                    if changes:
+                        UserActivityLog.objects.create(
+                            user=user,
+                            admin=self.admin_user,
+                            action_type='update',
+                            description=f'Cập nhật thông tin: {", ".join(changes)}'
+                        )
+            except Exception as e:
+                raise forms.ValidationError(f'Có lỗi xảy ra khi lưu thông tin: {str(e)}')
         return user
 
 class UserPermissionForm(forms.Form):

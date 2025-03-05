@@ -4,12 +4,19 @@
 
 {% block extra_css %}
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css" rel="stylesheet" />
+
 <style>
     .user-avatar-container {
         width: 150px;
         height: 150px;
         margin: 0 auto 20px;
         position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .user-avatar-container:hover {
+        transform: scale(1.05);
     }
     
     .user-avatar {
@@ -18,19 +25,21 @@
         object-fit: cover;
         border-radius: 50%;
         border: 3px solid #4e73df;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
     
     .avatar-placeholder {
-        width: 100%;
-        height: 100%;
+        width: 150px;
+        height: 150px;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
-        font-weight: bold;
-        font-size: 3rem;
-        border-radius: 50%;
         background-color: #4e73df;
+        color: white;
+        font-size: 3rem;
+        font-weight: bold;
+        border-radius: 50%;
+        margin: 0 auto;
     }
     
     .avatar-upload {
@@ -47,6 +56,13 @@
         box-shadow: 0 0 10px rgba(0,0,0,0.2);
         cursor: pointer;
         color: #4e73df;
+        transition: all 0.3s ease;
+    }
+    
+    .avatar-upload:hover {
+        background-color: #4e73df;
+        color: white;
+        transform: scale(1.1);
     }
     
     .section-title {
@@ -67,6 +83,7 @@
     
     .form-card:hover {
         box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.25);
+        transform: translateY(-5px);
     }
     
     .form-group label {
@@ -74,18 +91,32 @@
         color: #5a5c69;
     }
     
+    .form-control {
+        border-radius: 0.25rem;
+        transition: all 0.2s;
+    }
+    
     .form-control:focus {
         border-color: #4e73df;
         box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
     }
     
-    .btn-save {
-        padding: 0.5rem 2rem;
+    .btn {
+        border-radius: 0.25rem;
         font-weight: 600;
+        padding: 0.5rem 1.5rem;
+        transition: all 0.3s;
     }
     
-    .btn-danger {
-        margin-top: 1rem;
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    
+    .btn-save {
+        padding: 0.6rem 2rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
     }
     
     .user-stats {
@@ -98,6 +129,13 @@
         margin-bottom: 1rem;
         padding-bottom: 1rem;
         border-bottom: 1px solid #e3e6f0;
+        transition: all 0.3s;
+    }
+    
+    .stat-item:hover {
+        background-color: #f1f5fb;
+        padding-left: 10px;
+        border-radius: 0.3rem;
     }
     
     .stat-item:last-child {
@@ -117,6 +155,309 @@
         font-weight: 700;
         color: #4e73df;
     }
+    
+    .nav-tabs .nav-link {
+        border: none;
+        color: #5a5c69;
+        font-weight: 600;
+        padding: 0.75rem 1.25rem;
+        transition: all 0.3s;
+        border-bottom: 2px solid transparent;
+    }
+    
+    .nav-tabs .nav-link:hover {
+        border-color: #e3e6f0;
+        background-color: #f8f9fc;
+    }
+    
+    .nav-tabs .nav-link.active {
+        color: #4e73df;
+        background-color: transparent;
+        border-bottom: 2px solid #4e73df;
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        color: white;
+        font-weight: 700;
+    }
+    
+    .badge {
+        padding: 0.5em 0.8em;
+        font-weight: 600;
+    }
+    
+    .adjust-balance-card {
+        background: linear-gradient(135deg, #1cc88a 0%, #169e6c 100%);
+        color: white;
+    }
+    
+    .adjust-tcoin-card {
+        background: linear-gradient(135deg, #36b9cc 0%, #258391 100%);
+        color: white;
+    }
+    
+    .reset-password-card {
+        background: linear-gradient(135deg, #f6c23e 0%, #dda20a 100%);
+        color: white;
+    }
+    
+    /* Custom Select2 Styling */
+    .select2-container--bootstrap4 .select2-selection {
+        height: calc(1.5em + 0.75rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #6e707e;
+        background-color: #fff;
+        border: 1px solid #d1d3e2;
+        border-radius: 0.35rem;
+    }
+
+    .select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+        padding-left: 0;
+        color: #6e707e;
+        line-height: 1.5;
+    }
+
+    .select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow {
+        height: calc(1.5em + 0.75rem);
+    }
+
+    .select2-container--bootstrap4 .select2-results__option--highlighted[aria-selected] {
+        background-color: #4e73df;
+    }
+
+    .select2-container--bootstrap4.select2-container--focus .select2-selection {
+        border-color: #bac8f3;
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+    }
+    
+    /* Thêm CSS cho tab bảo mật */
+    .security-section {
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        background-color: #f8f9fc;
+        margin-bottom: 1rem;
+        border-left: 4px solid #4e73df;
+        transition: all 0.3s;
+    }
+    
+    .security-section:hover {
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        transform: translateY(-2px);
+    }
+    
+    .security-title {
+        font-weight: 600;
+        color: #4e73df;
+        margin-bottom: 0.7rem;
+    }
+    
+    .security-active {
+        background-color: #e3f9eb;
+        border-left-color: #1cc88a;
+    }
+    
+    .security-inactive {
+        background-color: #feeceb;
+        border-left-color: #e74a3b;
+    }
+    
+    .security-warning {
+        background-color: #fff8e6;
+        border-left-color: #f6c23e;
+    }
+    
+    /* Sửa các status badges */
+    .badge-status-active {
+        background-color: #1cc88a;
+        color: white;
+    }
+    
+    .badge-status-pending {
+        background-color: #f6c23e;
+        color: white;
+    }
+    
+    .badge-status-suspended {
+        background-color: #e74a3b;
+        color: white;
+    }
+    
+    /* Fix SweetAlert2 loading */
+    .swal2-shown.swal2-height-auto {
+        padding-right: 0 !important;
+        height: 100% !important;
+    }
+
+    /* CSS cho combobox */
+    .form-control {
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #6e707e;
+        background-color: #fff;
+        border: 1px solid #d1d3e2;
+        border-radius: 0.35rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    /* Căn giữa icon dropdown */
+    select.form-control {
+        padding-right: 2rem;
+        background-position: right 0.75rem center;
+        background-size: 16px 12px;
+    }
+
+    /* Style cho modal */
+    .modal-content {
+        border: none;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    }
+
+    .modal-header {
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    /* Style cho button group */
+    .btn-group {
+        gap: 0.5rem;
+    }
+
+    .btn-group .btn {
+        border-radius: 0.35rem !important;
+        padding: 0.5rem;
+        flex: 1;
+    }
+
+    /* Style cho form groups */
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #4e73df;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Đồng bộ style cho cả hai form */
+    #balanceForm, #tcoinForm {
+        .form-control {
+            margin-bottom: 1rem;
+        }
+        
+        textarea {
+            resize: none;
+        }
+    }
+
+    .current-balance, .current-tcoin {
+        background-color: #f8f9fc;
+        border: 1px solid #e3e6f0;
+    }
+
+    .input-group-text {
+        background-color: #f8f9fc;
+        border-color: #d1d3e2;
+    }
+
+    /* Style chung cho modal */
+    .modal-content {
+        border: none;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    }
+
+    .modal-header {
+        border-bottom: none;
+        padding: 1.5rem;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    /* Style cho số dư/tcoin hiện tại */
+    .current-balance, .current-tcoin {
+        background: linear-gradient(to right, #4e73df, #224abe);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11);
+    }
+
+    .current-tcoin {
+        background: linear-gradient(to right, #f6c23e, #f4b619);
+    }
+
+    .balance-amount, .tcoin-amount {
+        font-size: 2rem;
+        font-weight: 700;
+        display: block;
+    }
+
+    /* Style cho nhóm nút điều chỉnh */
+    .adjust-type-group {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .adjust-type-btn {
+        padding: 0.5rem;
+        border-radius: 0.35rem;
+        font-weight: 600;
+        width: 100%;
+    }
+
+    .adjust-type-btn.active {
+        transform: translateY(2px);
+    }
+
+    /* Style cho form groups */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #5a5c69;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        border-radius: 0.35rem;
+        border: 1px solid #d1d3e2;
+        padding: 0.75rem;
+    }
+
+    .input-group-text {
+        background-color: #f8f9fc;
+        border-color: #d1d3e2;
+        color: #5a5c69;
+    }
+
+    /* Style cho buttons */
+    .btn {
+        padding: 0.5rem 1.5rem;
+        font-weight: 600;
+        border-radius: 0.35rem;
+    }
+
+    .modal-footer {
+        border-top: none;
+        padding: 1rem 1.5rem;
+    }
 </style>
 {% endblock %}
 
@@ -128,37 +469,38 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
-                <h1 class="h3 text-gray-800">Chỉnh sửa người dùng</h1>
+                <h1 class="h3 text-gray-800">Chỉnh sửa người dùng: <span class="text-primary">{{ user.username }}</span></h1>
                 <div>
-                    <a href="{% url 'dashboard:user_permissions' user.id %}" class="btn btn-info mr-2">
+                    <a href="{% url 'dashboard:user_list' %}" class="btn btn-secondary mr-2">
+                        <i class="fas fa-arrow-left mr-1"></i> Quay lại
+                    </a>
+                    <a href="{% url 'dashboard:user_permissions' user.id %}" class="btn btn-primary mr-2">
                         <i class="fas fa-user-shield mr-1"></i> Phân quyền
                     </a>
-                    <button type="button" class="btn btn-danger delete-user-btn" data-user-id="{{ user.id }}" data-username="{{ user.username }}">
-                        <i class="fas fa-trash mr-1"></i> Xóa tài khoản
-                    </button>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="row">
-        <!-- Thông tin cá nhân -->
+        <!-- Cột bên trái - Thông tin cá nhân -->
         <div class="col-lg-8">
+            <!-- Thông tin cơ bản -->
             <div class="card form-card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Thông tin cá nhân</h6>
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold">Thông tin cá nhân</h6>
+                    <span class="badge badge-light">ID: {{ user.id }}</span>
                 </div>
                 <div class="card-body">
-                    <form method="post" enctype="multipart/form-data">
+                    <form method="post" enctype="multipart/form-data" id="userEditForm">
                         {% csrf_token %}
                         
-                        <div class="user-avatar-container">
+                        <div class="user-avatar-container mb-4">
                             {% if user.avatar %}
                             <img src="{{ user.avatar.url }}" alt="{{ user.username }}" class="user-avatar">
                             {% else %}
-                            <div class="avatar-placeholder">
-                                {{ user.username|first|upper }}
-                            </div>
+                            <img src="{% static 'dashboard/images/default-avatar.png' %}" class="user-avatar" alt="Default Avatar" 
+                                 onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'avatar-placeholder\'>{{ user.username|make_list|first|upper }}</div>';">
                             {% endif %}
                             <label for="id_avatar" class="avatar-upload">
                                 <i class="fas fa-camera"></i>
@@ -166,57 +508,171 @@
                             </label>
                         </div>
                         
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="id_username">Tên đăng nhập</label>
-                                    <input type="text" class="form-control" id="id_username" name="username" value="{{ user.username }}" required>
+                        <ul class="nav nav-tabs mb-3" id="userInfoTabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="basic-tab" data-toggle="tab" href="#basic" role="tab">
+                                    <i class="fas fa-user mr-1"></i> Thông tin cơ bản
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab">
+                                    <i class="fas fa-address-card mr-1"></i> Liên hệ
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="bank-tab" data-toggle="tab" href="#bank" role="tab">
+                                    <i class="fas fa-university mr-1"></i> Thông tin thanh toán
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="security-tab" data-toggle="tab" href="#security" role="tab">
+                                    <i class="fas fa-lock mr-1"></i> Bảo mật
+                                </a>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content" id="userInfoTabsContent">
+                            <!-- Tab thông tin cơ bản -->
+                            <div class="tab-pane fade show active" id="basic" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="id_username">Tên đăng nhập <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="id_username" name="username" value="{{ user.username }}" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="id_email">Email <span class="text-danger">*</span></label>
+                                            <input type="email" class="form-control" id="id_email" name="email" value="{{ user.email }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="id_first_name">Họ</label>
+                                            <input type="text" class="form-control" id="id_first_name" name="first_name" value="{{ user.first_name }}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="id_last_name">Tên</label>
+                                            <input type="text" class="form-control" id="id_last_name" name="last_name" value="{{ user.last_name }}">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label for="id_email">Email</label>
-                                    <input type="email" class="form-control" id="id_email" name="email" value="{{ user.email }}" required>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="id_gender">Giới tính</label>
+                                            <select class="form-control select2" id="id_gender" name="gender">
+                                                <option value="male" {% if user.gender == 'male' %}selected{% endif %}>Nam</option>
+                                                <option value="female" {% if user.gender == 'female' %}selected{% endif %}>Nữ</option>
+                                                <option value="other" {% if user.gender == 'other' %}selected{% endif %}>Khác</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="id_birth_date">Ngày sinh</label>
+                                            <input type="date" class="form-control" id="id_birth_date" name="birth_date" value="{{ user.birth_date|date:'Y-m-d' }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="id_account_type">Loại tài khoản</label>
+                                            <select class="form-control select2" id="id_account_type" name="account_type">
+                                                <option value="regular" {% if user.account_type == 'regular' %}selected{% endif %}>Thường</option>
+                                                <option value="premium" {% if user.account_type == 'premium' %}selected{% endif %}>Premium</option>
+                                                <option value="vip" {% if user.account_type == 'vip' %}selected{% endif %}>VIP</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="id_user_type">Vai trò</label>
+                                            <select class="form-control select2" id="id_user_type" name="user_type">
+                                                <option value="customer" {% if user.user_type == 'customer' %}selected{% endif %}>Khách hàng</option>
+                                                <option value="staff" {% if user.user_type == 'staff' %}selected{% endif %}>Nhân viên</option>
+                                                <option value="admin" {% if user.user_type == 'admin' %}selected{% endif %}>Admin</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
+                                
                                 <div class="form-group">
-                                    <label for="id_first_name">Họ</label>
-                                    <input type="text" class="form-control" id="id_first_name" name="first_name" value="{{ user.first_name }}">
-                                </div>
-                                <div class="form-group">
-                                    <label for="id_last_name">Tên</label>
-                                    <input type="text" class="form-control" id="id_last_name" name="last_name" value="{{ user.last_name }}">
+                                    <label for="id_bio">Giới thiệu</label>
+                                    <textarea class="form-control" id="id_bio" name="bio" rows="3">{{ user.bio }}</textarea>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            
+                            <!-- Tab thông tin liên hệ -->
+                            <div class="tab-pane fade" id="contact" role="tabpanel">
                                 <div class="form-group">
                                     <label for="id_phone">Số điện thoại</label>
-                                    <input type="text" class="form-control" id="id_phone" name="phone" value="{{ user.phone|default:'' }}">
+                                    <input type="text" class="form-control" id="id_phone" name="phone_number" value="{{ user.phone_number }}">
                                 </div>
                                 <div class="form-group">
-                                    <label for="id_account_type">Loại tài khoản</label>
-                                    <select class="form-control" id="id_account_type" name="account_type">
-                                        <option value="regular" {% if user.account_type == 'regular' %}selected{% endif %}>Thường</option>
-                                        <option value="premium" {% if user.account_type == 'premium' %}selected{% endif %}>Premium</option>
-                                        <option value="vip" {% if user.account_type == 'vip' %}selected{% endif %}>VIP</option>
-                                    </select>
+                                    <label for="id_address">Địa chỉ</label>
+                                    <textarea class="form-control" id="id_address" name="address" rows="3">{{ user.address }}</textarea>
+                                </div>
+                            </div>
+                            
+                            <!-- Tab thông tin ngân hàng -->
+                            <div class="tab-pane fade" id="bank" role="tabpanel">
+                                <div class="form-group">
+                                    <label for="id_bank_account">Số tài khoản ngân hàng</label>
+                                    <input type="text" class="form-control" id="id_bank_account" name="bank_account" value="{{ user.bank_account }}">
                                 </div>
                                 <div class="form-group">
-                                    <label for="id_is_active">Trạng thái</label>
-                                    <select class="form-control" id="id_is_active" name="is_active">
-                                        <option value="1" {% if user.is_active %}selected{% endif %}>Hoạt động</option>
-                                        <option value="0" {% if not user.is_active %}selected{% endif %}>Không hoạt động</option>
-                                    </select>
+                                    <label for="id_bank_name">Tên ngân hàng</label>
+                                    <input type="text" class="form-control" id="id_bank_name" name="bank_name" value="{{ user.bank_name }}">
                                 </div>
                                 <div class="form-group">
-                                    <label for="id_gender">Giới tính</label>
-                                    <select class="form-control" id="id_gender" name="gender">
-                                        <option value="male" {% if user.gender == 'male' %}selected{% endif %}>Nam</option>
-                                        <option value="female" {% if user.gender == 'female' %}selected{% endif %}>Nữ</option>
-                                        <option value="other" {% if user.gender == 'other' %}selected{% endif %}>Khác</option>
-                                    </select>
+                                    <label for="id_bank_branch">Chi nhánh</label>
+                                    <input type="text" class="form-control" id="id_bank_branch" name="bank_branch" value="{{ user.bank_branch }}">
+                                </div>
+                            </div>
+                            
+                            <!-- Tab bảo mật -->
+                            <div class="tab-pane fade" id="security" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="id_is_active">Trạng thái</label>
+                                            <select class="form-control select2" id="id_is_active" name="is_active">
+                                                <option value="1" {% if user.is_active %}selected{% endif %}>Hoạt động</option>
+                                                <option value="0" {% if not user.is_active %}selected{% endif %}>Không hoạt động</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="id_status">Trạng thái tài khoản</label>
+                                            <select class="form-control select2" id="id_status" name="status">
+                                                <option value="active" {% if user.status == 'active' %}selected{% endif %}>Hoạt động</option>
+                                                <option value="pending" {% if user.status == 'pending' %}selected{% endif %}>Chờ xác minh</option>
+                                                <option value="suspended" {% if user.status == 'suspended' %}selected{% endif %}>Ngừng hoạt động</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="id_is_verified">Xác thực tài khoản</label>
+                                            <select class="form-control select2" id="id_is_verified" name="is_verified">
+                                                <option value="1" {% if user.is_verified %}selected{% endif %}>Đã xác thực</option>
+                                                <option value="0" {% if not user.is_verified %}selected{% endif %}>Chưa xác thực</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="id_has_2fa">Xác thực 2 lớp</label>
+                                            <select class="form-control select2" id="id_has_2fa" name="has_2fa">
+                                                <option value="1" {% if user.has_2fa %}selected{% endif %}>Đã bật</option>
+                                                <option value="0" {% if not user.has_2fa %}selected{% endif %}>Chưa bật</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="id_suspension_reason">Lý do ngừng hoạt động</label>
+                                    <textarea class="form-control" id="id_suspension_reason" name="suspension_reason" rows="2">{{ user.suspension_reason }}</textarea>
+                                    <small class="text-muted">Chỉ áp dụng khi trạng thái là "Ngừng hoạt động"</small>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="text-center">
+                        <div class="text-center mt-4">
                             <button type="submit" class="btn btn-primary btn-save">
                                 <i class="fas fa-save mr-2"></i>Lưu thay đổi
                             </button>
@@ -225,49 +681,54 @@
                 </div>
             </div>
             
+            <!-- Card đặt lại mật khẩu -->
             <div class="card form-card shadow mb-4">
-                <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 font-weight-bold text-primary">Đặt lại mật khẩu</h6>
+                <div class="card-header py-3 reset-password-card">
+                    <h6 class="m-0 font-weight-bold">Đặt lại mật khẩu</h6>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="id_new_password">Mật khẩu mới</label>
-                                <input type="password" class="form-control" id="id_new_password" name="new_password">
+                    <form id="resetPasswordForm">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_new_password">Mật khẩu mới</label>
+                                    <input type="password" class="form-control" id="id_new_password" name="new_password" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_confirm_password">Xác nhận mật khẩu</label>
+                                    <input type="password" class="form-control" id="id_confirm_password" name="confirm_password" required>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="id_confirm_password">Xác nhận mật khẩu</label>
-                                <input type="password" class="form-control" id="id_confirm_password" name="confirm_password">
-                            </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-key mr-2"></i>Đặt lại mật khẩu
+                            </button>
                         </div>
-                    </div>
-                    <div class="text-center">
-                        <button id="resetPasswordBtn" class="btn btn-warning">
-                            <i class="fas fa-key mr-2"></i>Đặt lại mật khẩu
-                        </button>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
         
-        <!-- Thông tin tài khoản và thống kê -->
+        <!-- Cột bên phải - Thông tin tài khoản và công cụ -->
         <div class="col-lg-4">
+            <!-- Thông tin tài khoản -->
             <div class="card form-card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Thông tin tài khoản</h6>
+                    <h6 class="m-0 font-weight-bold">Thông tin tài khoản</h6>
                 </div>
                 <div class="card-body">
                     <div class="user-stats">
                         <div class="stat-item">
                             <div class="stat-label">Số dư</div>
-                            <div class="stat-value">{{ user.balance|default:'0' }}đ</div>
+                            <div class="stat-value">{{ user.balance|default:'0'|intcomma }}đ</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-label">TCoin</div>
-                            <div class="stat-value">{{ user.tcoin_balance|default:'0' }}</div>
+                            <div class="stat-value">{{ user.tcoin|default:'0'|intcomma }}</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-label">Ngày tham gia</div>
@@ -284,13 +745,237 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="text-center mt-4">
-                        <button type="button" class="btn btn-danger btn-block delete-user-btn" data-user-id="{{ user.id }}" data-username="{{ user.username }}">
-                            <i class="fas fa-trash mr-2"></i>Xóa tài khoản
+                </div>
+            </div>
+            
+            <!-- Điều chỉnh số dư -->
+            <div class="card form-card shadow mb-4">
+                <div class="card-header py-3 adjust-balance-card">
+                    <h6 class="m-0 font-weight-bold">Điều chỉnh số dư</h6>
+                </div>
+                <div class="card-body">
+                    <form id="balanceForm">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label class="font-weight-bold text-primary">Số dư hiện tại</label>
+                            <div class="current-balance p-2 bg-light rounded">
+                                <span class="h4">{{ user.balance|intcomma }}đ</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold text-primary">Loại điều chỉnh</label>
+                            <div class="btn-group w-100">
+                                <input type="radio" class="btn-check" name="adjustType" id="btnAdd" value="add">
+                                <label class="btn btn-outline-success" for="btnAdd">
+                                    <i class="fas fa-plus-circle"></i> Cộng tiền
+                                </label>
+                                
+                                <input type="radio" class="btn-check" name="adjustType" id="btnSubtract" value="subtract">
+                                <label class="btn btn-outline-danger" for="btnSubtract">
+                                    <i class="fas fa-minus-circle"></i> Trừ tiền
+                                </label>
+                                
+                                <input type="radio" class="btn-check" name="adjustType" id="btnSet" value="set">
+                                <label class="btn btn-outline-primary" for="btnSet">
+                                    <i class="fas fa-edit"></i> Đặt số dư
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold text-primary">Số tiền</label>
+                            <div class="input-group">
+                                <input type="text" name="amount" class="form-control text-right" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text">VNĐ</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold text-primary">Lý do điều chỉnh</label>
+                            <textarea name="reason" class="form-control" rows="2" placeholder="Nhập lý do điều chỉnh..."></textarea>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Điều chỉnh TCoin -->
+            <div class="card form-card shadow mb-4">
+                <div class="card-header py-3 adjust-tcoin-card">
+                    <h6 class="m-0 font-weight-bold">Điều chỉnh TCoin</h6>
+                </div>
+                <div class="card-body">
+                    <form id="tcoinForm">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label class="font-weight-bold text-warning">TCoin hiện tại</label>
+                            <div class="current-tcoin p-2 bg-light rounded">
+                                <span class="h4">{{ user.tcoin|intcomma }} TCoin</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold text-warning">Loại điều chỉnh</label>
+                            <div class="btn-group w-100">
+                                <input type="radio" class="btn-check" name="tcoinAdjustType" id="tcoinAdd" value="add">
+                                <label class="btn btn-outline-success" for="tcoinAdd">
+                                    <i class="fas fa-plus-circle"></i> Cộng TCoin
+                                </label>
+                                
+                                <input type="radio" class="btn-check" name="tcoinAdjustType" id="tcoinSubtract" value="subtract">
+                                <label class="btn btn-outline-danger" for="tcoinSubtract">
+                                    <i class="fas fa-minus-circle"></i> Trừ TCoin
+                                </label>
+                                
+                                <input type="radio" class="btn-check" name="tcoinAdjustType" id="tcoinSet" value="set">
+                                <label class="btn btn-outline-primary" for="tcoinSet">
+                                    <i class="fas fa-edit"></i> Đặt số TCoin
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold text-warning">Số lượng TCoin</label>
+                            <input type="text" name="amount" class="form-control text-right" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold text-warning">Lý do điều chỉnh</label>
+                            <textarea name="reason" class="form-control" rows="2" placeholder="Nhập lý do điều chỉnh..."></textarea>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal điều chỉnh số dư -->
+<div class="modal fade" id="adjustBalanceModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-money-bill-wave mr-2"></i>
+                    Điều chỉnh số dư
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="balanceAdjustForm">
+                    <!-- Hiển thị số dư hiện tại -->
+                    <div class="current-balance mb-4 text-center">
+                        <label class="d-block mb-2">Số dư hiện tại</label>
+                        <span class="balance-amount">{{ user.balance|intcomma }}đ</span>
+                    </div>
+
+                    <!-- Loại điều chỉnh -->
+                    <div class="form-group">
+                        <label>Loại điều chỉnh</label>
+                        <div class="adjust-type-group">
+                            <button type="button" class="btn btn-outline-success adjust-type-btn" data-type="add">
+                                <i class="fas fa-plus-circle mr-1"></i> Cộng tiền
+                            </button>
+                            <button type="button" class="btn btn-outline-danger adjust-type-btn" data-type="subtract">
+                                <i class="fas fa-minus-circle mr-1"></i> Trừ tiền
+                            </button>
+                            <button type="button" class="btn btn-outline-primary adjust-type-btn" data-type="set">
+                                <i class="fas fa-edit mr-1"></i> Đặt số dư
+                            </button>
+                        </div>
+                        <input type="hidden" name="adjustType" id="selectedAdjustType">
+                    </div>
+
+                    <!-- Số tiền -->
+                    <div class="form-group">
+                        <label>Số tiền điều chỉnh</label>
+                        <div class="input-group">
+                            <input type="text" name="amount" class="form-control text-right" required>
+                            <div class="input-group-append">
+                                <span class="input-group-text">VNĐ</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lý do -->
+                    <div class="form-group">
+                        <label>Lý do điều chỉnh</label>
+                        <textarea name="reason" class="form-control" rows="2" placeholder="Nhập lý do điều chỉnh..."></textarea>
+                    </div>
+
+                    <div class="text-right mt-4">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            <i class="fas fa-times mr-1"></i> Đóng
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save mr-1"></i> Cập nhật
                         </button>
                     </div>
-                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal điều chỉnh TCoin -->
+<div class="modal fade" id="adjustTCoinModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title">
+                    <i class="fas fa-coins mr-2"></i>
+                    Điều chỉnh TCoin
+                </h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="tcoinAdjustForm">
+                    <!-- Hiển thị TCoin hiện tại -->
+                    <div class="current-tcoin mb-4 text-center">
+                        <label class="d-block mb-2">TCoin hiện tại</label>
+                        <span class="tcoin-amount">{{ user.tcoin|intcomma }} TCoin</span>
+                    </div>
+
+                    <!-- Loại điều chỉnh -->
+                    <div class="form-group">
+                        <label>Loại điều chỉnh</label>
+                        <div class="adjust-type-group">
+                            <button type="button" class="btn btn-outline-success adjust-type-btn" data-type="add">
+                                <i class="fas fa-plus-circle mr-1"></i> Cộng TCoin
+                            </button>
+                            <button type="button" class="btn btn-outline-danger adjust-type-btn" data-type="subtract">
+                                <i class="fas fa-minus-circle mr-1"></i> Trừ TCoin
+                            </button>
+                            <button type="button" class="btn btn-outline-primary adjust-type-btn" data-type="set">
+                                <i class="fas fa-edit mr-1"></i> Đặt số TCoin
+                            </button>
+                        </div>
+                        <input type="hidden" name="adjustType" id="selectedTCoinAdjustType">
+                    </div>
+
+                    <!-- Số lượng -->
+                    <div class="form-group">
+                        <label>Số lượng TCoin</label>
+                        <input type="text" name="amount" class="form-control text-right" required>
+                    </div>
+
+                    <!-- Lý do -->
+                    <div class="form-group">
+                        <label>Lý do điều chỉnh</label>
+                        <textarea name="reason" class="form-control" rows="2" placeholder="Nhập lý do điều chỉnh..."></textarea>
+                    </div>
+
+                    <div class="text-right">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            <i class="fas fa-times mr-1"></i> Đóng
+                        </button>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-save mr-1"></i> Cập nhật
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -299,8 +984,28 @@
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<!-- Tải SweetAlert2 đúng cách -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 $(document).ready(function() {
+    // Kiểm tra SweetAlert2 đã được tải chưa
+    if (typeof Swal === 'undefined') {
+        console.error('SweetAlert2 is not loaded. Loading it now...');
+        var script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+        document.head.appendChild(script);
+    }
+    
+    // Khởi tạo Select2 với theme bootstrap4
+    $('.select2').select2({
+        theme: 'bootstrap4',
+        width: '100%',
+        placeholder: 'Chọn...',
+        allowClear: true
+    });
+    
     // Xử lý xem trước ảnh avatar
     $('#id_avatar').on('change', function() {
         var file = this.files[0];
@@ -318,8 +1023,53 @@ $(document).ready(function() {
         }
     });
     
-    // Xử lý nút đặt lại mật khẩu
-    $('#resetPasswordBtn').on('click', function(e) {
+    // Xử lý submit form cập nhật thông tin
+    $('#userEditForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        Swal.fire({
+            title: 'Đang xử lý...',
+            text: 'Vui lòng đợi trong giây lát',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        
+        var formData = new FormData(this);
+        
+        $.ajax({
+            url: '{% url "dashboard:user_edit" user.id %}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công',
+                    text: 'Thông tin người dùng đã được cập nhật!',
+                    confirmButtonColor: '#4e73df',
+                    confirmButtonText: 'Đóng'
+                }).then(() => {
+                    location.reload();
+                });
+            },
+            error: function(error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Không thể cập nhật thông tin. Vui lòng thử lại!',
+                    confirmButtonColor: '#4e73df',
+                    confirmButtonText: 'Đóng'
+                });
+            }
+        });
+    });
+    
+    // Xử lý form reset mật khẩu
+    $('#resetPasswordForm').on('submit', function(e) {
         e.preventDefault();
         
         var newPassword = $('#id_new_password').val();
@@ -329,81 +1079,255 @@ $(document).ready(function() {
             Swal.fire({
                 icon: 'error',
                 title: 'Lỗi',
-                text: 'Mật khẩu xác nhận không khớp!'
+                text: 'Mật khẩu xác nhận không khớp!',
+                confirmButtonColor: '#4e73df',
+                confirmButtonText: 'Đóng'
             });
             return;
         }
         
-        $.ajax({
-            url: '{% url "dashboard:user_reset_password" user.id %}',
-            method: 'POST',
-            data: {
-                'new_password': newPassword,
-                'csrfmiddlewaretoken': '{{ csrf_token }}'
-            },
-            success: function(response) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Thành công',
-                    text: 'Mật khẩu đã được đặt lại thành công!'
-                });
-                $('#id_new_password').val('');
-                $('#id_confirm_password').val('');
-            },
-            error: function(error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi',
-                    text: 'Không thể đặt lại mật khẩu. Vui lòng thử lại sau.'
-                });
-            }
-        });
-    });
-    
-    // Xử lý nút xóa tài khoản
-    $('.delete-user-btn').on('click', function(e) {
-        e.preventDefault();
-        
-        var userId = $(this).data('user-id');
-        var username = $(this).data('username');
-        
         Swal.fire({
-            title: 'Xác nhận xóa?',
-            text: `Bạn có chắc chắn muốn xóa người dùng "${username}"?`,
+            title: 'Xác nhận đặt lại mật khẩu?',
+            text: 'Mật khẩu của người dùng sẽ được thay đổi',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Xóa',
+            confirmButtonColor: '#f6c23e',
+            cancelButtonColor: '#858796',
+            confirmButtonText: 'Đồng ý',
             cancelButtonText: 'Hủy'
         }).then((result) => {
             if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Đang xử lý...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
                 $.ajax({
-                    url: `/dashboard/users/${userId}/delete/`,
+                    url: '{% url "dashboard:user_reset_password" user.id %}',
                     method: 'POST',
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token }}'
+                    data: {
+                        'new_password': newPassword,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
                     },
                     success: function(response) {
+                        console.log('Success:', response);
                         Swal.fire({
-                            title: 'Đã xóa!',
-                            text: `Người dùng "${username}" đã được xóa thành công.`,
-                            icon: 'success'
-                        }).then(() => {
-                            window.location.href = '{% url "dashboard:user_list" %}';
+                            icon: 'success',
+                            title: 'Thành công',
+                            text: 'Mật khẩu đã được đặt lại thành công!',
+                            confirmButtonColor: '#4e73df',
+                            confirmButtonText: 'Đóng'
                         });
+                        $('#id_new_password').val('');
+                        $('#id_confirm_password').val('');
                     },
                     error: function(error) {
+                        console.error('Error:', error);
                         Swal.fire({
-                            title: 'Lỗi!',
-                            text: 'Không thể xóa người dùng. Vui lòng thử lại sau.',
-                            icon: 'error'
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: 'Không thể đặt lại mật khẩu. Vui lòng thử lại sau.',
+                            confirmButtonColor: '#4e73df',
+                            confirmButtonText: 'Đóng'
                         });
                     }
                 });
             }
         });
     });
+    
+    // Thêm radio buttons cho loại điều chỉnh
+    $('#balanceForm').prepend(`
+        <div class="mb-3">
+            <label class="form-label">Loại điều chỉnh</label>
+            <div class="btn-group w-100" role="group">
+                <input type="radio" class="btn-check" name="adjustType" id="btnAdd" value="add">
+                <label class="btn btn-outline-success" for="btnAdd">Cộng tiền</label>
+                
+                <input type="radio" class="btn-check" name="adjustType" id="btnSubtract" value="subtract">
+                <label class="btn btn-outline-danger" for="btnSubtract">Trừ tiền</label>
+                
+                <input type="radio" class="btn-check" name="adjustType" id="btnSet" value="set">
+                <label class="btn btn-outline-primary" for="btnSet">Đặt số dư</label>
+            </div>
+        </div>
+    `);
+
+    // Cập nhật xử lý form
+    $('#balanceForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        let amount = $(this).find('input[name="amount"]').attr('data-value');
+        let reason = $(this).find('textarea[name="reason"]').val() || "Admin cập nhật";
+        let adjustType = $('input[name="adjustType"]:checked').val();
+        
+        if (!amount || !adjustType) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Thông báo',
+                text: 'Vui lòng nhập đầy đủ thông tin',
+                confirmButtonColor: '#4e73df'
+            });
+            return;
+        }
+        
+        // Tính toán số tiền điều chỉnh
+        let adjustAmount;
+        if (adjustType === 'set') {
+            adjustAmount = parseInt(amount) - {{ user.balance }};
+        } else if (adjustType === 'subtract') {
+            adjustAmount = -parseInt(amount);
+        } else {
+            adjustAmount = parseInt(amount);
+        }
+        
+        // Gửi request
+        $.ajax({
+            url: '{% url "dashboard:adjust_balance" user.id %}',
+            method: 'POST',
+            data: {
+                amount: adjustAmount,
+                reason: reason,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công',
+                    text: 'Số dư đã được cập nhật thành công!',
+                    confirmButtonColor: '#4e73df'
+                }).then(() => {
+                    location.reload();
+                });
+            },
+            error: function(error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: error.responseJSON?.message || 'Không thể cập nhật số dư. Vui lòng thử lại!',
+                    confirmButtonColor: '#4e73df'
+                });
+            }
+        });
+    });
+    
+    // Xử lý ảnh avatar không tồn tại
+    $('img.user-avatar').on('error', function() {
+        // Thay thế bằng div chứa chữ cái đầu của username
+        var username = '{{ user.username }}';
+        var initial = username ? username.charAt(0).toUpperCase() : '?';
+        
+        $(this).replaceWith('<div class="avatar-placeholder">' + initial + '</div>');
+    });
+
+    // Thêm hàm format số tiền
+    function formatCurrency(input) {
+        // Xóa tất cả ký tự không phải số
+        let value = input.value.replace(/[^\d]/g, '');
+        
+        // Lưu giá trị số nguyên vào data attribute
+        input.setAttribute('data-value', value);
+        
+        // Format hiển thị với dấu phẩy
+        if (value) {
+            value = Number(value).toLocaleString('vi-VN');
+        }
+        
+        // Cập nhật giá trị hiển thị
+        input.value = value;
+    }
+
+    // Áp dụng cho input số tiền
+    $('input[name="amount"]').on('input', function() {
+        formatCurrency(this);
+    });
+
+    // Khi submit form, sử dụng giá trị từ data attribute
+    $('#balanceForm, #tcoinForm').on('submit', function(e) {
+        e.preventDefault();
+        let amountInput = $(this).find('input[name="amount"]');
+        let actualValue = amountInput.attr('data-value');
+        // ... xử lý submit với actualValue
+    });
+
+    // Xử lý chọn loại điều chỉnh
+    $('.adjust-type-btn').click(function() {
+        const parent = $(this).closest('form');
+        parent.find('.adjust-type-btn').removeClass('active');
+        $(this).addClass('active');
+        parent.find('input[name="adjustType"]').val($(this).data('type'));
+    });
+
+    // Xử lý form số dư
+    $('#balanceAdjustForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        const adjustType = $(this).find('input[name="adjustType"]').val();
+        const amount = $(this).find('input[name="amount"]').attr('data-value');
+        const reason = $(this).find('textarea[name="reason"]').val() || "Admin cập nhật";
+        
+        if (!amount || !adjustType) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Thông báo',
+                text: 'Vui lòng nhập đầy đủ thông tin',
+                confirmButtonColor: '#4e73df'
+            });
+            return;
+        }
+
+        // Tính toán số tiền điều chỉnh
+        let adjustAmount;
+        if (adjustType === 'set') {
+            adjustAmount = parseInt(amount) - {{ user.balance }};
+        } else if (adjustType === 'subtract') {
+            adjustAmount = -parseInt(amount);
+        } else {
+            adjustAmount = parseInt(amount);
+        }
+
+        // Gửi request
+        $.ajax({
+            url: '{% url "dashboard:adjust_balance" user.id %}',
+            method: 'POST',
+            data: {
+                amount: adjustAmount,
+                reason: reason,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công',
+                        text: 'Số dư đã được cập nhật thành công!',
+                        confirmButtonColor: '#4e73df'
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: response.message || 'Có lỗi xảy ra',
+                        confirmButtonColor: '#4e73df'
+                    });
+                }
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Không thể cập nhật số dư. Vui lòng thử lại!',
+                    confirmButtonColor: '#4e73df'
+                });
+            }
+        });
+    });
 });
 </script>
-{% endblock %} 
+{% endblock %}

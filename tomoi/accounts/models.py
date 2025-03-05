@@ -156,7 +156,7 @@ class CustomUser(AbstractUser):
     require_2fa_password = models.BooleanField(default=False)
     require_2fa_profile = models.BooleanField(default=False)
 
-    tcoin = models.IntegerField(default=0)
+    tcoin_balance = models.IntegerField(default=0)
 
     # Thêm các field mới
     ACCOUNT_TYPE_CHOICES = [

@@ -34,6 +34,107 @@
     .status-active { background-color: #e8f5e9; color: #2e7d32; }
     .status-pending { background-color: #fff3e0; color: #ef6c00; }
     .status-blocked { background-color: #ffebee; color: #c62828; }
+
+    /* CSS cho bảng hoạt động */
+    #activityTable {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    #activityTable thead th {
+        background-color: #f8f9fc;
+        border-bottom: 2px solid #e3e6f0;
+        color: #4e73df;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        padding: 1rem;
+    }
+
+    #activityTable tbody tr {
+        transition: all 0.3s ease;
+    }
+
+    #activityTable tbody tr:hover {
+        background-color: #f8f9fc;
+        transform: translateX(5px);
+    }
+
+    #activityTable td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #e3e6f0;
+    }
+
+    /* Badges styling */
+    .badge {
+        padding: 0.5em 1em;
+        font-weight: 500;
+        font-size: 0.85rem;
+        border-radius: 30px;
+    }
+
+    .badge.bg-success {
+        background-color: #1cc88a !important;
+        color: white;
+    }
+
+    .badge.bg-warning {
+        background-color: #f6c23e !important;
+        color: #2c2c2c;
+    }
+
+    .badge.bg-danger {
+        background-color: #e74a3b !important;
+        color: white;
+    }
+
+    .badge.bg-info {
+        background-color: #36b9cc !important;
+        color: white;
+    }
+
+    .badge.bg-primary {
+        background-color: #4e73df !important;
+        color: white;
+    }
+
+    .badge.bg-secondary {
+        background-color: #858796 !important;
+        color: white;
+    }
+
+    /* Hiệu ứng hover cho các nút */
+    .btn-outline-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(78, 115, 223, 0.25);
+    }
+
+    /* DataTable styling */
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: #4e73df !important;
+        border-color: #4e73df !important;
+        color: white !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: #4e73df !important;
+        border-color: #4e73df !important;
+        color: white !important;
+    }
+
+    .dataTables_wrapper .dataTables_length select,
+    .dataTables_wrapper .dataTables_filter input {
+        border: 1px solid #d1d3e2;
+        border-radius: 0.35rem;
+        padding: 0.375rem 0.75rem;
+    }
+
+    .dataTables_wrapper .dataTables_length select:focus,
+    .dataTables_wrapper .dataTables_filter input:focus {
+        border-color: #bac8f3;
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+    }
 </style>
 {% endblock %}
 
@@ -261,62 +362,93 @@
     <!-- Lịch sử thay đổi của Admin -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary">Lịch sử thay đổi của Admin</h6>
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-history mr-2"></i>Lịch sử thay đổi của Admin
+            </h6>
             <button class="btn btn-sm btn-outline-primary" id="refreshActivityBtn">
                 <i class="fas fa-sync-alt mr-1"></i>Làm mới
             </button>
         </div>
         <div class="card-body">
+            <div class="card-body border-bottom">
+                <form id="activityFilterForm" class="row g-3 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label">Từ ngày</label>
+                        <input type="date" class="form-control" id="dateFrom" name="date_from">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Đến ngày</label>
+                        <input type="date" class="form-control" id="dateTo" name="date_to">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Admin</label>
+                        <select class="form-control select2" id="adminFilter" name="admin">
+                            <option value="">Tất cả</option>
+                            {% for admin in admins %}
+                                <option value="{{ admin.username }}">{{ admin.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Hành động</label>
+                        <select class="form-control select2" id="actionFilter" name="action">
+                            <option value="">Tất cả</option>
+                            <option value="create">Tạo mới</option>
+                            <option value="update">Cập nhật</option>
+                            <option value="delete">Xóa</option>
+                            <option value="restore">Khôi phục</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="button" class="btn btn-primary w-100" id="applyFilter">
+                            <i class="fas fa-filter mr-1"></i>Lọc
+                        </button>
+                    </div>
+                </form>
+            </div>
             <div class="table-responsive">
-                <table class="table table-bordered" id="activityTable">
+                <table class="table table-hover" id="activityTable">
                     <thead>
                         <tr>
                             <th>Thời gian</th>
                             <th>Admin</th>
-                            <th>Hành động</th>
                             <th>Người dùng</th>
-                            <th>Mô tả</th>
-                            <th>Thao tác</th>
+                            <th>Hành động</th>
+                            <th>Chi tiết</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for activity in user_activities %}
+                        {% for activity in activities %}
                         <tr>
                             <td>{{ activity.created_at|date:"d/m/Y H:i" }}</td>
                             <td>
-                                <span class="font-weight-bold text-primary">{{ activity.admin.username }}</span>
+                                <span class="badge bg-primary">{{ activity.admin.username }}</span>
+                            </td>
+                            <td>
+                                {% if activity.user %}
+                                    <span class="badge bg-info">{{ activity.user.username }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Không xác định</span>
+                                {% endif %}
                             </td>
                             <td>
                                 {% if activity.action_type == 'create' %}
-                                    <span class="badge badge-success">Tạo mới</span>
+                                    <span class="badge bg-success">Tạo mới</span>
                                 {% elif activity.action_type == 'update' %}
-                                    <span class="badge badge-info">Cập nhật</span>
+                                    <span class="badge bg-warning">Cập nhật</span>
                                 {% elif activity.action_type == 'delete' %}
-                                    <span class="badge badge-danger">Xóa</span>
+                                    <span class="badge bg-danger">Xóa</span>
                                 {% elif activity.action_type == 'restore' %}
-                                    <span class="badge badge-warning">Khôi phục</span>
+                                    <span class="badge bg-info">Khôi phục</span>
                                 {% endif %}
-                            </td>
-                            <td>
-                                <span class="font-weight-bold text-danger">{{ activity.user.username }}</span>
                             </td>
                             <td>{{ activity.description }}</td>
-                            <td>
-                                {% if activity.can_rollback %}
-                                <button class="btn btn-sm btn-outline-warning rollback-btn" 
-                                        data-activity-id="{{ activity.id }}"
-                                        data-toggle="tooltip" 
-                                        title="Hoàn tác thay đổi này">
-                                    <i class="fas fa-undo-alt"></i>
-                                </button>
-                                {% endif %}
-                            </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="6" class="text-center py-3">
-                                <i class="fas fa-history fa-2x mb-3 d-block"></i>
-                                <p class="mb-0">Chưa có hoạt động nào được ghi nhận</p>
+                            <td colspan="5" class="text-center py-5">
+                                <i class="fas fa-history fa-2x mb-3 d-block text-muted"></i>
+                                <p class="mb-0 text-muted">Chưa có hoạt động nào được ghi nhận</p>
                             </td>
                         </tr>
                         {% endfor %}
@@ -362,14 +494,52 @@ $(document).ready(function() {
     // Initialize Charts
     initializeCharts();
 
-    // Khởi tạo DataTable
+    // Khởi tạo DataTable với cấu hình mới
     $('#activityTable').DataTable({
         "order": [[0, "desc"]], // Sắp xếp theo thời gian mới nhất
         "language": {
             "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Vietnamese.json"
         },
         "pageLength": 10,
-        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Tất cả"]]
+        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Tất cả"]],
+        "dom": '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+               '<"row"<"col-sm-12"tr>>' +
+               '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+        "drawCallback": function() {
+            // Thêm hiệu ứng fade in khi thay đổi trang
+            $('.dataTable tbody tr').css('opacity', 0).animate({
+                opacity: 1
+            }, 500);
+        },
+        initComplete: function () {
+            var api = this.api();
+            
+            // Apply filter khi click nút lọc
+            $('#applyFilter').click(function() {
+                api.draw();
+            });
+            
+            // Custom filtering function
+            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                var dateFrom = $('#dateFrom').val();
+                var dateTo = $('#dateTo').val();
+                var admin = $('#adminFilter').val();
+                var action = $('#actionFilter').val();
+                var date = new Date(data[0]); // column 0 is date
+                
+                // Check date range
+                if (dateFrom && new Date(dateFrom) > date) return false;
+                if (dateTo && new Date(dateTo) < date) return false;
+                
+                // Check admin
+                if (admin && data[1].indexOf(admin) === -1) return false;
+                
+                // Check action
+                if (action && !data[3].includes(action)) return false;
+                
+                return true;
+            });
+        }
     });
 
     // Xử lý nút hoàn tác

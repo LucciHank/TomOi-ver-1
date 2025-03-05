@@ -24,14 +24,18 @@ class UserActivityLog(models.Model):
         ordering = ['-created_at']
 
     def save_old_data(self, user_obj):
-        """Lưu trữ dữ liệu cũ của user để có thể rollback"""
+        """Lưu dữ liệu cũ trước khi thay đổi"""
         self.old_data = {
             'username': user_obj.username,
             'email': user_obj.email,
-            'phone': user_obj.phone,
+            'first_name': user_obj.first_name,
+            'last_name': user_obj.last_name,
+            'phone_number': getattr(user_obj, 'phone_number', ''),
+            'status': getattr(user_obj, 'status', ''),
+            'account_type': getattr(user_obj, 'account_type', ''),
             'is_active': user_obj.is_active,
             'balance': str(user_obj.balance),
-            'tcoin_balance': str(user_obj.tcoin_balance),
+            'tcoin_balance': str(getattr(user_obj, 'tcoin_balance', 0))
         }
         self.save()
 
@@ -51,7 +55,11 @@ class UserActivityLog(models.Model):
             
             user.username = data.get('username', user.username)
             user.email = data.get('email', user.email)
-            user.phone = data.get('phone', user.phone)
+            user.first_name = data.get('first_name', user.first_name)
+            user.last_name = data.get('last_name', user.last_name)
+            user.phone_number = data.get('phone_number', getattr(user, 'phone_number', ''))
+            user.status = data.get('status', getattr(user, 'status', ''))
+            user.account_type = data.get('account_type', user.account_type)
             user.is_active = data.get('is_active', user.is_active)
             user.balance = decimal.Decimal(data.get('balance', '0'))
             user.tcoin_balance = int(data.get('tcoin_balance', '0'))

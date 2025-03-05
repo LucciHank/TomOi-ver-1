@@ -101,12 +101,13 @@ urlpatterns = [
     path('users/<int:user_id>/notes/', user_views.user_notes, name='user_notes'),
     path('users/export/', views.export_users, name='export_users'),
     path('users/analytics/', user_views.user_analytics, name='user_analytics'),
-    path('users/<int:user_id>/adjust-balance/', user_views.adjust_balance, name='adjust_balance'),
+    path('users/<int:user_id>/adjust-balance/', user.adjust_balance, name='adjust_balance'),
     path('users/<int:user_id>/adjust-tcoin/', user_views.adjust_tcoin, name='adjust_tcoin'),
     path('users/import/', user_views.import_users, name='import_users'),
     path('users/<int:user_id>/reset-password/', user_views.user_reset_password, name='user_reset_password'),
     path('users/activity/<int:activity_id>/rollback/', user.rollback_activity, name='rollback_activity'),
     path('users/check-username/', user.check_username, name='check_username'),
+    path('users/<int:user_id>/delete/', user.user_delete, name='user_delete'),
     
     # Warranty Management
     path('warranty/', views.warranty_management, name='warranty_management'),

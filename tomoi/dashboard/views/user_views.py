@@ -6,18 +6,26 @@ from django.utils import timezone
 from datetime import timedelta
 from accounts.models import CustomUser, UserActivity, UserNote, BalanceHistory, TCoinHistory
 from ..forms import UserForm, UserPermissionForm
-import json
-import csv
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import Group, Permission
+from ..models.user_activity import UserActivityLog
+import json
+import csv
 import random
 import string
+import decimal
 from django.views.decorators.http import require_POST
+from django.urls import reverse
 
 @staff_member_required
 def user_dashboard(request):
     """Dashboard tổng quan về người dùng"""
     today = timezone.now()
+    
+    # Thêm lịch sử hoạt động vào context
+    activities = UserActivityLog.objects.select_related(
+        'user', 'admin'
+    ).order_by('-created_at')[:50]
     
     context = {
         'total_users': CustomUser.objects.count(),
@@ -45,7 +53,8 @@ def user_dashboard(request):
         ],
 
         # Danh sách người dùng mới nhất
-        'users': CustomUser.objects.all().order_by('-date_joined')[:50]
+        'users': CustomUser.objects.all().order_by('-date_joined')[:50],
+        'activities': activities,
     }
     
     return render(request, 'dashboard/users/dashboard.html', context)
@@ -70,11 +79,98 @@ def user_edit(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     
     if request.method == 'POST':
-        form = UserForm(request.POST, request.FILES, instance=user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Cập nhật thông tin thành công')
-            return redirect('dashboard:user_detail', user_id=user.id)
+        action = request.POST.get('action')
+        
+        if not action:  # Xử lý form thông thường
+            form = UserForm(request.POST, request.FILES, instance=user)
+            # Thêm admin user vào form để log
+            form.admin_user = request.user
+            
+            if form.is_valid():
+                try:
+                    updated_user = form.save()
+                    return JsonResponse({
+                        'status': 'success',
+                        'message': 'Cập nhật thông tin thành công',
+                        'redirect': reverse('dashboard:user_detail', args=[user.id])
+                    })
+                except Exception as e:
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': str(e)
+                    }, status=400)
+            else:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Dữ liệu không hợp lệ',
+                    'errors': dict(form.errors)
+                }, status=400)
+        elif action == 'adjust_balance':
+            amount = request.POST.get('amount')
+            reason = request.POST.get('reason', 'Admin cập nhật')
+            adjustment_type = 'tăng' if float(amount) > 0 else 'giảm'
+            
+            try:
+                amount = decimal.Decimal(amount)
+                old_balance = user.balance
+                user.balance += amount
+                user.save()
+                
+                # Tạo log điều chỉnh số dư
+                BalanceHistory.objects.create(
+                    user=user,
+                    amount=amount,
+                    balance_after=user.balance,
+                    description=f"{adjustment_type} {abs(amount)}đ. Lý do: {reason}",
+                    created_by=request.user
+                )
+                
+                # Log hoạt động
+                UserActivityLog.objects.create(
+                    user=user,
+                    admin=request.user,
+                    action_type='update',
+                    description=f'{adjustment_type} số dư: {abs(amount):,}đ. Lý do: {reason}'
+                )
+                
+                return JsonResponse({'status': 'success'})
+            except Exception as e:
+                return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+                
+        elif action == 'adjust_tcoin':
+            amount = request.POST.get('amount')
+            reason = request.POST.get('reason', 'Admin cập nhật')
+            adjustment_type = 'tăng' if int(amount) > 0 else 'giảm'
+            
+            try:
+                amount = int(amount)
+                # Lấy giá trị TCoin hiện tại
+                current_tcoin = user.tcoin  # Sửa lại tên field cho đúng
+                # Cập nhật giá trị mới
+                new_tcoin = current_tcoin + amount
+                user.tcoin = new_tcoin  # Sửa lại tên field cho đúng
+                user.save()
+                
+                # Tạo log điều chỉnh TCoin
+                TCoinHistory.objects.create(
+                    user=user,
+                    amount=amount,
+                    balance_after=new_tcoin,
+                    description=f"{adjustment_type} {abs(amount)} TCoin. Lý do: {reason}",
+                    created_by=request.user
+                )
+                
+                # Log hoạt động
+                UserActivityLog.objects.create(
+                    user=user,
+                    admin=request.user,
+                    action_type='update',
+                    description=f'{adjustment_type} TCoin: {abs(amount):,}. Lý do: {reason}'
+                )
+                
+                return JsonResponse({'status': 'success'})
+            except Exception as e:
+                return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     else:
         form = UserForm(instance=user)
     
@@ -395,32 +491,37 @@ def adjust_tcoin(request, user_id):
     
     if request.method == 'POST':
         amount = request.POST.get('amount')
-        description = request.POST.get('description')
+        reason = request.POST.get('reason', 'Admin cập nhật')
+        adjustment_type = 'tăng' if int(amount) > 0 else 'giảm'
         
         try:
             amount = int(amount)
-            if description:
-                # Cập nhật TCoin và tạo lịch sử
-                old_balance = user.tcoin_balance
-                user.tcoin_balance += amount
-                user.save()
-                
-                # Tạo log điều chỉnh TCoin
-                TCoinHistory.objects.create(
-                    user=user,
-                    amount=amount,
-                    balance_after=user.tcoin_balance,
-                    description=description,
-                    created_by=request.user
-                )
-                
-                messages.success(request, f'Đã điều chỉnh TCoin thành công. Thay đổi: {amount:+}')
-            else:
-                messages.error(request, 'Vui lòng nhập mô tả cho việc điều chỉnh TCoin')
-        except ValueError:
-            messages.error(request, 'Số lượng không hợp lệ')
+            old_tcoin = user.tcoin_balance
+            user.tcoin_balance += amount
+            user.save()
+            
+            # Tạo log điều chỉnh TCoin
+            TCoinHistory.objects.create(
+                user=user,
+                amount=amount,
+                balance_after=user.tcoin_balance,
+                description=f"{adjustment_type} {abs(amount)} TCoin. Lý do: {reason}",
+                created_by=request.user
+            )
+            
+            # Log hoạt động
+            UserActivityLog.objects.create(
+                user=user,
+                admin=request.user,
+                action_type='update',
+                description=f'{adjustment_type} TCoin: {abs(amount):,}. Lý do: {reason}'
+            )
+            
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     
-    return redirect('dashboard:user_detail', user_id=user.id)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
 @staff_member_required
 def import_users(request):

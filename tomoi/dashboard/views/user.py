@@ -3,7 +3,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q, Count, Sum
-from accounts.models import CustomUser
+from accounts.models import CustomUser, TCoinHistory
 from ..forms import UserFilterForm, UserEditForm, UserAddForm
 from django.http import JsonResponse
 import json
@@ -690,4 +690,43 @@ def check_username(request):
     """Kiểm tra username đã tồn tại chưa"""
     username = request.GET.get('username', '')
     exists = CustomUser.objects.filter(username=username).exists()
-    return JsonResponse({'exists': exists}) 
+    return JsonResponse({'exists': exists})
+
+@staff_member_required
+def adjust_tcoin(request, user_id):
+    """Điều chỉnh TCoin của người dùng"""
+    user = get_object_or_404(CustomUser, id=user_id)
+    
+    if request.method == 'POST':
+        amount = request.POST.get('amount')
+        reason = request.POST.get('reason', 'Admin cập nhật')
+        adjustment_type = 'tăng' if int(amount) > 0 else 'giảm'
+        
+        try:
+            amount = int(amount)
+            old_tcoin = user.tcoin_balance
+            user.tcoin_balance += amount
+            user.save()
+            
+            # Tạo log điều chỉnh TCoin
+            TCoinHistory.objects.create(
+                user=user,
+                amount=amount,
+                balance_after=user.tcoin_balance,
+                description=f"{adjustment_type} {abs(amount)} TCoin. Lý do: {reason}",
+                created_by=request.user
+            )
+            
+            # Log hoạt động
+            UserActivityLog.objects.create(
+                user=user,
+                admin=request.user,
+                action_type='update',
+                description=f'{adjustment_type} TCoin: {abs(amount):,}. Lý do: {reason}'
+            )
+            
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405) 
