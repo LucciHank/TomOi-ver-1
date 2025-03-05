@@ -17,6 +17,7 @@
     <!-- Custom styles -->
     <link href="/static/dashboard/css/sb-admin-2.css" rel="stylesheet">
     <link href="/static/dashboard/css/custom.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <style>
         /* Custom styles cho submenu */
         .collapse-inner {
@@ -220,35 +221,6 @@
                     </div>
                     {% endif %}
                     
-                    <div class="nav-tabs-custom">
-                        <ul class="nav nav-tabs">
-                            <li class="nav-item">
-                                <a class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}" 
-                                   href="{% url 'dashboard:home' %}">
-                                    Tổng Quan
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {% if request.resolver_match.url_name == 'analytics' %}active{% endif %}" 
-                                   href="{% url 'dashboard:analytics' %}">
-                                    Phân Tích
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {% if request.resolver_match.url_name == 'reports' %}active{% endif %}" 
-                                   href="{% url 'dashboard:reports' %}">
-                                    Báo Cáo
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {% if request.resolver_match.url_name == 'performance' %}active{% endif %}" 
-                                   href="{% url 'dashboard:performance' %}">
-                                    Hiệu Suất
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                    
                     {% block content %}{% endblock %}
                     
                 </div>
@@ -329,5 +301,7 @@
 
     <!-- Thêm vào cuối, trước </body> -->
     <script src="/static/dashboard/js/bootstrap5-fix.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
 </body>
 </html> 

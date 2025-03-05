@@ -38,17 +38,17 @@
     
     .badge.bg-regular {
         background-color: #6c757d;
-        color: white;
+        color: white !important;
     }
     
     .badge.bg-premium {
         background-color: #17a2b8;
-        color: white;
+        color: white !important;
     }
     
     .badge.bg-vip {
         background-color: #ffc107;
-        color: #212529;
+        color: white !important;
     }
     
     /* Định dạng input search */
@@ -192,6 +192,48 @@
     
     .me-2 {
         margin-right: 0.5rem;
+    }
+    
+    /* Màu nền và chữ cho Trạng thái */
+    .badge.bg-success {
+        background-color: #1cc88a;
+        color: white !important;
+    }
+    
+    .badge.bg-danger {
+        background-color: #e74a3b;
+        color: white !important;
+    }
+    
+    .badge.bg-warning {
+        background-color: #f6c23e;
+        color: white !important;
+    }
+    
+    .badge.bg-secondary {
+        background-color: #858796;
+        color: white !important;
+    }
+    
+    /* Màu nền và chữ cho Nhóm người dùng */
+    .badge.bg-admin {
+        background-color: #4e73df;
+        color: white !important;
+    }
+    
+    .badge.bg-customer {
+        background-color: #36b9cc;
+        color: white !important;
+    }
+    
+    .badge.bg-staff {
+        background-color: #1cc88a;
+        color: white !important;
+    }
+    
+    .badge.bg-collaborator {
+        background-color: #f6c23e;
+        color: white !important;
     }
 </style>
 {% endblock %}
@@ -425,14 +467,18 @@
                                 {% endif %}
                             </td>
                             <td>
-                                {% for group in user.groups.all %}
-                                <span class="badge bg-info">{{ group.name }}</span>
-                                {% empty %}
-                                <span class="text-muted">-</span>
-                                {% endfor %}
+                                {% if user.is_superuser %}
+                                <span class="badge bg-admin">Admin</span>
+                                {% elif user.is_staff %}
+                                <span class="badge bg-staff">Nhân viên</span>
+                                {% elif user.is_collaborator %}
+                                <span class="badge bg-collaborator">Cộng tác viên</span>
+                                {% else %}
+                                <span class="badge bg-customer">Khách hàng</span>
+                                {% endif %}
                             </td>
                             <td>{{ user.balance|intcomma }}đ</td>
-                            <td>{{ user.tcoin_balance|default:0 }}</td>
+                            <td>{{ user.tcoin_balance|default_if_none:0|intcomma }}</td>
                             <td>
                                 {% if user.is_online %}
                                 <span class="status-online"><i class="fas fa-circle fa-xs mr-1"></i> Online</span>
@@ -444,15 +490,14 @@
                             </td>
                             <td>
                                 <div class="btn-group">
-                                    <a href="{% url 'dashboard:user_detail' user.id %}" class="btn btn-sm btn-info">
+                                    <a href="{% url 'dashboard:user_detail' user.id %}" class="btn btn-sm btn-outline-primary">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="{% url 'dashboard:user_edit' user.id %}" class="btn btn-sm btn-primary">
+                                    <a href="{% url 'dashboard:user_edit' user.id %}" class="btn btn-sm btn-outline-info">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <button type="button" class="btn btn-sm btn-danger delete-user-btn" 
-                                            data-user-id="{{ user.id }}" 
-                                            data-username="{{ user.username }}">
+                                    <button type="button" class="btn btn-sm btn-outline-danger delete-user-btn" 
+                                            data-user-id="{{ user.id }}" data-username="{{ user.username }}">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
@@ -591,6 +636,118 @@
         </div>
     </div>
 </div>
+
+<!-- Thêm đoạn JavaScript này vào phần script ở cuối trang -->
+<script>
+// Thêm mã JavaScript để Việt hóa cột "Đăng nhập gần nhất"
+$(document).ready(function() {
+    // Việt hóa thời gian đăng nhập gần nhất
+    $('.status-offline').each(function() {
+        var timeText = $(this).text().trim();
+        
+        // Chuyển đổi "9 hours, 8 minutes trước" thành "9 giờ trước"
+        if (timeText.includes('hours') || timeText.includes('hour')) {
+            var hours = timeText.match(/\d+\s+hours?/)[0];
+            var hourNum = hours.match(/\d+/)[0];
+            $(this).text(hourNum + ' giờ trước');
+        } 
+        else if (timeText.includes('minutes') || timeText.includes('minute')) {
+            var mins = timeText.match(/\d+\s+minutes?/)[0];
+            var minNum = mins.match(/\d+/)[0];
+            $(this).text(minNum + ' phút trước');
+        }
+        else if (timeText.includes('days') || timeText.includes('day')) {
+            var days = timeText.match(/\d+\s+days?/)[0];
+            var dayNum = days.match(/\d+/)[0];
+            $(this).text(dayNum + ' ngày trước');
+        }
+        else if (timeText.includes('weeks') || timeText.includes('week')) {
+            var weeks = timeText.match(/\d+\s+weeks?/)[0];
+            var weekNum = weeks.match(/\d+/)[0];
+            $(this).text(weekNum + ' tuần trước');
+        }
+        else if (timeText.includes('months') || timeText.includes('month')) {
+            var months = timeText.match(/\d+\s+months?/)[0];
+            var monthNum = months.match(/\d+/)[0];
+            $(this).text(monthNum + ' tháng trước');
+        }
+        else if (timeText.includes('years') || timeText.includes('year')) {
+            var years = timeText.match(/\d+\s+years?/)[0];
+            var yearNum = years.match(/\d+/)[0];
+            $(this).text(yearNum + ' năm trước');
+        }
+    });
+    
+    // Xử lý nút xóa người dùng
+    $('.delete-user-btn').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        var userId = $(this).data('user-id');
+        var username = $(this).data('username');
+        
+        Swal.fire({
+            title: 'Xác nhận xóa?',
+            text: `Bạn có chắc chắn muốn xóa người dùng "${username}"?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Xóa',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/dashboard/users/${userId}/delete/`,
+                    method: 'POST',
+                    data: {
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            title: 'Đã xóa!',
+                            text: `Người dùng "${username}" đã được xóa thành công.`,
+                            icon: 'success'
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    },
+                    error: function(error) {
+                        Swal.fire({
+                            title: 'Lỗi!',
+                            text: 'Không thể xóa người dùng. Vui lòng thử lại sau.',
+                            icon: 'error'
+                        });
+                    }
+                });
+            }
+        });
+    });
+});
+</script>
+
+<!-- Sửa hiển thị số TCoin - chỉnh lại hiển thị trong phần users/list.html -->
+<!-- Tìm đến phần hiển thị TCoin trong bảng và sửa thành -->
+<td>{{ user.tcoin_balance|default_if_none:0|intcomma }}</td>
+
+<!-- Thêm JavaScript này để xử lý nút xuất Excel -->
+<script>
+$(document).ready(function() {
+    // Xử lý xuất Excel trực tiếp không qua modal
+    $('#exportExcelBtn').off('click').on('click', function() {
+        var format = 'xlsx'; // Định dạng mặc định
+        // Gọi trực tiếp URL xuất Excel
+        window.location.href = "{% url 'dashboard:export_users' %}?format=" + format;
+    });
+    
+    // Cập nhật nút Export trong modal
+    $('#exportDataBtn').off('click').on('click', function(e) {
+        e.preventDefault();
+        var format = $('input[name="exportFormat"]:checked').val() || 'xlsx';
+        window.location.href = "{% url 'dashboard:export_users' %}?format=" + format;
+    });
+});
+</script>
 {% endblock %}
 
 {% block extra_js %}
@@ -1083,6 +1240,57 @@ $(document).ready(function() {
     // Khởi tạo ban đầu
     filterTable();
     updateExportLinks();
+
+    // Thêm mã JavaScript để Việt hóa cột "Đăng nhập gần nhất"
+    $('.status-offline').each(function() {
+        var timeText = $(this).text().trim();
+        
+        // Chuyển đổi "9 hours, 8 minutes trước" thành "9 giờ trước"
+        if (timeText.includes('hours') || timeText.includes('hour')) {
+            var hours = timeText.match(/\d+\s+hours?/)[0];
+            var hourNum = hours.match(/\d+/)[0];
+            $(this).text(hourNum + ' giờ trước');
+        } 
+        else if (timeText.includes('minutes') || timeText.includes('minute')) {
+            var mins = timeText.match(/\d+\s+minutes?/)[0];
+            var minNum = mins.match(/\d+/)[0];
+            $(this).text(minNum + ' phút trước');
+        }
+        else if (timeText.includes('days') || timeText.includes('day')) {
+            var days = timeText.match(/\d+\s+days?/)[0];
+            var dayNum = days.match(/\d+/)[0];
+            $(this).text(dayNum + ' ngày trước');
+        }
+        else if (timeText.includes('weeks') || timeText.includes('week')) {
+            var weeks = timeText.match(/\d+\s+weeks?/)[0];
+            var weekNum = weeks.match(/\d+/)[0];
+            $(this).text(weekNum + ' tuần trước');
+        }
+        else if (timeText.includes('months') || timeText.includes('month')) {
+            var months = timeText.match(/\d+\s+months?/)[0];
+            var monthNum = months.match(/\d+/)[0];
+            $(this).text(monthNum + ' tháng trước');
+        }
+        else if (timeText.includes('years') || timeText.includes('year')) {
+            var years = timeText.match(/\d+\s+years?/)[0];
+            var yearNum = years.match(/\d+/)[0];
+            $(this).text(yearNum + ' năm trước');
+        }
+    });
+
+    // Xử lý xuất Excel trực tiếp không qua modal
+    $('#exportExcelBtn').off('click').on('click', function() {
+        var format = 'xlsx'; // Định dạng mặc định
+        // Gọi trực tiếp URL xuất Excel
+        window.location.href = "{% url 'dashboard:export_users' %}?format=" + format;
+    });
+    
+    // Cập nhật nút Export trong modal
+    $('#exportDataBtn').off('click').on('click', function(e) {
+        e.preventDefault();
+        var format = $('input[name="exportFormat"]:checked').val() || 'xlsx';
+        window.location.href = "{% url 'dashboard:export_users' %}?format=" + format;
+    });
 });
 </script>
 {% endblock %} 

@@ -842,7 +842,7 @@ $(document).ready(function() {
         }
         
         $.ajax({
-            url: `/dashboard/users/notes/${noteId}/update/`,
+            url: `/dashboard/users/{{ user.id }}/notes/${noteId}/edit/`,
             method: 'POST',
             data: {
                 'content': content,
@@ -894,7 +894,7 @@ $(document).ready(function() {
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: `/dashboard/users/notes/${noteId}/delete/`,
+                    url: `/dashboard/users/{{ user.id }}/notes/${noteId}/delete/`,
                     method: 'POST',
                     data: {
                         'csrfmiddlewaretoken': '{{ csrf_token }}'

@@ -1,154 +1,298 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
-{% load humanize %}
 
 {% block title %}Thêm người dùng mới{% endblock %}
 
 {% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css" rel="stylesheet">
 <style>
-    .required-label::after {
-        content: ' *';
-        color: #e74a3b;
-        font-weight: bold;
-    }
-    .card {
-        border-radius: 0.5rem;
-        box-shadow: 0 0.15rem 1.75rem 0 rgba(58,59,69,0.15);
-    }
-    .card-header {
-        background: linear-gradient(180deg, #4e73df 0%, #224abe 100%);
-        color: white;
-        border-radius: 0.5rem 0.5rem 0 0;
-    }
-    .form-group label {
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-    }
+.form-control-user {
+    font-size: 0.9rem;
+    border-radius: 10rem;
+    padding: 1rem;
+}
+
+.form-control-user:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+.card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    padding: 2rem 0;
+    background: #fff;
+    border-bottom: none;
+}
+
+.form-section {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 1rem;
+    margin-bottom: 2rem;
+    border: 1px solid #e3e6f0;
+    transition: all 0.3s ease;
+}
+
+.form-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.form-section-title {
+    color: #4e73df;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.form-section-title i {
+    margin-right: 0.75rem;
+    font-size: 1.4rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #3a3b45;
+    margin-bottom: 0.5rem;
+}
+
+.required-label::after {
+    content: ' *';
+    color: #e74a3b;
+    font-weight: bold;
+}
+
+.btn-user {
+    font-size: 0.9rem;
+    border-radius: 10rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-user:hover {
+    transform: translateY(-2px);
+}
+
+.invalid-feedback {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #e74a3b;
+}
+
+.form-control.is-invalid {
+    border-color: #e74a3b;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23e74a3b'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23e74a3b' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.form-control.is-valid {
+    border-color: #1cc88a;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%231cc88a' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid">
+    <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Thêm người dùng mới</h1>
-        <a href="{% url 'dashboard:user_list' %}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left mr-2"></i>Quay lại
+        <a href="{% url 'dashboard:user_list' %}" class="d-none d-sm-inline-block btn btn-secondary">
+            <i class="fas fa-arrow-left fa-sm text-white-50 mr-2"></i>Quay lại
         </a>
     </div>
 
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold">Thông tin người dùng mới</h6>
+    <!-- Form Card -->
+    <div class="card">
+        <div class="card-body p-0">
+            {% if messages %}
+            <div class="p-4">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                <div class="card-body">
-                    <form method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="username" class="required-label">Tên đăng nhập</label>
-                                    <input type="text" class="form-control" id="username" name="username" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="email" class="required-label">Email</label>
-                                    <input type="email" class="form-control" id="email" name="email" required>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="first_name">Họ</label>
-                                    <input type="text" class="form-control" id="first_name" name="first_name">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="last_name">Tên</label>
-                                    <input type="text" class="form-control" id="last_name" name="last_name">
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" class="user-form p-4" novalidate>
+                {% csrf_token %}
+
+                <!-- Thông tin tài khoản -->
+                <div class="form-section">
+                    <h5 class="form-section-title">
+                        <i class="fas fa-user-shield mr-2"></i>Thông tin tài khoản
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="id_username" class="required-label">Tên đăng nhập</label>
+                                <input type="text" name="username" id="id_username" class="form-control form-control-user" 
+                                       placeholder="Nhập tên đăng nhập" required>
+                                <div class="invalid-feedback">
+                                    Tên đăng nhập đã tồn tại hoặc không hợp lệ
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="phone_number">Số điện thoại</label>
-                                    <input type="text" class="form-control" id="phone_number" name="phone_number">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="account_type">Loại tài khoản</label>
-                                    <select class="form-control" id="account_type" name="account_type">
-                                        <option value="regular">Tài khoản thường</option>
-                                        <option value="premium">Tài khoản Premium</option>
-                                        <option value="vip">Tài khoản VIP</option>
-                                    </select>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="id_password" class="required-label">Mật khẩu</label>
+                                <input type="password" name="password" id="id_password" class="form-control form-control-user" 
+                                       placeholder="Nhập mật khẩu" required>
+                                <div class="invalid-feedback">
+                                    Mật khẩu phải có ít nhất 8 ký tự
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="avatar">Ảnh đại diện</label>
-                                    <div class="custom-file">
-                                        <input type="file" class="custom-file-input" id="avatar" name="avatar">
-                                        <label class="custom-file-label" for="avatar">Chọn ảnh...</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Trạng thái</label>
-                                    <div class="mt-2">
-                                        <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input" id="is_active" name="is_active" checked>
-                                            <label class="custom-control-label" for="is_active">Hoạt động</label>
-                                        </div>
-                                        <div class="custom-control custom-switch mt-2">
-                                            <input type="checkbox" class="custom-control-input" id="is_verified" name="is_verified">
-                                            <label class="custom-control-label" for="is_verified">Đã xác thực</label>
-                                        </div>
-                                    </div>
-                                </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="id_email" class="required-label">Email</label>
+                                {{ form.email }}
                             </div>
                         </div>
-                        
-                        <div class="form-group">
-                            <label for="note">Ghi chú</label>
-                            <textarea class="form-control" id="note" name="note" rows="3"></textarea>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="password" class="required-label">Mật khẩu</label>
-                                    <input type="password" class="form-control" id="password" name="password" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="password_confirmation" class="required-label">Xác nhận mật khẩu</label>
-                                    <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required>
-                                </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="id_phone_number">Số điện thoại</label>
+                                {{ form.phone_number }}
                             </div>
                         </div>
-                        
-                        <div class="text-center mt-4">
-                            <button type="submit" class="btn btn-primary btn-lg px-5">
-                                <i class="fas fa-user-plus mr-2"></i>Tạo người dùng
-                            </button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
+
+                <!-- Thông tin cá nhân -->
+                <div class="form-section">
+                    <h5 class="form-section-title">
+                        <i class="fas fa-user-circle mr-2"></i>Thông tin cá nhân
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="id_last_name">Họ</label>
+                                {{ form.last_name }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="id_first_name">Tên</label>
+                                {{ form.first_name }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thông tin ngân hàng -->
+                <div class="form-section">
+                    <h5 class="form-section-title">
+                        <i class="fas fa-university mr-2"></i>Thông tin ngân hàng
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="id_bank_account">Số tài khoản</label>
+                                {{ form.bank_account }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="id_bank_name">Tên ngân hàng</label>
+                                {{ form.bank_name }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="id_bank_branch">Chi nhánh</label>
+                                {{ form.bank_branch }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phân quyền và ghi chú -->
+                <div class="form-section">
+                    <h5 class="form-section-title">
+                        <i class="fas fa-user-cog mr-2"></i>Phân quyền và ghi chú
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="id_user_group" class="required-label">Nhóm người dùng</label>
+                                <select name="user_group" id="id_user_group" class="form-control" required>
+                                    <option value="">Chọn nhóm người dùng</option>
+                                    <option value="admin">Quản trị viên</option>
+                                    <option value="staff">Nhân viên</option>
+                                    <option value="collaborator">Cộng tác viên</option>
+                                    <option value="customer">Khách hàng</option>
+                                </select>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input type="checkbox" name="is_active" id="id_is_active" class="form-check-input" checked>
+                                <label class="form-check-label" for="id_is_active">
+                                    Kích hoạt tài khoản
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="id_user_notes">Ghi chú</label>
+                                <textarea name="user_notes" id="id_user_notes" class="form-control" rows="3" 
+                                          placeholder="Nhập ghi chú nếu có"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary btn-user" id="submitBtn" disabled>
+                        <i class="fas fa-user-plus mr-2"></i>Thêm người dùng
+                    </button>
+                    <a href="{% url 'dashboard:user_list' %}" class="btn btn-secondary btn-user ml-2">
+                        <i class="fas fa-times mr-2"></i>Hủy
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thông báo -->
+<div class="modal fade" id="notificationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Thông báo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalMessage">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <a href="#" class="btn btn-primary" id="modalRedirect" style="display: none;">
+                    Xem chi tiết
+                </a>
             </div>
         </div>
     </div>
@@ -156,13 +300,122 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 $(document).ready(function() {
-    // Hiển thị tên file khi chọn ảnh
-    $('.custom-file-input').on('change', function() {
-        var fileName = $(this).val().split('\\').pop();
-        $(this).siblings('.custom-file-label').addClass('selected').html(fileName);
+    var usernameValid = false;
+    var usernameTimeout;
+
+    // Xử lý form submit
+    $('.user-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        var form = $(this);
+        var submitBtn = $('#submitBtn');
+        submitBtn.prop('disabled', true).html(
+            '<span class="spinner-border spinner-border-sm mr-2"></span>Đang xử lý...'
+        );
+
+        $.ajax({
+            url: form.attr('action'),
+            type: 'POST',
+            data: form.serialize(),
+            success: function(response) {
+                if (response.status === 'success') {
+                    Swal.fire({
+                        title: 'Thành công!',
+                        text: response.message,
+                        icon: 'success',
+                        showCancelButton: true,
+                        confirmButtonColor: '#4e73df',
+                        cancelButtonColor: '#858796',
+                        confirmButtonText: 'Xem chi tiết',
+                        cancelButtonText: 'Thêm người dùng khác',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = response.redirect_url;
+                        } else {
+                            form[0].reset();
+                            $('.form-control').removeClass('is-valid is-invalid');
+                            $('#id_username').focus();
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Lỗi!',
+                        html: response.message,
+                        icon: 'error',
+                        confirmButtonColor: '#e74a3b'
+                    });
+                }
+                submitBtn.prop('disabled', false)
+                    .html('<i class="fas fa-user-plus mr-2"></i>Thêm người dùng');
+            },
+            error: function(xhr) {
+                let errorMessage = 'Có lỗi xảy ra khi xử lý yêu cầu.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+                Swal.fire({
+                    title: 'Lỗi!',
+                    html: errorMessage,
+                    icon: 'error',
+                    confirmButtonColor: '#e74a3b'
+                });
+                submitBtn.prop('disabled', false)
+                    .html('<i class="fas fa-user-plus mr-2"></i>Thêm người dùng');
+            }
+        });
     });
+
+    // Kiểm tra username khi nhập
+    $('#id_username').on('input', function() {
+        var username = $(this).val();
+        clearTimeout(usernameTimeout);
+
+        if (username.length < 3) {
+            $(this).removeClass('is-valid is-invalid');
+            usernameValid = false;
+            updateSubmitButton();
+            return;
+        }
+
+        usernameTimeout = setTimeout(function() {
+            $.get('/dashboard/users/check-username/', {username: username})
+                .done(function(data) {
+                    if (data.exists) {
+                        $('#id_username').removeClass('is-valid').addClass('is-invalid');
+                        usernameValid = false;
+                    } else {
+                        $('#id_username').removeClass('is-invalid').addClass('is-valid');
+                        usernameValid = true;
+                    }
+                    updateSubmitButton();
+                });
+        }, 500);
+    });
+
+    // Kiểm tra mật khẩu
+    $('#id_password').on('input', function() {
+        var password = $(this).val();
+        if (password.length < 8) {
+            $(this).addClass('is-invalid').removeClass('is-valid');
+        } else {
+            $(this).addClass('is-valid').removeClass('is-invalid');
+        }
+        updateSubmitButton();
+    });
+
+    function updateSubmitButton() {
+        var password = $('#id_password').val();
+        var passwordValid = password.length >= 8;
+        $('#submitBtn').prop('disabled', !(usernameValid && passwordValid));
+    }
+
+    // Focus vào trường username
+    $('#id_username').focus();
 });
 </script>
 {% endblock %}

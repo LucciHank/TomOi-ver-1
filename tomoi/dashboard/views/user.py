@@ -12,6 +12,11 @@ from datetime import timedelta
 from django.db.models.functions import TruncDate
 from django.conf import settings
 from django.contrib.sessions.models import Session
+from django.contrib.auth.decorators import login_required
+from ..models.user_activity import UserActivityLog
+import decimal
+from django import forms
+from django.urls import reverse
 
 @staff_member_required
 def user_list(request):
@@ -91,6 +96,16 @@ def user_edit(request, user_id):
     if request.method == 'POST':
         form = UserEditForm(request.POST, instance=user)
         if form.is_valid():
+            # Lưu dữ liệu cũ trước khi cập nhật
+            activity = UserActivityLog.objects.create(
+                user=user,
+                admin=request.user,
+                action_type='update',
+                description=f'Cập nhật thông tin người dùng {user.username}'
+            )
+            activity.save_old_data(user)
+            
+            # Lưu form
             form.save()
             messages.success(request, 'Cập nhật thông tin thành công')
             return redirect('dashboard:user_detail', user_id=user.id)
@@ -105,10 +120,53 @@ def user_permissions(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     
     if request.method == 'POST':
-        permissions = json.loads(request.body)
-        user.update_permissions(permissions)
-        return JsonResponse({'status': 'success'})
-        
+        try:
+            permissions = json.loads(request.body)
+            
+            # Lưu permissions cũ trước khi cập nhật
+            old_permissions = list(user.get_all_permissions())
+            
+            # Cập nhật permissions mới
+            user.update_permissions(permissions)
+            
+            # Lấy permissions mới sau khi cập nhật
+            new_permissions = list(user.get_all_permissions())
+            
+            # Tạo mô tả chi tiết những thay đổi
+            changes = []
+            added_perms = set(new_permissions) - set(old_permissions)
+            removed_perms = set(old_permissions) - set(new_permissions)
+            
+            if added_perms:
+                changes.append(f"Thêm quyền: {', '.join(added_perms)}")
+            if removed_perms:
+                changes.append(f"Xóa quyền: {', '.join(removed_perms)}")
+                
+            description = f"Cập nhật phân quyền cho {user.username}\n" + "\n".join(changes)
+            
+            # Tạo log hoạt động
+            activity = UserActivityLog.objects.create(
+                user=user,
+                admin=request.user,
+                action_type='update',
+                description=description,
+                metadata={
+                    'old_permissions': old_permissions,
+                    'new_permissions': new_permissions
+                }
+            )
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Cập nhật phân quyền thành công'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': f'Lỗi khi cập nhật phân quyền: {str(e)}'
+            }, status=400)
+            
     current_permissions = user.get_all_permissions()
     return render(request, 'dashboard/users/permissions.html', {
         'user': user,
@@ -358,33 +416,44 @@ def terminate_all_sessions(request, user_id):
 def user_add(request):
     """Thêm người dùng mới"""
     if request.method == 'POST':
-        form = UserAddForm(request.POST, request.FILES)
+        form = UserAddForm(request.POST)
+        form.admin_user = request.user
+        
         if form.is_valid():
-            user = form.save()
-            
-            # Ghi log
-            user.log_activity(
-                description='Tài khoản được tạo bởi admin',
-                ip_address=request.META.get('REMOTE_ADDR'),
-                user_agent=request.META.get('HTTP_USER_AGENT')
-            )
-            
-            # Gửi email thông báo
             try:
-                user.email_user(
-                    'Chào mừng bạn đến với hệ thống',
-                    f'Tài khoản của bạn đã được tạo.\nTên đăng nhập: {user.username}\nMật khẩu: {form.cleaned_data["password1"]}',
-                    from_email=settings.DEFAULT_FROM_EMAIL
-                )
-            except:
-                messages.warning(request, 'Không thể gửi email thông báo')
-                
-            messages.success(request, 'Tạo người dùng mới thành công')
-            return redirect('dashboard:user_detail', user_id=user.id)
+                user = form.save()
+                return JsonResponse({
+                    'status': 'success',
+                    'message': f'Tạo tài khoản {user.username} thành công!',
+                    'redirect_url': reverse('dashboard:user_detail', args=[user.id])
+                })
+            except forms.ValidationError as e:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': str(e)
+                })
+            except Exception as e:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': f'Lỗi hệ thống: {str(e)}'
+                })
+        else:
+            errors = []
+            for field, error_list in form.errors.items():
+                field_name = form.fields[field].label or field
+                for error in error_list:
+                    errors.append(f"<strong>{field_name}</strong>: {error}")
+            return JsonResponse({
+                'status': 'error',
+                'message': '<br>'.join(errors)
+            })
     else:
         form = UserAddForm()
     
-    return render(request, 'dashboard/users/add.html', {'form': form})
+    return render(request, 'dashboard/users/add.html', {
+        'form': form,
+        'title': 'Thêm người dùng mới'
+    })
 
 @staff_member_required
 def import_users(request):
@@ -525,21 +594,100 @@ def user_delete(request, user_id):
     """Xóa người dùng"""
     user = get_object_or_404(CustomUser, id=user_id)
     
-    if request.method == 'POST':
-        try:
-            # Lưu thông tin để thông báo
-            username = user.username
-            
-            # Xóa user
-            user.delete()
-            
-            messages.success(request, f'Đã xóa người dùng {username}')
-            return redirect('dashboard:user_list')
-            
-        except Exception as e:
-            messages.error(request, f'Lỗi khi xóa người dùng: {str(e)}')
-            return redirect('dashboard:user_detail', user_id=user_id)
+    # Tạo log trước khi xóa
+    activity = UserActivityLog.objects.create(
+        user=user,
+        admin=request.user,
+        action_type='delete',
+        description=f'Xóa người dùng {user.username}'
+    )
+    activity.save_old_data(user)
     
-    return render(request, 'dashboard/users/delete_confirm.html', {
-        'user': user
-    }) 
+    # Soft delete
+    user.is_active = False
+    user.save()
+    
+    return JsonResponse({'status': 'success'})
+
+@staff_member_required
+def user_dashboard(request):
+    """Trang tổng quan người dùng"""
+    # Thống kê tổng quan
+    total_users = CustomUser.objects.count()
+    active_users = CustomUser.objects.filter(is_active=True).count()
+    
+    # Đếm số người dùng đăng ký mới trong 30 ngày
+    thirty_days_ago = timezone.now() - timedelta(days=30)
+    new_users_30d = CustomUser.objects.filter(date_joined__gte=thirty_days_ago).count()
+    
+    # Lấy danh sách người dùng mới đăng ký
+    new_users = CustomUser.objects.filter(
+        date_joined__gte=thirty_days_ago
+    ).order_by('-date_joined')[:10]
+    
+    # Đếm số người đang online
+    five_minutes_ago = timezone.now() - timedelta(minutes=5)
+    online_users = CustomUser.objects.filter(last_activity__gte=five_minutes_ago).count()
+    
+    # Lấy lịch sử hoạt động gần đây
+    user_activities = UserActivityLog.objects.select_related('user', 'admin').order_by('-created_at')[:50]
+    
+    context = {
+        'total_users': total_users,
+        'active_users': active_users,
+        'new_users_30d': new_users_30d,
+        'online_users': online_users,
+        'new_users': new_users,
+        'user_activities': user_activities,
+    }
+    
+    return render(request, 'dashboard/users/dashboard.html', context)
+
+@login_required
+def rollback_activity(request, activity_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+        
+    activity = get_object_or_404(UserActivityLog, id=activity_id)
+    
+    if not activity.can_rollback:
+        return JsonResponse({'error': 'Cannot rollback this activity'}, status=400)
+        
+    try:
+        success = activity.rollback()
+        if success:
+            return JsonResponse({'message': 'Rollback successful'})
+        else:
+            return JsonResponse({'error': 'Could not rollback'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@staff_member_required
+def adjust_balance(request, user_id):
+    """Điều chỉnh số dư"""
+    if request.method == 'POST':
+        user = get_object_or_404(CustomUser, id=user_id)
+        amount = request.POST.get('amount')
+        description = request.POST.get('description')
+        
+        # Tạo log
+        activity = UserActivityLog.objects.create(
+            user=user,
+            admin=request.user,
+            action_type='update',
+            description=f'Điều chỉnh số dư: {amount}đ. Lý do: {description}'
+        )
+        activity.save_old_data(user)
+        
+        # Cập nhật số dư
+        user.balance += decimal.Decimal(amount)
+        user.save()
+        
+        return JsonResponse({'status': 'success'})
+
+@staff_member_required
+def check_username(request):
+    """Kiểm tra username đã tồn tại chưa"""
+    username = request.GET.get('username', '')
+    exists = CustomUser.objects.filter(username=username).exists()
+    return JsonResponse({'exists': exists}) 

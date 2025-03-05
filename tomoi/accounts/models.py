@@ -183,45 +183,36 @@ class CustomUser(AbstractUser):
         verbose_name='Giới thiệu'
     )
 
-    # Các field bổ sung khác
-    phone_number = models.CharField(
-        max_length=15, 
-        blank=True,
+    # Đổi tên trường notes thành user_notes
+    user_notes = models.TextField(
+        blank=True, 
         null=True,
-        verbose_name='Số điện thoại'
-    )
-    
-    address = models.TextField(
-        blank=True,
-        null=True,
-        verbose_name='Địa chỉ'
-    )
-    
-    avatar = models.ImageField(
-        upload_to='avatars/',
-        blank=True,
-        null=True,
-        verbose_name='Ảnh đại diện'
+        verbose_name='Ghi chú',
+        help_text='Ghi chú về người dùng'
     )
 
-    birth_date = models.DateField(
-        blank=True,
+    bank_account = models.CharField(
+        max_length=50, 
+        blank=True, 
         null=True,
-        verbose_name='Ngày sinh'
+        verbose_name='Số tài khoản',
+        help_text='Số tài khoản ngân hàng'
     )
-
-    GENDER_CHOICES = [
-        ('M', 'Nam'),
-        ('F', 'Nữ'),
-        ('O', 'Khác')
-    ]
     
-    gender = models.CharField(
-        max_length=1,
-        choices=GENDER_CHOICES,
-        blank=True,
+    bank_name = models.CharField(
+        max_length=100, 
+        blank=True, 
         null=True,
-        verbose_name='Giới tính'
+        verbose_name='Tên ngân hàng',
+        help_text='Tên ngân hàng'
+    )
+    
+    bank_branch = models.CharField(
+        max_length=100, 
+        blank=True, 
+        null=True,
+        verbose_name='Chi nhánh',
+        help_text='Chi nhánh ngân hàng'
     )
 
     objects = CustomUserManager()

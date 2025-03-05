@@ -10,7 +10,8 @@ from .views import (
     analytics, 
     reports, 
     performance,
-    user_views
+    user_views,
+    user
 )
 
 app_name = 'dashboard'
@@ -90,7 +91,7 @@ urlpatterns = [
     
     # User Management URLs
     path('users/', user_views.user_dashboard, name='user_dashboard'),
-    path('users/list/', views.user_list, name='user_list'),
+    path('users/list/', user.user_list, name='user_list'),
     path('users/add/', user_views.user_add, name='user_add'),
     path('users/<int:user_id>/', user_views.user_detail, name='user_detail'),
     path('users/<int:user_id>/edit/', user_views.user_edit, name='user_edit'),
@@ -104,6 +105,8 @@ urlpatterns = [
     path('users/<int:user_id>/adjust-tcoin/', user_views.adjust_tcoin, name='adjust_tcoin'),
     path('users/import/', user_views.import_users, name='import_users'),
     path('users/<int:user_id>/reset-password/', user_views.user_reset_password, name='user_reset_password'),
+    path('users/activity/<int:activity_id>/rollback/', user.rollback_activity, name='rollback_activity'),
+    path('users/check-username/', user.check_username, name='check_username'),
     
     # Warranty Management
     path('warranty/', views.warranty_management, name='warranty_management'),
@@ -169,6 +172,6 @@ urlpatterns = [
     path('users/<int:user_id>/notes/add/', user_views.user_add_note, name='user_add_note'),
     path('users/<int:user_id>/notes/<int:note_id>/edit/', user_views.user_edit_note, name='user_edit_note'),
     path('users/<int:user_id>/notes/<int:note_id>/delete/', user_views.user_delete_note, name='user_delete_note'),
-    path('users/notes/<int:note_id>/update/', user_views.update_user_note, name='update_user_note'),
-    path('users/notes/<int:note_id>/delete/', user_views.delete_user_note, name='delete_user_note'),
+    path('users/notes/<int:note_id>/update/', user_views.user_edit_note, name='update_user_note'),
+    path('users/notes/<int:note_id>/delete/', user_views.user_delete_note, name='delete_user_note'),
 ] 

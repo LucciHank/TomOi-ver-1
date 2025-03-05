@@ -1,4 +1,5 @@
 # Import mọi model cần thiết từ các file khác
+from .user_activity import UserActivityLog
 from .base import *
 from .discount import *
 from .subscription import *
@@ -8,3 +9,5 @@ from .product import Product
 from .system_notification import SystemNotification
 from .warranty import WarrantyHistory
 # Import các model khác nếu cần
+
+__all__ = ['UserActivityLog']

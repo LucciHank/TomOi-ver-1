@@ -4,6 +4,8 @@ from .models import Campaign, APIKey, Webhook
 from .models.source import Source, SourceLog, SourceProduct
 from accounts.models import CustomUser
 from django.contrib.auth.models import Group, Permission
+from django.db.utils import IntegrityError
+from .models.user_activity import UserActivityLog
 
 class CampaignForm(forms.ModelForm):
     class Meta:
@@ -137,51 +139,196 @@ class UserEditForm(forms.ModelForm):
                 self.fields[field].widget.attrs['class'] = 'form-control' 
 
 class UserAddForm(forms.ModelForm):
-    password1 = forms.CharField(
-        label='Mật khẩu',
-        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
-        min_length=8
+    USER_GROUPS = (
+        ('admin', 'Quản trị viên'),
+        ('staff', 'Nhân viên'),
+        ('collaborator', 'Cộng tác viên'),
+        ('customer', 'Khách hàng')
     )
-    password2 = forms.CharField(
-        label='Xác nhận mật khẩu',
-        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
-        min_length=8
+
+    username = forms.CharField(
+        label='Tên đăng nhập',
+        max_length=150,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control form-control-user',
+            'placeholder': 'Nhập tên đăng nhập',
+            'id': 'id_username',
+            'autocomplete': 'username'
+        })
+    )
+    
+    password = forms.CharField(
+        label='Mật khẩu',
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control form-control-user',
+            'placeholder': 'Nhập mật khẩu',
+            'id': 'id_password',
+            'autocomplete': 'new-password'
+        })
+    )
+
+    email = forms.EmailField(
+        label='Email',
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Nhập email',
+            'id': 'id_email'
+        })
+    )
+
+    phone_number = forms.CharField(
+        label='Số điện thoại',
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Nhập số điện thoại',
+            'id': 'id_phone_number'
+        })
+    )
+
+    first_name = forms.CharField(
+        label='Tên',
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Nhập tên',
+            'id': 'id_first_name'
+        })
+    )
+
+    last_name = forms.CharField(
+        label='Họ',
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Nhập họ',
+            'id': 'id_last_name'
+        })
+    )
+
+    bank_account = forms.CharField(
+        label='Số tài khoản',
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Nhập số tài khoản',
+            'id': 'id_bank_account'
+        })
+    )
+
+    bank_name = forms.CharField(
+        label='Tên ngân hàng',
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Nhập tên ngân hàng',
+            'id': 'id_bank_name'
+        })
+    )
+
+    bank_branch = forms.CharField(
+        label='Chi nhánh',
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Nhập chi nhánh ngân hàng',
+            'id': 'id_bank_branch'
+        })
+    )
+
+    user_group = forms.ChoiceField(
+        label='Nhóm người dùng',
+        choices=USER_GROUPS,
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+            'id': 'id_user_group'
+        })
+    )
+
+    is_active = forms.BooleanField(
+        label='Kích hoạt tài khoản',
+        required=False,
+        initial=True,
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-check-input',
+            'id': 'id_is_active'
+        })
+    )
+
+    user_notes = forms.CharField(
+        label='Ghi chú',
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 3,
+            'placeholder': 'Nhập ghi chú nếu có',
+            'id': 'id_user_notes'
+        })
     )
 
     class Meta:
         model = CustomUser
-        fields = ['username', 'email', 'first_name', 'last_name',
-                 'phone_number', 'address', 'birth_date', 'gender',
-                 'user_type', 'avatar', 'is_active']
-        widgets = {
-            'user_type': forms.Select(attrs={'class': 'form-select'}),
-            'gender': forms.Select(attrs={'class': 'form-select'}),
-            'birth_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'avatar': forms.FileInput(attrs={'class': 'form-control'})
-        }
+        fields = [
+            'username', 'email', 'phone_number', 'password',
+            'first_name', 'last_name', 'is_active', 'user_group',
+            'bank_account', 'bank_name', 'bank_branch', 'user_notes'
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field in self.fields:
-            if not isinstance(self.fields[field].widget, (forms.CheckboxInput, forms.FileInput)):
-                self.fields[field].widget.attrs['class'] = 'form-control'
+        # Đặt label tiếng Việt
+        self.fields['email'].label = 'Email'
+        self.fields['phone_number'].label = 'Số điện thoại'
+        self.fields['password'].label = 'Mật khẩu'
+        self.fields['first_name'].label = 'Tên'
+        self.fields['last_name'].label = 'Họ'
+        self.fields['is_active'].label = 'Kích hoạt tài khoản'
 
-    def clean(self):
-        cleaned_data = super().clean()
-        password1 = cleaned_data.get('password1')
-        password2 = cleaned_data.get('password2')
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if not username:
+            raise forms.ValidationError("Tên đăng nhập không được để trống")
+        if len(username) < 3:
+            raise forms.ValidationError("Tên đăng nhập phải có ít nhất 3 ký tự")
+        if CustomUser.objects.filter(username=username).exists():
+            raise forms.ValidationError("Tên đăng nhập này đã được sử dụng")
+        return username
 
-        if password1 and password2 and password1 != password2:
-            raise forms.ValidationError('Mật khẩu xác nhận không khớp')
-
-        return cleaned_data
+    def clean_password(self):
+        password = self.cleaned_data.get('password')
+        if not password:
+            raise forms.ValidationError("Mật khẩu không được để trống")
+        if len(password) < 8:
+            raise forms.ValidationError("Mật khẩu phải có ít nhất 8 ký tự")
+        return password
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.set_password(self.cleaned_data['password1'])
+        user.set_password(self.cleaned_data["password"])
+        
+        # Set user type based on group
+        group = self.cleaned_data['user_group']
+        if group == 'admin':
+            user.is_staff = True
+            user.is_superuser = True
+        elif group in ['staff', 'collaborator']:
+            user.is_staff = True
+            user.is_superuser = False
+        
         if commit:
-            user.save()
-        return user 
+            try:
+                user.save()
+                # Tạo log
+                if hasattr(self, 'admin_user'):
+                    UserActivityLog.objects.create(
+                        user=user,
+                        admin=self.admin_user,
+                        action_type='create',
+                        description=f'Tạo mới người dùng {user.username}'
+                    )
+            except IntegrityError as e:
+                raise forms.ValidationError(f'Có lỗi xảy ra khi tạo người dùng: {str(e)}')
+        return user
 
 class UserForm(forms.ModelForm):
     """Form chỉnh sửa thông tin người dùng"""
