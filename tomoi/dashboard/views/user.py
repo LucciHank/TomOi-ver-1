@@ -17,6 +17,7 @@ from ..models.user_activity import UserActivityLog
 import decimal
 from django import forms
 from django.urls import reverse
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 @staff_member_required
 def user_list(request):
@@ -285,7 +286,7 @@ def export_users(request):
             user.username,
             user.email,
             user.get_full_name(),
-            user.phone,
+            user.phone_number,
             user.date_joined.strftime('%d/%m/%Y'),
             'Hoạt động' if user.is_active else 'Vô hiệu',
             user.get_user_type_display(),
@@ -673,22 +674,37 @@ def adjust_balance(request, user_id):
     if request.method == 'POST':
         user = get_object_or_404(CustomUser, id=user_id)
         amount = request.POST.get('amount')
-        description = request.POST.get('description')
+        reason = request.POST.get('reason', 'Admin cập nhật')
+        adjustment_type = 'tăng' if int(amount) > 0 else 'giảm'
         
-        # Tạo log
-        activity = UserActivityLog.objects.create(
-            user=user,
-            admin=request.user,
-            action_type='update',
-            description=f'Điều chỉnh số dư: {amount}đ. Lý do: {description}'
-        )
-        activity.save_old_data(user)
-        
-        # Cập nhật số dư
-        user.balance += decimal.Decimal(amount)
-        user.save()
-        
-        return JsonResponse({'status': 'success'})
+        try:
+            amount = decimal.Decimal(amount)
+            old_balance = user.balance
+            user.balance += amount
+            user.save()
+            
+            # Tạo log điều chỉnh số dư
+            BalanceHistory.objects.create(
+                user=user,
+                amount=amount,
+                balance_after=user.balance,
+                description=f"{adjustment_type} {abs(amount)}đ. Lý do: {reason}",
+                created_by=request.user
+            )
+            
+            # Log hoạt động
+            UserActivityLog.objects.create(
+                user=user,
+                admin=request.user,
+                action_type='update',
+                description=f'{adjustment_type} số dư: {abs(amount):,}đ. Lý do: {reason}'
+            )
+            
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
 @staff_member_required
 def check_username(request):
@@ -734,4 +750,115 @@ def adjust_tcoin(request, user_id):
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405) 
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
+def export_excel_report(users):
+    """Xuất báo cáo dạng Excel"""
+    import pandas as pd
+    from django.http import HttpResponse
+    from io import BytesIO
+    
+    # Tạo DataFrame từ dữ liệu người dùng
+    data = []
+    for user in users:
+        data.append({
+            'ID': user.id,
+            'Username': user.username,
+            'Email': user.email,
+            'Họ tên': user.get_full_name(),
+            'Số điện thoại': user.phone_number,
+            'Ngày tham gia': user.date_joined.strftime('%d/%m/%Y'),
+            'Trạng thái': 'Hoạt động' if user.is_active else 'Vô hiệu',
+            'Loại tài khoản': user.get_user_type_display(),
+        })
+    
+    df = pd.DataFrame(data)
+    
+    # Tạo file Excel
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df.to_excel(writer, sheet_name='Users', index=False)
+        
+        # Tùy chỉnh định dạng
+        workbook = writer.book
+        worksheet = writer.sheets['Users']
+        format_header = workbook.add_format({'bold': True, 'bg_color': '#D8E4BC'})
+        
+        for col_num, value in enumerate(df.columns.values):
+            worksheet.write(0, col_num, value, format_header)
+            worksheet.set_column(col_num, col_num, 15)
+    
+    # Trả về response
+    output.seek(0)
+    filename = f'user_report_{timezone.now().strftime("%Y%m%d")}.xlsx'
+    response = HttpResponse(output.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    
+    return response
+
+def export_pdf_report(users):
+    """Xuất báo cáo dạng PDF"""
+    from django.http import HttpResponse
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import A4
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+    from reportlab.lib.styles import getSampleStyleSheet
+    from io import BytesIO
+    
+    # Tạo file PDF trong bộ nhớ
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4)
+    elements = []
+    
+    # Định dạng và style
+    styles = getSampleStyleSheet()
+    title_style = styles['Heading1']
+    
+    # Thêm tiêu đề
+    elements.append(Paragraph("Báo cáo người dùng", title_style))
+    elements.append(Spacer(1, 12))
+    
+    # Tạo dữ liệu cho bảng
+    data = [['ID', 'Username', 'Email', 'Họ tên', 'Số điện thoại', 'Ngày tham gia', 'Trạng thái']]
+    
+    for user in users:
+        data.append([
+            str(user.id),
+            user.username,
+            user.email,
+            user.get_full_name(),
+            user.phone_number,
+            user.date_joined.strftime('%d/%m/%Y'),
+            'Hoạt động' if user.is_active else 'Vô hiệu',
+        ])
+    
+    # Tạo bảng và định dạng
+    table = Table(data)
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ]))
+    
+    elements.append(table)
+    
+    # Tạo PDF
+    doc.build(elements)
+    pdf = buffer.getvalue()
+    buffer.close()
+    
+    # Trả về response
+    response = HttpResponse(content_type='application/pdf')
+    filename = f'user_report_{timezone.now().strftime("%Y%m%d")}.pdf'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    response.write(pdf)
+    
+    return response
+
+def get_default_avatar_url():
+    return staticfiles_storage.url('dashboard/images/default-avatar.png') 

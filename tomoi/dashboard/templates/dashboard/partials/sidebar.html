@@ -3,21 +3,59 @@
 
     <!-- Sidebar - Brand -->
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{% url 'dashboard:index' %}">
-        <div class="sidebar-brand-icon">
-            <i class="fas fa-shopping-bag fa-bounce"></i>
+        <div class="sidebar-brand-icon rotate-n-15">
+            <i class="fas fa-laugh-wink"></i>
         </div>
-        <div class="sidebar-brand-text mx-3">TomOi Admin</div>
+        <div class="sidebar-brand-text mx-3">TomOi <sup>Admin</sup></div>
     </a>
 
     <!-- Divider -->
     <hr class="sidebar-divider my-0">
 
     <!-- Nav Item - Dashboard -->
-    <li class="nav-item active">
-        <a class="nav-link pulse-link" href="{% url 'dashboard:index' %}">
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'dashboard:index' %}">
             <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Tổng quan</span>
-            <span class="badge badge-pill badge-success ml-2 pulse-badge">Live</span>
+            <span>Tổng quan</span></a>
+    </li>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider">
+
+    <!-- Heading -->
+    <div class="sidebar-heading">
+        Quản lý người dùng
+    </div>
+
+    <!-- Nav Item - Users -->
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'dashboard:user_list' %}">
+            <i class="fas fa-fw fa-users"></i>
+            <span>Người dùng</span>
+        </a>
+    </li>
+
+    <!-- Nav Item - Messaging -->
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'dashboard:messaging' %}">
+            <i class="fas fa-fw fa-comment-dots"></i>
+            <span>Nhắn tin</span>
+        </a>
+    </li>
+    
+    <!-- Nav Item - Complaints -->
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'dashboard:complaints' %}">
+            <i class="fas fa-fw fa-exclamation-circle"></i>
+            <span>Khiếu nại</span>
+        </a>
+    </li>
+    
+    <!-- Nav Item - Warranty -->
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'dashboard:warranty' %}">
+            <i class="fas fa-fw fa-shield-alt"></i>
+            <span>Bảo hành</span>
         </a>
     </li>
 
@@ -25,152 +63,59 @@
     <hr class="sidebar-divider">
 
     <!-- Heading -->
-    <div class="sidebar-heading text-uppercase">
-        <i class="fas fa-th-large fa-xs mr-1"></i> Quản lý
+    <div class="sidebar-heading">
+        Cửa hàng
     </div>
-
-    <!-- Nav Item - Orders -->
-    <li class="nav-item">
-        <a class="nav-link hover-effect" href="{% url 'dashboard:orders' %}">
-            <i class="fas fa-fw fa-shopping-cart"></i>
-            <span>Đơn hàng</span>
-            <span class="badge badge-pill badge-info float-right order-count">{{ pending_orders|default:"0" }}</span>
-        </a>
-    </li>
 
     <!-- Nav Item - Products Collapse Menu -->
     <li class="nav-item">
-        <a class="nav-link collapsed hover-effect" href="#" data-toggle="collapse" data-target="#collapseProducts"
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProducts"
             aria-expanded="true" aria-controls="collapseProducts">
             <i class="fas fa-fw fa-box"></i>
             <span>Sản phẩm</span>
-            <i class="fas fa-angle-down fa-sm float-right mt-1"></i>
         </a>
         <div id="collapseProducts" class="collapse" aria-labelledby="headingProducts" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded-lg shadow-sm">
-                <h6 class="collapse-header text-primary"><i class="fas fa-tags fa-sm mr-2"></i>Quản lý sản phẩm:</h6>
-                <a class="collapse-item hover-subtle" href="{% url 'dashboard:products' %}">
-                    <i class="fas fa-list-ul fa-sm mr-2"></i>Danh sách sản phẩm
-                </a>
-                <a class="collapse-item hover-subtle" href="{% url 'dashboard:add_product' %}">
-                    <i class="fas fa-plus-circle fa-sm mr-2"></i>Thêm sản phẩm
-                </a>
-                <a class="collapse-item hover-subtle" href="{% url 'dashboard:categories' %}">
-                    <i class="fas fa-folder fa-sm mr-2"></i>Danh mục
-                </a>
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản lý sản phẩm:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:product_list' %}">Danh sách sản phẩm</a>
+                <a class="collapse-item" href="{% url 'dashboard:add_product' %}">Thêm sản phẩm</a>
+                <a class="collapse-item" href="{% url 'dashboard:categories' %}">Danh mục</a>
             </div>
         </div>
     </li>
 
-    <!-- Nav Item - Customers -->
+    <!-- Nav Item - Orders -->
     <li class="nav-item">
-        <a class="nav-link hover-effect" href="{% url 'dashboard:user_dashboard' %}">
-            <i class="fas fa-fw fa-users"></i>
-            <span>Khách hàng</span>
-            <span class="badge badge-pill badge-light float-right user-count">{{ total_users|default:"0" }}</span>
+        <a class="nav-link" href="{% url 'dashboard:order_management' %}">
+            <i class="fas fa-fw fa-shopping-cart"></i>
+            <span>Đơn hàng</span>
         </a>
     </li>
 
-    <!-- Nav Item - Sources Collapse Menu -->
-    <li class="nav-item">
-        <a class="nav-link collapsed hover-effect" href="#" data-toggle="collapse" data-target="#collapseSources"
-            aria-expanded="true" aria-controls="collapseSources">
-            <i class="fas fa-fw fa-store"></i>
-            <span>Nguồn nhập</span>
-            <i class="fas fa-angle-down fa-sm float-right mt-1"></i>
-        </a>
-        <div id="collapseSources" class="collapse" aria-labelledby="headingSources" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded-lg shadow-sm">
-                <h6 class="collapse-header text-primary"><i class="fas fa-warehouse fa-sm mr-2"></i>Quản lý nguồn nhập:</h6>
-                <a class="collapse-item hover-subtle" href="{% url 'dashboard:source_dashboard' %}">
-                    <i class="fas fa-chart-pie fa-sm mr-2"></i>Tổng quan
-                </a>
-                <a class="collapse-item hover-subtle" href="{% url 'dashboard:source_list' %}">
-                    <i class="fas fa-list fa-sm mr-2"></i>Danh sách nguồn
-                </a>
-                <a class="collapse-item hover-subtle" href="{% url 'dashboard:source_add' %}">
-                    <i class="fas fa-plus fa-sm mr-2"></i>Thêm nguồn mới
-                </a>
-                <a class="collapse-item hover-subtle" href="{% url 'dashboard:source_log_list' %}">
-                    <i class="fas fa-history fa-sm mr-2"></i>Nhật ký
-                </a>
-                <a class="collapse-item hover-subtle" href="{% url 'dashboard:compare_sources' %}">
-                    <i class="fas fa-balance-scale fa-sm mr-2"></i>So sánh nguồn
-                </a>
-            </div>
-        </div>
-    </li>
+    <!-- Divider -->
+    <hr class="sidebar-divider">
 
-    <!-- Nav Item - Marketing Collapse Menu -->
+    <!-- Heading -->
+    <div class="sidebar-heading">
+        Marketing
+    </div>
+
+    <!-- Nav Item - Marketing -->
     <li class="nav-item">
-        <a class="nav-link collapsed hover-effect" href="#" data-toggle="collapse" data-target="#collapseMarketing"
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMarketing"
             aria-expanded="true" aria-controls="collapseMarketing">
             <i class="fas fa-fw fa-bullhorn"></i>
             <span>Marketing</span>
-            <i class="fas fa-angle-down fa-sm float-right mt-1"></i>
         </a>
-        <div id="collapseMarketing" class="collapse" aria-labelledby="headingMarketing" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded-lg shadow-sm">
-                <h6 class="collapse-header text-primary"><i class="fas fa-ad fa-sm mr-2"></i>Quản lý marketing:</h6>
-                <a class="collapse-item hover-subtle" href="{% url 'dashboard:marketing' %}">
-                    <i class="fas fa-flag fa-sm mr-2"></i>Chiến dịch
-                </a>
-                <a class="collapse-item hover-subtle" href="{% url 'dashboard:banners' %}">
-                    <i class="fas fa-image fa-sm mr-2"></i>Banner
-                </a>
-                <a class="collapse-item hover-subtle" href="{% url 'dashboard:discounts' %}">
-                    <i class="fas fa-percent fa-sm mr-2"></i>Mã giảm giá
-                </a>
+        <div id="collapseMarketing" class="collapse" aria-labelledby="headingMarketing"
+            data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Công cụ Marketing:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:marketing' %}">Chiến dịch</a>
+                <a class="collapse-item" href="{% url 'dashboard:discounts' %}">Mã giảm giá</a>
+                <a class="collapse-item" href="{% url 'dashboard:banners' %}">Banner</a>
             </div>
         </div>
-    </li>
-
-    <!-- Divider -->
-    <hr class="sidebar-divider">
-
-    <!-- Heading -->
-    <div class="sidebar-heading text-uppercase">
-        <i class="fas fa-chart-line fa-xs mr-1"></i> Phân tích
-    </div>
-
-    <!-- Nav Item - Reports Collapse Menu -->
-    <li class="nav-item">
-        <a class="nav-link collapsed hover-effect" href="#" data-toggle="collapse" data-target="#collapseReports"
-            aria-expanded="true" aria-controls="collapseReports">
-            <i class="fas fa-fw fa-chart-area"></i>
-            <span>Báo cáo</span>
-            <i class="fas fa-angle-down fa-sm float-right mt-1"></i>
-        </a>
-        <div id="collapseReports" class="collapse" aria-labelledby="headingReports" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded-lg shadow-sm">
-                <h6 class="collapse-header text-primary"><i class="fas fa-file-alt fa-sm mr-2"></i>Báo cáo phân tích:</h6>
-                <a class="collapse-item hover-subtle" href="{% url 'dashboard:sales_report' %}">
-                    <i class="fas fa-coins fa-sm mr-2"></i>Doanh số
-                </a>
-                <a class="collapse-item hover-subtle" href="{% url 'dashboard:product_report' %}">
-                    <i class="fas fa-cubes fa-sm mr-2"></i>Sản phẩm
-                </a>
-                <a class="collapse-item hover-subtle" href="{% url 'dashboard:customer_report' %}">
-                    <i class="fas fa-user-check fa-sm mr-2"></i>Khách hàng
-                </a>
-            </div>
-        </div>
-    </li>
-
-    <!-- Divider -->
-    <hr class="sidebar-divider">
-
-    <!-- Heading -->
-    <div class="sidebar-heading text-uppercase">
-        <i class="fas fa-cogs fa-xs mr-1"></i> Hệ thống
-    </div>
-
-    <!-- Nav Item - Settings -->
-    <li class="nav-item">
-        <a class="nav-link hover-effect" href="{% url 'dashboard:settings' %}">
-            <i class="fas fa-fw fa-cog fa-spin-hover"></i>
-            <span>Cài đặt</span>
-        </a>
     </li>
 
     <!-- Divider -->
@@ -178,16 +123,9 @@
 
     <!-- Sidebar Toggler (Sidebar) -->
     <div class="text-center d-none d-md-inline">
-        <button class="rounded-circle border-0 shadow-pulse" id="sidebarToggle">
-            <i class="fas fa-angle-left"></i>
+        <button class="rounded-circle border-0" id="sidebarToggle">
+            <i class="fas fa-angle-left text-white"></i>
         </button>
-    </div>
-
-    <!-- Sidebar Advertisement -->
-    <div class="sidebar-card d-none d-lg-flex shadow-sm">
-        <img class="sidebar-card-illustration mb-2" src="#" alt="Rocket">
-        <p class="text-center mb-2"><strong>TomOi Pro</strong> nâng cấp để mở khóa tất cả tính năng!</p>
-        <a class="btn btn-success btn-sm" href="#!">Nâng cấp ngay!</a>
     </div>
 
 </ul>

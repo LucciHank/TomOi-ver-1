@@ -1,3 +1,4 @@
+{% load static %}
 <!-- Topbar -->
 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
@@ -7,9 +8,9 @@
     </button>
 
     <!-- Topbar Search -->
-    <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+    <div class="d-none d-sm-inline-block form-inline ml-auto mr-md-3 my-2 my-md-0 mw-50 navbar-search">
         <div class="input-group">
-            <input type="text" class="form-control bg-light border-0 small" placeholder="Tìm kiếm..."
+            <input type="text" id="globalSearch" class="form-control bg-light border-0 small" placeholder="Tìm kiếm chức năng, dữ liệu..."
                 aria-label="Search" aria-describedby="basic-addon2">
             <div class="input-group-append">
                 <button class="btn btn-primary" type="button">
@@ -17,7 +18,36 @@
                 </button>
             </div>
         </div>
-    </form>
+        
+        <!-- Search Results Dropdown -->
+        <div id="searchResults" class="dropdown-menu dropdown-menu-right dropdown-menu-lg search-results-dropdown shadow animated--grow-in" aria-labelledby="globalSearch">
+            <div class="dropdown-header search-category">
+                <i class="fas fa-users fa-fw mr-2"></i>Người dùng
+            </div>
+            <div id="userResults" class="search-results-section"></div>
+            
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-header search-category">
+                <i class="fas fa-shopping-cart fa-fw mr-2"></i>Sản phẩm
+            </div>
+            <div id="productResults" class="search-results-section"></div>
+            
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-header search-category">
+                <i class="fas fa-file-invoice fa-fw mr-2"></i>Đơn hàng
+            </div>
+            <div id="orderResults" class="search-results-section"></div>
+            
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-header search-category">
+                <i class="fas fa-tools fa-fw mr-2"></i>Chức năng
+            </div>
+            <div id="featureResults" class="search-results-section"></div>
+            
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item text-center small text-gray-500" href="#">Hiển thị tất cả kết quả</a>
+        </div>
+    </div>
 
     <!-- Topbar Navbar -->
     <ul class="navbar-nav ml-auto">
@@ -57,7 +87,7 @@
             <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
                 aria-labelledby="alertsDropdown">
                 <h6 class="dropdown-header">
-                    Thông báo
+                    Trung tâm thông báo
                 </h6>
                 <a class="dropdown-item d-flex align-items-center" href="#">
                     <div class="mr-3">
@@ -70,7 +100,57 @@
                         <span class="font-weight-bold">Báo cáo mới đã sẵn sàng để tải về!</span>
                     </div>
                 </a>
+                <a class="dropdown-item d-flex align-items-center" href="#">
+                    <div class="mr-3">
+                        <div class="icon-circle bg-success">
+                            <i class="fas fa-donate text-white"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="small text-gray-500">11/12/2024</div>
+                        <span class="font-weight-bold">Đơn hàng mới đã được đặt!</span>
+                    </div>
+                </a>
+                <a class="dropdown-item d-flex align-items-center" href="#">
+                    <div class="mr-3">
+                        <div class="icon-circle bg-warning">
+                            <i class="fas fa-exclamation-triangle text-white"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="small text-gray-500">10/12/2024</div>
+                        <span class="font-weight-bold">Cảnh báo hệ thống: cần cập nhật phiên bản.</span>
+                    </div>
+                </a>
                 <a class="dropdown-item text-center small text-gray-500" href="#">Xem tất cả thông báo</a>
+            </div>
+        </li>
+
+        <!-- Nav Item - Messages -->
+        <li class="nav-item dropdown no-arrow mx-1">
+            <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-envelope fa-fw"></i>
+                <!-- Counter - Messages -->
+                <span class="badge badge-danger badge-counter">7</span>
+            </a>
+            <!-- Dropdown - Messages -->
+            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                aria-labelledby="messagesDropdown">
+                <h6 class="dropdown-header">
+                    Trung tâm tin nhắn
+                </h6>
+                <a class="dropdown-item d-flex align-items-center" href="#">
+                    <div class="dropdown-list-image mr-3">
+                        <img class="rounded-circle" src="{% static 'dashboard/images/default-avatar.png' %}" alt="User Avatar">
+                        <div class="status-indicator bg-success"></div>
+                    </div>
+                    <div class="font-weight-bold">
+                        <div class="text-truncate">Xin chào, tôi đang gặp vấn đề với đơn hàng của mình...</div>
+                        <div class="small text-gray-500">Nguyễn Văn A · 58p</div>
+                    </div>
+                </a>
+                <a class="dropdown-item text-center small text-gray-500" href="#">Xem tất cả tin nhắn</a>
             </div>
         </li>
 
@@ -82,7 +162,8 @@
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{ request.user.username }}</span>
                 <img class="img-profile rounded-circle"
-                    src="{% if request.user.avatar %}{{ request.user.avatar.url }}{% else %}{% static 'accounts/images/default-avatar.png' %}{% endif %}">
+                    src="{% if user.avatar %}{{ user.avatar.url }}{% else %}{% static 'dashboard/images/default-avatar.png' %}{% endif %}"
+                    width="32">
             </a>
             <!-- Dropdown - User Information -->
             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
@@ -91,9 +172,13 @@
                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                     Hồ sơ
                 </a>
-                <a class="dropdown-item" href="#">
+                <a class="dropdown-item" href="{% url 'dashboard:settings' %}">
                     <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
                     Cài đặt
+                </a>
+                <a class="dropdown-item" href="#">
+                    <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
+                    Nhật ký hoạt động
                 </a>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">

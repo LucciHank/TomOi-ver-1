@@ -458,6 +458,22 @@
         border-top: none;
         padding: 1rem 1.5rem;
     }
+
+    /* Fix cho button active */
+    .btn-outline-success.active {
+        background-color: #1cc88a;
+        color: white;
+    }
+
+    .btn-outline-danger.active {
+        background-color: #e74a3b;
+        color: white;
+    }
+
+    .btn-outline-primary.active {
+        background-color: #4e73df;
+        color: white;
+    }
 </style>
 {% endblock %}
 
@@ -904,16 +920,15 @@
                         <label>Lý do điều chỉnh</label>
                         <textarea name="reason" class="form-control" rows="2" placeholder="Nhập lý do điều chỉnh..."></textarea>
                     </div>
-
-                    <div class="text-right mt-4">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                            <i class="fas fa-times mr-1"></i> Đóng
-                        </button>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save mr-1"></i> Cập nhật
-                        </button>
-                    </div>
                 </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times mr-1"></i> Đóng
+                </button>
+                <button type="button" id="submitBalanceBtn" class="btn btn-primary">
+                    <i class="fas fa-save mr-1"></i> Cập nhật
+                </button>
             </div>
         </div>
     </div>
@@ -966,16 +981,15 @@
                         <label>Lý do điều chỉnh</label>
                         <textarea name="reason" class="form-control" rows="2" placeholder="Nhập lý do điều chỉnh..."></textarea>
                     </div>
-
-                    <div class="text-right">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                            <i class="fas fa-times mr-1"></i> Đóng
-                        </button>
-                        <button type="submit" class="btn btn-warning">
-                            <i class="fas fa-save mr-1"></i> Cập nhật
-                        </button>
-                    </div>
                 </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times mr-1"></i> Đóng
+                </button>
+                <button type="button" id="submitTCoinBtn" class="btn btn-warning">
+                    <i class="fas fa-save mr-1"></i> Cập nhật
+                </button>
             </div>
         </div>
     </div>
@@ -1259,16 +1273,22 @@ $(document).ready(function() {
         const parent = $(this).closest('form');
         parent.find('.adjust-type-btn').removeClass('active');
         $(this).addClass('active');
-        parent.find('input[name="adjustType"]').val($(this).data('type'));
+        
+        // Lưu loại điều chỉnh vào input hidden
+        const adjustType = $(this).data('type');
+        if (parent.attr('id') === 'balanceAdjustForm') {
+            $('#selectedAdjustType').val(adjustType);
+        } else {
+            $('#selectedTCoinAdjustType').val(adjustType);
+        }
     });
 
-    // Xử lý form số dư
-    $('#balanceAdjustForm').on('submit', function(e) {
-        e.preventDefault();
-        
-        const adjustType = $(this).find('input[name="adjustType"]').val();
-        const amount = $(this).find('input[name="amount"]').attr('data-value');
-        const reason = $(this).find('textarea[name="reason"]').val() || "Admin cập nhật";
+    // Xử lý submit form số dư
+    $('#submitBalanceBtn').click(function() {
+        const form = $('#balanceAdjustForm');
+        const adjustType = $('#selectedAdjustType').val();
+        const amount = form.find('input[name="amount"]').attr('data-value') || form.find('input[name="amount"]').val();
+        const reason = form.find('textarea[name="reason"]').val() || "Admin cập nhật";
         
         if (!amount || !adjustType) {
             Swal.fire({
@@ -1323,6 +1343,72 @@ $(document).ready(function() {
                     icon: 'error',
                     title: 'Lỗi',
                     text: 'Không thể cập nhật số dư. Vui lòng thử lại!',
+                    confirmButtonColor: '#4e73df'
+                });
+            }
+        });
+    });
+
+    // Xử lý submit form TCoin
+    $('#submitTCoinBtn').click(function() {
+        const form = $('#tcoinAdjustForm');
+        const adjustType = $('#selectedTCoinAdjustType').val();
+        const amount = form.find('input[name="amount"]').attr('data-value') || form.find('input[name="amount"]').val();
+        const reason = form.find('textarea[name="reason"]').val() || "Admin cập nhật";
+        
+        if (!amount || !adjustType) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Thông báo',
+                text: 'Vui lòng nhập đầy đủ thông tin',
+                confirmButtonColor: '#4e73df'
+            });
+            return;
+        }
+
+        // Tính toán số TCoin điều chỉnh
+        let adjustAmount;
+        if (adjustType === 'set') {
+            adjustAmount = parseInt(amount) - {{ user.tcoin_balance }};
+        } else if (adjustType === 'subtract') {
+            adjustAmount = -parseInt(amount);
+        } else {
+            adjustAmount = parseInt(amount);
+        }
+
+        // Gửi request
+        $.ajax({
+            url: '{% url "dashboard:adjust_tcoin" user.id %}',
+            method: 'POST',
+            data: {
+                amount: adjustAmount,
+                reason: reason,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công',
+                        text: 'TCoin đã được cập nhật thành công!',
+                        confirmButtonColor: '#4e73df'
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: response.message || 'Có lỗi xảy ra',
+                        confirmButtonColor: '#4e73df'
+                    });
+                }
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Không thể cập nhật TCoin. Vui lòng thử lại!',
                     confirmButtonColor: '#4e73df'
                 });
             }

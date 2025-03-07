@@ -3,7 +3,7 @@ from django.urls import path
 # from .views import index, dashboard_login, dashboard_logout
 from . import views  # Import module views
 from . import chatbot_views
-from . import main_views
+from . import main_views  # Đảm bảo import này
 from .auth_views import dashboard_login, dashboard_logout  # Import các hàm xác thực
 from .order_views import order_management, order_detail, update_order_status, export_orders
 from .views import (
@@ -15,15 +15,21 @@ from .views import (
     marketing,
     source,
     discount,
-    banner,
-    settings  # Import settings view
+    banner
 )
+from .views.settings import settings_view
+
+# Import các view mới
+from .views.messaging import messaging_view
+from .views.complaints import complaints_list
+from .views.warranty import warranty_list
+from .views.calendar import calendar_events, premium_subscriptions, send_reminder, add_calendar_event, cancel_subscription
 
 app_name = 'dashboard'
 
 urlpatterns = [
     # Main dashboard views
-    path('', main_views.index, name='index'),
+    path('', main_views.index, name='index'),  # Đảm bảo view này tồn tại
     
     # User Management URLs
     path('users/', user.user_list, name='user_list'),
@@ -38,7 +44,7 @@ urlpatterns = [
     path('users/export/', views.export_users, name='export_users'),
     path('users/analytics/', user_views.user_analytics, name='user_analytics'),
     path('users/<int:user_id>/adjust-balance/', user.adjust_balance, name='adjust_balance'),
-    path('users/<int:user_id>/adjust-tcoin/', user_views.adjust_tcoin, name='adjust_tcoin'),
+    path('users/<int:user_id>/adjust-tcoin/', user.adjust_tcoin, name='adjust_tcoin'),
     path('users/import/', user_views.import_users, name='import_users'),
     path('users/<int:user_id>/reset-password/', user_views.user_reset_password, name='user_reset_password'),
     path('users/activity/<int:activity_id>/rollback/', user.rollback_activity, name='rollback_activity'),
@@ -103,7 +109,7 @@ urlpatterns = [
     path('products/list/', views.product_list, name='product_list'),
 
     # Settings URLs
-    path('settings/', settings.settings_view, name='settings'),
+    path('settings/', settings_view, name='settings'),
     
     # Tab phụ Dashboard
     path('reports/', reports, name='reports'),
@@ -120,4 +126,16 @@ urlpatterns = [
     path('users/<int:user_id>/notes/<int:note_id>/delete/', user_views.user_delete_note, name='user_delete_note'),
     path('users/notes/<int:note_id>/update/', user_views.user_edit_note, name='update_user_note'),
     path('users/notes/<int:note_id>/delete/', user_views.user_delete_note, name='delete_user_note'),
+    
+    # Các chức năng mới
+    path('messaging/', messaging_view, name='messaging'),
+    path('complaints/', complaints_list, name='complaints'),
+    path('warranty/', warranty_list, name='warranty'),
+
+    # API URLs
+    path('api/calendar/events/', calendar_events, name='calendar_events'),
+    path('api/premium-subscriptions/', premium_subscriptions, name='premium_subscriptions'),
+    path('api/premium-subscriptions/<int:subscription_id>/send-reminder/', send_reminder, name='send_reminder'),
+    path('api/calendar/add-event/', add_calendar_event, name='add_calendar_event'),
+    path('api/premium-subscriptions/<int:subscription_id>/cancel/', cancel_subscription, name='cancel_subscription'),
 ] 

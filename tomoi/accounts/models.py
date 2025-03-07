@@ -6,6 +6,7 @@ import random
 from datetime import datetime
 from django.utils import timezone
 import json
+from django.conf import settings
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, username, email, password=None, **extra_fields):
@@ -386,20 +387,20 @@ class Deposit(models.Model):
         return f"{self.user.username} - {self.amount}đ - {self.get_payment_method_display()}"
 
 class TCoinHistory(models.Model):
-    ACTIVITY_TYPES = (
-        ('checkin', 'Điểm danh'),
-        ('purchase', 'Hoàn TCoin'),
-        ('admin', 'Admin điều chỉnh'),
-    )
-    
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    amount = models.IntegerField()  # Có thể âm hoặc dương
-    activity_type = models.CharField(max_length=20, choices=ACTIVITY_TYPES)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='tcoin_history')
+    amount = models.IntegerField()  # Số lượng thay đổi
+    balance_after = models.IntegerField()  # Số dư sau khi thay đổi
     description = models.CharField(max_length=255)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='tcoin_adjustments')
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Lịch sử TCoin'
+        verbose_name_plural = 'Lịch sử TCoin'
+
     def __str__(self):
-        return f"{self.user.username} - {self.amount} TCoin - {self.get_activity_type_display()}"
+        return f"{self.user.username} - {self.amount:+} TCoin - {self.created_at}"
 
 class DailyCheckin(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -540,3 +541,36 @@ class UserNote(models.Model):
         ordering = ['-created_at']
         verbose_name = 'Ghi chú người dùng'
         verbose_name_plural = 'Ghi chú người dùng'
+
+class PremiumSubscription(models.Model):
+    STATUS_CHOICES = [
+        ('reminded', 'Đã nhắc gia hạn'),
+        ('renewed', 'Đã gia hạn'),
+        ('not_reminded', 'Chưa nhắc gia hạn'),
+        ('no_renew', 'Không gia hạn')
+    ]
+    
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='premium_subscriptions')
+    product_name = models.CharField(max_length=100, verbose_name="Tên gói Premium")
+    duration = models.CharField(max_length=50, verbose_name="Thời hạn")
+    start_date = models.DateField(verbose_name="Ngày bắt đầu")
+    expiry_date = models.DateField(verbose_name="Ngày hết hạn")
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='not_reminded', verbose_name="Trạng thái")
+    reminder_sent = models.BooleanField(default=False, verbose_name="Đã gửi nhắc nhở")
+    reminder_date = models.DateField(null=True, blank=True, verbose_name="Ngày gửi nhắc nhở")
+    order = models.ForeignKey('store.Order', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Đơn hàng liên quan")
+    
+    class Meta:
+        verbose_name = "Gói Premium"
+        verbose_name_plural = "Các gói Premium"
+        ordering = ['expiry_date']
+        
+    def __str__(self):
+        return f"{self.product_name} - {self.user.username}"
+        
+    def is_expired(self):
+        return self.expiry_date < timezone.now().date()
+        
+    def days_to_expiry(self):
+        delta = self.expiry_date - timezone.now().date()
+        return delta.days

@@ -374,34 +374,33 @@
                 <form id="activityFilterForm" class="row g-3 align-items-center">
                     <div class="col-md-3">
                         <label class="form-label">Từ ngày</label>
-                        <input type="date" class="form-control" id="dateFrom" name="date_from">
+                        <input type="date" id="dateFrom" class="form-control">
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Đến ngày</label>
-                        <input type="date" class="form-control" id="dateTo" name="date_to">
+                        <input type="date" id="dateTo" class="form-control">
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label class="form-label">Admin</label>
-                        <select class="form-control select2" id="adminFilter" name="admin">
-                            <option value="">Tất cả</option>
-                            {% for admin in admins %}
-                                <option value="{{ admin.username }}">{{ admin.username }}</option>
-                            {% endfor %}
-                        </select>
+                        <input type="text" id="adminFilter" class="form-control" placeholder="Tên admin...">
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label class="form-label">Hành động</label>
-                        <select class="form-control select2" id="actionFilter" name="action">
+                        <select id="actionFilter" class="form-control">
                             <option value="">Tất cả</option>
-                            <option value="create">Tạo mới</option>
-                            <option value="update">Cập nhật</option>
-                            <option value="delete">Xóa</option>
-                            <option value="restore">Khôi phục</option>
+                            <option value="tạo mới">Tạo mới</option>
+                            <option value="cập nhật">Cập nhật</option>
+                            <option value="xóa">Xóa</option>
+                            <option value="khôi phục">Khôi phục</option>
+                            <option value="phân quyền">Phân quyền</option>
                         </select>
                     </div>
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button type="button" class="btn btn-primary w-100" id="applyFilter">
-                            <i class="fas fa-filter mr-1"></i>Lọc
+                    <div class="col-md-12 mt-3 text-end">
+                        <button type="button" id="applyFilter" class="btn btn-primary">
+                            <i class="fas fa-filter mr-1"></i> Lọc
+                        </button>
+                        <button type="reset" class="btn btn-secondary">
+                            <i class="fas fa-redo mr-1"></i> Đặt lại
                         </button>
                     </div>
                 </form>

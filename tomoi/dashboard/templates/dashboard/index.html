@@ -2,361 +2,349 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %}Trang tổng quan{% endblock %}
+{% block title %}Tổng quan{% endblock %}
 
 {% block extra_css %}
 <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/main.min.css" rel="stylesheet">
 <style>
-    /* Card Styling */
+    /* Card Styling nâng cấp */
     .dashboard-card {
-        border-radius: 15px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        transition: all 0.4s ease;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
         border: none;
         overflow: hidden;
+        background: linear-gradient(145deg, #ffffff, #f8f9fc);
     }
     
     .dashboard-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
     }
     
-    .border-left-custom {
-        border-left: 0.25rem solid;
-        border-top-left-radius: 15px;
-        border-bottom-left-radius: 15px;
-    }
-    
-    .border-left-primary {
-        border-color: #4e73df;
-    }
-    
-    .border-left-success {
-        border-color: #1cc88a;
-    }
-    
-    .border-left-info {
-        border-color: #36b9cc;
-    }
-    
-    .border-left-warning {
-        border-color: #f6c23e;
-    }
-    
+    /* Icons thống kê */
     .stats-icon {
-        width: 60px;
-        height: 60px;
+        width: 55px;
+        height: 55px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 50%;
-        font-size: 28px;
+        border-radius: 12px;
+        font-size: 24px;
         margin-bottom: 1rem;
         color: white;
-        background: linear-gradient(45deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-    
-    .icon-primary {
-        background-color: #4e73df;
-    }
-    
-    .icon-success {
-        background-color: #1cc88a;
-    }
-    
-    .icon-info {
-        background-color: #36b9cc;
-    }
-    
-    .icon-warning {
-        background-color: #f6c23e;
-    }
-    
-    .chart-container {
-        min-height: 350px;
-        position: relative;
-    }
-    
-    .card-header {
         background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
-        border-bottom: 1px solid rgba(0,0,0,0.05);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        position: relative;
+        transition: all 0.4s ease;
     }
     
-    /* Animation */
-    .fade-in {
-        animation: fadeIn 1.2s ease-in-out;
+    .icon-primary { background-color: #df2626; }
+    .icon-success { background-color: #1cc88a; }
+    .icon-info { background-color: #36b9cc; }
+    .icon-warning { background-color: #f6c23e; }
+    
+    /* Calendar container */
+    .calendar-container {
+        max-height: 650px;
+        overflow: hidden;
+    }
+    
+    .fc-daygrid-day-frame {
+        min-height: 100px;
+    }
+    
+    /* Nút thêm sự kiện */
+    .btn-add-event {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #df2626;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(223, 38, 38, 0.3);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 999;
+    }
+    
+    .btn-add-event:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 8px 15px rgba(223, 38, 38, 0.4);
+    }
+    
+    /* Tab phần premium */
+    .premium-tabs .nav-link {
+        border-radius: 8px 8px 0 0;
+        padding: 10px 20px;
+        font-weight: 600;
+        color: #6c757d;
+        transition: all 0.2s ease;
+    }
+    
+    .premium-tabs .nav-link.active {
+        background-color: #fff;
+        color: #df2626;
+        border-color: #e3e6f0 #e3e6f0 #fff;
+    }
+    
+    .premium-tabs .nav-link:hover:not(.active) {
+        background-color: rgba(0,0,0,0.02);
+    }
+    
+    /* Method select */
+    .method-select {
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-radius: 8px;
+    }
+    
+    .method-select:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    }
+    
+    .method-select.selected {
+        background-color: rgba(223, 38, 38, 0.1);
+        border-color: #df2626 !important;
+        transform: translateY(-3px);
+    }
+    
+    /* Toast container */
+    #toastContainer {
+        z-index: 9999;
+    }
+    
+    .toast {
+        opacity: 0;
+        animation: fadeIn 0.3s ease forwards;
     }
     
     @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
+        from { opacity: 0; transform: translateY(-20px); }
         to { opacity: 1; transform: translateY(0); }
     }
     
-    /* Data table styling */
-    .table-container {
-        border-radius: 10px;
+    /* Điều chỉnh cho calendar */
+    .fc-theme-standard .fc-scrollgrid {
+        border-radius: 8px;
         overflow: hidden;
-        box-shadow: 0 0 15px rgba(0,0,0,0.05);
     }
     
-    .custom-table {
-        width: 100%;
-        margin-bottom: 0;
+    .fc .fc-daygrid-day.fc-day-today {
+        background-color: rgba(223, 38, 38, 0.1) !important;
     }
     
-    .custom-table thead th {
-        background-color: #f8f9fc;
-        border-bottom: 2px solid #e3e6f0;
-        color: #5a5c69;
-        font-weight: 700;
-        text-transform: uppercase;
-        font-size: 0.8rem;
-        letter-spacing: 0.08em;
+    .fc-event {
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        transition: all 0.2s ease;
     }
     
-    .custom-table tbody tr {
+    .fc-event:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    /* Detail icon */
+    .detail-icon {
+        transition: all 0.3s ease;
+        color: #4e73df;
+    }
+    
+    .detail-icon:hover {
+        transform: scale(1.2);
+        color: #df2626;
+    }
+    
+    /* Datatable styling */
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: #df2626 !important;
+        color: white !important;
+        border-color: #c51d1d !important;
+        border-radius: 5px;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: #f4f4f4 !important;
+        color: #df2626 !important;
+        border-radius: 5px;
+    }
+    
+    /* Tabs animation */
+    .tab-pane.fade {
+        transition: opacity 0.3s ease-in-out;
+    }
+    
+    /* Biểu đồ styling */
+    .chart-container {
+        position: relative;
+        margin: auto;
+        height: 300px;
         transition: all 0.3s ease;
     }
     
-    .custom-table tbody tr:hover {
-        background-color: rgba(78, 115, 223, 0.05);
-        transform: scale(1.01);
-    }
-    
-    /* Stats cards */
-    .stat-card {
-        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
-        color: white;
-        border-radius: 15px;
-        box-shadow: 0 10px 20px rgba(78, 115, 223, 0.2);
+    /* Nút in lịch */
+    .print-calendar {
+        background-color: #fff;
+        color: #4e73df;
+        border: 1px solid #4e73df;
+        border-radius: 5px;
+        padding: 5px 15px;
         transition: all 0.3s ease;
     }
     
-    .stat-card:hover {
-        transform: translateY(-5px) scale(1.02);
-        box-shadow: 0 15px 30px rgba(78, 115, 223, 0.3);
-    }
-    
-    .stat-card .icon {
-        font-size: 3rem;
-        opacity: 0.3;
-        position: absolute;
-        right: 20px;
-        bottom: 20px;
-    }
-    
-    /* Filter buttons */
-    .btn-filter {
-        border-radius: 20px;
-        font-size: 0.8rem;
-        padding: 0.375rem 1rem;
-        margin-right: 0.5rem;
-        background-color: #f8f9fc;
-        color: #5a5c69;
-        border: 1px solid #e3e6f0;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-filter:hover, .btn-filter.active {
+    .print-calendar:hover {
         background-color: #4e73df;
         color: white;
-        border-color: #4e73df;
-        box-shadow: 0 3px 8px rgba(78, 115, 223, 0.2);
     }
     
-    /* Preloader */
-    .preloader {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: white;
-        z-index: 9999;
+    /* Nút đồng bộ Google */
+    .sync-google {
+        background: linear-gradient(45deg, #4285F4, #0F9D58);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 5px 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .sync-google:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    /* Cải thiện hiển thị trạng thái đơn hàng */
+    .order-status {
+        color: #fff;
+        font-weight: 600;
+        padding: 5px 10px;
+        border-radius: 5px;
+        display: inline-block;
+        font-size: 0.85rem;
+    }
+    
+    .status-completed { background-color: #1cc88a; }
+    .status-shipping { background-color: #36b9cc; }
+    .status-processing { background-color: #4e73df; }
+    .status-cancelled { background-color: #e74a3b; }
+    .status-pending { background-color: #f6c23e; }
+    
+    /* Làm đẹp bảng đơn hàng */
+    .orders-table tr {
+        transition: all 0.2s ease;
+    }
+    
+    .orders-table tr:hover {
+        background-color: rgba(0,0,0,0.02);
+    }
+    
+    .view-order-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 4px;
         display: flex;
-        justify-content: center;
         align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
     }
     
-    .spinner {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        border: 4px solid rgba(78, 115, 223, 0.1);
-        border-top-color: #4e73df;
-        animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-    
-    /* Badge styling */
-    .badge-pill {
-        padding: 0.35em 0.8em;
-        font-weight: 600;
-        letter-spacing: 0.03em;
-    }
-    
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-    }
-    
-    ::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-    
-    ::-webkit-scrollbar-thumb {
-        background: #c1c1c1;
-        border-radius: 10px;
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-        background: #a1a1a1;
-    }
-    
-    /* Status badges */
-    .status-badge {
-        padding: 0.25em 0.6em;
-        font-size: 80%;
-        font-weight: 600;
-        border-radius: 0.25rem;
-    }
-    
-    .status-pending {
-        background-color: #f6c23e;
-        color: #fff;
-    }
-    
-    .status-processing {
+    .view-order-btn:hover {
         background-color: #4e73df;
-        color: #fff;
+        color: white;
     }
     
-    .status-shipping {
-        background-color: #36b9cc;
-        color: #fff;
+    /* Premium subscription table */
+    .premium-table tr {
+        cursor: pointer;
+        transition: all 0.2s ease;
     }
     
-    .status-completed {
-        background-color: #1cc88a;
-        color: #fff;
+    .premium-table tr:hover {
+        background-color: rgba(0,0,0,0.02);
     }
     
-    .status-cancelled {
-        background-color: #e74a3b;
+    /* Tooltip cải tiến */
+    .custom-tooltip {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .custom-tooltip .tooltip-text {
+        visibility: hidden;
+        width: 200px;
+        background-color: #333;
         color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 10px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    
+    .custom-tooltip .tooltip-text::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #333 transparent transparent transparent;
+    }
+    
+    .custom-tooltip:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Preloader -->
-<div class="preloader">
-    <div class="spinner"></div>
+{% csrf_token %}
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Tổng quan</h1>
+    <div>
+        <button id="syncGoogleBtn" class="d-sm-inline-block btn sync-google shadow-sm mr-2">
+            <i class="fab fa-google fa-sm text-white-50 mr-1"></i> Đồng bộ Google
+        </button>
+        <button id="printCalendarBtn" class="d-sm-inline-block btn print-calendar shadow-sm">
+            <i class="fas fa-print fa-sm text-primary-50 mr-1"></i> In lịch
+        </button>
+    </div>
 </div>
 
-<div class="container-fluid">
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800 fade-in">
-            <i class="fas fa-chart-line mr-2 text-primary"></i>
-            Tổng quan hệ thống
-        </h1>
-        <div class="fade-in">
-            <a href="#" class="d-none d-sm-inline-block btn btn-primary shadow-sm">
-                <i class="fas fa-download fa-sm text-white-50 mr-1"></i> Xuất báo cáo
-            </a>
-            <a href="#" class="d-none d-sm-inline-block btn btn-outline-primary shadow-sm ml-2" data-toggle="modal" data-target="#dashboardTutorial">
-                <i class="fas fa-question-circle fa-sm mr-1"></i> Hướng dẫn
-            </a>
-        </div>
-    </div>
-
-    <!-- Statistics Cards -->
-    <div class="row fade-in" style="animation-delay: 0.1s;">
-        <!-- Tổng đơn hàng -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card dashboard-card border-left-primary shadow h-100 py-2">
-                <div class="card-body position-relative">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col">
-                            <div class="stats-icon icon-primary mb-3">
-                                <i class="fas fa-shopping-cart"></i>
-                            </div>
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Tổng đơn hàng
-                            </div>
-                            <div class="h3 mb-0 font-weight-bold text-gray-800 counter">
-                                {{ total_orders|default:"0"|intcomma }}
-                            </div>
+<!-- Thống kê -->
+<div class="row">
+    <!-- Tổng doanh thu -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card dashboard-card shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">
+                            Doanh thu (tháng)</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">50.000.000đ</div>
+                        <div class="text-xs text-success mt-2">
+                            <i class="fas fa-arrow-up mr-1"></i>
+                            <span>12% so với tháng trước</span>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Doanh thu -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card dashboard-card border-left-success shadow h-100 py-2">
-                <div class="card-body position-relative">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col">
-                            <div class="stats-icon icon-success mb-3">
-                                <i class="fas fa-dollar-sign"></i>
-                            </div>
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Doanh thu
-                            </div>
-                            <div class="h3 mb-0 font-weight-bold text-gray-800 counter">
-                                {{ revenue|default:"0"|intcomma }}đ
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Số người dùng -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card dashboard-card border-left-info shadow h-100 py-2">
-                <div class="card-body position-relative">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col">
-                            <div class="stats-icon icon-info mb-3">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Người dùng
-                            </div>
-                            <div class="h3 mb-0 font-weight-bold text-gray-800 counter">
-                                {{ total_users|default:"0"|intcomma }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Đơn hàng chờ xử lý -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card dashboard-card border-left-warning shadow h-100 py-2">
-                <div class="card-body position-relative">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col">
-                            <div class="stats-icon icon-warning mb-3">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Chờ xử lý
-                            </div>
-                            <div class="h3 mb-0 font-weight-bold text-gray-800 counter">
-                                {{ pending_orders|default:"0"|intcomma }}
-                            </div>
+                    <div class="col-auto">
+                        <div class="stats-icon icon-primary">
+                            <i class="fas fa-dollar-sign"></i>
                         </div>
                     </div>
                 </div>
@@ -364,88 +352,23 @@
         </div>
     </div>
 
-    <!-- Content Row -->
-    <div class="row fade-in" style="animation-delay: 0.2s;">
-        <!-- Biểu đồ doanh thu -->
-        <div class="col-xl-8 col-lg-7">
-            <div class="card dashboard-card shadow mb-4">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-chart-line mr-2"></i>Doanh thu
-                    </h6>
-                    <div class="dropdown no-arrow">
-                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                            aria-labelledby="dropdownMenuLink">
-                            <div class="dropdown-header">Thời gian:</div>
-                            <a class="dropdown-item filter-revenue active" href="#" data-period="week">7 ngày qua</a>
-                            <a class="dropdown-item filter-revenue" href="#" data-period="month">Tháng này</a>
-                            <a class="dropdown-item filter-revenue" href="#" data-period="year">Năm nay</a>
+    <!-- Tổng đơn hàng -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card dashboard-card shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">
+                            Đơn hàng (tháng)</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">215</div>
+                        <div class="text-xs text-success mt-2">
+                            <i class="fas fa-arrow-up mr-1"></i>
+                            <span>8% so với tháng trước</span>
                         </div>
                     </div>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container">
-                        <canvas id="revenueChart"></canvas>
-                    </div>
-                    <div class="mt-4 text-center small">
-                        <span class="mr-2">
-                            <i class="fas fa-circle text-primary"></i> Doanh thu
-                        </span>
-                        <span class="mr-2">
-                            <i class="fas fa-circle text-success"></i> Đơn hàng
-                        </span>
-                        <span class="mr-2">
-                            <i class="fas fa-circle text-info"></i> Khách hàng mới
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Trạng thái đơn hàng -->
-        <div class="col-xl-4 col-lg-5">
-            <div class="card dashboard-card shadow mb-4">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-shopping-cart mr-2"></i>Trạng thái đơn hàng
-                    </h6>
-                    <div class="dropdown no-arrow">
-                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                            aria-labelledby="dropdownMenuLink">
-                            <div class="dropdown-header">Tùy chọn:</div>
-                            <a class="dropdown-item" href="#">Xem tất cả đơn hàng</a>
-                            <a class="dropdown-item" href="#">Đơn chờ xử lý</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">Xuất báo cáo</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container">
-                        <canvas id="orderStatusChart"></canvas>
-                    </div>
-                    <div class="mt-4">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="text-primary font-weight-bold">Chờ xử lý</span>
-                            <span class="badge badge-pill badge-primary">{{ pending_orders|default:"0" }}</span>
-                        </div>
-                        <div class="progress mb-3" style="height: 10px;">
-                            <div class="progress-bar bg-primary" role="progressbar" style="width: {{ pending_orders_percent|default:"0" }}%"></div>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="text-success font-weight-bold">Hoàn thành</span>
-                            <span class="badge badge-pill badge-success">{{ completed_orders|default:"0" }}</span>
-                        </div>
-                        <div class="progress" style="height: 10px;">
-                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ completed_orders_percent|default:"0" }}%"></div>
+                    <div class="col-auto">
+                        <div class="stats-icon icon-success">
+                            <i class="fas fa-shopping-cart"></i>
                         </div>
                     </div>
                 </div>
@@ -453,314 +376,611 @@
         </div>
     </div>
 
-    <!-- Content Row -->
-    <div class="row fade-in" style="animation-delay: 0.3s;">
-        <!-- Đơn hàng gần đây -->
-        <div class="col-xl-6 col-lg-6">
-            <div class="card dashboard-card shadow mb-4">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-shopping-bag mr-2"></i>Đơn hàng gần đây
-                    </h6>
-                    <a href="{% url 'dashboard:orders' %}" class="btn btn-sm btn-primary shadow-sm">
-                        Xem tất cả
-                        <i class="fas fa-arrow-right fa-sm ml-1"></i>
+    <!-- Người dùng mới -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card dashboard-card shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">
+                            Người dùng mới (tháng)</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">82</div>
+                        <div class="text-xs text-success mt-2">
+                            <i class="fas fa-arrow-up mr-1"></i>
+                            <span>5% so với tháng trước</span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="stats-icon icon-info">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tài khoản Premium -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card dashboard-card shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">
+                            Tài khoản Premium</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">45</div>
+                        <div class="text-xs text-danger mt-2">
+                            <i class="fas fa-clock mr-1"></i>
+                            <span>8 gói sắp hết hạn</span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="stats-icon icon-warning">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lịch và biểu đồ-->
+<div class="row">
+    <!-- Lịch -->
+    <div class="col-xl-8 col-lg-7">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Lịch sự kiện và nhắc nhở</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="calendarDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
                     </a>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table custom-table">
-                            <thead>
-                                <tr>
-                                    <th>Mã đơn</th>
-                                    <th>Khách hàng</th>
-                                    <th>Tổng tiền</th>
-                                    <th>Trạng thái</th>
-                                    <th>Thời gian</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for order in recent_orders %}
-                                <tr>
-                                    <td><a href="{% url 'dashboard:order_detail' order.id %}" class="font-weight-bold text-primary">#{{ order.id }}</a></td>
-                                    <td>{{ order.user.username }}</td>
-                                    <td>{{ order.total_amount|intcomma }}đ</td>
-                                    <td>
-                                        <span class="status-badge status-{{ order.status }}">
-                                            {{ order.get_status_display }}
-                                        </span>
-                                    </td>
-                                    <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="5" class="text-center">
-                                        <div class="empty-state text-center py-4">
-                                            <img src="{% static 'dashboard/img/empty-order.svg' %}" alt="No orders" class="mb-3 mt-2" style="max-width: 120px; opacity: 0.7;">
-                                            <p class="text-muted">Chưa có đơn hàng nào</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="calendarDropdown">
+                        <div class="dropdown-header">Tùy chọn lịch:</div>
+                        <a class="dropdown-item" href="#" id="refreshCalendar">
+                            <i class="fas fa-sync fa-sm fa-fw mr-2 text-gray-400"></i>
+                            Làm mới lịch
+                        </a>
+                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addEventModal">
+                            <i class="fas fa-plus fa-sm fa-fw mr-2 text-gray-400"></i>
+                            Thêm sự kiện
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#" id="syncWithGoogle">
+                            <i class="fab fa-google fa-sm fa-fw mr-2 text-gray-400"></i>
+                            Đồng bộ Google Calendar
+                        </a>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Người dùng mới -->
-        <div class="col-xl-6 col-lg-6">
-            <div class="card dashboard-card shadow mb-4">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-user-plus mr-2"></i>Người dùng mới
-                    </h6>
-                    <a href="{% url 'dashboard:user_dashboard' %}" class="btn btn-sm btn-primary shadow-sm">
-                        Xem tất cả
-                        <i class="fas fa-arrow-right fa-sm ml-1"></i>
-                    </a>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table custom-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Tên</th>
-                                    <th>Email</th>
-                                    <th>Đăng ký</th>
-                                    <th>Trạng thái</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for user in new_users %}
-                                <tr>
-                                    <td><a href="{% url 'dashboard:user_detail' user.id %}" class="font-weight-bold text-primary">#{{ user.id }}</a></td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            {% if user.avatar %}
-                                            <img src="{{ user.avatar.url }}" alt="{{ user.username }}" class="rounded-circle mr-2" style="width: 30px; height: 30px;">
-                                            {% else %}
-                                            <div class="avatar-placeholder rounded-circle text-center mr-2" style="width: 30px; height: 30px; background-color: #e0e0ff; line-height: 30px;">
-                                                {{ user.username|slice:":1"|upper }}
-                                            </div>
-                                            {% endif %}
-                                            {{ user.username }}
-                                        </div>
-                                    </td>
-                                    <td>{{ user.email }}</td>
-                                    <td>{{ user.date_joined|date:"d/m/Y" }}</td>
-                                    <td>
-                                        {% if user.is_active %}
-                                        <span class="badge badge-success badge-pill">Hoạt động</span>
-                                        {% else %}
-                                        <span class="badge badge-danger badge-pill">Không hoạt động</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="5" class="text-center">
-                                        <div class="empty-state text-center py-4">
-                                            <img src="{% static 'dashboard/img/empty-user.svg' %}" alt="No users" class="mb-3 mt-2" style="max-width: 120px; opacity: 0.7;">
-                                            <p class="text-muted">Chưa có người dùng mới</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <div class="card-body calendar-container">
+                <div id="calendar"></div>
             </div>
         </div>
     </div>
 
-    <!-- Top sản phẩm và Hoạt động gần đây -->
-    <div class="row fade-in" style="animation-delay: 0.4s;">
-        <!-- Top sản phẩm bán chạy  -->
-        <div class="col-xl-6 col-lg-6">
-            <div class="card dashboard-card shadow mb-4">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-star mr-2"></i>Sản phẩm bán chạy
-                    </h6>
-                    <a href="{% url 'dashboard:products' %}" class="btn btn-sm btn-primary shadow-sm">
-                        Tất cả sản phẩm
-                        <i class="fas fa-arrow-right fa-sm ml-1"></i>
+    <!-- Biểu đồ -->
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Doanh thu theo tháng</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="revenueDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
                     </a>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table custom-table">
-                            <thead>
-                                <tr>
-                                    <th>Sản phẩm</th>
-                                    <th>Danh mục</th>
-                                    <th>Giá</th>
-                                    <th>Bán ra</th>
-                                    <th>Tồn kho</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for product in top_products %}
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            {% if product.primary_image %}
-                                            <img src="{{ product.primary_image.image.url }}" class="mr-2 rounded" alt="{{ product.name }}" style="width: 40px; height: 40px; object-fit: contain;">
-                                            {% else %}
-                                            <div class="product-placeholder mr-2 rounded" style="width: 40px; height: 40px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">
-                                                <i class="fas fa-box text-muted"></i>
-                                            </div>
-                                            {% endif %}
-                                            <div>
-                                                <a href="{% url 'dashboard:product_detail' product.id %}" class="font-weight-bold text-primary">{{ product.name }}</a>
-                                                <div class="small text-muted">ID: #{{ product.id }}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>{{ product.category.name }}</td>
-                                    <td>{{ product.price|intcomma }}đ</td>
-                                    <td>{{ product.sold }}</td>
-                                    <td>
-                                        {% if product.stock_quantity > 10 %}
-                                        <span class="text-success">{{ product.stock_quantity }}</span>
-                                        {% elif product.stock_quantity > 0 %}
-                                        <span class="text-warning">{{ product.stock_quantity }}</span>
-                                        {% else %}
-                                        <span class="text-danger">0</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="5" class="text-center">
-                                        <div class="empty-state text-center py-4">
-                                            <img src="{% static 'dashboard/img/empty-products.svg' %}" alt="No products" class="mb-3" style="max-width: 120px; opacity: 0.7;">
-                                            <p class="text-muted">Chưa có dữ liệu sản phẩm</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="revenueDropdown">
+                        <div class="dropdown-header">Thời gian:</div>
+                        <a class="dropdown-item chart-period active" href="#" data-period="month">Theo tháng</a>
+                        <a class="dropdown-item chart-period" href="#" data-period="quarter">Theo quý</a>
+                        <a class="dropdown-item chart-period" href="#" data-period="year">Theo năm</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Xuất báo cáo</a>
                     </div>
                 </div>
             </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
         </div>
+    </div>
+</div>
 
-        <!-- Thông báo và hoạt động gần đây -->
-        <div class="col-xl-6 col-lg-6">
-            <div class="card dashboard-card shadow mb-4">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-bell mr-2"></i>Hoạt động gần đây
-                    </h6>
-                    <div class="dropdown no-arrow">
-                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                            aria-labelledby="dropdownMenuLink">
-                            <div class="dropdown-header">Tùy chọn:</div>
-                            <a class="dropdown-item" href="#">Đánh dấu đã đọc tất cả</a>
-                            <a class="dropdown-item" href="#">Cài đặt thông báo</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">Xem nhật ký hoạt động</a>
+<!-- Đơn hàng gần đây và biểu đồ -->
+<div class="row">
+    <!-- Biểu đồ tròn trạng thái đơn hàng -->
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Trạng thái đơn hàng</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="orderStatsDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="orderStatsDropdown">
+                        <div class="dropdown-header">Thời gian:</div>
+                        <a class="dropdown-item active" href="#">Hôm nay</a>
+                        <a class="dropdown-item" href="#">Tuần này</a>
+                        <a class="dropdown-item" href="#">Tháng này</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="orderStatusChart"></canvas>
+                </div>
+                <div class="mt-4 text-center small">
+                    <span class="mr-2">
+                        <i class="fas fa-circle text-success"></i> Hoàn thành
+                    </span>
+                    <span class="mr-2">
+                        <i class="fas fa-circle text-primary"></i> Đang giao
+                    </span>
+                    <span class="mr-2">
+                        <i class="fas fa-circle text-warning"></i> Đang xử lý
+                    </span>
+                    <span class="mr-2">
+                        <i class="fas fa-circle text-danger"></i> Đã hủy
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Đơn hàng gần đây -->
+    <div class="col-xl-8 col-lg-7">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Đơn hàng gần đây</h6>
+                <a href="{% url 'dashboard:index' %}" class="btn btn-sm btn-primary">
+                    Xem tất cả
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table orders-table" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Khách hàng</th>
+                                <th>Ngày đặt</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                                <th>Chi tiết</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="order-row" data-order-id="4872">
+                                <td>#ORD-4872</td>
+                                <td>Nguyễn Văn A</td>
+                                <td>20/07/2023</td>
+                                <td>1.500.000đ</td>
+                                <td><span class="order-status status-completed">Hoàn thành</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-light view-order-btn" title="Xem chi tiết">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="order-row" data-order-id="4871">
+                                <td>#ORD-4871</td>
+                                <td>Trần Thị B</td>
+                                <td>19/07/2023</td>
+                                <td>2.700.000đ</td>
+                                <td><span class="order-status status-shipping">Đang giao</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-light view-order-btn" title="Xem chi tiết">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="order-row" data-order-id="4870">
+                                <td>#ORD-4870</td>
+                                <td>Lê Văn C</td>
+                                <td>19/07/2023</td>
+                                <td>850.000đ</td>
+                                <td><span class="order-status status-processing">Đang xử lý</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-light view-order-btn" title="Xem chi tiết">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="order-row" data-order-id="4869">
+                                <td>#ORD-4869</td>
+                                <td>Phạm Thị D</td>
+                                <td>18/07/2023</td>
+                                <td>3.200.000đ</td>
+                                <td><span class="order-status status-cancelled">Đã hủy</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-light view-order-btn" title="Xem chi tiết">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="order-row" data-order-id="4868">
+                                <td>#ORD-4868</td>
+                                <td>Hoàng Văn E</td>
+                                <td>17/07/2023</td>
+                                <td>1.200.000đ</td>
+                                <td><span class="order-status status-completed">Hoàn thành</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-light view-order-btn" title="Xem chi tiết">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tài khoản Premium -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <ul class="nav nav-tabs premium-tabs" id="premiumTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="expired-tab" data-toggle="tab" href="#expired" role="tab" aria-controls="expired" aria-selected="true">
+                    <i class="fas fa-exclamation-circle text-danger mr-1"></i> Quá hạn (<span id="expiredCount">0</span>)
+                </a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="today-tab" data-toggle="tab" href="#today" role="tab" aria-controls="today" aria-selected="false">
+                    <i class="fas fa-calendar-day text-warning mr-1"></i> Hôm nay (<span id="todayCount">0</span>)
+                </a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="upcoming-tab" data-toggle="tab" href="#upcoming" role="tab" aria-controls="upcoming" aria-selected="false">
+                    <i class="fas fa-calendar-alt text-info mr-1"></i> Sắp tới (<span id="upcomingCount">0</span>)
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div class="card-body">
+        <div class="tab-content" id="premiumTabContent">
+            <!-- Tab Quá hạn -->
+            <div class="tab-pane fade show active" id="expired" role="tabpanel" aria-labelledby="expired-tab">
+                <div class="table-responsive">
+                    <table class="table table-bordered premium-table" id="expiredTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th>Thời hạn</th>
+                                <th>Người dùng</th>
+                                <th>Ngày hết hạn</th>
+                                <th>Quá hạn</th>
+                                <th>Trạng thái</th>
+                                <th>Hành động</th>
+                                <th>Chi tiết</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expiredTableBody">
+                            <!-- Dữ liệu sẽ được thêm từ API -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Tab Hôm nay -->
+            <div class="tab-pane fade" id="today" role="tabpanel" aria-labelledby="today-tab">
+                <div class="table-responsive">
+                    <table class="table table-bordered premium-table" id="todayTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th>Thời hạn</th>
+                                <th>Người dùng</th>
+                                <th>Ngày hết hạn</th>
+                                <th>Trạng thái</th>
+                                <th>Hành động</th>
+                                <th>Chi tiết</th>
+                            </tr>
+                        </thead>
+                        <tbody id="todayTableBody">
+                            <!-- Dữ liệu sẽ được thêm từ API -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Tab Sắp tới -->
+            <div class="tab-pane fade" id="upcoming" role="tabpanel" aria-labelledby="upcoming-tab">
+                <div class="table-responsive">
+                    <table class="table table-bordered premium-table" id="upcomingTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th>Thời hạn</th>
+                                <th>Người dùng</th>
+                                <th>Ngày hết hạn</th>
+                                <th>Còn lại</th>
+                                <th>Trạng thái</th>
+                                <th>Hành động</th>
+                                <th>Chi tiết</th>
+                            </tr>
+                        </thead>
+                        <tbody id="upcomingTableBody">
+                            <!-- Dữ liệu sẽ được thêm từ API -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Nút thêm sự kiện -->
+<div class="btn-add-event" data-toggle="modal" data-target="#addEventModal">
+    <i class="fas fa-plus"></i>
+</div>
+
+<!-- Modal Thêm sự kiện -->
+<div class="modal fade" id="addEventModal" tabindex="-1" role="dialog" aria-labelledby="addEventModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addEventModalLabel">Thêm sự kiện mới</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addEventForm">
+                    <div class="form-group">
+                        <label for="eventTitle">Tiêu đề sự kiện</label>
+                        <input type="text" class="form-control" id="eventTitle" placeholder="Nhập tiêu đề sự kiện">
+                    </div>
+                    <div class="form-group">
+                        <label for="eventStart">Thời gian bắt đầu</label>
+                        <input type="datetime-local" class="form-control" id="eventStart">
+                    </div>
+                    <div class="form-group">
+                        <label for="eventEnd">Thời gian kết thúc</label>
+                        <input type="datetime-local" class="form-control" id="eventEnd">
+                    </div>
+                    <div class="custom-control custom-checkbox mb-3">
+                        <input type="checkbox" class="custom-control-input" id="allDayEvent">
+                        <label class="custom-control-label" for="allDayEvent">Cả ngày</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventDescription">Mô tả</label>
+                        <textarea class="form-control" id="eventDescription" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventColor">Màu sắc</label>
+                        <select class="form-control" id="eventColor">
+                            <option value="#df2626">Đỏ</option>
+                            <option value="#1cc88a">Xanh lá</option>
+                            <option value="#4e73df">Xanh dương</option>
+                            <option value="#f6c23e">Vàng</option>
+                            <option value="#6f42c1">Tím</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="saveEventBtn">
+                    <i class="fas fa-save"></i> Lưu sự kiện
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Chi tiết Sự kiện -->
+<div class="modal fade" id="eventDetailModal" tabindex="-1" role="dialog" aria-labelledby="eventDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="eventDetailModalLabel">Chi tiết sự kiện</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="eventDetailContent">
+                <!-- Nội dung chi tiết sự kiện sẽ được hiển thị ở đây -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-danger d-none" id="deleteEventBtn">Xóa sự kiện</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Chi tiết đơn hàng -->
+<div class="modal fade" id="orderDetailModal" tabindex="-1" role="dialog" aria-labelledby="orderDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="orderDetailModalLabel">Chi tiết đơn hàng</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="orderDetailContent">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Đang tải...</span>
+                    </div>
+                    <p class="mt-3">Đang tải thông tin đơn hàng...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nhắc nhở Gia hạn -->
+<div class="modal fade" id="reminderModal" tabindex="-1" role="dialog" aria-labelledby="reminderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reminderModalLabel">Gửi nhắc nhở gia hạn</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h6 class="font-weight-bold mb-3">Chọn phương thức gửi thông báo</h6>
+                <input type="hidden" id="subscriptionId" value="">
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="method-select text-center p-3 border rounded mb-3" data-method="email">
+                            <i class="fas fa-envelope fa-2x mb-2 text-primary"></i>
+                            <h6>Email</h6>
+                            <small>Gửi email nhắc gia hạn</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="method-select text-center p-3 border rounded mb-3" data-method="sms">
+                            <i class="fas fa-sms fa-2x mb-2 text-success"></i>
+                            <h6>SMS</h6>
+                            <small>Gửi SMS tới điện thoại</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="method-select text-center p-3 border rounded mb-3" data-method="zalo">
+                            <i class="fab fa-facebook-messenger fa-2x mb-2 text-info"></i>
+                            <h6>Zalo</h6>
+                            <small>Gửi tin nhắn qua Zalo</small>
                         </div>
                     </div>
                 </div>
-                <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
-                        <div class="list-group-item d-flex justify-content-between align-items-center p-3">
-                            <div class="d-flex align-items-center">
-                                <div class="activity-icon bg-primary text-white rounded-circle p-2 mr-3">
-                                    <i class="fas fa-shopping-cart"></i>
-                                </div>
-                                <div>
-                                    <div class="font-weight-bold">Đơn hàng mới</div>
-                                    <div class="small text-muted">Khách hàng: Nguyễn Văn A đã đặt đơn hàng mới</div>
-                                    <div class="smallest text-muted">5 phút trước</div>
-                                </div>
-                            </div>
-                            <div>
-                                <a href="#" class="btn btn-sm btn-light"><i class="fas fa-eye"></i></a>
-                            </div>
-                        </div>
-                        
-                        <div class="list-group-item d-flex justify-content-between align-items-center p-3">
-                            <div class="d-flex align-items-center">
-                                <div class="activity-icon bg-success text-white rounded-circle p-2 mr-3">
-                                    <i class="fas fa-user-plus"></i>
-                                </div>
-                                <div>
-                                    <div class="font-weight-bold">Người dùng mới đăng ký</div>
-                                    <div class="small text-muted">Trần Thị B đã tạo tài khoản mới</div>
-                                    <div class="smallest text-muted">30 phút trước</div>
-                                </div>
-                            </div>
-                            <div>
-                                <a href="#" class="btn btn-sm btn-light"><i class="fas fa-eye"></i></a>
-                            </div>
-                        </div>
-                        
-                        <div class="list-group-item d-flex justify-content-between align-items-center p-3">
-                            <div class="d-flex align-items-center">
-                                <div class="activity-icon bg-warning text-white rounded-circle p-2 mr-3">
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <div>
-                                    <div class="font-weight-bold">Đánh giá mới</div>
-                                    <div class="small text-muted">Lê Văn C đã đánh giá sản phẩm "Điện thoại XYZ"</div>
-                                    <div class="smallest text-muted">2 giờ trước</div>
-                                </div>
-                            </div>
-                            <div>
-                                <a href="#" class="btn btn-sm btn-light"><i class="fas fa-eye"></i></a>
+                
+                <div class="form-group mt-4">
+                    <label for="reminderMessage">Nội dung nhắc nhở:</label>
+                    <textarea class="form-control" id="reminderMessage" rows="4" placeholder="Nhập nội dung tin nhắn nhắc nhở gia hạn...">Thông báo: Tài khoản Premium của bạn sắp hết hạn. Vui lòng gia hạn để tiếp tục sử dụng dịch vụ.</textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="sendReminderBtn">Gửi nhắc nhở</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+
+<!-- Modal Khảo sát lý do không gia hạn -->
+<div class="modal fade" id="surveyModal" tabindex="-1" role="dialog" aria-labelledby="surveyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="surveyModalLabel">Khảo sát lý do không gia hạn</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-4">Quý khách vui lòng cho biết lý do không tiếp tục gia hạn dịch vụ Premium:</p>
+                
+                <form id="surveyForm">
+                    <input type="hidden" id="surveySubscriptionId" value="">
+                    
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox mb-3">
+                            <input type="checkbox" class="custom-control-input survey-reason" id="reason1" value="no_budget">
+                            <label class="custom-control-label" for="reason1">Tôi không có đủ chi phí để gia hạn</label>
+                            <div class="mt-2 ml-4 small text-primary d-none" id="tcoinInfo">
+                                <i class="fas fa-info-circle mr-1"></i> Có thể bạn chưa biết: TomOi.vn hỗ trợ bạn điểm danh hàng ngày và làm nhiệm vụ để nhận TCoin, giúp bạn có thể mua tài khoản Premium với giá 0 đồng.
+                                <a href="/accounts/tcoin/" class="font-weight-bold">Tìm hiểu ngay</a>
                             </div>
                         </div>
                         
-                        <div class="list-group-item d-flex justify-content-between align-items-center p-3">
-                            <div class="d-flex align-items-center">
-                                <div class="activity-icon bg-info text-white rounded-circle p-2 mr-3">
-                                    <i class="fas fa-truck"></i>
-                                </div>
-                                <div>
-                                    <div class="font-weight-bold">Đơn hàng đã giao</div>
-                                    <div class="small text-muted">Đơn hàng #1234 đã được giao thành công</div>
-                                    <div class="smallest text-muted">4 giờ trước</div>
-                                </div>
-                            </div>
-                            <div>
-                                <a href="#" class="btn btn-sm btn-light"><i class="fas fa-eye"></i></a>
-                            </div>
+                        <div class="custom-control custom-checkbox mb-3">
+                            <input type="checkbox" class="custom-control-input survey-reason" id="reason2" value="not_satisfied">
+                            <label class="custom-control-label" for="reason2">Tôi cảm thấy chưa hài lòng về dịch vụ</label>
                         </div>
                         
-                        <div class="list-group-item d-flex justify-content-between align-items-center p-3">
-                            <div class="d-flex align-items-center">
-                                <div class="activity-icon bg-danger text-white rounded-circle p-2 mr-3">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                </div>
-                                <div>
-                                    <div class="font-weight-bold">Cảnh báo hàng tồn kho</div>
-                                    <div class="small text-muted">Sản phẩm "Laptop ABC" sắp hết hàng</div>
-                                    <div class="smallest text-muted">1 ngày trước</div>
-                                </div>
-                            </div>
-                            <div>
-                                <a href="#" class="btn btn-sm btn-light"><i class="fas fa-eye"></i></a>
+                        <div class="custom-control custom-checkbox mb-3">
+                            <input type="checkbox" class="custom-control-input survey-reason" id="reason3" value="not_worth">
+                            <label class="custom-control-label" for="reason3">Tôi cảm thấy sản phẩm không xứng với số tiền bỏ ra</label>
+                        </div>
+                        
+                        <div class="custom-control custom-checkbox mb-3">
+                            <input type="checkbox" class="custom-control-input survey-reason" id="reason4" value="bugs">
+                            <label class="custom-control-label" for="reason4">Sản phẩm hay bị lỗi</label>
+                        </div>
+                        
+                        <div class="custom-control custom-checkbox mb-3">
+                            <input type="checkbox" class="custom-control-input survey-reason" id="reason5" value="slow_warranty">
+                            <label class="custom-control-label" for="reason5">Thời gian bảo hành lâu</label>
+                        </div>
+                        
+                        <div class="custom-control custom-checkbox mb-3">
+                            <input type="checkbox" class="custom-control-input survey-reason" id="reason6" value="better_price">
+                            <label class="custom-control-label" for="reason6">Tôi tìm được nơi khác có mức giá rẻ hơn</label>
+                        </div>
+                        
+                        <div class="custom-control custom-checkbox mb-3">
+                            <input type="checkbox" class="custom-control-input survey-reason" id="reason7" value="dont_like_sharing">
+                            <label class="custom-control-label" for="reason7">Tôi không thích sản phẩm dùng chung</label>
+                        </div>
+                        
+                        <div class="custom-control custom-checkbox mb-3">
+                            <input type="checkbox" class="custom-control-input survey-reason" id="reason8" value="security_concerns">
+                            <label class="custom-control-label" for="reason8">Tôi cảm thấy không yên tâm về bảo mật</label>
+                        </div>
+                        
+                        <div class="custom-control custom-checkbox mb-3">
+                            <input type="checkbox" class="custom-control-input survey-reason" id="reason9" value="rarely_use">
+                            <label class="custom-control-label" for="reason9">Tôi ít sử dụng sản phẩm nên không cần thiết nữa</label>
+                        </div>
+                        
+                        <div class="custom-control custom-checkbox mb-3">
+                            <input type="checkbox" class="custom-control-input survey-reason" id="reason10" value="want_better">
+                            <label class="custom-control-label" for="reason10">Tôi muốn đổi sang sản phẩm khác tốt hơn</label>
+                        </div>
+                        
+                        <div class="custom-control custom-checkbox mb-3">
+                            <input type="checkbox" class="custom-control-input" id="reasonOther">
+                            <label class="custom-control-label" for="reasonOther">Khác</label>
+                            <div class="mt-2 ml-4 d-none" id="otherReasonContainer">
+                                <textarea class="form-control" id="otherReason" rows="2" placeholder="Vui lòng cho biết lý do cụ thể..."></textarea>
                             </div>
                         </div>
                     </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="submitSurveyBtn">Gửi khảo sát</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal thông báo hủy gia hạn thành công -->
+<div class="modal fade" id="cancelSuccessModal" tabindex="-1" role="dialog" aria-labelledby="cancelSuccessModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="cancelSuccessModalLabel">Hủy gia hạn thành công</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <i class="fas fa-check-circle text-success" style="font-size: 64px;"></i>
                 </div>
-                <div class="card-footer">
-                    <div class="d-flex justify-content-center">
-                        <a href="#" class="btn btn-sm btn-primary">Xem tất cả hoạt động</a>
-                    </div>
-                </div>
+                <p class="text-center mb-4">Bạn đã hủy gia hạn dịch vụ Premium thành công.</p>
+                <p class="text-center">Bạn đã nhận được <strong>+50 TCoin</strong> vào tài khoản. Cảm ơn bạn đã tham gia khảo sát!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>
@@ -768,86 +988,870 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
 
 <script>
-    $(document).ready(function() {
-        // Khởi tạo biến dữ liệu mặc định
-        var revenueData = {{ revenue_data|default:"[]"|safe }};
-        var revenueLabels = {{ revenue_labels|default:"[]"|safe }};
-        var orderStatusLabels = {{ order_status_labels|safe }};
-        var orderStatusData = {{ order_status_data|safe }};
-
-        // Kiểm tra nếu không có dữ liệu thì dùng dữ liệu mẫu
-        if (!revenueData.length) {
-            revenueData = [0, 0, 0, 0, 0, 0, 0];
-            revenueLabels = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
-        }
-
-        if (!orderStatusData.length) {
-            orderStatusData = [1];
-            orderStatusLabels = ['Chưa có dữ liệu'];
-        }
-
+    document.addEventListener('DOMContentLoaded', function() {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
         // Khởi tạo biểu đồ doanh thu
-        var revenueChart = new Chart(
-            document.getElementById('revenueChart'),
-            {
-                type: 'line',
-                data: {
-                    labels: revenueLabels,
-                    datasets: [{
-                        label: 'Doanh thu',
-                        data: revenueData,
-                        borderColor: '#4e73df',
-                        tension: 0.3,
-                        fill: true,
-                        backgroundColor: 'rgba(78, 115, 223, 0.05)'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        const revenueChart = new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
+                datasets: [{
+                    label: 'Doanh thu (triệu đồng)',
+                    data: [65, 59, 80, 81, 90, 102, 120, 130, 115, 125, 132, 150],
+                    backgroundColor: 'rgba(223, 38, 38, 0.1)',
+                    borderColor: '#df2626',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#df2626',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return value.toLocaleString('vi-VN') + 'đ';
-                                }
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleFont: {
+                            size: 14
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.raw + ' triệu đồng';
                             }
                         }
                     }
-                }
-            }
-        );
-
-        // Khởi tạo biểu đồ trạng thái đơn hàng
-        var orderStatusChart = new Chart(
-            document.getElementById('orderStatusChart'),
-            {
-                type: 'doughnut',
-                data: {
-                    labels: orderStatusLabels,
-                    datasets: [{
-                        data: orderStatusData,
-                        backgroundColor: [
-                            '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'
-                        ]
-                    }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '70%'
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            borderDash: [3, 3]
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeOutQuart'
                 }
             }
-        );
+        });
+        
+        // Khởi tạo biểu đồ lợi nhuận
+        const profitCtx = document.getElementById('profitChart').getContext('2d');
+        const profitChart = new Chart(profitCtx, {
+            type: 'line',
+            data: {
+                labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
+                datasets: [{
+                    label: 'Lợi nhuận (triệu đồng)',
+                    data: [25, 29, 40, 51, 46, 58, 75, 82, 68, 74, 85, 95],
+                    backgroundColor: 'rgba(28, 200, 138, 0.1)',
+                    borderColor: '#1cc88a',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#1cc88a',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleFont: {
+                            size: 14
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.raw + ' triệu đồng';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            borderDash: [3, 3]
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                animation: {
+                    duration: 1200,
+                    easing: 'easeOutQuart'
+                }
+            }
+        });
+        
+        // Khởi tạo biểu đồ trạng thái đơn hàng
+        const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
+        const orderStatusChart = new Chart(orderStatusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Đã hoàn thành', 'Đang xử lý', 'Đã hủy', 'Đang giao hàng'],
+                datasets: [{
+                    data: [50, 30, 10, 10],
+                    backgroundColor: ['#1cc88a', '#4e73df', '#e74a3b', '#f6c23e'],
+                    hoverBackgroundColor: ['#19b87a', '#3a5ecc', '#d42d1d', '#e3af23'],
+                    hoverBorderColor: "rgba(234, 236, 244, 1)",
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            padding: 15
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleFont: {
+                            size: 14
+                        },
+                        bodyFont: {
+                            size: 13
+                        }
+                    }
+                },
+                cutout: '70%',
+                elements: {
+                    arc: {
+                        borderWidth: 0
+                    }
+                },
+                animation: {
+                    animateScale: true,
+                    animateRotate: true
+                }
+            }
+        });
+        
+        // Khởi tạo DataTables
+        $('#premiumTable, #recentOrdersTable').DataTable({
+            responsive: true,
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/vi.json'
+            },
+            pageLength: 5,
+            lengthMenu: [5, 10, 25, 50]
+        });
+        
+        // Khởi tạo FullCalendar
+        const calendarEl = document.getElementById('calendar');
+        if (calendarEl) {
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                locale: 'vi',
+                editable: true,
+                selectable: true,
+                businessHours: true,
+                dayMaxEvents: true,
+                events: '/dashboard/api/calendar/events/',
+                eventClick: function(info) {
+                    // Hiển thị chi tiết sự kiện
+                    const event = info.event;
+                    const title = event.title;
+                    const start = event.start;
+                    const end = event.end || start;
+                    const allDay = event.allDay;
+                    const status = event.extendedProps.status;
+                    const username = event.extendedProps.username;
+                    
+                    let detailHTML = `
+                        <div class="p-3">
+                            <h5 class="mb-3 font-weight-bold">${title}</h5>
+                            <p><strong>Thời gian:</strong> ${formatEventDate(start, end, allDay)}</p>
+                    `;
+                    
+                    if (status) {
+                        detailHTML += `<p><strong>Trạng thái:</strong> ${translateStatus(status)}</p>`;
+                    }
+                    
+                    if (username) {
+                        detailHTML += `<p><strong>Người dùng:</strong> ${username}</p>`;
+                    }
+                    
+                    if (event.extendedProps.description) {
+                        detailHTML += `<p><strong>Mô tả:</strong> ${event.extendedProps.description}</p>`;
+                    }
+                    
+                    // Kiểm tra nếu là sự kiện premium subscription để hiển thị nút nhắc nhở
+                    if (status === 'not_reminded') {
+                        detailHTML += `
+                            <div class="mt-3">
+                                <button class="btn btn-primary btn-block" onclick="showReminderModal(${event.id})">
+                                    <i class="fas fa-bell mr-2"></i> Gửi nhắc nhở gia hạn
+                                </button>
+                            </div>
+                        `;
+                    }
+                    
+                    detailHTML += `</div>`;
+                    
+                    // Hiển thị modal chi tiết
+                    document.getElementById('eventDetailContent').innerHTML = detailHTML;
+                    $('#eventDetailModal').modal('show');
+                    
+                    // Hiển thị nút xóa cho sự kiện custom
+                    const deleteBtn = document.getElementById('deleteEventBtn');
+                    if (event.id.toString().startsWith('custom-')) {
+                        deleteBtn.classList.remove('d-none');
+                        deleteBtn.onclick = function() {
+                            if (confirm('Bạn có chắc chắn muốn xóa sự kiện này?')) {
+                                event.remove();
+                                $('#eventDetailModal').modal('hide');
+                                showToast('Đã xóa sự kiện thành công!', 'success');
+                            }
+                        };
+                    } else {
+                        deleteBtn.classList.add('d-none');
+                    }
+                },
+                // Chức năng kéo chọn khoảng thời gian trên lịch
+                select: function(info) {
+                    // Lấy thông tin ngày bắt đầu và kết thúc
+                    const startDate = info.start;
+                    const endDate = info.end;
+                    
+                    // Nếu là sự kiện cả ngày, end sẽ là ngày tiếp theo, nên cần trừ đi 1 ngày
+                    const displayEndDate = info.allDay ? new Date(endDate.getTime() - 86400000) : endDate;
+                    
+                    // Điền sẵn thông tin vào modal
+                    document.getElementById('eventTitle').value = '';
+                    document.getElementById('eventStart').value = formatDateTimeLocal(startDate);
+                    document.getElementById('eventEnd').value = formatDateTimeLocal(displayEndDate);
+                    document.getElementById('allDayEvent').checked = info.allDay;
+                    document.getElementById('eventDescription').value = '';
+                    
+                    // Hiển thị modal
+                    $('#addEventModal').modal('show');
+                }
+            });
+            
+            calendar.render();
+            
+            // Hiển thị nút tùy chọn lịch ở góc phải trên
+            const calendarTools = document.createElement('div');
+            calendarTools.className = 'calendar-tools position-absolute';
+            calendarTools.style.cssText = 'top: 15px; right: 15px; z-index: 5;';
+            calendarTools.innerHTML = `
+                <div class="btn-group">
+                    <button id="refreshCalendarBtn" class="btn btn-sm btn-outline-primary" title="Làm mới lịch">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button id="addEventBtnTop" class="btn btn-sm btn-outline-success" title="Thêm sự kiện">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button id="syncGoogleCalendarBtn" class="btn btn-sm btn-outline-info" title="Đồng bộ Google Calendar">
+                        <i class="fab fa-google"></i>
+                    </button>
+                    <button id="printCalendarBtn" class="btn btn-sm btn-outline-dark" title="In lịch">
+                        <i class="fas fa-print"></i>
+                    </button>
+                </div>
+            `;
+            document.querySelector('.calendar-container').appendChild(calendarTools);
+            
+            // Chức năng làm mới lịch
+            document.getElementById('refreshCalendarBtn').addEventListener('click', function() {
+                calendar.refetchEvents();
+                showToast('Đã làm mới lịch thành công!', 'success');
+            });
+            
+            // Chức năng thêm sự kiện từ nút trên đầu
+            document.getElementById('addEventBtnTop').addEventListener('click', function() {
+                $('#addEventModal').modal('show');
+            });
+            
+            // Chức năng đồng bộ với Google Calendar
+            document.getElementById('syncGoogleCalendarBtn').addEventListener('click', function() {
+                // Hiển thị toast thông báo
+                showToast('Đang đồng bộ với Google Calendar...', 'info');
+                
+                // Giả lập đồng bộ thành công sau 2 giây
+                setTimeout(() => {
+                    showToast('Đồng bộ thành công với Google Calendar!', 'success');
+                }, 2000);
+            });
+            
+            // Chức năng in lịch
+            document.getElementById('printCalendarBtn').addEventListener('click', function() {
+                // Tạo style cho trang in
+                const style = document.createElement('style');
+                style.innerHTML = `
+                    @media print {
+                        body * {
+                            visibility: hidden;
+                        }
+                        .calendar-container, .calendar-container * {
+                            visibility: visible;
+                        }
+                        .calendar-container {
+                            position: absolute;
+                            left: 0;
+                            top: 0;
+                            width: 100%;
+                        }
+                        .fc-header-toolbar {
+                            margin-top: 20px !important;
+                        }
+                        .calendar-tools {
+                            display: none !important;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                // Hiển thị thông báo
+                showToast('Đang chuẩn bị in lịch...', 'info');
+                
+                // Thực hiện in sau 1 giây
+                setTimeout(() => {
+                    window.print();
+                    // Xóa style sau khi in
+                    document.head.removeChild(style);
+                }, 1000);
+            });
+            
+            // Xử lý nút FloatingAction để thêm sự kiện mới
+            document.querySelector('.btn-add-event').addEventListener('click', function() {
+                $('#addEventModal').modal('show');
+            });
+            
+            // Xử lý thêm sự kiện mới
+            document.getElementById('saveEventBtn').addEventListener('click', function() {
+                const title = document.getElementById('eventTitle').value.trim();
+                const start = document.getElementById('eventStart').value;
+                const end = document.getElementById('eventEnd').value;
+                const allDay = document.getElementById('allDayEvent').checked;
+                const description = document.getElementById('eventDescription').value.trim();
+                const color = document.getElementById('eventColor').value;
+                
+                if (!title) {
+                    showToast('Vui lòng nhập tiêu đề sự kiện', 'error');
+                    return;
+                }
+                
+                if (!start) {
+                    showToast('Vui lòng chọn thời gian bắt đầu', 'error');
+                    return;
+                }
+                
+                // Gửi dữ liệu lên server
+                fetch('/dashboard/api/calendar/add-event/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        start: start,
+                        end: end || start,
+                        allDay: allDay,
+                        description: description,
+                        color: color
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Thêm sự kiện vào calendar
+                        calendar.addEvent({
+                            id: data.event.id,
+                            title: title,
+                            start: start,
+                            end: end || start,
+                            allDay: allDay,
+                            backgroundColor: color,
+                            borderColor: color,
+                            extendedProps: {
+                                description: description
+                            }
+                        });
+                        
+                        // Đóng modal và hiển thị thông báo
+                        $('#addEventModal').modal('hide');
+                        showToast('Đã thêm sự kiện thành công!', 'success');
+                        
+                        // Reset form
+                        document.getElementById('addEventForm').reset();
+                    } else {
+                        showToast('Có lỗi xảy ra: ' + data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Có lỗi xảy ra khi gửi yêu cầu', 'error');
+                });
+            });
+            
+            // Hàm định dạng datetime-local
+            function formatDateTimeLocal(date) {
+                const yyyy = date.getFullYear();
+                const MM = String(date.getMonth() + 1).padStart(2, '0');
+                const dd = String(date.getDate()).padStart(2, '0');
+                const hh = String(date.getHours()).padStart(2, '0');
+                const mm = String(date.getMinutes()).padStart(2, '0');
+                
+                return `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
+            }
+        }
+        
+        // Xử lý các sự kiện của bảng đơn hàng và tài khoản premium
+        // Xử lý hiệu ứng hover và click vào hàng trong bảng
+        document.querySelectorAll('.order-row').forEach(row => {
+            row.addEventListener('click', function(e) {
+                if (e.target.classList.contains('view-order-btn') || e.target.closest('.view-order-btn')) {
+                    const orderId = this.dataset.orderId;
+                    showOrderDetail(orderId);
+                }
+            });
+        });
+        
+        // Hiển thị chi tiết đơn hàng
+        function showOrderDetail(orderId) {
+            $('#orderDetailModal').modal('show');
+            
+            // Giả lập dữ liệu đơn hàng
+            setTimeout(() => {
+                const orderDetailContent = document.getElementById('orderDetailContent');
+                
+                // Data mẫu cho chi tiết đơn hàng
+                const orderDetail = {
+                    id: orderId,
+                    customer: {
+                        name: 'Nguyễn Văn A',
+                        phone: '0987654321',
+                        email: 'nguyenvana@example.com',
+                        address: '123 Đường ABC, Quận 1, TP.HCM'
+                    },
+                    date: '20/07/2023',
+                    status: 'Hoàn thành',
+                    total: '1,500,000 đ',
+                    shipping: '30,000 đ',
+                    payment: {
+                        method: 'Chuyển khoản ngân hàng',
+                        status: 'Đã thanh toán'
+                    },
+                    items: [
+                        { name: 'Sản phẩm A', quantity: 2, price: '300,000 đ', total: '600,000 đ' },
+                        { name: 'Sản phẩm B', quantity: 1, price: '900,000 đ', total: '900,000 đ' }
+                    ]
+                };
+                
+                // Tạo HTML chi tiết đơn hàng
+                let detailHTML = `
+                    <div class="order-detail">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h5 class="font-weight-bold mb-3">Thông tin đơn hàng</h5>
+                                <p><strong>Mã đơn:</strong> #ORD-${orderDetail.id}</p>
+                                <p><strong>Ngày đặt:</strong> ${orderDetail.date}</p>
+                                <p><strong>Trạng thái:</strong> <span class="badge badge-${getStatusColor(orderDetail.status)}">${orderDetail.status}</span></p>
+                                <p><strong>Phương thức thanh toán:</strong> ${orderDetail.payment.method}</p>
+                                <p><strong>Trạng thái thanh toán:</strong> ${orderDetail.payment.status}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="font-weight-bold mb-3">Thông tin khách hàng</h5>
+                                <p><strong>Họ tên:</strong> ${orderDetail.customer.name}</p>
+                                <p><strong>Số điện thoại:</strong> ${orderDetail.customer.phone}</p>
+                                <p><strong>Email:</strong> ${orderDetail.customer.email}</p>
+                                <p><strong>Địa chỉ:</strong> ${orderDetail.customer.address}</p>
+                            </div>
+                        </div>
+                        
+                        <h5 class="font-weight-bold mb-3">Chi tiết sản phẩm</h5>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Sản phẩm</th>
+                                        <th>Số lượng</th>
+                                        <th>Đơn giá</th>
+                                        <th>Thành tiền</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                `;
+                
+                orderDetail.items.forEach(item => {
+                    detailHTML += `
+                        <tr>
+                            <td>${item.name}</td>
+                            <td>${item.quantity}</td>
+                            <td>${item.price}</td>
+                            <td>${item.total}</td>
+                        </tr>
+                    `;
+                });
+                
+                detailHTML += `
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3" class="text-right"><strong>Phí vận chuyển:</strong></td>
+                                        <td>${orderDetail.shipping}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="text-right"><strong>Tổng cộng:</strong></td>
+                                        <td><strong>${orderDetail.total}</strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="font-weight-bold">Ghi chú đơn hàng</h6>
+                                        <p class="mb-0">Giao hàng trong giờ hành chính. Gọi trước khi giao.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                orderDetailContent.innerHTML = detailHTML;
+            }, 500);
+        }
+        
+        // Hiển thị modal nhắc nhở gia hạn
+        window.showReminderModal = function(subscriptionId) {
+            document.getElementById('subscriptionId').value = subscriptionId;
+            $('#eventDetailModal').modal('hide');
+            $('#reminderModal').modal('show');
+            
+            // Xử lý chọn phương thức gửi
+            document.querySelectorAll('.method-select').forEach(method => {
+                method.classList.remove('selected');
+                method.addEventListener('click', function() {
+                    this.classList.toggle('selected');
+                });
+            });
+        };
+        
+        // Xử lý gửi lời nhắc
+        document.getElementById('sendReminderBtn').addEventListener('click', function() {
+            const subscriptionId = document.getElementById('subscriptionId').value;
+            const selectedMethods = [];
+            
+            document.querySelectorAll('.method-select.selected').forEach(method => {
+                selectedMethods.push(method.dataset.method);
+            });
+            
+            if (selectedMethods.length === 0) {
+                showToast('Vui lòng chọn ít nhất một phương thức gửi thông báo', 'error');
+                return;
+            }
+            
+            // Gửi yêu cầu nhắc nhở
+            fetch(`/dashboard/api/premium-subscriptions/${subscriptionId}/send-reminder/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                    methods: selectedMethods,
+                    message: document.getElementById('reminderMessage').value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    $('#reminderModal').modal('hide');
+                    showToast(data.message, 'success');
+                    
+                    // Cập nhật trạng thái tài khoản subscription trên giao diện
+                    calendar.refetchEvents(); // Làm mới lịch
+                } else {
+                    showToast('Có lỗi xảy ra: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Có lỗi xảy ra khi gửi yêu cầu', 'error');
+            });
+        });
+        
+        // Hàm hiển thị toast
+        function showToast(message, type = 'info') {
+            const types = {
+                'success': { icon: 'fas fa-check-circle', color: '#1cc88a' },
+                'error': { icon: 'fas fa-exclamation-circle', color: '#e74a3b' },
+                'warning': { icon: 'fas fa-exclamation-triangle', color: '#f6c23e' },
+                'info': { icon: 'fas fa-info-circle', color: '#4e73df' }
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.marginBottom = '10px';
+            toast.style.minWidth = '300px';
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-20px)';
+            toast.style.transition = 'all 0.3s ease';
+            toast.innerHTML = `
+                <div class="toast-header" style="background-color: ${types[type].color}; color: white;">
+                    <i class="${types[type].icon} mr-2"></i>
+                    <strong class="mr-auto">Thông báo</strong>
+                    <small>Bây giờ</small>
+                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" style="color: white;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="toast-body bg-white">
+                    ${message}
+                </div>
+            `;
+            
+            document.getElementById('toastContainer').appendChild(toast);
+            
+            // Hiển thị toast với animation
+            setTimeout(() => {
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateY(0)';
+            }, 50);
+            
+            // Tự động xóa toast sau 3 giây
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-20px)';
+                
+                // Xóa toast sau khi animation kết thúc
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+        }
+        
+        // Hàm định dạng ngày tháng cho sự kiện
+        function formatEventDate(start, end, allDay) {
+            let result = '';
+            
+            if (allDay) {
+                if (end) {
+                    // Nếu là sự kiện nhiều ngày
+                    if (!isSameDay(start, end)) {
+                        end = new Date(end.getTime() - 86400000); // Trừ đi 1 ngày vì end là ngày tiếp theo
+                        result = `${formatDate(start)} - ${formatDate(end)}`;
+                    } else {
+                        // Nếu cùng ngày
+                        result = formatDate(start);
+                    }
+                } else {
+                    result = formatDate(start);
+                }
+            } else {
+                if (end) {
+                    // Nếu là sự kiện nhiều ngày
+                    if (!isSameDay(start, end)) {
+                        result = `${formatDate(start)} ${formatTime(start)} - ${formatDate(end)} ${formatTime(end)}`;
+                    } else {
+                        // Nếu cùng ngày
+                        result = `${formatDate(start)} ${formatTime(start)} - ${formatTime(end)}`;
+                    }
+                } else {
+                    result = `${formatDate(start)} ${formatTime(start)}`;
+                }
+            }
+            
+            return result;
+        }
+
+        // Hàm kiểm tra cùng ngày
+        function isSameDay(date1, date2) {
+            return date1.getFullYear() === date2.getFullYear() && 
+                   date1.getMonth() === date2.getMonth() && 
+                   date1.getDate() === date2.getDate();
+        }
+
+        // Hàm định dạng ngày
+        function formatDate(date) {
+            return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+        }
+
+        // Hàm định dạng giờ
+        function formatTime(date) {
+            return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Hàm dịch trạng thái
+        function translateStatus(status) {
+            const statusMap = {
+                'reminded': 'Đã nhắc gia hạn',
+                'renewed': 'Đã gia hạn',
+                'not_reminded': 'Chưa nhắc gia hạn',
+                'no_renew': 'Không gia hạn'
+            };
+            
+            return statusMap[status] || status;
+        }
+        
+        // Hàm lấy màu badge theo trạng thái
+        function getStatusColor(status) {
+            const colorMap = {
+                'Hoàn thành': 'success',
+                'Đang giao': 'info',
+                'Đang xử lý': 'primary',
+                'Đã hủy': 'danger',
+                'Chờ xác nhận': 'warning'
+            };
+            
+            return colorMap[status] || 'secondary';
+        }
+        
+        // Xử lý hiển thị phần TCoin info khi chọn lý do không đủ chi phí
+        document.getElementById('reason1').addEventListener('change', function() {
+            const tcoinInfo = document.getElementById('tcoinInfo');
+            if (this.checked) {
+                tcoinInfo.classList.remove('d-none');
+            } else {
+                tcoinInfo.classList.add('d-none');
+            }
+        });
+        
+        // Xử lý hiển thị phần nhập lý do khác
+        document.getElementById('reasonOther').addEventListener('change', function() {
+            const otherReasonContainer = document.getElementById('otherReasonContainer');
+            if (this.checked) {
+                otherReasonContainer.classList.remove('d-none');
+            } else {
+                otherReasonContainer.classList.add('d-none');
+            }
+        });
+        
+        // Hàm xử lý khi người dùng bấm "Tôi không muốn gia hạn nữa" trong email
+        window.showSurveyModal = function(subscriptionId) {
+            document.getElementById('surveySubscriptionId').value = subscriptionId;
+            $('#surveyModal').modal('show');
+        };
+        
+        // Xử lý khi submit form khảo sát
+        document.getElementById('submitSurveyBtn').addEventListener('click', function() {
+            const subscriptionId = document.getElementById('surveySubscriptionId').value;
+            const selectedReasons = [];
+            
+            // Thu thập các lý do đã chọn
+            document.querySelectorAll('.survey-reason:checked').forEach(checkbox => {
+                selectedReasons.push(checkbox.value);
+            });
+            
+            // Thêm lý do khác nếu có
+            if (document.getElementById('reasonOther').checked) {
+                const otherReason = document.getElementById('otherReason').value.trim();
+                if (otherReason) {
+                    selectedReasons.push('other: ' + otherReason);
+                }
+            }
+            
+            // Nếu không chọn lý do nào
+            if (selectedReasons.length === 0) {
+                showToast('Vui lòng chọn ít nhất một lý do', 'warning');
+                return;
+            }
+            
+            // Gửi dữ liệu lên server
+            fetch('/dashboard/api/premium-subscriptions/' + subscriptionId + '/cancel/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                    reasons: selectedReasons
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Đóng modal khảo sát
+                    $('#surveyModal').modal('hide');
+                    
+                    // Hiển thị modal thành công
+                    setTimeout(() => {
+                        $('#cancelSuccessModal').modal('show');
+                    }, 500);
+                    
+                    // Cập nhật lại dữ liệu lịch nếu đang ở trang dashboard
+                    if (typeof calendar !== 'undefined') {
+                        calendar.refetchEvents();
+                    }
+                } else {
+                    showToast('Có lỗi xảy ra: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Có lỗi xảy ra khi gửi yêu cầu', 'error');
+            });
+        });
+        
+        // Xử lý đóng modal thành công
+        $('#cancelSuccessModal').on('hidden.bs.modal', function() {
+            // Reset form khảo sát
+            document.getElementById('surveyForm').reset();
+            document.getElementById('tcoinInfo').classList.add('d-none');
+            document.getElementById('otherReasonContainer').classList.add('d-none');
+        });
     });
 </script>
 {% endblock %}

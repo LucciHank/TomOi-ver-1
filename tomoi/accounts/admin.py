@@ -88,11 +88,10 @@ class BalanceHistoryInline(admin.TabularInline):
 
 class TCoinHistoryInline(admin.TabularInline):
     model = TCoinHistory
+    fk_name = 'user'
     extra = 0
-    readonly_fields = ('amount', 'activity_type', 'description', 'created_at')
+    readonly_fields = ['amount', 'balance_after', 'description', 'created_at']
     can_delete = False
-    ordering = ('-created_at',)
-    max_num = 0
 
     def has_add_permission(self, request, obj=None):
         return False

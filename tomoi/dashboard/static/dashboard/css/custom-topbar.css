@@ -1,0 +1,130 @@
+/* Tùy chỉnh màu sắc cho topbar */
+.topbar {
+    border-bottom: 1px solid rgba(223, 38, 38, 0.2);
+}
+
+.topbar .dropdown-menu {
+    border: none;
+    border-radius: 0.5rem;
+}
+
+/* Tùy chỉnh màu primary của button */
+.btn-primary {
+    background-color: #df2626;
+    border-color: #df2626;
+}
+
+.btn-primary:hover {
+    background-color: #c51d1d;
+    border-color: #c51d1d;
+}
+
+/* Tùy chỉnh thanh tìm kiếm */
+.navbar-search .input-group {
+    border-radius: 2rem;
+    background-color: #f8f9fc;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: all 0.3s ease;
+}
+
+.navbar-search .input-group:focus-within {
+    box-shadow: 0 0.25rem 0.5rem rgba(223, 38, 38, 0.15);
+    transform: translateY(-1px);
+}
+
+.navbar-search .form-control:focus {
+    background-color: #fff;
+    border-color: #df2626;
+    box-shadow: none;
+}
+
+/* Dropdowns đẹp hơn */
+.dropdown-header {
+    font-weight: 700;
+    background-color: #f8f9fc;
+    color: #df2626;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(223, 38, 38, 0.05);
+}
+
+.icon-circle {
+    height: 2.5rem;
+    width: 2.5rem;
+    border-radius: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Hiệu ứng badge */
+.badge-danger {
+    background-color: #df2626;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* Tùy chỉnh avatar */
+.img-profile {
+    border: 2px solid #df2626;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: all 0.3s ease;
+}
+
+.img-profile:hover {
+    transform: scale(1.1);
+}
+
+/* Search Results Dropdown */
+.search-results-dropdown {
+    width: 400px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.search-category {
+    padding: 0.75rem 1rem;
+    font-weight: bold;
+    color: #df2626;
+    background-color: #f8f9fc;
+}
+
+.search-results-section {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.search-result-item {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f1f1f1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.search-result-item:hover {
+    background-color: rgba(223, 38, 38, 0.05);
+}
+
+.search-result-title {
+    font-weight: bold;
+    color: #3a3b45;
+}
+
+.search-result-description {
+    font-size: 0.8rem;
+    color: #858796;
+}
+
+.search-highlight {
+    background-color: rgba(223, 38, 38, 0.2);
+    font-weight: bold;
+    padding: 0 2px;
+    border-radius: 2px;
+} 
