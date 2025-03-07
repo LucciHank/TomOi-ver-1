@@ -63,11 +63,13 @@ def user_detail(request, user_id):
     """Chi tiết người dùng"""
     user = get_object_or_404(CustomUser, id=user_id)
     
-    # Thống kê hoạt động
+    # Lấy lịch sử hoạt động
+    user_activities = UserActivityLog.objects.filter(user=user).order_by('-created_at')[:20]
+    
+    # Thống kê đăng nhập theo ngày
     today = timezone.now()
     last_30_days = today - timedelta(days=30)
     
-    # Thống kê đăng nhập theo ngày
     logins_by_date = user.login_history.filter(
         login_time__gte=last_30_days
     ).annotate(
@@ -81,7 +83,8 @@ def user_detail(request, user_id):
     counts = [entry['count'] for entry in logins_by_date]
     
     context = {
-        'user_obj': user,
+        'user': user,
+        'user_activities': user_activities,
         'login_dates': json.dumps(dates),
         'login_counts': json.dumps(counts)
     }
@@ -142,13 +145,15 @@ def user_permissions(request, user_id):
             if removed_perms:
                 changes.append(f"Xóa quyền: {', '.join(removed_perms)}")
                 
-            description = f"Cập nhật phân quyền cho {user.username}\n" + "\n".join(changes)
+            description = f"Cập nhật phân quyền cho {user.username}"
+            if changes:
+                description += "\n" + "\n".join(changes)
             
             # Tạo log hoạt động
             activity = UserActivityLog.objects.create(
                 user=user,
                 admin=request.user,
-                action_type='update',
+                action_type='permission',
                 description=description,
                 metadata={
                     'old_permissions': old_permissions,

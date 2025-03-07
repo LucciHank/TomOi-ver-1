@@ -188,4 +188,18 @@ def api_source_products(request, source_id):
             'price': float(product.price),
         })
     
-    return JsonResponse({'products': products_data}) 
+    return JsonResponse({'products': products_data})
+
+@staff_member_required
+def source_dashboard(request):
+    return render(request, 'dashboard/sources/dashboard.html')
+
+@staff_member_required
+def source_add(request):
+    return render(request, 'dashboard/sources/form.html')
+
+@staff_member_required
+def source_log_list(request):
+    return render(request, 'dashboard/sources/logs.html')
+
+# Thêm các view khác... 

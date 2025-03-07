@@ -34,6 +34,15 @@ from accounts.models import CustomUser
 from django.utils import timezone
 from datetime import timedelta
 from dashboard.models import SystemNotification
+# from .analytics import *
+# from .reports import *
+# from .performance import *1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+from .user_views import *
+from .user import *
+from .marketing import *
+from .source import *
+from .discount import *
+from .banner import *
 
 # Hàm tạm thời cho các view chưa được triển khai
 def not_implemented(request, *args, **kwargs):

@@ -100,4 +100,65 @@
     margin-bottom: 1rem;
   }
 
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.35em 0.65em;
+    font-size: 0.75em;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 50rem;
+}
+
+.status-pending {
+    background-color: #4e73df;
+    color: white;
+}
+
+.status-processing {
+    background-color: #f6c23e;
+    color: #212529;
+}
+
+.status-shipping {
+    background-color: #36b9cc;
+    color: white;
+}
+
+.status-completed {
+    background-color: #1cc88a;
+    color: white;
+}
+
+.status-cancelled {
+    background-color: #e74a3b;
+    color: white;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-filter {
+    background-color: #f8f9fc;
+    color: #6e707e;
+    border: 1px solid #e3e6f0;
+    transition: all 0.2s;
+}
+
+.btn-filter:hover, .btn-filter.active {
+    background-color: #4e73df;
+    color: white;
+}
+
+.smallest {
+    font-size: 0.7rem;
 } 

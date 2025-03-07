@@ -3,8 +3,8 @@
 
     <!-- Sidebar - Brand -->
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{% url 'dashboard:index' %}">
-        <div class="sidebar-brand-icon rotate-n-15">
-            <i class="fas fa-laugh-wink"></i>
+        <div class="sidebar-brand-icon">
+            <i class="fas fa-shopping-bag fa-bounce"></i>
         </div>
         <div class="sidebar-brand-text mx-3">TomOi Admin</div>
     </a>
@@ -14,82 +14,113 @@
 
     <!-- Nav Item - Dashboard -->
     <li class="nav-item active">
-        <a class="nav-link" href="{% url 'dashboard:index' %}">
+        <a class="nav-link pulse-link" href="{% url 'dashboard:index' %}">
             <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Tổng quan</span></a>
+            <span>Tổng quan</span>
+            <span class="badge badge-pill badge-success ml-2 pulse-badge">Live</span>
+        </a>
     </li>
 
     <!-- Divider -->
     <hr class="sidebar-divider">
 
     <!-- Heading -->
-    <div class="sidebar-heading">
-        Quản lý
+    <div class="sidebar-heading text-uppercase">
+        <i class="fas fa-th-large fa-xs mr-1"></i> Quản lý
     </div>
 
     <!-- Nav Item - Orders -->
     <li class="nav-item">
-        <a class="nav-link" href="{% url 'dashboard:orders' %}">
+        <a class="nav-link hover-effect" href="{% url 'dashboard:orders' %}">
             <i class="fas fa-fw fa-shopping-cart"></i>
-            <span>Đơn hàng</span></a>
+            <span>Đơn hàng</span>
+            <span class="badge badge-pill badge-info float-right order-count">{{ pending_orders|default:"0" }}</span>
+        </a>
     </li>
 
     <!-- Nav Item - Products Collapse Menu -->
     <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProducts"
+        <a class="nav-link collapsed hover-effect" href="#" data-toggle="collapse" data-target="#collapseProducts"
             aria-expanded="true" aria-controls="collapseProducts">
             <i class="fas fa-fw fa-box"></i>
             <span>Sản phẩm</span>
+            <i class="fas fa-angle-down fa-sm float-right mt-1"></i>
         </a>
         <div id="collapseProducts" class="collapse" aria-labelledby="headingProducts" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Quản lý sản phẩm:</h6>
-                <a class="collapse-item" href="{% url 'dashboard:products' %}">Danh sách sản phẩm</a>
-                <a class="collapse-item" href="{% url 'dashboard:add_product' %}">Thêm sản phẩm</a>
-                <a class="collapse-item" href="{% url 'dashboard:categories' %}">Danh mục</a>
+            <div class="bg-white py-2 collapse-inner rounded-lg shadow-sm">
+                <h6 class="collapse-header text-primary"><i class="fas fa-tags fa-sm mr-2"></i>Quản lý sản phẩm:</h6>
+                <a class="collapse-item hover-subtle" href="{% url 'dashboard:products' %}">
+                    <i class="fas fa-list-ul fa-sm mr-2"></i>Danh sách sản phẩm
+                </a>
+                <a class="collapse-item hover-subtle" href="{% url 'dashboard:add_product' %}">
+                    <i class="fas fa-plus-circle fa-sm mr-2"></i>Thêm sản phẩm
+                </a>
+                <a class="collapse-item hover-subtle" href="{% url 'dashboard:categories' %}">
+                    <i class="fas fa-folder fa-sm mr-2"></i>Danh mục
+                </a>
             </div>
         </div>
     </li>
 
     <!-- Nav Item - Customers -->
     <li class="nav-item">
-        <a class="nav-link" href="{% url 'dashboard:customers' %}">
+        <a class="nav-link hover-effect" href="{% url 'dashboard:user_dashboard' %}">
             <i class="fas fa-fw fa-users"></i>
-            <span>Khách hàng</span></a>
+            <span>Khách hàng</span>
+            <span class="badge badge-pill badge-light float-right user-count">{{ total_users|default:"0" }}</span>
+        </a>
     </li>
 
     <!-- Nav Item - Sources Collapse Menu -->
     <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSources"
+        <a class="nav-link collapsed hover-effect" href="#" data-toggle="collapse" data-target="#collapseSources"
             aria-expanded="true" aria-controls="collapseSources">
             <i class="fas fa-fw fa-store"></i>
             <span>Nguồn nhập</span>
+            <i class="fas fa-angle-down fa-sm float-right mt-1"></i>
         </a>
         <div id="collapseSources" class="collapse" aria-labelledby="headingSources" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Quản lý nguồn nhập:</h6>
-                <a class="collapse-item" href="{% url 'dashboard:source_dashboard' %}">Tổng quan</a>
-                <a class="collapse-item" href="{% url 'dashboard:source_list' %}">Danh sách nguồn</a>
-                <a class="collapse-item" href="{% url 'dashboard:source_add' %}">Thêm nguồn mới</a>
-                <a class="collapse-item" href="{% url 'dashboard:source_log_list' %}">Nhật ký</a>
-                <a class="collapse-item" href="{% url 'dashboard:compare_sources' %}">So sánh nguồn</a>
+            <div class="bg-white py-2 collapse-inner rounded-lg shadow-sm">
+                <h6 class="collapse-header text-primary"><i class="fas fa-warehouse fa-sm mr-2"></i>Quản lý nguồn nhập:</h6>
+                <a class="collapse-item hover-subtle" href="{% url 'dashboard:source_dashboard' %}">
+                    <i class="fas fa-chart-pie fa-sm mr-2"></i>Tổng quan
+                </a>
+                <a class="collapse-item hover-subtle" href="{% url 'dashboard:source_list' %}">
+                    <i class="fas fa-list fa-sm mr-2"></i>Danh sách nguồn
+                </a>
+                <a class="collapse-item hover-subtle" href="{% url 'dashboard:source_add' %}">
+                    <i class="fas fa-plus fa-sm mr-2"></i>Thêm nguồn mới
+                </a>
+                <a class="collapse-item hover-subtle" href="{% url 'dashboard:source_log_list' %}">
+                    <i class="fas fa-history fa-sm mr-2"></i>Nhật ký
+                </a>
+                <a class="collapse-item hover-subtle" href="{% url 'dashboard:compare_sources' %}">
+                    <i class="fas fa-balance-scale fa-sm mr-2"></i>So sánh nguồn
+                </a>
             </div>
         </div>
     </li>
 
     <!-- Nav Item - Marketing Collapse Menu -->
     <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMarketing"
+        <a class="nav-link collapsed hover-effect" href="#" data-toggle="collapse" data-target="#collapseMarketing"
             aria-expanded="true" aria-controls="collapseMarketing">
             <i class="fas fa-fw fa-bullhorn"></i>
             <span>Marketing</span>
+            <i class="fas fa-angle-down fa-sm float-right mt-1"></i>
         </a>
         <div id="collapseMarketing" class="collapse" aria-labelledby="headingMarketing" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Quản lý marketing:</h6>
-                <a class="collapse-item" href="{% url 'dashboard:campaign_list' %}">Chiến dịch</a>
-                <a class="collapse-item" href="{% url 'dashboard:banners' %}">Banner</a>
-                <a class="collapse-item" href="{% url 'dashboard:discounts' %}">Mã giảm giá</a>
+            <div class="bg-white py-2 collapse-inner rounded-lg shadow-sm">
+                <h6 class="collapse-header text-primary"><i class="fas fa-ad fa-sm mr-2"></i>Quản lý marketing:</h6>
+                <a class="collapse-item hover-subtle" href="{% url 'dashboard:marketing' %}">
+                    <i class="fas fa-flag fa-sm mr-2"></i>Chiến dịch
+                </a>
+                <a class="collapse-item hover-subtle" href="{% url 'dashboard:banners' %}">
+                    <i class="fas fa-image fa-sm mr-2"></i>Banner
+                </a>
+                <a class="collapse-item hover-subtle" href="{% url 'dashboard:discounts' %}">
+                    <i class="fas fa-percent fa-sm mr-2"></i>Mã giảm giá
+                </a>
             </div>
         </div>
     </li>
@@ -98,23 +129,30 @@
     <hr class="sidebar-divider">
 
     <!-- Heading -->
-    <div class="sidebar-heading">
-        Phân tích
+    <div class="sidebar-heading text-uppercase">
+        <i class="fas fa-chart-line fa-xs mr-1"></i> Phân tích
     </div>
 
     <!-- Nav Item - Reports Collapse Menu -->
     <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReports"
+        <a class="nav-link collapsed hover-effect" href="#" data-toggle="collapse" data-target="#collapseReports"
             aria-expanded="true" aria-controls="collapseReports">
             <i class="fas fa-fw fa-chart-area"></i>
             <span>Báo cáo</span>
+            <i class="fas fa-angle-down fa-sm float-right mt-1"></i>
         </a>
         <div id="collapseReports" class="collapse" aria-labelledby="headingReports" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Báo cáo phân tích:</h6>
-                <a class="collapse-item" href="{% url 'dashboard:sales_report' %}">Doanh số</a>
-                <a class="collapse-item" href="{% url 'dashboard:product_report' %}">Sản phẩm</a>
-                <a class="collapse-item" href="{% url 'dashboard:customer_report' %}">Khách hàng</a>
+            <div class="bg-white py-2 collapse-inner rounded-lg shadow-sm">
+                <h6 class="collapse-header text-primary"><i class="fas fa-file-alt fa-sm mr-2"></i>Báo cáo phân tích:</h6>
+                <a class="collapse-item hover-subtle" href="{% url 'dashboard:sales_report' %}">
+                    <i class="fas fa-coins fa-sm mr-2"></i>Doanh số
+                </a>
+                <a class="collapse-item hover-subtle" href="{% url 'dashboard:product_report' %}">
+                    <i class="fas fa-cubes fa-sm mr-2"></i>Sản phẩm
+                </a>
+                <a class="collapse-item hover-subtle" href="{% url 'dashboard:customer_report' %}">
+                    <i class="fas fa-user-check fa-sm mr-2"></i>Khách hàng
+                </a>
             </div>
         </div>
     </li>
@@ -123,15 +161,16 @@
     <hr class="sidebar-divider">
 
     <!-- Heading -->
-    <div class="sidebar-heading">
-        Hệ thống
+    <div class="sidebar-heading text-uppercase">
+        <i class="fas fa-cogs fa-xs mr-1"></i> Hệ thống
     </div>
 
     <!-- Nav Item - Settings -->
     <li class="nav-item">
-        <a class="nav-link" href="{% url 'dashboard:settings' %}">
-            <i class="fas fa-fw fa-cog"></i>
-            <span>Cài đặt</span></a>
+        <a class="nav-link hover-effect" href="{% url 'dashboard:settings' %}">
+            <i class="fas fa-fw fa-cog fa-spin-hover"></i>
+            <span>Cài đặt</span>
+        </a>
     </li>
 
     <!-- Divider -->
@@ -139,8 +178,224 @@
 
     <!-- Sidebar Toggler (Sidebar) -->
     <div class="text-center d-none d-md-inline">
-        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+        <button class="rounded-circle border-0 shadow-pulse" id="sidebarToggle">
+            <i class="fas fa-angle-left"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar Advertisement -->
+    <div class="sidebar-card d-none d-lg-flex shadow-sm">
+        <img class="sidebar-card-illustration mb-2" src="#" alt="Rocket">
+        <p class="text-center mb-2"><strong>TomOi Pro</strong> nâng cấp để mở khóa tất cả tính năng!</p>
+        <a class="btn btn-success btn-sm" href="#!">Nâng cấp ngay!</a>
     </div>
 
 </ul>
-<!-- End of Sidebar --> 
+<!-- End of Sidebar -->
+
+<!-- CSS cho hiệu ứng đẹp hơn -->
+<style>
+    /* Sidebar animation và hover effects */
+    .hover-effect:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
+        transition: all 0.3s ease;
+    }
+    
+    .hover-subtle:hover {
+        background: rgba(78, 115, 223, 0.1);
+        color: #4e73df;
+        transform: translateX(3px);
+        transition: all 0.2s ease;
+    }
+    
+    .fa-spin-hover:hover {
+        animation: fa-spin 2s infinite linear;
+    }
+    
+    .sidebar-heading {
+        letter-spacing: 1px;
+        font-weight: 700;
+    }
+    
+    .pulse-link {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .pulse-badge {
+        animation: pulse-animation 2s infinite;
+    }
+    
+    @keyframes pulse-animation {
+        0% {
+            box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+        }
+    }
+    
+    .shadow-pulse {
+        animation: shadow-pulse 2s infinite;
+        transition: all 0.3s ease;
+    }
+    
+    @keyframes shadow-pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.3);
+        }
+        70% {
+            box-shadow: 0 0 0 5px rgba(255, 255, 255, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+        }
+    }
+    
+    .sidebar-card {
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        color: white;
+        margin: 1rem;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .sidebar-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .sidebar-card-illustration {
+        max-width: 60px;
+        margin: 0 auto;
+        filter: drop-shadow(0px 3px 3px rgba(0, 0, 0, 0.2));
+    }
+    
+    #sidebarToggle {
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    #sidebarToggle:hover {
+        background-color: white;
+        color: #4e73df;
+        transform: scale(1.1);
+    }
+    
+    #accordionSidebar {
+        background: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
+        background-size: cover;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    .sidebar-brand {
+        height: 5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .sidebar-brand:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .collapse-inner {
+        border-left: 3px solid #4e73df;
+        transition: all 0.3s ease;
+    }
+    
+    .collapse-header {
+        font-weight: 700;
+        letter-spacing: 0.05rem;
+    }
+
+    /* Thêm hiệu ứng biến đổi cho menu items */
+    .nav-item {
+        transition: background-color 0.3s ease, transform 0.3s ease;
+        position: relative;
+    }
+
+    .nav-item:hover::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 4px;
+        background: linear-gradient(180deg, #ffffff 0%, rgba(255,255,255,0.5) 100%);
+        animation: slideIn 0.3s ease-in-out;
+    }
+
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateX(-10px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Badges tùy chỉnh */
+    .badge {
+        transition: all 0.3s ease;
+    }
+
+    .badge-info, .badge-light {
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .nav-item:hover .badge {
+        transform: scale(1.1);
+    }
+
+    /* Menu dropdown animation */
+    .collapse {
+        transition: height 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+
+    /* Sidebar dark mode toggle - có thể thêm nếu muốn */
+    .theme-switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+        margin: 15px auto;
+    }
+
+    .theme-switch input { 
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: #1cc88a;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }
+</style> 

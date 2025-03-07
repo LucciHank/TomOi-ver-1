@@ -464,10 +464,20 @@
                             {% for activity in user_activities %}
                             <div class="activity-item">
                                 <div class="activity-icon">
-                                    <i class="fas {% if activity.activity_type == 'login' %}fa-sign-in-alt{% elif activity.activity_type == 'purchase' %}fa-shopping-cart{% elif activity.activity_type == 'account_update' %}fa-user-edit{% else %}fa-info-circle{% endif %}"></i>
+                                    <i class="fas {% if activity.action_type == 'create' %}fa-plus-circle{% elif activity.action_type == 'update' %}fa-edit{% elif activity.action_type == 'delete' %}fa-trash{% elif activity.action_type == 'permission' %}fa-user-shield{% elif activity.action_type == 'restore' %}fa-history{% else %}fa-info-circle{% endif %}"></i>
                                 </div>
-                                <div class="activity-time">{{ activity.timestamp|date:"d/m/Y H:i" }}</div>
-                                <div class="activity-description">{{ activity.description }}</div>
+                                <div class="activity-info">
+                                    <div class="activity-time">{{ activity.created_at|date:"d/m/Y H:i" }}</div>
+                                    <div class="activity-admin">Bởi: {{ activity.admin.username }}</div>
+                                </div>
+                                <div class="activity-description">{{ activity.description|linebreaks }}</div>
+                                {% if activity.can_rollback %}
+                                <div class="activity-actions">
+                                    <button class="btn btn-sm btn-warning rollback-btn" data-activity-id="{{ activity.id }}">
+                                        <i class="fas fa-undo"></i> Hoàn tác
+                                    </button>
+                                </div>
+                                {% endif %}
                                 <div class="clearfix"></div>
                             </div>
                             {% endfor %}

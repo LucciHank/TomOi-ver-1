@@ -127,7 +127,7 @@ class CustomUserAdmin(UserAdmin):
         }),
     )
 
-    readonly_fields = ('join_date', 'last_login', 'last_login_ip', 'failed_login_attempts', 'tcoin')
+    readonly_fields = ('join_date', 'last_login', 'last_login_ip', 'failed_login_attempts', 'tcoin_balance')
     actions = ['activate_users', 'deactivate_users', 'add_balance', 'subtract_balance', 'make_active', 'make_pending', 'make_suspended']
 
     def full_name(self, obj):

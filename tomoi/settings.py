@@ -20,4 +20,15 @@ STATICFILES_DIRS = [
 # Cấu hình DoiThe.vn API
 DOITHE_PARTNER_ID = 'your_partner_id'
 DOITHE_PARTNER_KEY = 'your_partner_key'
-DOITHE_API_URL = 'https://doithe.vn/api/card-auto' 
+DOITHE_API_URL = 'https://doithe.vn/api/card-auto'
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django.contrib.humanize',
+    # Các app khác...
+] 
