@@ -8,6 +8,19 @@ from django.utils import timezone
 import json
 from django.conf import settings
 
+# Thêm định nghĩa TRANSACTION_TYPES
+TRANSACTION_TYPES = (
+    ('deposit', 'Nạp tiền'),
+    ('withdraw', 'Rút tiền'),
+    ('purchase', 'Mua hàng'),
+    ('refund', 'Hoàn tiền'),
+    ('bonus', 'Thưởng'),
+    ('adjustment', 'Điều chỉnh'),
+    ('checkin', 'Điểm danh'),
+    ('referral', 'Giới thiệu'),
+    ('other', 'Khác')
+)
+
 class CustomUserManager(BaseUserManager):
     def create_user(self, username, email, password=None, **extra_fields):
         if not email:
@@ -388,19 +401,19 @@ class Deposit(models.Model):
 
 class TCoinHistory(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='tcoin_history')
-    amount = models.IntegerField()  # Số lượng thay đổi
-    balance_after = models.IntegerField()  # Số dư sau khi thay đổi
-    description = models.CharField(max_length=255)
-    created_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='tcoin_adjustments')
-    created_at = models.DateTimeField(auto_now_add=True)
-
+    amount = models.IntegerField(verbose_name="Số lượng", default=0)
+    balance_after = models.IntegerField(default=0, verbose_name="Số dư sau giao dịch")
+    description = models.CharField(max_length=255, verbose_name="Mô tả", default="Điều chỉnh số dư")
+    transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPES, default='adjustment', verbose_name="Loại giao dịch")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Thời gian")
+    
     class Meta:
+        verbose_name = "Lịch sử TCoin"
+        verbose_name_plural = "Lịch sử TCoin"
         ordering = ['-created_at']
-        verbose_name = 'Lịch sử TCoin'
-        verbose_name_plural = 'Lịch sử TCoin'
-
+    
     def __str__(self):
-        return f"{self.user.username} - {self.amount:+} TCoin - {self.created_at}"
+        return f"{self.user.username} - {self.amount} TCoin - {self.get_transaction_type_display()}"
 
 class DailyCheckin(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)

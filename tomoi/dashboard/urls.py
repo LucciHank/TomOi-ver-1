@@ -25,6 +25,14 @@ from .views.complaints import complaints_list
 from .views.warranty import warranty_list
 from .views.calendar import calendar_events, premium_subscriptions, send_reminder, add_calendar_event, cancel_subscription
 
+# Import module mới cho Google Calendar
+from . import calendar_views
+
+from .temp_test_import import test_func
+print("Import test_func OK:", test_func())
+
+from . import views_temp
+
 app_name = 'dashboard'
 
 urlpatterns = [
@@ -138,4 +146,15 @@ urlpatterns = [
     path('api/premium-subscriptions/<int:subscription_id>/send-reminder/', send_reminder, name='send_reminder'),
     path('api/calendar/add-event/', add_calendar_event, name='add_calendar_event'),
     path('api/premium-subscriptions/<int:subscription_id>/cancel/', cancel_subscription, name='cancel_subscription'),
+
+    # New URLs
+    path('settings/test-email/', settings_view, name='test_email_settings'),
+    path('settings/clear-cache/', settings_view, name='clear_cache'),
+    path('settings/optimize-database/', settings_view, name='optimize_database'),
+    path('settings/clear-logs/', settings_view, name='clear_logs'),
+
+    # Thêm URL cho xác thực và đồng bộ Google Calendar - sử dụng module mới
+    path('google-auth/', views_temp.google_calendar_auth_temp, name='google_calendar_auth'),
+    path('google-callback/', views_temp.google_calendar_callback_temp, name='google_callback'),
+    path('google-status/', views_temp.google_calendar_status_temp, name='google_status'),
 ] 

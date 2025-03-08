@@ -433,4 +433,45 @@ class UserActivityLog(models.Model):
             can_rollback=False
         )
 
-        return True 
+        return True
+
+class GoogleCalendarSync(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    access_token = models.TextField()
+    refresh_token = models.TextField(null=True, blank=True)
+    token_uri = models.CharField(max_length=200)
+    client_id = models.CharField(max_length=200)
+    client_secret = models.CharField(max_length=200)
+    scopes = models.TextField()
+    is_active = models.BooleanField(default=False)
+    last_sync = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"Google Calendar Sync - {self.user.username}"
+
+class CalendarEvent(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    google_event_id = models.CharField(max_length=255, null=True, blank=True)
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    is_all_day = models.BooleanField(default=False)
+    event_type = models.CharField(max_length=20, choices=[
+        ('meeting', 'Cuộc họp'),
+        ('deadline', 'Hạn chót'),
+        ('reminder', 'Nhắc nhở'),
+        ('other', 'Khác')
+    ], default='other')
+    is_from_google = models.BooleanField(default=False)
+    is_synced = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return self.title
+        
+    class Meta:
+        ordering = ['-start_time'] 

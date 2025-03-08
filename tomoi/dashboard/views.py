@@ -3406,3 +3406,27 @@ def email_save_template(request):
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+from django.db import transaction
+from accounts.models import TCoinHistory, CustomUser
+
+@transaction.atomic
+def update_tcoin_balance_after():
+    # Lấy tất cả người dùng
+    users = CustomUser.objects.all()
+    
+    for user in users:
+        # Lấy lịch sử TCoin của người dùng, sắp xếp theo thời gian tăng dần
+        histories = TCoinHistory.objects.filter(user=user).order_by('created_at')
+        
+        # Tính toán lại balance_after cho từng giao dịch
+        current_balance = 0
+        for history in histories:
+            current_balance += history.amount
+            history.balance_after = current_balance
+            history.save()
+            
+    print("Đã cập nhật balance_after cho tất cả giao dịch TCoin")
+
+# Chạy hàm cập nhật
+# update_tcoin_balance_after()  # Bỏ comment dòng này khi bạn muốn chạy hàm

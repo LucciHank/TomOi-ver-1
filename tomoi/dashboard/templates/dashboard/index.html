@@ -7,6 +7,7 @@
 {% block extra_css %}
 <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/main.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 <style>
     /* Card Styling nâng cấp */
     .dashboard-card {
@@ -45,38 +46,263 @@
     .icon-info { background-color: #36b9cc; }
     .icon-warning { background-color: #f6c23e; }
     
-    /* Calendar container */
+    /* Sửa lỗi lịch không hiển thị và điều chỉnh chiều cao */
     .calendar-container {
-        max-height: 650px;
+        padding: 0;
+        overflow: hidden;
+        position: relative;
+        height: 600px !important;
+        border-radius: 0 0 0.35rem 0.35rem;
+    }
+    
+    #calendar {
+        height: 100% !important;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+    
+    /* Đảm bảo các khối có chiều cao đồng đều */
+    .equal-height-row {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    
+    .equal-height-row > div {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .equal-height-row .card {
+        flex: 1;
+        margin-bottom: 20px;
+    }
+    
+    /* Cân đối chiều cao của các biểu đồ */
+    .chart-card {
+        height: 300px;
+        margin-bottom: 20px;
         overflow: hidden;
     }
     
-    .fc-daygrid-day-frame {
-        min-height: 100px;
+    .card-chart-container {
+        position: relative;
+        height: 100%;
+        width: 100%;
     }
     
-    /* Nút thêm sự kiện */
+    /* Đảm bảo modals chỉ hiển thị trong phạm vi block */
+    .card {
+        position: relative;
+        overflow: visible;
+    }
+    
+    .dropdown-menu {
+        position: absolute;
+        z-index: 1000;
+    }
+    
+    /* Sửa lỗi dropdown menu bị che khuất */
+    .card-header {
+        position: relative;
+        z-index: 10;
+    }
+    
+    .dropdown-menu-right {
+        right: 0;
+        left: auto;
+    }
+    
+    /* Calendar container */
+    .calendar-container {
+        padding: 0;
+        overflow: hidden;
+        border-radius: 0 0 0.35rem 0.35rem;
+    }
+    
+    #calendar {
+        height: 550px !important;
+        width: 100%;
+        font-family: 'Nunito', sans-serif;
+    }
+    
+    .fc-header-toolbar {
+        padding: 1rem;
+        background: linear-gradient(to right, #f8f9fc, #eaecf4);
+        border-bottom: 1px solid #e3e6f0;
+    }
+    
+    .fc-button-primary {
+        background-color: #4e73df !important;
+        border-color: #4e73df !important;
+        box-shadow: 0 2px 5px rgba(78, 115, 223, 0.2) !important;
+        transition: all 0.2s ease;
+    }
+    
+    .fc-button-primary:hover {
+        background-color: #2e59d9 !important;
+        border-color: #2653d4 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(78, 115, 223, 0.3) !important;
+    }
+    
+    .fc-button-active {
+        background-color: #2e59d9 !important;
+        border-color: #2653d4 !important;
+        box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125) !important;
+    }
+    
+    .fc-day-today {
+        background-color: rgba(78, 115, 223, 0.05) !important;
+    }
+    
+    .fc-event {
+        border-radius: 4px;
+        border: none;
+        padding: 3px;
+        font-size: 0.85em;
+        transition: transform 0.2s ease;
+        cursor: pointer;
+    }
+    
+    .fc-event:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        z-index: 10;
+    }
+    
+    .fc-daygrid-day-number {
+        font-weight: 600;
+        color: #5a5c69;
+    }
+    
+    .fc-daygrid-day-top {
+        justify-content: center;
+    }
+    
+    .fc-col-header-cell-cushion {
+        font-weight: 700;
+        color: #4e73df;
+    }
+    
+    /* Hiệu ứng kéo chọn khoảng thời gian */
+    .fc-highlight {
+        background-color: rgba(78, 115, 223, 0.2) !important;
+        border: 2px dashed #4e73df;
+    }
+    
+    /* Nút thêm sự kiện cố định */
     .btn-add-event {
         position: fixed;
         bottom: 30px;
         right: 30px;
-        width: 50px;
-        height: 50px;
+        width: 55px;
+        height: 55px;
         border-radius: 50%;
-        background: #df2626;
+        background: linear-gradient(45deg, #4e73df, #2653d4);
         color: white;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 4px 12px rgba(223, 38, 38, 0.3);
+        box-shadow: 0 4px 20px rgba(78, 115, 223, 0.4);
         cursor: pointer;
+        border: none;
+        z-index: 1000;
         transition: all 0.3s ease;
-        z-index: 999;
     }
     
     .btn-add-event:hover {
-        transform: translateY(-5px) scale(1.05);
-        box-shadow: 0 8px 15px rgba(223, 38, 38, 0.4);
+        transform: scale(1.1) rotate(90deg);
+        box-shadow: 0 6px 30px rgba(78, 115, 223, 0.6);
+    }
+    
+    .btn-add-event i {
+        font-size: 24px;
+    }
+    
+    /* Cải thiện bố cục 3 khối */
+    .dashboard-row {
+        display: flex;
+        flex-wrap: wrap;
+        margin-right: -0.75rem;
+        margin-left: -0.75rem;
+    }
+    
+    .dashboard-col {
+        position: relative;
+        width: 100%;
+        padding-right: 0.75rem;
+        padding-left: 0.75rem;
+    }
+    
+    .dashboard-col-calendar {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+    
+    .dashboard-col-charts {
+        flex: 0 0 50%;
+        max-width: 50%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    @media (max-width: 1200px) {
+        .dashboard-col-calendar, .dashboard-col-charts {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+    }
+    
+    /* Tooltip cho sự kiện */
+    .fc-event-title {
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* Hiệu ứng hover cho ngày */
+    .fc-daygrid-day:hover {
+        background-color: rgba(78, 115, 223, 0.05);
+    }
+    
+    /* Cải thiện modal thêm sự kiện */
+    #addEventModal .modal-content {
+        border: none;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    #addEventModal .modal-header {
+        background: linear-gradient(to right, #4e73df, #224abe);
+        color: white;
+        border-radius: 0.5rem 0.5rem 0 0;
+    }
+    
+    #addEventModal .modal-footer {
+        border-top: 1px solid #e3e6f0;
+        background-color: #f8f9fc;
+        border-radius: 0 0 0.5rem 0.5rem;
+    }
+    
+    #addEventModal .btn-primary {
+        background-color: #4e73df;
+        border-color: #4e73df;
+    }
+    
+    #addEventModal .btn-primary:hover {
+        background-color: #2e59d9;
+        border-color: #2653d4;
+    }
+    
+    /* Cải thiện biểu đồ doanh thu */
+    .chart-area {
+        position: relative;
+        height: 250px !important;
+        width: 100%;
+        overflow: hidden;
     }
     
     /* Tab phần premium */
@@ -308,43 +534,178 @@
         visibility: visible;
         opacity: 1;
     }
+    
+    /* Cải thiện hiệu ứng cho bảng đơn hàng gần đây */
+    .table-hover tbody tr {
+        transition: all 0.2s ease;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: rgba(78, 115, 223, 0.05);
+        transform: translateX(5px);
+    }
+    
+    /* Badge trạng thái đơn hàng */
+    .badge {
+        padding: 0.5em 0.75em;
+        font-weight: 600;
+        border-radius: 30px;
+    }
+    
+    .badge-success {
+        background-color: #1cc88a;
+        color: white;
+    }
+    
+    .badge-warning {
+        background-color: #f6c23e;
+        color: white;
+    }
+    
+    .badge-danger {
+        background-color: #e74a3b;
+        color: white;
+    }
+    
+    .badge-primary {
+        background-color: #4e73df;
+        color: white;
+    }
+    
+    /* Bổ sung class cho badge mới */
+    .badge-info {
+        background-color: #36b9cc;
+        color: white;
+    }
+    
+    /* Cải thiện nút chi tiết */
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        line-height: 1.5;
+        border-radius: 0.2rem;
+    }
+    
+    .btn-primary {
+        background-color: #4e73df;
+        border-color: #4e73df;
+    }
+    
+    .btn-primary:hover {
+        background-color: #2e59d9;
+        border-color: #2653d4;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 {% csrf_token %}
-<!-- Page Heading -->
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Tổng quan</h1>
-    <div>
-        <button id="syncGoogleBtn" class="d-sm-inline-block btn sync-google shadow-sm mr-2">
-            <i class="fab fa-google fa-sm text-white-50 mr-1"></i> Đồng bộ Google
-        </button>
-        <button id="printCalendarBtn" class="d-sm-inline-block btn print-calendar shadow-sm">
-            <i class="fas fa-print fa-sm text-primary-50 mr-1"></i> In lịch
-        </button>
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Tổng quan</h1>
+        <div>
+            <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm mr-2" id="syncWithGoogle">
+                <i class="fas fa-sync fa-sm text-white-50 mr-1"></i> Đồng bộ với Google
+            </a>
+            <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" id="printCalendar">
+                <i class="fas fa-print fa-sm text-white-50 mr-1"></i> In lịch
+            </a>
+        </div>
     </div>
-</div>
 
-<!-- Thống kê -->
-<div class="row">
-    <!-- Tổng doanh thu -->
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card dashboard-card shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-uppercase mb-1">
-                            Doanh thu (tháng)</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">50.000.000đ</div>
-                        <div class="text-xs text-success mt-2">
-                            <i class="fas fa-arrow-up mr-1"></i>
-                            <span>12% so với tháng trước</span>
+    <!-- Thống kê tổng quan -->
+    <div class="row mb-4">
+        <!-- Tổng doanh thu -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card dashboard-card shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">
+                                Doanh thu (tháng)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">50.000.000đ</div>
+                            <div class="text-xs text-success mt-2">
+                                <i class="fas fa-arrow-up mr-1"></i>
+                                <span>12% so với tháng trước</span>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="stats-icon icon-primary">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-auto">
-                        <div class="stats-icon icon-primary">
-                            <i class="fas fa-dollar-sign"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tổng đơn hàng -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card dashboard-card shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">
+                                Đơn hàng (tháng)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">215</div>
+                            <div class="text-xs text-success mt-2">
+                                <i class="fas fa-arrow-up mr-1"></i>
+                                <span>8% so với tháng trước</span>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="stats-icon icon-success">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Người dùng mới -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card dashboard-card shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">
+                                Người dùng mới (tháng)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">82</div>
+                            <div class="text-xs text-success mt-2">
+                                <i class="fas fa-arrow-up mr-1"></i>
+                                <span>5% so với tháng trước</span>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="stats-icon icon-info">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tài khoản Premium -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card dashboard-card shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">
+                                Tài khoản Premium</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">45</div>
+                            <div class="text-xs text-danger mt-2">
+                                <i class="fas fa-clock mr-1"></i>
+                                <span>8 gói sắp hết hạn</span>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="stats-icon icon-warning">
+                                <i class="fas fa-crown"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -352,140 +713,203 @@
         </div>
     </div>
 
-    <!-- Tổng đơn hàng -->
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card dashboard-card shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-uppercase mb-1">
-                            Đơn hàng (tháng)</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">215</div>
-                        <div class="text-xs text-success mt-2">
-                            <i class="fas fa-arrow-up mr-1"></i>
-                            <span>8% so với tháng trước</span>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="stats-icon icon-success">
-                            <i class="fas fa-shopping-cart"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Người dùng mới -->
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card dashboard-card shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-uppercase mb-1">
-                            Người dùng mới (tháng)</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">82</div>
-                        <div class="text-xs text-success mt-2">
-                            <i class="fas fa-arrow-up mr-1"></i>
-                            <span>5% so với tháng trước</span>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="stats-icon icon-info">
-                            <i class="fas fa-users"></i>
+    <!-- Bố cục mới với chiều cao đồng đều -->
+    <div class="row equal-height-row">
+        <!-- Khối lịch sự kiện -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow h-100">
+                <!-- Thêm thông tin trạng thái đồng bộ vào header của khối lịch -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        Lịch sự kiện và nhắc nhở 
+                        <span class="ml-2" id="syncStatus"></span>
+                    </h6>
+                    <div>
+                        <small id="lastSyncTime" class="text-muted mr-2"></small>
+                        <div class="dropdown no-arrow">
+                            <a class="dropdown-toggle" href="#" role="button" id="calendarDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="calendarDropdown">
+                                <div class="dropdown-header">Tùy chọn:</div>
+                                <a class="dropdown-item" href="#" id="syncWithGoogleDropdown">
+                                    <i class="fas fa-sync fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Đồng bộ với Google
+                                </a>
+                                <a class="dropdown-item" href="#" id="printCalendarDropdown">
+                                    <i class="fas fa-print fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    In lịch
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tài khoản Premium -->
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card dashboard-card shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-uppercase mb-1">
-                            Tài khoản Premium</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">45</div>
-                        <div class="text-xs text-danger mt-2">
-                            <i class="fas fa-clock mr-1"></i>
-                            <span>8 gói sắp hết hạn</span>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="stats-icon icon-warning">
-                            <i class="fas fa-crown"></i>
-                        </div>
-                    </div>
+                <div class="card-body calendar-container p-0">
+                    <div id="calendar"></div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-
-<!-- Lịch và biểu đồ-->
-<div class="row">
-    <!-- Lịch -->
-    <div class="col-xl-8 col-lg-7">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">Lịch sự kiện và nhắc nhở</h6>
-                <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="calendarDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="calendarDropdown">
-                        <div class="dropdown-header">Tùy chọn lịch:</div>
-                        <a class="dropdown-item" href="#" id="refreshCalendar">
-                            <i class="fas fa-sync fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Làm mới lịch
+        
+        <!-- Khối biểu đồ bên phải -->
+        <div class="col-xl-6 col-lg-6">
+            <!-- Biểu đồ doanh thu -->
+            <div class="card shadow chart-card">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Doanh thu</h6>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-sm btn-outline-primary time-filter-btn active" data-filter="month">Tháng</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary time-filter-btn" data-filter="quarter">Quý</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary time-filter-btn" data-filter="year">Năm</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="exportRevenueBtn">
+                            <i class="fas fa-file-export fa-sm"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area card-chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Biểu đồ lợi nhuận -->
+            <div class="card shadow chart-card">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Lợi nhuận</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="profitDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
                         </a>
-                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addEventModal">
-                            <i class="fas fa-plus fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Thêm sự kiện
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#" id="syncWithGoogle">
-                            <i class="fab fa-google fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Đồng bộ Google Calendar
-                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="profitDropdown">
+                            <div class="dropdown-header">Tùy chọn:</div>
+                            <a class="dropdown-item" href="#" id="exportProfitBtn">
+                                <i class="fas fa-file-export fa-sm fa-fw mr-2 text-gray-400"></i>
+                                Xuất báo cáo
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="card-body calendar-container">
-                <div id="calendar"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Biểu đồ -->
-    <div class="col-xl-4 col-lg-5">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">Doanh thu theo tháng</h6>
-                <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="revenueDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="revenueDropdown">
-                        <div class="dropdown-header">Thời gian:</div>
-                        <a class="dropdown-item chart-period active" href="#" data-period="month">Theo tháng</a>
-                        <a class="dropdown-item chart-period" href="#" data-period="quarter">Theo quý</a>
-                        <a class="dropdown-item chart-period" href="#" data-period="year">Theo năm</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Xuất báo cáo</a>
+                <div class="card-body">
+                    <div class="chart-area card-chart-container">
+                        <canvas id="profitChart"></canvas>
                     </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="chart-container">
-                    <canvas id="revenueChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
+    
+    <!-- Thêm hàng mới với đơn hàng gần đây và trạng thái đơn hàng -->
+    <div class="row equal-height-row">
+        <!-- Đơn hàng gần đây -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Đơn hàng gần đây</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="ordersDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="ordersDropdown">
+                            <div class="dropdown-header">Tùy chọn:</div>
+                            <a class="dropdown-item" href="#">
+                                <i class="fas fa-shopping-cart fa-sm fa-fw mr-2 text-gray-400"></i>
+                                Xem tất cả đơn hàng
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Mã đơn</th>
+                                    <th>Khách hàng</th>
+                                    <th>Ngày đặt</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Trạng thái</th>
+                                    <th>Chi tiết</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#ORD-4872</td>
+                                    <td>Nguyễn Văn A</td>
+                                    <td>20/07/2023</td>
+                                    <td>1.500.000đ</td>
+                                    <td><span class="badge badge-success">Hoàn thành</span></td>
+                                    <td><a href="#" class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></a></td>
+                                </tr>
+                                <tr>
+                                    <td>#ORD-4871</td>
+                                    <td>Trần Thị B</td>
+                                    <td>19/07/2023</td>
+                                    <td>2.700.000đ</td>
+                                    <td><span class="badge badge-info">Đang giao</span></td>
+                                    <td><a href="#" class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></a></td>
+                                </tr>
+                                <tr>
+                                    <td>#ORD-4870</td>
+                                    <td>Lê Văn C</td>
+                                    <td>19/07/2023</td>
+                                    <td>850.000đ</td>
+                                    <td><span class="badge badge-primary">Đang xử lý</span></td>
+                                    <td><a href="#" class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></a></td>
+                                </tr>
+                                <tr>
+                                    <td>#ORD-4869</td>
+                                    <td>Phạm Thị D</td>
+                                    <td>18/07/2023</td>
+                                    <td>3.200.000đ</td>
+                                    <td><span class="badge badge-danger">Đã hủy</span></td>
+                                    <td><a href="#" class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></a></td>
+                                </tr>
+                                <tr>
+                                    <td>#ORD-4868</td>
+                                    <td>Hoàng Văn E</td>
+                                    <td>17/07/2023</td>
+                                    <td>1.200.000đ</td>
+                                    <td><span class="badge badge-success">Hoàn thành</span></td>
+                                    <td><a href="#" class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Trạng thái đơn hàng -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Trạng thái đơn hàng</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="statusDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="statusDropdown">
+                            <div class="dropdown-header">Tùy chọn:</div>
+                            <a class="dropdown-item" href="#">
+                                <i class="fas fa-chart-pie fa-sm fa-fw mr-2 text-gray-400"></i>
+                                Xem báo cáo đầy đủ
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area card-chart-container">
+                        <canvas id="orderStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Nút thêm sự kiện cố định -->
+    <button class="btn-add-event" id="addEventBtn" title="Thêm sự kiện mới">
+        <i class="fas fa-plus"></i>
+    </button>
 </div>
 
 <!-- Đơn hàng gần đây và biểu đồ -->
@@ -623,51 +1047,28 @@
 <!-- Tài khoản Premium -->
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <ul class="nav nav-tabs premium-tabs" id="premiumTab" role="tablist">
+        <ul class="nav nav-tabs" id="subscriptionTabs" role="tablist">
             <li class="nav-item" role="presentation">
-                <a class="nav-link active" id="expired-tab" data-toggle="tab" href="#expired" role="tab" aria-controls="expired" aria-selected="true">
-                    <i class="fas fa-exclamation-circle text-danger mr-1"></i> Quá hạn (<span id="expiredCount">0</span>)
+                <a class="nav-link subscription-tab" id="today-tab" data-bs-toggle="tab" href="#today" role="tab" aria-controls="today" aria-selected="true">
+                    Hôm nay <span class="badge bg-danger ml-1" id="todayCount">0</span>
                 </a>
             </li>
             <li class="nav-item" role="presentation">
-                <a class="nav-link" id="today-tab" data-toggle="tab" href="#today" role="tab" aria-controls="today" aria-selected="false">
-                    <i class="fas fa-calendar-day text-warning mr-1"></i> Hôm nay (<span id="todayCount">0</span>)
+                <a class="nav-link subscription-tab" id="upcoming-tab" data-bs-toggle="tab" href="#upcoming" role="tab" aria-controls="upcoming" aria-selected="false">
+                    Sắp tới <span class="badge bg-warning ml-1" id="upcomingCount">0</span>
                 </a>
             </li>
             <li class="nav-item" role="presentation">
-                <a class="nav-link" id="upcoming-tab" data-toggle="tab" href="#upcoming" role="tab" aria-controls="upcoming" aria-selected="false">
-                    <i class="fas fa-calendar-alt text-info mr-1"></i> Sắp tới (<span id="upcomingCount">0</span>)
+                <a class="nav-link subscription-tab" id="expired-tab" data-bs-toggle="tab" href="#expired" role="tab" aria-controls="expired" aria-selected="false">
+                    Đã hết hạn <span class="badge bg-secondary ml-1" id="expiredCount">0</span>
                 </a>
             </li>
         </ul>
     </div>
     <div class="card-body">
-        <div class="tab-content" id="premiumTabContent">
-            <!-- Tab Quá hạn -->
-            <div class="tab-pane fade show active" id="expired" role="tabpanel" aria-labelledby="expired-tab">
-                <div class="table-responsive">
-                    <table class="table table-bordered premium-table" id="expiredTable" width="100%" cellspacing="0">
-                        <thead>
-                            <tr>
-                                <th>Sản phẩm</th>
-                                <th>Thời hạn</th>
-                                <th>Người dùng</th>
-                                <th>Ngày hết hạn</th>
-                                <th>Quá hạn</th>
-                                <th>Trạng thái</th>
-                                <th>Hành động</th>
-                                <th>Chi tiết</th>
-                            </tr>
-                        </thead>
-                        <tbody id="expiredTableBody">
-                            <!-- Dữ liệu sẽ được thêm từ API -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
+        <div class="tab-content" id="subscriptionTabsContent">
             <!-- Tab Hôm nay -->
-            <div class="tab-pane fade" id="today" role="tabpanel" aria-labelledby="today-tab">
+            <div class="tab-pane fade show active" id="today" role="tabpanel" aria-labelledby="today-tab">
                 <div class="table-responsive">
                     <table class="table table-bordered premium-table" id="todayTable" width="100%" cellspacing="0">
                         <thead>
@@ -710,49 +1111,77 @@
                     </table>
                 </div>
             </div>
+            
+            <!-- Tab Quá hạn -->
+            <div class="tab-pane fade" id="expired" role="tabpanel" aria-labelledby="expired-tab">
+                <div class="table-responsive">
+                    <table class="table table-bordered premium-table" id="expiredTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th>Thời hạn</th>
+                                <th>Người dùng</th>
+                                <th>Ngày hết hạn</th>
+                                <th>Quá hạn</th>
+                                <th>Trạng thái</th>
+                                <th>Hành động</th>
+                                <th>Chi tiết</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expiredTableBody">
+                            <!-- Dữ liệu sẽ được thêm từ API -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Nút thêm sự kiện -->
-<div class="btn-add-event" data-toggle="modal" data-target="#addEventModal">
-    <i class="fas fa-plus"></i>
-</div>
-
-<!-- Modal Thêm sự kiện -->
-<div class="modal fade" id="addEventModal" tabindex="-1" role="dialog" aria-labelledby="addEventModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+<!-- Cập nhật modal thêm sự kiện -->
+<div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="addEventModalLabel">Thêm sự kiện mới</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="addEventForm">
-                    <div class="form-group">
-                        <label for="eventTitle">Tiêu đề sự kiện</label>
-                        <input type="text" class="form-control" id="eventTitle" placeholder="Nhập tiêu đề sự kiện">
+                    <div class="mb-3">
+                        <label for="eventTitle" class="form-label">Tiêu đề</label>
+                        <input type="text" class="form-control" id="eventTitle" required>
                     </div>
-                    <div class="form-group">
-                        <label for="eventStart">Thời gian bắt đầu</label>
-                        <input type="datetime-local" class="form-control" id="eventStart">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="eventStartDate" class="form-label">Ngày bắt đầu</label>
+                            <input type="date" class="form-control" id="eventStartDate" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="eventStartTime" class="form-label">Giờ bắt đầu</label>
+                            <input type="time" class="form-control" id="eventStartTime">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="eventEnd">Thời gian kết thúc</label>
-                        <input type="datetime-local" class="form-control" id="eventEnd">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="eventEndDate" class="form-label">Ngày kết thúc</label>
+                            <input type="date" class="form-control" id="eventEndDate">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="eventEndTime" class="form-label">Giờ kết thúc</label>
+                            <input type="time" class="form-control" id="eventEndTime">
+                        </div>
                     </div>
-                    <div class="custom-control custom-checkbox mb-3">
-                        <input type="checkbox" class="custom-control-input" id="allDayEvent">
-                        <label class="custom-control-label" for="allDayEvent">Cả ngày</label>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="allDayEvent">
+                        <label class="form-check-label" for="allDayEvent">Cả ngày</label>
                     </div>
-                    <div class="form-group">
-                        <label for="eventDescription">Mô tả</label>
+                    <div class="mb-3">
+                        <label for="eventDescription" class="form-label">Mô tả</label>
                         <textarea class="form-control" id="eventDescription" rows="3"></textarea>
                     </div>
-                    <div class="form-group">
-                        <label for="eventColor">Màu sắc</label>
+                    <div class="mb-3">
+                        <label for="eventColor" class="form-label">Màu sắc</label>
                         <select class="form-control" id="eventColor">
                             <option value="#df2626">Đỏ</option>
                             <option value="#1cc88a">Xanh lá</option>
@@ -764,7 +1193,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
                 <button type="button" class="btn btn-primary" id="saveEventBtn">
                     <i class="fas fa-save"></i> Lưu sự kiện
                 </button>
@@ -795,28 +1224,22 @@
 </div>
 
 <!-- Modal Chi tiết đơn hàng -->
-<div class="modal fade" id="orderDetailModal" tabindex="-1" role="dialog" aria-labelledby="orderDetailModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="orderDetailModalLabel">Chi tiết đơn hàng</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body" id="orderDetailContent">
-                <div class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="sr-only">Đang tải...</span>
-                    </div>
-                    <p class="mt-3">Đang tải thông tin đơn hàng...</p>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
-            </div>
-        </div>
+<div class="modal fade" id="orderDetailModal" tabindex="-1" aria-labelledby="orderDetailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="orderDetailModalLabel">Chi tiết đơn hàng</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="orderDetailContent">
+        <!-- Nội dung sẽ được điền bởi JavaScript -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+        <button type="button" class="btn btn-primary">Xem chi tiết</button>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Modal Nhắc nhở Gia hạn -->
@@ -988,870 +1411,792 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/main.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/locales/vi.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        
-        // Khởi tạo biểu đồ doanh thu
-        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-        const revenueChart = new Chart(revenueCtx, {
+$(document).ready(function() {
+    // ======= KHỞI TẠO BIỂU ĐỒ DOANH THU =======
+    var revenueCtx = document.getElementById('revenueChart');
+    
+    if (revenueCtx) {
+        var revenueChart = new Chart(revenueCtx.getContext('2d'), {
             type: 'line',
             data: {
                 labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
                 datasets: [{
-                    label: 'Doanh thu (triệu đồng)',
-                    data: [65, 59, 80, 81, 90, 102, 120, 130, 115, 125, 132, 150],
-                    backgroundColor: 'rgba(223, 38, 38, 0.1)',
-                    borderColor: '#df2626',
-                    borderWidth: 3,
-                    pointBackgroundColor: '#df2626',
+                    label: 'Doanh thu',
+                    data: [5000000, 7500000, 8200000, 7800000, 9000000, 12000000, 11500000, 10800000, 13200000, 14500000, 15800000, 18000000],
+                    borderColor: '#4e73df',
+                    backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                    pointBackgroundColor: '#4e73df',
                     pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 5,
-                    tension: 0.4,
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#4e73df',
+                    tension: 0.3,
                     fill: true
                 }]
             },
             options: {
-                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: {
+                            display: false,
+                            drawBorder: false
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            callback: function(value) {
+                                return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(value);
+                            }
+                        },
+                        grid: {
+                            color: "rgb(234, 236, 244)",
+                            drawBorder: false,
+                            borderDash: [2],
+                        }
+                    }
+                },
                 plugins: {
                     legend: {
-                        position: 'top',
+                        display: false
                     },
                     tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleFont: {
-                            size: 14
-                        },
-                        bodyFont: {
-                            size: 13
-                        },
                         callbacks: {
                             label: function(context) {
-                                return context.dataset.label + ': ' + context.raw + ' triệu đồng';
+                                return 'Doanh thu: ' + new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(context.raw);
                             }
                         }
                     }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            borderDash: [3, 3]
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                },
-                animation: {
-                    duration: 1000,
-                    easing: 'easeOutQuart'
                 }
             }
         });
         
-        // Khởi tạo biểu đồ lợi nhuận
-        const profitCtx = document.getElementById('profitChart').getContext('2d');
-        const profitChart = new Chart(profitCtx, {
-            type: 'line',
-            data: {
-                labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
-                datasets: [{
-                    label: 'Lợi nhuận (triệu đồng)',
-                    data: [25, 29, 40, 51, 46, 58, 75, 82, 68, 74, 85, 95],
-                    backgroundColor: 'rgba(28, 200, 138, 0.1)',
-                    borderColor: '#1cc88a',
-                    borderWidth: 3,
-                    pointBackgroundColor: '#1cc88a',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 5,
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleFont: {
-                            size: 14
-                        },
-                        bodyFont: {
-                            size: 13
-                        },
-                        callbacks: {
-                            label: function(context) {
-                                return context.dataset.label + ': ' + context.raw + ' triệu đồng';
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            borderDash: [3, 3]
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                },
-                animation: {
-                    duration: 1200,
-                    easing: 'easeOutQuart'
-                }
-            }
-        });
+        // Dữ liệu doanh thu theo quý và năm
+        var quarterlyData = {
+            labels: ['Quý 1', 'Quý 2', 'Quý 3', 'Quý 4'],
+            data: [20700000, 28800000, 35500000, 48300000]
+        };
         
-        // Khởi tạo biểu đồ trạng thái đơn hàng
-        const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
-        const orderStatusChart = new Chart(orderStatusCtx, {
+        var yearlyData = {
+            labels: ['2020', '2021', '2022', '2023', '2024', '2025'],
+            data: [85000000, 110000000, 133000000, 156000000, 178000000, 133300000]
+        };
+        
+        var monthlyData = {
+            labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
+            data: [5000000, 7500000, 8200000, 7800000, 9000000, 12000000, 11500000, 10800000, 13200000, 14500000, 15800000, 18000000]
+        };
+        
+        // Xử lý nút lọc thời gian
+        $('.time-filter-btn').on('click', function() {
+            // Loại bỏ active class từ tất cả các nút
+            $('.time-filter-btn').removeClass('active');
+            // Thêm active class vào nút được click
+            $(this).addClass('active');
+            
+            // Lấy loại filter
+            var filterType = $(this).data('filter');
+            
+            // Ẩn biểu đồ với hiệu ứng fade
+            $('#revenueChart').css('opacity', '0.3');
+            
+            // Đợi 300ms cho hiệu ứng fade
+            setTimeout(function() {
+                // Cập nhật dữ liệu và nhãn cho biểu đồ dựa trên loại filter
+                if (filterType === 'month') {
+                    updateChartData(revenueChart, monthlyData.labels, monthlyData.data);
+                } else if (filterType === 'quarter') {
+                    updateChartData(revenueChart, quarterlyData.labels, quarterlyData.data);
+                } else if (filterType === 'year') {
+                    updateChartData(revenueChart, yearlyData.labels, yearlyData.data);
+                }
+                
+                // Hiển thị lại biểu đồ
+                $('#revenueChart').css('opacity', '1');
+            }, 300);
+        });
+    }
+    
+    // ======= KHỞI TẠO BIỂU ĐỒ TRẠNG THÁI ĐƠN HÀNG =======
+    var orderStatusCtx = document.getElementById('orderStatusChart');
+    if (orderStatusCtx) {
+        var orderStatusChart = new Chart(orderStatusCtx.getContext('2d'), {
             type: 'doughnut',
             data: {
-                labels: ['Đã hoàn thành', 'Đang xử lý', 'Đã hủy', 'Đang giao hàng'],
+                labels: ['Hoàn thành', 'Đang xử lý', 'Đã hủy', 'Chờ thanh toán'],
                 datasets: [{
-                    data: [50, 30, 10, 10],
+                    data: [58, 25, 10, 7],
                     backgroundColor: ['#1cc88a', '#4e73df', '#e74a3b', '#f6c23e'],
-                    hoverBackgroundColor: ['#19b87a', '#3a5ecc', '#d42d1d', '#e3af23'],
+                    hoverBackgroundColor: ['#169e6e', '#2e59d9', '#c9362a', '#daa520'],
                     hoverBorderColor: "rgba(234, 236, 244, 1)",
-                }]
+                }],
             },
             options: {
-                responsive: true,
                 maintainAspectRatio: false,
+                cutout: '70%',
                 plugins: {
                     legend: {
-                        position: 'right',
+                        position: 'bottom',
                         labels: {
                             usePointStyle: true,
-                            pointStyle: 'circle',
-                            padding: 15
+                            padding: 20
                         }
                     },
                     tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleFont: {
-                            size: 14
-                        },
-                        bodyFont: {
-                            size: 13
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((acc, data) => acc + data, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} đơn (${percentage}%)`;
+                            }
                         }
                     }
-                },
-                cutout: '70%',
-                elements: {
-                    arc: {
-                        borderWidth: 0
-                    }
-                },
-                animation: {
-                    animateScale: true,
-                    animateRotate: true
                 }
             }
         });
+    }
+    
+    // Hàm cập nhật dữ liệu biểu đồ
+    function updateChartData(chart, labels, data) {
+        chart.data.labels = labels;
+        chart.data.datasets[0].data = data;
+        chart.update();
+    }
+    
+    // ======= KHỞI TẠO FULLCALENDAR =======
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
         
-        // Khởi tạo DataTables
-        $('#premiumTable, #recentOrdersTable').DataTable({
-            responsive: true,
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/vi.json'
-            },
-            pageLength: 5,
-            lengthMenu: [5, 10, 25, 50]
-        });
-        
-        // Khởi tạo FullCalendar
-        const calendarEl = document.getElementById('calendar');
         if (calendarEl) {
-            const calendar = new FullCalendar.Calendar(calendarEl, {
+            var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
+                locale: 'vi',
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
                 },
-                locale: 'vi',
+                buttonText: {
+                    today: 'Hôm nay',
+                    month: 'Tháng',
+                    week: 'Tuần',
+                    day: 'Ngày',
+                    list: 'Danh sách'
+                },
+                height: 'auto',
+                navLinks: true,
                 editable: true,
                 selectable: true,
-                businessHours: true,
+                nowIndicator: true,
                 dayMaxEvents: true,
-                events: '/dashboard/api/calendar/events/',
-                eventClick: function(info) {
-                    // Hiển thị chi tiết sự kiện
-                    const event = info.event;
-                    const title = event.title;
-                    const start = event.start;
-                    const end = event.end || start;
-                    const allDay = event.allDay;
-                    const status = event.extendedProps.status;
-                    const username = event.extendedProps.username;
-                    
-                    let detailHTML = `
-                        <div class="p-3">
-                            <h5 class="mb-3 font-weight-bold">${title}</h5>
-                            <p><strong>Thời gian:</strong> ${formatEventDate(start, end, allDay)}</p>
-                    `;
-                    
-                    if (status) {
-                        detailHTML += `<p><strong>Trạng thái:</strong> ${translateStatus(status)}</p>`;
-                    }
-                    
-                    if (username) {
-                        detailHTML += `<p><strong>Người dùng:</strong> ${username}</p>`;
-                    }
-                    
-                    if (event.extendedProps.description) {
-                        detailHTML += `<p><strong>Mô tả:</strong> ${event.extendedProps.description}</p>`;
-                    }
-                    
-                    // Kiểm tra nếu là sự kiện premium subscription để hiển thị nút nhắc nhở
-                    if (status === 'not_reminded') {
-                        detailHTML += `
-                            <div class="mt-3">
-                                <button class="btn btn-primary btn-block" onclick="showReminderModal(${event.id})">
-                                    <i class="fas fa-bell mr-2"></i> Gửi nhắc nhở gia hạn
-                                </button>
-                            </div>
-                        `;
-                    }
-                    
-                    detailHTML += `</div>`;
-                    
-                    // Hiển thị modal chi tiết
-                    document.getElementById('eventDetailContent').innerHTML = detailHTML;
-                    $('#eventDetailModal').modal('show');
-                    
-                    // Hiển thị nút xóa cho sự kiện custom
-                    const deleteBtn = document.getElementById('deleteEventBtn');
-                    if (event.id.toString().startsWith('custom-')) {
-                        deleteBtn.classList.remove('d-none');
-                        deleteBtn.onclick = function() {
-                            if (confirm('Bạn có chắc chắn muốn xóa sự kiện này?')) {
-                                event.remove();
-                                $('#eventDetailModal').modal('hide');
-                                showToast('Đã xóa sự kiện thành công!', 'success');
-                            }
-                        };
-                    } else {
-                        deleteBtn.classList.add('d-none');
-                    }
+                eventTimeFormat: {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    meridiem: false
                 },
-                // Chức năng kéo chọn khoảng thời gian trên lịch
+                events: [
+                    {
+                        id: '1',
+                        title: 'Họp đội ngũ phát triển',
+                        start: '2023-07-20T10:00:00',
+                        end: '2023-07-20T12:00:00',
+                        className: 'bg-primary',
+                        extendedProps: {
+                            description: 'Thảo luận về các tính năng mới của ứng dụng',
+                            type: 'meeting'
+                        }
+                    },
+                    {
+                        id: '2',
+                        title: 'Hạn chót dự án website',
+                        start: '2023-07-25',
+                        allDay: true,
+                        className: 'bg-danger',
+                        extendedProps: {
+                            description: 'Hoàn thiện và giao nộp dự án website cho khách hàng',
+                            type: 'deadline'
+                        }
+                    },
+                    {
+                        id: '3',
+                        title: 'Nhắc nhở: Thanh toán chi phí server',
+                        start: '2023-07-15',
+                        allDay: true,
+                        className: 'bg-warning',
+                        extendedProps: {
+                            description: 'Thanh toán phí gia hạn server hàng tháng',
+                            type: 'reminder'
+                        }
+                    }
+                ],
+                // Xử lý khi click vào ngày
+                dateClick: function(info) {
+                    showAddEventModal(info.dateStr, info.dateStr);
+                },
+                // Xử lý khi chọn phạm vi ngày
                 select: function(info) {
-                    // Lấy thông tin ngày bắt đầu và kết thúc
-                    const startDate = info.start;
-                    const endDate = info.end;
-                    
-                    // Nếu là sự kiện cả ngày, end sẽ là ngày tiếp theo, nên cần trừ đi 1 ngày
-                    const displayEndDate = info.allDay ? new Date(endDate.getTime() - 86400000) : endDate;
-                    
-                    // Điền sẵn thông tin vào modal
-                    document.getElementById('eventTitle').value = '';
-                    document.getElementById('eventStart').value = formatDateTimeLocal(startDate);
-                    document.getElementById('eventEnd').value = formatDateTimeLocal(displayEndDate);
-                    document.getElementById('allDayEvent').checked = info.allDay;
-                    document.getElementById('eventDescription').value = '';
-                    
-                    // Hiển thị modal
-                    $('#addEventModal').modal('show');
+                    showAddEventModal(info.startStr, info.endStr);
+                },
+                // Xử lý khi click vào sự kiện
+                eventClick: function(info) {
+                    showEventDetails(info.event);
                 }
             });
             
             calendar.render();
-            
-            // Hiển thị nút tùy chọn lịch ở góc phải trên
-            const calendarTools = document.createElement('div');
-            calendarTools.className = 'calendar-tools position-absolute';
-            calendarTools.style.cssText = 'top: 15px; right: 15px; z-index: 5;';
-            calendarTools.innerHTML = `
-                <div class="btn-group">
-                    <button id="refreshCalendarBtn" class="btn btn-sm btn-outline-primary" title="Làm mới lịch">
-                        <i class="fas fa-sync-alt"></i>
-                    </button>
-                    <button id="addEventBtnTop" class="btn btn-sm btn-outline-success" title="Thêm sự kiện">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                    <button id="syncGoogleCalendarBtn" class="btn btn-sm btn-outline-info" title="Đồng bộ Google Calendar">
-                        <i class="fab fa-google"></i>
-                    </button>
-                    <button id="printCalendarBtn" class="btn btn-sm btn-outline-dark" title="In lịch">
-                        <i class="fas fa-print"></i>
-                    </button>
-                </div>
-            `;
-            document.querySelector('.calendar-container').appendChild(calendarTools);
-            
-            // Chức năng làm mới lịch
-            document.getElementById('refreshCalendarBtn').addEventListener('click', function() {
-                calendar.refetchEvents();
-                showToast('Đã làm mới lịch thành công!', 'success');
-            });
-            
-            // Chức năng thêm sự kiện từ nút trên đầu
-            document.getElementById('addEventBtnTop').addEventListener('click', function() {
-                $('#addEventModal').modal('show');
-            });
-            
-            // Chức năng đồng bộ với Google Calendar
-            document.getElementById('syncGoogleCalendarBtn').addEventListener('click', function() {
-                // Hiển thị toast thông báo
-                showToast('Đang đồng bộ với Google Calendar...', 'info');
-                
-                // Giả lập đồng bộ thành công sau 2 giây
-                setTimeout(() => {
-                    showToast('Đồng bộ thành công với Google Calendar!', 'success');
-                }, 2000);
-            });
-            
-            // Chức năng in lịch
-            document.getElementById('printCalendarBtn').addEventListener('click', function() {
-                // Tạo style cho trang in
-                const style = document.createElement('style');
-                style.innerHTML = `
-                    @media print {
-                        body * {
-                            visibility: hidden;
-                        }
-                        .calendar-container, .calendar-container * {
-                            visibility: visible;
-                        }
-                        .calendar-container {
-                            position: absolute;
-                            left: 0;
-                            top: 0;
-                            width: 100%;
-                        }
-                        .fc-header-toolbar {
-                            margin-top: 20px !important;
-                        }
-                        .calendar-tools {
-                            display: none !important;
-                        }
-                    }
-                `;
-                document.head.appendChild(style);
-                
-                // Hiển thị thông báo
-                showToast('Đang chuẩn bị in lịch...', 'info');
-                
-                // Thực hiện in sau 1 giây
-                setTimeout(() => {
-                    window.print();
-                    // Xóa style sau khi in
-                    document.head.removeChild(style);
-                }, 1000);
-            });
-            
-            // Xử lý nút FloatingAction để thêm sự kiện mới
-            document.querySelector('.btn-add-event').addEventListener('click', function() {
-                $('#addEventModal').modal('show');
-            });
-            
-            // Xử lý thêm sự kiện mới
-            document.getElementById('saveEventBtn').addEventListener('click', function() {
-                const title = document.getElementById('eventTitle').value.trim();
-                const start = document.getElementById('eventStart').value;
-                const end = document.getElementById('eventEnd').value;
-                const allDay = document.getElementById('allDayEvent').checked;
-                const description = document.getElementById('eventDescription').value.trim();
-                const color = document.getElementById('eventColor').value;
-                
+            window.calendar = calendar;
+        }
+    });
+    
+    // ======= XỬ LÝ THÊM SỰ KIỆN =======
+    function showAddEventModal(startDate, endDate) {
+        Swal.fire({
+            title: 'Thêm sự kiện mới',
+            html: `
+                <form id="addEventForm" class="text-left">
+                    <div class="mb-3">
+                        <label for="eventTitle" class="form-label">Tiêu đề <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="eventTitle" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventType" class="form-label">Loại sự kiện</label>
+                        <select class="form-control" id="eventType">
+                            <option value="meeting">Cuộc họp</option>
+                            <option value="deadline">Hạn chót</option>
+                            <option value="reminder">Nhắc nhở</option>
+                            <option value="other">Khác</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventStartDate" class="form-label">Ngày bắt đầu</label>
+                        <input type="date" class="form-control" id="eventStartDate" value="${startDate}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventEndDate" class="form-label">Ngày kết thúc</label>
+                        <input type="date" class="form-control" id="eventEndDate" value="${endDate}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventDescription" class="form-label">Mô tả</label>
+                        <textarea class="form-control" id="eventDescription" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="allDayEvent" checked>
+                        <label class="form-check-label" for="allDayEvent">Cả ngày</label>
+                    </div>
+                </form>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Lưu',
+            cancelButtonText: 'Hủy bỏ',
+            preConfirm: () => {
+                const title = document.getElementById('eventTitle').value;
                 if (!title) {
-                    showToast('Vui lòng nhập tiêu đề sự kiện', 'error');
-                    return;
+                    Swal.showValidationMessage('Vui lòng nhập tiêu đề sự kiện');
+                    return false;
                 }
-                
-                if (!start) {
-                    showToast('Vui lòng chọn thời gian bắt đầu', 'error');
-                    return;
+                return {
+                    title: title,
+                    start: document.getElementById('eventStartDate').value,
+                    end: document.getElementById('eventEndDate').value,
+                    description: document.getElementById('eventDescription').value,
+                    type: document.getElementById('eventType').value,
+                    allDay: document.getElementById('allDayEvent').checked
+                };
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                addNewEvent(result.value);
+            }
+        });
+    }
+    
+    // Hàm thêm sự kiện mới
+    function addNewEvent(eventData) {
+        // Thêm sự kiện mới vào lịch
+        const newEvent = {
+            id: 'new-' + new Date().getTime(),
+            title: eventData.title,
+            start: eventData.start,
+            end: eventData.end || eventData.start,
+            allDay: eventData.allDay,
+            className: getEventClassName(eventData.type),
+            extendedProps: {
+                description: eventData.description,
+                type: eventData.type
+            }
+        };
+        
+        if (window.calendar) {
+            window.calendar.addEvent(newEvent);
+            
+            // Thông báo thành công
+            Swal.fire({
+                title: 'Thành công!',
+                text: 'Đã thêm sự kiện mới vào lịch',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+    }
+    
+    // Hàm hiển thị chi tiết sự kiện
+    function showEventDetails(event) {
+        Swal.fire({
+            title: event.title,
+            html: `
+                <div class="text-left">
+                    <p><strong>Thời gian:</strong> ${formatEventDate(event.start, event.end, event.allDay)}</p>
+                    <p><strong>Loại sự kiện:</strong> ${getEventTypeName(event.extendedProps.type)}</p>
+                    ${event.extendedProps.description ? `<p><strong>Mô tả:</strong> ${event.extendedProps.description}</p>` : ''}
+                </div>
+            `,
+            showCancelButton: true,
+            showDenyButton: true,
+            confirmButtonText: 'Chỉnh sửa',
+            denyButtonText: 'Xóa',
+            cancelButtonText: 'Đóng'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Chỉnh sửa sự kiện
+                editEvent(event);
+            } else if (result.isDenied) {
+                // Xóa sự kiện
+                deleteEvent(event);
+            }
+        });
+    }
+    
+    // Hàm chỉnh sửa sự kiện
+    function editEvent(event) {
+        // Chuẩn bị dữ liệu cho form chỉnh sửa
+        const startDate = event.start ? event.start.toISOString().slice(0, 10) : '';
+        const endDate = event.end ? event.end.toISOString().slice(0, 10) : startDate;
+        
+        Swal.fire({
+            title: 'Chỉnh sửa sự kiện',
+            html: `
+                <form id="editEventForm" class="text-left">
+                    <div class="mb-3">
+                        <label for="editEventTitle" class="form-label">Tiêu đề <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editEventTitle" value="${event.title}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editEventType" class="form-label">Loại sự kiện</label>
+                        <select class="form-control" id="editEventType">
+                            <option value="meeting" ${event.extendedProps.type === 'meeting' ? 'selected' : ''}>Cuộc họp</option>
+                            <option value="deadline" ${event.extendedProps.type === 'deadline' ? 'selected' : ''}>Hạn chót</option>
+                            <option value="reminder" ${event.extendedProps.type === 'reminder' ? 'selected' : ''}>Nhắc nhở</option>
+                            <option value="other" ${event.extendedProps.type === 'other' ? 'selected' : ''}>Khác</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editEventStartDate" class="form-label">Ngày bắt đầu</label>
+                        <input type="date" class="form-control" id="editEventStartDate" value="${startDate}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editEventEndDate" class="form-label">Ngày kết thúc</label>
+                        <input type="date" class="form-control" id="editEventEndDate" value="${endDate}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editEventDescription" class="form-label">Mô tả</label>
+                        <textarea class="form-control" id="editEventDescription" rows="3">${event.extendedProps.description || ''}</textarea>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="editAllDayEvent" ${event.allDay ? 'checked' : ''}>
+                        <label class="form-check-label" for="editAllDayEvent">Cả ngày</label>
+                    </div>
+                </form>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Lưu',
+            cancelButtonText: 'Hủy bỏ',
+            preConfirm: () => {
+                const title = document.getElementById('editEventTitle').value;
+                if (!title) {
+                    Swal.showValidationMessage('Vui lòng nhập tiêu đề sự kiện');
+                    return false;
                 }
-                
-                // Gửi dữ liệu lên server
-                fetch('/dashboard/api/calendar/add-event/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken
-                    },
-                    body: JSON.stringify({
-                        title: title,
-                        start: start,
-                        end: end || start,
-                        allDay: allDay,
-                        description: description,
-                        color: color
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        // Thêm sự kiện vào calendar
-                        calendar.addEvent({
-                            id: data.event.id,
-                            title: title,
-                            start: start,
-                            end: end || start,
-                            allDay: allDay,
-                            backgroundColor: color,
-                            borderColor: color,
-                            extendedProps: {
-                                description: description
+                return {
+                    title: title,
+                    start: document.getElementById('editEventStartDate').value,
+                    end: document.getElementById('editEventEndDate').value,
+                    description: document.getElementById('editEventDescription').value,
+                    type: document.getElementById('editEventType').value,
+                    allDay: document.getElementById('editAllDayEvent').checked
+                };
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                updateEvent(event, result.value);
+            }
+        });
+    }
+    
+    // Hàm xóa sự kiện
+    function deleteEvent(event) {
+        Swal.fire({
+            title: 'Xác nhận xóa?',
+            text: 'Bạn có chắc chắn muốn xóa sự kiện này không?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Xóa',
+            cancelButtonText: 'Hủy bỏ',
+            confirmButtonColor: '#e74a3b'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                event.remove();
+                Swal.fire({
+                    title: 'Đã xóa!',
+                    text: 'Sự kiện đã được xóa thành công',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            }
+        });
+    }
+    
+    // Hàm hỗ trợ lấy class cho sự kiện dựa trên loại
+    function getEventClassName(type) {
+        switch(type) {
+            case 'meeting': return 'bg-primary';
+            case 'deadline': return 'bg-danger';
+            case 'reminder': return 'bg-warning';
+            default: return 'bg-info';
+        }
+    }
+    
+    // Hàm hỗ trợ lấy tên loại sự kiện
+    function getEventTypeName(type) {
+        switch(type) {
+            case 'meeting': return 'Cuộc họp';
+            case 'deadline': return 'Hạn chót';
+            case 'reminder': return 'Nhắc nhở';
+            default: return 'Khác';
+        }
+    }
+    
+    // Hàm định dạng ngày tháng cho sự kiện
+    function formatEventDate(start, end, allDay) {
+        if (!start) return '';
+        
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        
+        if (allDay) {
+            const startFormatted = start.toLocaleDateString('vi-VN', options);
+            
+            if (!end || start.toDateString() === end.toDateString()) {
+                return startFormatted;
+            } else {
+                const endFormatted = end.toLocaleDateString('vi-VN', options);
+                return `${startFormatted} đến ${endFormatted}`;
+            }
+        } else {
+            const timeOptions = { hour: '2-digit', minute: '2-digit' };
+            const startFormatted = `${start.toLocaleDateString('vi-VN', options)} ${start.toLocaleTimeString('vi-VN', timeOptions)}`;
+            
+            if (!end || start.toDateString() === end.toDateString()) {
+                return startFormatted;
+            } else {
+                const endFormatted = `${end.toLocaleDateString('vi-VN', options)} ${end.toLocaleTimeString('vi-VN', timeOptions)}`;
+                return `${startFormatted} đến ${endFormatted}`;
+            }
+        }
+    }
+    
+    // Xử lý nút thêm sự kiện
+    $('#addEventBtn').on('click', function() {
+        const today = new Date().toISOString().slice(0, 10);
+        showAddEventModal(today, today);
+    });
+    
+    // Xử lý nút đồng bộ với Google Calendar
+    $('#syncWithGoogle, #syncWithGoogleDropdown').on('click', function(e) {
+        e.preventDefault();
+        
+        Swal.fire({
+            title: 'Đồng bộ với Google Calendar',
+            text: 'Bạn có muốn đồng bộ lịch của mình với Google Calendar không?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Đồng bộ',
+            cancelButtonText: 'Hủy bỏ'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Hiển thị loading
+                Swal.fire({
+                    title: 'Đang kết nối...',
+                    text: 'Vui lòng đợi trong giây lát',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                        
+                        // Gọi API để bắt đầu quá trình xác thực OAuth
+                        $.ajax({
+                            url: '{% url "dashboard:google_calendar_auth" %}',
+                            type: 'GET',
+                            success: function(response) {
+                                // Chuyển hướng đến trang xác thực của Google
+                                window.location.href = response.auth_url;
+                            },
+                            error: function(error) {
+                                Swal.fire({
+                                    title: 'Lỗi kết nối!',
+                                    text: 'Không thể kết nối với Google Calendar. Vui lòng thử lại sau.',
+                                    icon: 'error'
+                                });
                             }
                         });
-                        
-                        // Đóng modal và hiển thị thông báo
-                        $('#addEventModal').modal('hide');
-                        showToast('Đã thêm sự kiện thành công!', 'success');
-                        
-                        // Reset form
-                        document.getElementById('addEventForm').reset();
-                    } else {
-                        showToast('Có lỗi xảy ra: ' + data.message, 'error');
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('Có lỗi xảy ra khi gửi yêu cầu', 'error');
                 });
-            });
-            
-            // Hàm định dạng datetime-local
-            function formatDateTimeLocal(date) {
-                const yyyy = date.getFullYear();
-                const MM = String(date.getMonth() + 1).padStart(2, '0');
-                const dd = String(date.getDate()).padStart(2, '0');
-                const hh = String(date.getHours()).padStart(2, '0');
-                const mm = String(date.getMinutes()).padStart(2, '0');
-                
-                return `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
             }
-        }
-        
-        // Xử lý các sự kiện của bảng đơn hàng và tài khoản premium
-        // Xử lý hiệu ứng hover và click vào hàng trong bảng
-        document.querySelectorAll('.order-row').forEach(row => {
-            row.addEventListener('click', function(e) {
-                if (e.target.classList.contains('view-order-btn') || e.target.closest('.view-order-btn')) {
-                    const orderId = this.dataset.orderId;
-                    showOrderDetail(orderId);
-                }
-            });
-        });
-        
-        // Hiển thị chi tiết đơn hàng
-        function showOrderDetail(orderId) {
-            $('#orderDetailModal').modal('show');
-            
-            // Giả lập dữ liệu đơn hàng
-            setTimeout(() => {
-                const orderDetailContent = document.getElementById('orderDetailContent');
-                
-                // Data mẫu cho chi tiết đơn hàng
-                const orderDetail = {
-                    id: orderId,
-                    customer: {
-                        name: 'Nguyễn Văn A',
-                        phone: '0987654321',
-                        email: 'nguyenvana@example.com',
-                        address: '123 Đường ABC, Quận 1, TP.HCM'
-                    },
-                    date: '20/07/2023',
-                    status: 'Hoàn thành',
-                    total: '1,500,000 đ',
-                    shipping: '30,000 đ',
-                    payment: {
-                        method: 'Chuyển khoản ngân hàng',
-                        status: 'Đã thanh toán'
-                    },
-                    items: [
-                        { name: 'Sản phẩm A', quantity: 2, price: '300,000 đ', total: '600,000 đ' },
-                        { name: 'Sản phẩm B', quantity: 1, price: '900,000 đ', total: '900,000 đ' }
-                    ]
-                };
-                
-                // Tạo HTML chi tiết đơn hàng
-                let detailHTML = `
-                    <div class="order-detail">
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <h5 class="font-weight-bold mb-3">Thông tin đơn hàng</h5>
-                                <p><strong>Mã đơn:</strong> #ORD-${orderDetail.id}</p>
-                                <p><strong>Ngày đặt:</strong> ${orderDetail.date}</p>
-                                <p><strong>Trạng thái:</strong> <span class="badge badge-${getStatusColor(orderDetail.status)}">${orderDetail.status}</span></p>
-                                <p><strong>Phương thức thanh toán:</strong> ${orderDetail.payment.method}</p>
-                                <p><strong>Trạng thái thanh toán:</strong> ${orderDetail.payment.status}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <h5 class="font-weight-bold mb-3">Thông tin khách hàng</h5>
-                                <p><strong>Họ tên:</strong> ${orderDetail.customer.name}</p>
-                                <p><strong>Số điện thoại:</strong> ${orderDetail.customer.phone}</p>
-                                <p><strong>Email:</strong> ${orderDetail.customer.email}</p>
-                                <p><strong>Địa chỉ:</strong> ${orderDetail.customer.address}</p>
-                            </div>
-                        </div>
-                        
-                        <h5 class="font-weight-bold mb-3">Chi tiết sản phẩm</h5>
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Sản phẩm</th>
-                                        <th>Số lượng</th>
-                                        <th>Đơn giá</th>
-                                        <th>Thành tiền</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                `;
-                
-                orderDetail.items.forEach(item => {
-                    detailHTML += `
-                        <tr>
-                            <td>${item.name}</td>
-                            <td>${item.quantity}</td>
-                            <td>${item.price}</td>
-                            <td>${item.total}</td>
-                        </tr>
-                    `;
-                });
-                
-                detailHTML += `
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <td colspan="3" class="text-right"><strong>Phí vận chuyển:</strong></td>
-                                        <td>${orderDetail.shipping}</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="3" class="text-right"><strong>Tổng cộng:</strong></td>
-                                        <td><strong>${orderDetail.total}</strong></td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                        
-                        <div class="row mt-4">
-                            <div class="col-12">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h6 class="font-weight-bold">Ghi chú đơn hàng</h6>
-                                        <p class="mb-0">Giao hàng trong giờ hành chính. Gọi trước khi giao.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                orderDetailContent.innerHTML = detailHTML;
-            }, 500);
-        }
-        
-        // Hiển thị modal nhắc nhở gia hạn
-        window.showReminderModal = function(subscriptionId) {
-            document.getElementById('subscriptionId').value = subscriptionId;
-            $('#eventDetailModal').modal('hide');
-            $('#reminderModal').modal('show');
-            
-            // Xử lý chọn phương thức gửi
-            document.querySelectorAll('.method-select').forEach(method => {
-                method.classList.remove('selected');
-                method.addEventListener('click', function() {
-                    this.classList.toggle('selected');
-                });
-            });
-        };
-        
-        // Xử lý gửi lời nhắc
-        document.getElementById('sendReminderBtn').addEventListener('click', function() {
-            const subscriptionId = document.getElementById('subscriptionId').value;
-            const selectedMethods = [];
-            
-            document.querySelectorAll('.method-select.selected').forEach(method => {
-                selectedMethods.push(method.dataset.method);
-            });
-            
-            if (selectedMethods.length === 0) {
-                showToast('Vui lòng chọn ít nhất một phương thức gửi thông báo', 'error');
-                return;
-            }
-            
-            // Gửi yêu cầu nhắc nhở
-            fetch(`/dashboard/api/premium-subscriptions/${subscriptionId}/send-reminder/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken
-                },
-                body: JSON.stringify({
-                    methods: selectedMethods,
-                    message: document.getElementById('reminderMessage').value
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    $('#reminderModal').modal('hide');
-                    showToast(data.message, 'success');
-                    
-                    // Cập nhật trạng thái tài khoản subscription trên giao diện
-                    calendar.refetchEvents(); // Làm mới lịch
-                } else {
-                    showToast('Có lỗi xảy ra: ' + data.message, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Có lỗi xảy ra khi gửi yêu cầu', 'error');
-            });
-        });
-        
-        // Hàm hiển thị toast
-        function showToast(message, type = 'info') {
-            const types = {
-                'success': { icon: 'fas fa-check-circle', color: '#1cc88a' },
-                'error': { icon: 'fas fa-exclamation-circle', color: '#e74a3b' },
-                'warning': { icon: 'fas fa-exclamation-triangle', color: '#f6c23e' },
-                'info': { icon: 'fas fa-info-circle', color: '#4e73df' }
-            };
-            
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.style.marginBottom = '10px';
-            toast.style.minWidth = '300px';
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateY(-20px)';
-            toast.style.transition = 'all 0.3s ease';
-            toast.innerHTML = `
-                <div class="toast-header" style="background-color: ${types[type].color}; color: white;">
-                    <i class="${types[type].icon} mr-2"></i>
-                    <strong class="mr-auto">Thông báo</strong>
-                    <small>Bây giờ</small>
-                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" style="color: white;">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="toast-body bg-white">
-                    ${message}
-                </div>
-            `;
-            
-            document.getElementById('toastContainer').appendChild(toast);
-            
-            // Hiển thị toast với animation
-            setTimeout(() => {
-                toast.style.opacity = '1';
-                toast.style.transform = 'translateY(0)';
-            }, 50);
-            
-            // Tự động xóa toast sau 3 giây
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateY(-20px)';
-                
-                // Xóa toast sau khi animation kết thúc
-                setTimeout(() => {
-                    if (toast.parentNode) {
-                        toast.parentNode.removeChild(toast);
-                    }
-                }, 300);
-            }, 3000);
-        }
-        
-        // Hàm định dạng ngày tháng cho sự kiện
-        function formatEventDate(start, end, allDay) {
-            let result = '';
-            
-            if (allDay) {
-                if (end) {
-                    // Nếu là sự kiện nhiều ngày
-                    if (!isSameDay(start, end)) {
-                        end = new Date(end.getTime() - 86400000); // Trừ đi 1 ngày vì end là ngày tiếp theo
-                        result = `${formatDate(start)} - ${formatDate(end)}`;
-                    } else {
-                        // Nếu cùng ngày
-                        result = formatDate(start);
-                    }
-                } else {
-                    result = formatDate(start);
-                }
-            } else {
-                if (end) {
-                    // Nếu là sự kiện nhiều ngày
-                    if (!isSameDay(start, end)) {
-                        result = `${formatDate(start)} ${formatTime(start)} - ${formatDate(end)} ${formatTime(end)}`;
-                    } else {
-                        // Nếu cùng ngày
-                        result = `${formatDate(start)} ${formatTime(start)} - ${formatTime(end)}`;
-                    }
-                } else {
-                    result = `${formatDate(start)} ${formatTime(start)}`;
-                }
-            }
-            
-            return result;
-        }
-
-        // Hàm kiểm tra cùng ngày
-        function isSameDay(date1, date2) {
-            return date1.getFullYear() === date2.getFullYear() && 
-                   date1.getMonth() === date2.getMonth() && 
-                   date1.getDate() === date2.getDate();
-        }
-
-        // Hàm định dạng ngày
-        function formatDate(date) {
-            return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-        }
-
-        // Hàm định dạng giờ
-        function formatTime(date) {
-            return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-        }
-
-        // Hàm dịch trạng thái
-        function translateStatus(status) {
-            const statusMap = {
-                'reminded': 'Đã nhắc gia hạn',
-                'renewed': 'Đã gia hạn',
-                'not_reminded': 'Chưa nhắc gia hạn',
-                'no_renew': 'Không gia hạn'
-            };
-            
-            return statusMap[status] || status;
-        }
-        
-        // Hàm lấy màu badge theo trạng thái
-        function getStatusColor(status) {
-            const colorMap = {
-                'Hoàn thành': 'success',
-                'Đang giao': 'info',
-                'Đang xử lý': 'primary',
-                'Đã hủy': 'danger',
-                'Chờ xác nhận': 'warning'
-            };
-            
-            return colorMap[status] || 'secondary';
-        }
-        
-        // Xử lý hiển thị phần TCoin info khi chọn lý do không đủ chi phí
-        document.getElementById('reason1').addEventListener('change', function() {
-            const tcoinInfo = document.getElementById('tcoinInfo');
-            if (this.checked) {
-                tcoinInfo.classList.remove('d-none');
-            } else {
-                tcoinInfo.classList.add('d-none');
-            }
-        });
-        
-        // Xử lý hiển thị phần nhập lý do khác
-        document.getElementById('reasonOther').addEventListener('change', function() {
-            const otherReasonContainer = document.getElementById('otherReasonContainer');
-            if (this.checked) {
-                otherReasonContainer.classList.remove('d-none');
-            } else {
-                otherReasonContainer.classList.add('d-none');
-            }
-        });
-        
-        // Hàm xử lý khi người dùng bấm "Tôi không muốn gia hạn nữa" trong email
-        window.showSurveyModal = function(subscriptionId) {
-            document.getElementById('surveySubscriptionId').value = subscriptionId;
-            $('#surveyModal').modal('show');
-        };
-        
-        // Xử lý khi submit form khảo sát
-        document.getElementById('submitSurveyBtn').addEventListener('click', function() {
-            const subscriptionId = document.getElementById('surveySubscriptionId').value;
-            const selectedReasons = [];
-            
-            // Thu thập các lý do đã chọn
-            document.querySelectorAll('.survey-reason:checked').forEach(checkbox => {
-                selectedReasons.push(checkbox.value);
-            });
-            
-            // Thêm lý do khác nếu có
-            if (document.getElementById('reasonOther').checked) {
-                const otherReason = document.getElementById('otherReason').value.trim();
-                if (otherReason) {
-                    selectedReasons.push('other: ' + otherReason);
-                }
-            }
-            
-            // Nếu không chọn lý do nào
-            if (selectedReasons.length === 0) {
-                showToast('Vui lòng chọn ít nhất một lý do', 'warning');
-                return;
-            }
-            
-            // Gửi dữ liệu lên server
-            fetch('/dashboard/api/premium-subscriptions/' + subscriptionId + '/cancel/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken
-                },
-                body: JSON.stringify({
-                    reasons: selectedReasons
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    // Đóng modal khảo sát
-                    $('#surveyModal').modal('hide');
-                    
-                    // Hiển thị modal thành công
-                    setTimeout(() => {
-                        $('#cancelSuccessModal').modal('show');
-                    }, 500);
-                    
-                    // Cập nhật lại dữ liệu lịch nếu đang ở trang dashboard
-                    if (typeof calendar !== 'undefined') {
-                        calendar.refetchEvents();
-                    }
-                } else {
-                    showToast('Có lỗi xảy ra: ' + data.message, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Có lỗi xảy ra khi gửi yêu cầu', 'error');
-            });
-        });
-        
-        // Xử lý đóng modal thành công
-        $('#cancelSuccessModal').on('hidden.bs.modal', function() {
-            // Reset form khảo sát
-            document.getElementById('surveyForm').reset();
-            document.getElementById('tcoinInfo').classList.add('d-none');
-            document.getElementById('otherReasonContainer').classList.add('d-none');
         });
     });
+    
+    // Kiểm tra trạng thái đồng bộ
+    function checkSyncStatus() {
+        $.ajax({
+            url: '{% url "dashboard:google_status" %}',
+            type: 'GET',
+            success: function(response) {
+                if (response.is_synced) {
+                    $('#syncStatus').html('<span class="badge badge-success">Đã đồng bộ</span>');
+                    $('#lastSyncTime').text('Cập nhật lần cuối: ' + response.last_sync);
+                } else {
+                    $('#syncStatus').html('<span class="badge badge-warning">Chưa đồng bộ</span>');
+                }
+            }
+        });
+    }
+    
+    // Chạy khi trang load xong
+    $(document).ready(function() {
+        // Kiểm tra trạng thái đồng bộ
+        checkSyncStatus();
+        
+        // Kiểm tra xem có thông báo đồng bộ thành công từ callback không
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('sync_success')) {
+            Swal.fire({
+                title: 'Đồng bộ thành công!',
+                text: 'Lịch của bạn đã được đồng bộ với Google Calendar',
+                icon: 'success'
+            });
+        }
+    });
+    
+    // Xử lý nút in lịch
+    $('#printCalendar, #printCalendarDropdown').on('click', function() {
+        Swal.fire({
+            title: 'In lịch',
+            text: 'Bạn muốn in lịch theo định dạng nào?',
+            icon: 'question',
+            input: 'radio',
+            inputOptions: {
+                'month': 'Tháng hiện tại',
+                'week': 'Tuần hiện tại',
+                'agenda': 'Danh sách sự kiện'
+            },
+            inputValue: 'month',
+            showCancelButton: true,
+            confirmButtonText: 'In',
+            cancelButtonText: 'Hủy bỏ'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Đang chuẩn bị in...',
+                    text: 'Vui lòng đợi trong giây lát',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                        setTimeout(() => {
+                            // Giả lập in ấn
+                            window.print();
+                            
+                            setTimeout(() => {
+                                Swal.fire({
+                                    title: 'Đã gửi lệnh in!',
+                                    icon: 'success'
+                                });
+                            }, 1000);
+                        }, 1500);
+                    }
+                });
+            }
+        });
+    });
+    
+    // Xử lý nút xuất báo cáo doanh thu
+    $('#exportRevenueBtn').on('click', function() {
+        Swal.fire({
+            title: 'Xuất báo cáo doanh thu',
+            text: 'Chọn định dạng file xuất',
+            icon: 'question',
+            input: 'radio',
+            inputOptions: {
+                'xlsx': 'Excel (.xlsx)',
+                'pdf': 'PDF (.pdf)',
+                'csv': 'CSV (.csv)'
+            },
+            inputValue: 'xlsx',
+            showCancelButton: true,
+            confirmButtonText: 'Xuất báo cáo',
+            cancelButtonText: 'Hủy bỏ'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Đang xuất báo cáo...',
+                    text: 'Vui lòng đợi trong giây lát',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                        setTimeout(() => {
+                            Swal.fire({
+                                title: 'Xuất báo cáo thành công!',
+                                text: 'Báo cáo đã được tải xuống',
+                                icon: 'success'
+                            });
+                        }, 2000);
+                    }
+                });
+            }
+        });
+    });
+    
+    // Xử lý nút xuất báo cáo lợi nhuận
+    $('#exportProfitBtn').on('click', function() {
+        Swal.fire({
+            title: 'Xuất báo cáo lợi nhuận',
+            text: 'Chọn định dạng file xuất',
+            icon: 'question',
+            input: 'radio',
+            inputOptions: {
+                'xlsx': 'Excel (.xlsx)',
+                'pdf': 'PDF (.pdf)',
+                'csv': 'CSV (.csv)'
+            },
+            inputValue: 'xlsx',
+            showCancelButton: true,
+            confirmButtonText: 'Xuất báo cáo',
+            cancelButtonText: 'Hủy bỏ'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Đang xuất báo cáo...',
+                    text: 'Vui lòng đợi trong giây lát',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                        setTimeout(() => {
+                            Swal.fire({
+                                title: 'Xuất báo cáo thành công!',
+                                text: 'Báo cáo đã được tải xuống',
+                                icon: 'success'
+                            });
+                        }, 2000);
+                    }
+                });
+            }
+        });
+    });
+    
+    // Khởi tạo biểu đồ lợi nhuận
+    var profitCtx = document.getElementById('profitChart');
+    if (profitCtx) {
+        var profitChart = new Chart(profitCtx.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
+                datasets: [
+                    {
+                        label: 'Doanh thu',
+                        backgroundColor: 'rgba(78, 115, 223, 0.3)',
+                        borderColor: 'rgba(78, 115, 223, 1)',
+                        borderWidth: 1,
+                        data: [5000000, 7500000, 8200000, 7800000, 9000000, 12000000, 11500000, 10800000, 13200000, 14500000, 15800000, 18000000]
+                    },
+                    {
+                        label: 'Chi phí',
+                        backgroundColor: 'rgba(231, 74, 59, 0.3)',
+                        borderColor: 'rgba(231, 74, 59, 1)',
+                        borderWidth: 1,
+                        data: [3500000, 4200000, 4800000, 5000000, 5500000, 6300000, 6800000, 7000000, 7500000, 8200000, 9000000, 11000000]
+                    },
+                    {
+                        label: 'Lợi nhuận',
+                        backgroundColor: 'rgba(28, 200, 138, 0.3)',
+                        borderColor: 'rgba(28, 200, 138, 1)',
+                        borderWidth: 1,
+                        data: [1500000, 3300000, 3400000, 2800000, 3500000, 5700000, 4700000, 3800000, 5700000, 6300000, 6800000, 7000000]
+                    }
+                ]
+            },
+            options: {
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 25,
+                        top: 25,
+                        bottom: 0
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            callback: function(value) {
+                                return new Intl.NumberFormat('vi-VN', {
+                                    style: 'currency',
+                                    currency: 'VND',
+                                    maximumFractionDigits: 0
+                                }).format(value);
+                            }
+                        },
+                        grid: {
+                            borderDash: [2],
+                            drawBorder: false
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += new Intl.NumberFormat('vi-VN', {
+                                        style: 'currency', 
+                                        currency: 'VND',
+                                        maximumFractionDigits: 0
+                                    }).format(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
 </script>
 {% endblock %}

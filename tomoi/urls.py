@@ -6,8 +6,9 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
-    path('', include('store.urls')),  # Chỉ giữ lại một include
     path('dashboard/', include('dashboard.urls')),
+    path('', include('store.urls')),
+    path('blog/', include('blog.urls')),
 ]
 
 if settings.DEBUG:
