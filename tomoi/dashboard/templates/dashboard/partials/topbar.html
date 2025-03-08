@@ -189,4 +189,59 @@
         </li>
     </ul>
 </nav>
-<!-- End of Topbar --> 
+<!-- End of Topbar -->
+
+<!-- Cập nhật CSS để căn chỉnh các phần tử trong topbar -->
+<style>
+/* Cải thiện vị trí searchbar */
+.topbar .navbar-search {
+    width: 30rem;
+    margin-left: auto;
+    margin-right: 1rem;
+}
+
+@media (max-width: 768px) {
+    .topbar .navbar-search {
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        order: 3;
+    }
+}
+
+/* Căn chỉnh các phần tử trong topbar */
+.navbar-nav {
+    flex-direction: row;
+    align-items: center;
+}
+
+.topbar .nav-item {
+    margin-left: 0.5rem;
+}
+
+.topbar .dropdown-menu {
+    position: absolute;
+    right: 0;
+    left: auto;
+}
+
+/* Cải thiện hiển thị nút trong topbar */
+.topbar .nav-link {
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.35rem;
+    transition: all 0.2s;
+}
+
+.topbar .nav-link:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Cải thiện hiển thị badge */
+.badge-counter {
+    position: absolute;
+    transform: scale(0.7);
+    transform-origin: top right;
+    right: 0.25rem;
+    top: 0.25rem;
+}
+</style> 

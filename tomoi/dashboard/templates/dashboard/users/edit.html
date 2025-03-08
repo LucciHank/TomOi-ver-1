@@ -550,53 +550,53 @@
                         <div class="tab-content" id="userInfoTabsContent">
                             <!-- Tab thông tin cơ bản -->
                             <div class="tab-pane fade show active" id="basic" role="tabpanel">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
                                             <label for="id_username">Tên đăng nhập <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="id_username" name="username" value="{{ user.username }}" required>
-                                        </div>
-                                        <div class="form-group">
+                                    <input type="text" class="form-control" id="id_username" name="username" value="{{ user.username }}" required>
+                                </div>
+                                <div class="form-group">
                                             <label for="id_email">Email <span class="text-danger">*</span></label>
-                                            <input type="email" class="form-control" id="id_email" name="email" value="{{ user.email }}" required>
-                                        </div>
+                                    <input type="email" class="form-control" id="id_email" name="email" value="{{ user.email }}" required>
+                                </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="id_first_name">Họ</label>
-                                            <input type="text" class="form-control" id="id_first_name" name="first_name" value="{{ user.first_name }}">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="id_last_name">Tên</label>
-                                            <input type="text" class="form-control" id="id_last_name" name="last_name" value="{{ user.last_name }}">
-                                        </div>
-                                    </div>
+                                <div class="form-group">
+                                    <label for="id_first_name">Họ</label>
+                                    <input type="text" class="form-control" id="id_first_name" name="first_name" value="{{ user.first_name }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_last_name">Tên</label>
+                                    <input type="text" class="form-control" id="id_last_name" name="last_name" value="{{ user.last_name }}">
+                                </div>
+                            </div>
                                 </div>
                                 
                                 <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
+                            <div class="col-md-6">
+                                <div class="form-group">
                                             <label for="id_gender">Giới tính</label>
                                             <select class="form-control select2" id="id_gender" name="gender">
                                                 <option value="male" {% if user.gender == 'male' %}selected{% endif %}>Nam</option>
                                                 <option value="female" {% if user.gender == 'female' %}selected{% endif %}>Nữ</option>
                                                 <option value="other" {% if user.gender == 'other' %}selected{% endif %}>Khác</option>
                                             </select>
-                                        </div>
+                                </div>
                                         <div class="form-group">
                                             <label for="id_birth_date">Ngày sinh</label>
                                             <input type="date" class="form-control" id="id_birth_date" name="birth_date" value="{{ user.birth_date|date:'Y-m-d' }}">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="id_account_type">Loại tài khoản</label>
+                                <div class="form-group">
+                                    <label for="id_account_type">Loại tài khoản</label>
                                             <select class="form-control select2" id="id_account_type" name="account_type">
-                                                <option value="regular" {% if user.account_type == 'regular' %}selected{% endif %}>Thường</option>
-                                                <option value="premium" {% if user.account_type == 'premium' %}selected{% endif %}>Premium</option>
-                                                <option value="vip" {% if user.account_type == 'vip' %}selected{% endif %}>VIP</option>
-                                            </select>
-                                        </div>
+                                        <option value="regular" {% if user.account_type == 'regular' %}selected{% endif %}>Thường</option>
+                                        <option value="premium" {% if user.account_type == 'premium' %}selected{% endif %}>Premium</option>
+                                        <option value="vip" {% if user.account_type == 'vip' %}selected{% endif %}>VIP</option>
+                                    </select>
+                                </div>
                                         <div class="form-group">
                                             <label for="id_user_type">Vai trò</label>
                                             <select class="form-control select2" id="id_user_type" name="user_type">
@@ -646,14 +646,14 @@
                             <div class="tab-pane fade" id="security" role="tabpanel">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="id_is_active">Trạng thái</label>
+                                <div class="form-group">
+                                    <label for="id_is_active">Trạng thái</label>
                                             <select class="form-control select2" id="id_is_active" name="is_active">
-                                                <option value="1" {% if user.is_active %}selected{% endif %}>Hoạt động</option>
-                                                <option value="0" {% if not user.is_active %}selected{% endif %}>Không hoạt động</option>
-                                            </select>
-                                        </div>
-                                        <div class="form-group">
+                                        <option value="1" {% if user.is_active %}selected{% endif %}>Hoạt động</option>
+                                        <option value="0" {% if not user.is_active %}selected{% endif %}>Không hoạt động</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
                                             <label for="id_status">Trạng thái tài khoản</label>
                                             <select class="form-control select2" id="id_status" name="status">
                                                 <option value="active" {% if user.status == 'active' %}selected{% endif %}>Hoạt động</option>
@@ -675,11 +675,11 @@
                                             <select class="form-control select2" id="id_has_2fa" name="has_2fa">
                                                 <option value="1" {% if user.has_2fa %}selected{% endif %}>Đã bật</option>
                                                 <option value="0" {% if not user.has_2fa %}selected{% endif %}>Chưa bật</option>
-                                            </select>
-                                        </div>
-                                    </div>
+                                    </select>
                                 </div>
-                                
+                            </div>
+                        </div>
+                        
                                 <div class="form-group">
                                     <label for="id_suspension_reason">Lý do ngừng hoạt động</label>
                                     <textarea class="form-control" id="id_suspension_reason" name="suspension_reason" rows="2">{{ user.suspension_reason }}</textarea>
@@ -705,25 +705,25 @@
                 <div class="card-body">
                     <form id="resetPasswordForm">
                         {% csrf_token %}
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="id_new_password">Mật khẩu mới</label>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="id_new_password">Mật khẩu mới</label>
                                     <input type="password" class="form-control" id="id_new_password" name="new_password" required>
-                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="id_confirm_password">Xác nhận mật khẩu</label>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="id_confirm_password">Xác nhận mật khẩu</label>
                                     <input type="password" class="form-control" id="id_confirm_password" name="confirm_password" required>
-                                </div>
                             </div>
                         </div>
-                        <div class="text-center">
+                    </div>
+                    <div class="text-center">
                             <button type="submit" class="btn btn-warning">
-                                <i class="fas fa-key mr-2"></i>Đặt lại mật khẩu
-                            </button>
-                        </div>
+                            <i class="fas fa-key mr-2"></i>Đặt lại mật khẩu
+                        </button>
+                    </div>
                     </form>
                 </div>
             </div>
@@ -760,10 +760,10 @@
                                 {% endif %}
                             </div>
                         </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            
+                    
             <!-- Điều chỉnh số dư -->
             <div class="card form-card shadow mb-4">
                 <div class="card-header py-3 adjust-balance-card">
@@ -899,10 +899,10 @@
                             </button>
                             <button type="button" class="btn btn-outline-primary adjust-type-btn" data-type="set">
                                 <i class="fas fa-edit mr-1"></i> Đặt số dư
-                            </button>
-                        </div>
-                        <input type="hidden" name="adjustType" id="selectedAdjustType">
+                        </button>
                     </div>
+                        <input type="hidden" name="adjustType" id="selectedAdjustType">
+                </div>
 
                     <!-- Số tiền -->
                     <div class="form-group">
@@ -1118,31 +1118,31 @@ $(document).ready(function() {
                         Swal.showLoading();
                     }
                 });
-                
-                $.ajax({
-                    url: '{% url "dashboard:user_reset_password" user.id %}',
-                    method: 'POST',
-                    data: {
-                        'new_password': newPassword,
-                        'csrfmiddlewaretoken': '{{ csrf_token }}'
-                    },
-                    success: function(response) {
+        
+        $.ajax({
+            url: '{% url "dashboard:user_reset_password" user.id %}',
+            method: 'POST',
+            data: {
+                'new_password': newPassword,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
                         console.log('Success:', response);
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Thành công',
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công',
                             text: 'Mật khẩu đã được đặt lại thành công!',
                             confirmButtonColor: '#4e73df',
                             confirmButtonText: 'Đóng'
-                        });
-                        $('#id_new_password').val('');
-                        $('#id_confirm_password').val('');
-                    },
-                    error: function(error) {
+                });
+                $('#id_new_password').val('');
+                $('#id_confirm_password').val('');
+            },
+            error: function(error) {
                         console.error('Error:', error);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Lỗi',
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
                             text: 'Không thể đặt lại mật khẩu. Vui lòng thử lại sau.',
                             confirmButtonColor: '#4e73df',
                             confirmButtonText: 'Đóng'
@@ -1179,8 +1179,8 @@ $(document).ready(function() {
         let adjustType = $('input[name="adjustType"]:checked').val();
         
         if (!amount || !adjustType) {
-            Swal.fire({
-                icon: 'warning',
+        Swal.fire({
+            icon: 'warning',
                 title: 'Thông báo',
                 text: 'Vui lòng nhập đầy đủ thông tin',
                 confirmButtonColor: '#4e73df'
@@ -1199,34 +1199,34 @@ $(document).ready(function() {
         }
         
         // Gửi request
-        $.ajax({
+                $.ajax({
             url: '{% url "dashboard:adjust_balance" user.id %}',
-            method: 'POST',
+                    method: 'POST',
             data: {
                 amount: adjustAmount,
                 reason: reason,
                 csrfmiddlewaretoken: '{{ csrf_token }}'
-            },
-            success: function(response) {
-                Swal.fire({
+                    },
+                    success: function(response) {
+                        Swal.fire({
                     icon: 'success',
                     title: 'Thành công',
                     text: 'Số dư đã được cập nhật thành công!',
                     confirmButtonColor: '#4e73df'
-                }).then(() => {
+                        }).then(() => {
                     location.reload();
-                });
-            },
-            error: function(error) {
+                        });
+                    },
+                    error: function(error) {
                 console.error('Error:', error);
-                Swal.fire({
+                        Swal.fire({
                     icon: 'error',
                     title: 'Lỗi',
                     text: error.responseJSON?.message || 'Không thể cập nhật số dư. Vui lòng thử lại!',
                     confirmButtonColor: '#4e73df'
+                        });
+                    }
                 });
-            }
-        });
     });
     
     // Xử lý ảnh avatar không tồn tại
@@ -1416,4 +1416,4 @@ $(document).ready(function() {
     });
 });
 </script>
-{% endblock %}
+{% endblock %} 

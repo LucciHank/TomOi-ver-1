@@ -8,6 +8,7 @@ from .source import Source, SourceProduct, SourceLog
 from .product import Product
 from .system_notification import SystemNotification
 from .warranty import WarrantyHistory
+from .event import Event
 # Import các model khác nếu cần
 
 __all__ = ['UserActivityLog']

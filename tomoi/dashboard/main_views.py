@@ -9,8 +9,9 @@ from store.models import Order, Product, OrderItem
 from .models.base import SupportTicket
 from django.db.models.functions import TruncDate
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
-@staff_member_required
+@login_required
 def index(request):
     """Dashboard trang chủ"""
     try:

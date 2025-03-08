@@ -1,0 +1,312 @@
+/* Styling cho lịch sự kiện */
+.fc .fc-daygrid-day.fc-day-today {
+    background-color: rgba(223, 38, 38, 0.15) !important;
+}
+
+.fc .fc-button-primary {
+    background-color: #df2626;
+    border-color: #df2626;
+}
+
+.fc .fc-button-primary:hover {
+    background-color: #c51f1f;
+    border-color: #c51f1f;
+}
+
+.fc .fc-daygrid-event {
+    border-radius: 4px;
+    padding: 2px 4px;
+    margin-top: 2px;
+    transition: all 0.2s ease;
+}
+
+.fc .fc-daygrid-event:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16);
+}
+
+/* Styling cho modal sự kiện */
+.day-events-container {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.day-events-list {
+    margin-bottom: 15px;
+}
+
+.event-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    border-left: 5px solid #df2626;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.event-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, 
+        rgba(255,255,255,0.9) 0%, 
+        rgba(255,255,255,0.7) 100%);
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.event-card:hover::before {
+    opacity: 1;
+}
+
+.event-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+.event-time {
+    font-size: 13px;
+    color: #6c757d;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.event-time i {
+    margin-right: 5px;
+    color: #df2626;
+}
+
+.event-title {
+    font-weight: 700;
+    margin-bottom: 8px;
+    font-size: 16px;
+    color: #333;
+}
+
+.event-desc {
+    font-size: 14px;
+    color: #495057;
+    line-height: 1.4;
+}
+
+.event-actions {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.event-card:hover .event-actions {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+}
+
+.event-actions .btn {
+    padding: 4px 8px;
+    font-size: 12px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.event-actions .btn-outline-primary {
+    color: #4e73df;
+    border-color: #4e73df;
+}
+
+.event-actions .btn-outline-primary:hover {
+    background-color: #4e73df;
+    color: white;
+}
+
+.event-actions .btn-outline-danger {
+    color: #e74a3b;
+    border-color: #e74a3b;
+}
+
+.event-actions .btn-outline-danger:hover {
+    background-color: #e74a3b;
+    color: white;
+}
+
+/* Animation styles */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.pulse-animation {
+    animation: pulse 1.5s infinite;
+}
+
+/* Form styles */
+.event-form .form-group {
+    margin-bottom: 15px;
+}
+
+.event-form label {
+    font-weight: 500;
+    margin-bottom: 5px;
+    display: block;
+}
+
+/* SweetAlert custom styles */
+.swal2-popup {
+    border-radius: 15px !important;
+}
+
+.swal2-title {
+    font-size: 1.5rem !important;
+    color: #333 !important;
+}
+
+/* Nút tạo sự kiện cố định */
+.btn-add-event {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #df2626;
+    color: white;
+    font-size: 24px;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-add-event:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    background-color: #c51f1f;
+}
+
+/* Cải thiện animation cho dialog */
+.swal2-popup.animate__animated {
+    animation-duration: 0.5s;
+}
+
+/* Style cho card sự kiện */
+.fc-daygrid-dot-event .fc-event-title {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fc-event-title, .fc-event-time {
+    font-size: 0.85em;
+}
+
+.event-card .event-actions {
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.event-card:hover .event-actions {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Style cho tooltip */
+.tooltip-inner {
+    max-width: 250px;
+    padding: 8px 12px;
+    background-color: #333;
+    border-radius: 6px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+}
+
+.event-tooltip {
+    text-align: left;
+}
+
+.event-tooltip .event-title {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.event-tooltip .event-time {
+    font-size: 0.9em;
+    margin-bottom: 5px;
+}
+
+.event-tooltip .event-desc {
+    font-size: 0.85em;
+}
+
+/* Cải thiện modal sự kiện */
+.day-events-title {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.day-events-container {
+    max-height: 65vh;
+    overflow-y: auto;
+    padding: 0 5px;
+}
+
+.day-events-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.day-events-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.day-events-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+}
+
+#createNewEventBtn {
+    background-color: #df2626;
+    border-color: #df2626;
+    padding: 10px 20px;
+    font-weight: 600;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(223, 38, 38, 0.3);
+    transition: all 0.3s ease;
+}
+
+#createNewEventBtn:hover {
+    background-color: #c51f1f;
+    border-color: #c51f1f;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(223, 38, 38, 0.4);
+} 

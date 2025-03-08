@@ -318,4 +318,27 @@ class ReferralTransaction(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        return f"{self.referrer.username} referred {self.referred.username}" 
+        return f"{self.referrer.username} referred {self.referred.username}"
+
+# Thêm model CalendarEvent nếu chưa có
+class CalendarEvent(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    is_all_day = models.BooleanField(default=False)
+    event_type = models.CharField(max_length=20, choices=[
+        ('meeting', 'Cuộc họp'),
+        ('deadline', 'Hạn chót'),
+        ('reminder', 'Nhắc nhở'),
+        ('other', 'Khác')
+    ], default='other')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return self.title
+        
+    class Meta:
+        ordering = ['-start_time'] 

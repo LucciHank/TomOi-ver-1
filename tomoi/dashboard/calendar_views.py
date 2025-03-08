@@ -5,7 +5,8 @@ from django.shortcuts import redirect
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
-from .models import GoogleCalendarSync, CalendarEvent
+from .models.base import CalendarEvent
+from accounts.models import PremiumSubscription
 from django.utils.dateparse import parse_datetime
 
 # Các API và phạm vi cho Google Calendar

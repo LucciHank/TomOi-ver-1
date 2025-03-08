@@ -2,7 +2,8 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.shortcuts import render, get_object_or_404
 from django.contrib.admin.views.decorators import staff_member_required
-# from accounts.models import PremiumSubscription, CustomUser  # Tạm thời comment lại
+from accounts.models import PremiumSubscription, CustomUser
+from ..models.base import CalendarEvent
 from datetime import timedelta, datetime
 import json
 from django.views.decorators.http import require_POST
@@ -11,41 +12,59 @@ from django.contrib.auth.decorators import login_required
 @staff_member_required
 def calendar_events(request):
     """API trả về dữ liệu sự kiện cho lịch"""
-    # Tạm thời trả về danh sách sự kiện giả lập thay vì truy vấn DB
-    events = [
-        {
-            'id': 'event1',
-            'title': 'Họp nhóm phát triển',
-            'start': '2025-03-15',
-            'className': 'bg-primary',
-            'extendedProps': {
-                'type': 'meeting',
-                'description': 'Thảo luận về tính năng mới'
+    try:
+        today = timezone.now().date()
+        start_date = today - timedelta(days=30)
+        end_date = today + timedelta(days=60)  # Mở rộng khoảng thời gian
+
+        # Có thể lấy từ model PremiumSubscription
+        subscriptions = PremiumSubscription.objects.filter(
+            expiry_date__range=[start_date, end_date]
+        )
+        
+        events = []
+        for sub in subscriptions:
+            # Chuyển đổi thành định dạng sự kiện FullCalendar
+            event = {
+                'id': f'sub_{sub.id}',
+                'title': f'{sub.product_name} - {sub.user.username}',
+                'start': sub.expiry_date.isoformat(),
+                'className': 'bg-danger' if sub.is_expired() else 'bg-warning',
+                'extendedProps': {
+                    'type': 'subscription',
+                    'status': sub.status,
+                    'user': sub.user.username
+                }
             }
-        },
-        {
-            'id': 'event2',
-            'title': 'Hạn chót dự án',
-            'start': '2025-03-25',
-            'className': 'bg-danger',
-            'extendedProps': {
-                'type': 'deadline',
-                'description': 'Hoàn thành module thanh toán'
-            }
-        },
-        {
-            'id': 'event3',
-            'title': 'Nhắc nhở: Gia hạn dịch vụ',
-            'start': '2025-03-10',
-            'className': 'bg-warning',
-            'extendedProps': {
-                'type': 'reminder',
-                'description': 'Gửi email nhắc nhở khách hàng'
-            }
-        }
-    ]
-    
-    return JsonResponse(events, safe=False)
+            events.append(event)
+        
+        # Thêm các sự kiện khác từ CalendarEvent nếu có
+        calendar_events = CalendarEvent.objects.filter(
+            start_time__date__range=[start_date, end_date]
+        )
+        
+        for event in calendar_events:
+            events.append({
+                'id': f'event_{event.id}',
+                'title': event.title,
+                'start': event.start_time.isoformat(),
+                'end': event.end_time.isoformat(),
+                'allDay': event.is_all_day,
+                'className': f'bg-primary',
+                'extendedProps': {
+                    'type': event.event_type,
+                    'description': event.description
+                }
+            })
+        
+        # In ra số lượng sự kiện được trả về để debug
+        print(f"Returning {len(events)} calendar events")
+        
+        return JsonResponse(events, safe=False)
+    except Exception as e:
+        # Log lỗi để dễ debug
+        print(f"Error in calendar_events: {str(e)}")
+        return JsonResponse([], safe=False)
 
 @staff_member_required
 def premium_subscriptions(request):

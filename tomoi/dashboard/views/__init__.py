@@ -5,7 +5,6 @@
 
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
-from .dashboard import *
 from .marketing import *
 from .settings import *
 from .api import *

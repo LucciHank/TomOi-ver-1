@@ -34,7 +34,7 @@ SOCIAL_AUTH_URL_NAMESPACE = 'social'
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'store:home'
 SOCIAL_AUTH_LOGIN_ERROR_URL = 'store:home'
 
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = 'dashboard:index'
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-07d6%7f4=mg5e+g89&b(ke1-oklw=^2m(9ub&4f352i9kl8$pf'
@@ -149,9 +149,12 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
+# Cấu hình Session
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 86400  # 24 giờ tính bằng giây
+SESSION_COOKIE_SECURE = False  # Đặt True trong production với HTTPS
+SESSION_COOKIE_HTTPONLY = True
 SESSION_SAVE_EVERY_REQUEST = True
-# Cấu hình mặc định cho session
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Sử dụng cơ sở dữ liệu để lưu session
 
 
 # Database
@@ -209,9 +212,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'accounts.CustomUser'  # hoặc 'store.CustomUser' nếu dùng trong store
 
-LOGIN_URL = '/'
-LOGIN_REDIRECT_URL = 'store:home'
-LOGOUT_REDIRECT_URL = 'store:home'
+LOGIN_URL = 'dashboard:login'
+LOGIN_REDIRECT_URL = 'dashboard:index'
+LOGOUT_REDIRECT_URL = 'dashboard:login'
 
 # Email tự động
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -292,3 +295,14 @@ ANALYTICS_SETTINGS = {
 API_SIGNING_KEY = 'your-secret-key-here'  # Thay đổi key này trong production
 API_RATE_LIMIT = 100  # requests per minute
 API_RATE_WINDOW = 60  # seconds
+
+# Thêm cấu hình này
+SESSION_COOKIE_NAME = 'dashboard_sessionid'  # Tên cookie riêng cho dashboard
+
+# Đảm bảo các cài đặt này có trong file
+CSRF_COOKIE_NAME = 'csrftoken'
+CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'
+CSRF_COOKIE_SECURE = False  # Đặt thành True trên production với HTTPS
+CSRF_COOKIE_HTTPONLY = False  # Để JavaScript có thể đọc cookie
+CSRF_USE_SESSIONS = False  # Không lưu CSRF token trong session
+CSRF_COOKIE_SAMESITE = 'Lax'  # Hoặc 'None' với Secure=True

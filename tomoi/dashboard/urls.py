@@ -33,6 +33,10 @@ print("Import test_func OK:", test_func())
 
 from . import views_temp
 
+# Import views mới
+from .views.premium_reminder import send_reminder, cancel_subscription
+from .views import api
+
 app_name = 'dashboard'
 
 urlpatterns = [
@@ -144,8 +148,8 @@ urlpatterns = [
     path('api/calendar/events/', calendar_events, name='calendar_events'),
     path('api/premium-subscriptions/', premium_subscriptions, name='premium_subscriptions'),
     path('api/premium-subscriptions/<int:subscription_id>/send-reminder/', send_reminder, name='send_reminder'),
-    path('api/calendar/add-event/', add_calendar_event, name='add_calendar_event'),
     path('api/premium-subscriptions/<int:subscription_id>/cancel/', cancel_subscription, name='cancel_subscription'),
+    path('api/calendar/add-event/', add_calendar_event, name='add_calendar_event'),
 
     # New URLs
     path('settings/test-email/', settings_view, name='test_email_settings'),
@@ -157,4 +161,16 @@ urlpatterns = [
     path('google-auth/', views_temp.google_calendar_auth_temp, name='google_calendar_auth'),
     path('google-callback/', views_temp.google_calendar_callback_temp, name='google_callback'),
     path('google-status/', views_temp.google_calendar_status_temp, name='google_status'),
+
+    # Thêm các URLs mới
+    path('api/calendar/google-auth/', views_temp.google_calendar_auth_temp, name='google_auth'),
+    path('api/calendar/google-callback/', views_temp.google_calendar_callback_temp, name='google_callback'),
+    path('api/calendar/google-status/', views_temp.google_calendar_status_temp, name='google_status'),
+    path('api/calendar/sync-events/', views_temp.google_calendar_sync_events_temp, name='sync_events'),
+
+    path('api/events/', api.get_events, name='get_events'),
+    path('api/events/create/', api.create_event, name='create_event'),
+    path('api/events/<int:event_id>/update/', api.update_event, name='update_event'),
+    path('api/events/<int:event_id>/delete/', api.delete_event, name='delete_event'),
+
 ] 

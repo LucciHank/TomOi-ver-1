@@ -861,4 +861,4 @@ def export_pdf_report(users):
     return response
 
 def get_default_avatar_url():
-    return staticfiles_storage.url('dashboard/images/default-avatar.png') 
+    return "/static/dashboard/images/default-avatar.png" 

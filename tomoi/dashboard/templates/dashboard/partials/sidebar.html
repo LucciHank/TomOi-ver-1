@@ -13,10 +13,11 @@
     <hr class="sidebar-divider my-0">
 
     <!-- Nav Item - Dashboard -->
-    <li class="nav-item">
+    <li class="nav-item active">
         <a class="nav-link" href="{% url 'dashboard:index' %}">
             <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Tổng quan</span></a>
+            <span>Trang chính</span>
+        </a>
     </li>
 
     <!-- Divider -->
@@ -29,10 +30,20 @@
 
     <!-- Nav Item - Users -->
     <li class="nav-item">
-        <a class="nav-link" href="{% url 'dashboard:user_list' %}">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUsers"
+            aria-expanded="false" aria-controls="collapseUsers">
             <i class="fas fa-fw fa-users"></i>
             <span>Người dùng</span>
         </a>
+        <div id="collapseUsers" class="collapse" aria-labelledby="headingUsers"
+            data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản lý người dùng:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:user_list' %}">Danh sách</a>
+                <a class="collapse-item" href="{% url 'dashboard:user_dashboard' %}">Thống kê</a>
+                <a class="collapse-item" href="{% url 'dashboard:user_add' %}">Thêm mới</a>
+            </div>
+        </div>
     </li>
 
     <!-- Nav Item - Messaging -->
@@ -70,26 +81,37 @@
     <!-- Nav Item - Products Collapse Menu -->
     <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProducts"
-            aria-expanded="true" aria-controls="collapseProducts">
+            aria-expanded="false" aria-controls="collapseProducts">
             <i class="fas fa-fw fa-box"></i>
             <span>Sản phẩm</span>
         </a>
-        <div id="collapseProducts" class="collapse" aria-labelledby="headingProducts" data-parent="#accordionSidebar">
+        <div id="collapseProducts" class="collapse" aria-labelledby="headingProducts"
+            data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Quản lý sản phẩm:</h6>
-                <a class="collapse-item" href="{% url 'dashboard:product_list' %}">Danh sách sản phẩm</a>
-                <a class="collapse-item" href="{% url 'dashboard:add_product' %}">Thêm sản phẩm</a>
-                <a class="collapse-item" href="{% url 'dashboard:categories' %}">Danh mục</a>
+                <a class="collapse-item" href="/dashboard/products/">Danh sách</a>
+                <a class="collapse-item" href="/dashboard/products/categories/">Danh mục</a>
+                <a class="collapse-item" href="/dashboard/products/add/">Thêm mới</a>
             </div>
         </div>
     </li>
 
     <!-- Nav Item - Orders -->
     <li class="nav-item">
-        <a class="nav-link" href="{% url 'dashboard:order_management' %}">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOrders"
+            aria-expanded="false" aria-controls="collapseOrders">
             <i class="fas fa-fw fa-shopping-cart"></i>
             <span>Đơn hàng</span>
         </a>
+        <div id="collapseOrders" class="collapse" aria-labelledby="headingOrders"
+            data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản lý đơn hàng:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:order_management' %}">Tất cả đơn hàng</a>
+                <a class="collapse-item" href="{% url 'dashboard:order_management' %}?status=pending">Chờ xử lý</a>
+                <a class="collapse-item" href="{% url 'dashboard:export_orders' %}">Xuất báo cáo</a>
+            </div>
+        </div>
     </li>
 
     <!-- Divider -->
@@ -133,6 +155,112 @@
 
 <!-- CSS cho hiệu ứng đẹp hơn -->
 <style>
+    /* Sửa lỗi sidebar bị xếp ngang */
+    .sidebar {
+        position: fixed;
+        height: 100vh;
+        z-index: 1;
+        overflow-y: auto;
+        width: 225px;
+    }
+
+    .sidebar .nav-item {
+        display: block;
+        width: 100%;
+    }
+
+    .sidebar .nav-link {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 0.75rem 1rem;
+        width: 225px;
+    }
+
+    /* Phần nội dung chính */
+    #content-wrapper {
+        margin-left: 225px;
+        width: calc(100% - 225px);
+        transition: all 0.3s;
+    }
+
+    /* Khi sidebar được thu gọn */
+    body.sidebar-toggled .sidebar {
+        width: 6.5rem !important;
+    }
+
+    body.sidebar-toggled #content-wrapper {
+        margin-left: 6.5rem;
+        width: calc(100% - 6.5rem);
+    }
+
+    .sidebar.toggled .nav-item .nav-link {
+        width: 6.5rem;
+        text-align: center;
+        padding: 0.75rem 1rem;
+    }
+
+    .sidebar.toggled .nav-item .nav-link span {
+        display: none;
+    }
+
+    .sidebar.toggled .sidebar-brand .sidebar-brand-text {
+        display: none;
+    }
+
+    /* Đảm bảo nội dung không bị đè */
+    #content-wrapper {
+        margin-left: 225px;
+        transition: margin 0.3s;
+    }
+
+    /* Điều chỉnh khi sidebar được thu gọn */
+    body.sidebar-toggled #content-wrapper {
+        margin-left: 104px;
+    }
+
+    .sidebar.toggled {
+        width: 104px !important;
+        overflow: visible;
+    }
+
+    /* Điều chỉnh hiển thị của các menu item */
+    .sidebar .nav-item {
+        position: relative;
+        margin-bottom: 3px;
+    }
+
+    .sidebar .nav-item .collapse {
+        position: absolute;
+        left: calc(100% + 1px);
+        z-index: 1;
+        top: 0;
+        width: 200px;
+        max-height: 300px;
+        overflow-y: auto;
+        background-color: #fff;
+        border-radius: 0.35rem;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    }
+
+    .sidebar .nav-item .collapse.show,
+    .sidebar .nav-item .collapsing {
+        margin-left: 0;
+        display: block;
+    }
+
+    .sidebar.toggled .nav-item .collapse {
+        position: absolute;
+        left: calc(100%);
+        top: 0;
+    }
+
+    .sidebar.toggled .nav-item .collapse.show,
+    .sidebar.toggled .nav-item .collapsing {
+        margin-left: 0;
+        display: block;
+    }
+
     /* Sidebar animation và hover effects */
     .hover-effect:hover {
         background: rgba(255, 255, 255, 0.1);
