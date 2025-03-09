@@ -3,3 +3,90 @@
 <!DOCTYPE html>
 <html lang="vi">
 ... 
+<script>
+// Thêm đoạn script để lấy cấu hình chatbot từ server
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("=== BEGIN CHATBOT INITIALIZATION ===");
+    initChatbot();
+});
+
+function initChatbot() {
+    // Thử cả hai URL để xem URL nào hoạt động
+    console.log("Trying multiple URLs to find working API endpoint");
+    
+    // URL 1: /api/public/chatbot-config/
+    fetch('/api/public/chatbot-config/')
+        .then(response => {
+            console.log("URL 1 response status:", response.status);
+            if (!response.ok) {
+                // Thử URL thứ hai nếu URL đầu tiên thất bại
+                console.log("Trying URL 2...");
+                return fetch('/accounts/api/public/chatbot-config/');
+            }
+            return response;
+        })
+        .then(response => {
+            if (!response.ok) {
+                console.log("URL 2 response status:", response.status);
+                throw new Error(`Server error: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Xử lý dữ liệu như trước
+            console.log("Config data:", data);
+            if (data.success) {
+                loadChatbotWithConfig(data.config);
+            } else {
+                loadChatbotWithDefaultConfig();
+            }
+        })
+        .catch(error => {
+            console.error('All API endpoints failed:', error);
+            loadChatbotWithDefaultConfig();
+        });
+}
+
+function loadChatbotWithConfig(config) {
+    console.log("Loading chatbot with config:", JSON.stringify(config));
+    const chatbot = document.getElementById('tomoi-chatbot');
+    // Thiết lập các thông số cho chatbot
+    if (chatbot) {
+        // Gán API key và các cấu hình khác vào chatbot
+        chatbot.setAttribute('data-api-key', config.api_key);
+        chatbot.setAttribute('data-api-type', config.api_type);
+        chatbot.setAttribute('data-model', config.model);
+        
+        console.log("Chatbot name from config:", config.chatbot_name);
+        
+        // Cập nhật tên chatbot nếu có
+        const chatbotTitle = document.querySelector('.chatbot-header-title');
+        if (chatbotTitle) {
+            console.log("Found chatbot title element, current text:", chatbotTitle.textContent);
+            if (config.chatbot_name) {
+                chatbotTitle.textContent = config.chatbot_name;
+                console.log("Updated chatbot title to:", config.chatbot_name);
+            }
+        } else {
+            console.warn("Chatbot title element not found");
+        }
+        
+        // Khởi tạo chatbot
+        console.log("Initializing chatbot UI");
+        initializeChatbotUI();
+        console.log("Chatbot initialized with API key:", config.api_key ? "Configured" : "Not configured");
+    } else {
+        console.error("Chatbot element not found");
+    }
+}
+
+function loadChatbotWithDefaultConfig() {
+    // Hiển thị thông báo lỗi trong chatbot
+    console.log("Không thể tải cấu hình chatbot, sử dụng cấu hình mặc định");
+    const chatbotMessages = document.querySelector('.chatbot-messages');
+    if (chatbotMessages) {
+        chatbotMessages.innerHTML = '<div class="system-message">Không thể kết nối đến API. Vui lòng thử lại sau.</div>';
+    }
+}
+</script>
+</html> 

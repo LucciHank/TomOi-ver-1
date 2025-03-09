@@ -2336,3 +2336,12 @@ h6 {
 .cart-item .quantity-controls .fas {
   font-size: 0.75rem;
 }
+
+/* ChatBot Widget */
+#tomoi-chatbot-widget {
+    font-family: Arial, sans-serif;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;  /* Vị trí góc phải */
+    z-index: 9999;
+}

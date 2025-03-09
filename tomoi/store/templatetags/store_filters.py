@@ -1,5 +1,5 @@
 from django import template
-from django.template.defaultfilters import stringfilter
+from django.template.defaultfilters import stringfilter, floatformat
 import re
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
@@ -29,13 +29,12 @@ def phone_format(value):
 
 @register.filter
 def format_balance(value):
-    try:
-        formatted = floatformat(float(value), 0)  # Thay đổi số thập phân thành 0
-        parts = str(formatted).split('.')
-        parts[0] = "{:,}".format(int(parts[0]))
-        return f"{'.'.join(parts)}₫"  # Thêm ký hiệu tiền tệ
-    except (ValueError, TypeError):
-        return value
+    if not value:
+        return "0"
+    formatted = floatformat(float(value), 0)  # Thay đổi số thập phân thành 0
+    parts = str(formatted).split('.')
+    parts[0] = "{:,}".format(int(parts[0]))
+    return f"{'.'.join(parts)}₫"  # Thêm ký hiệu tiền tệ
 
 @register.filter
 def format_price(value):

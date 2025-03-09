@@ -1,7 +1,8 @@
 from django.urls import path
-from . import views
 from django.conf import settings
 from django.conf.urls.static import static
+from . import views  # Import file views.py gốc
+from .chatbot_views import chatbot  # Import module chatbot từ thư mục views
 
 app_name = 'store'
 urlpatterns = [
@@ -44,4 +45,8 @@ urlpatterns = [
     path('wishlist/', views.wishlist, name='wishlist'),
     # path('payment/paypal/', views.paypal_payment, name='paypal_payment'),
     # path('payment/execute/', views.payment_execute, name='payment_execute'),
+    
+    # Chatbot API endpoints
+    path('api/chatbot/', chatbot.chatbot_api, name='chatbot_api'),
+    path('api/log-chat/', chatbot.log_chat, name='log_chat'),
 ] 

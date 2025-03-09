@@ -1,0 +1,436 @@
+/* ChatBot Widget */
+#tomoi-chatbot-widget {
+    font-family: Arial, sans-serif;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+/* Nút khởi chạy chat */
+.chat-launcher {
+    background-color: #fff;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.chat-launcher:hover {
+    transform: scale(1.05);
+}
+
+.chat-launcher-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.chat-launcher-button img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.chat-launcher-text {
+    position: absolute;
+    right: 70px;
+    background: #fff;
+    padding: 8px 15px;
+    border-radius: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    font-size: 14px;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateX(10px);
+    transition: all 0.3s ease;
+    color: #333;
+    font-weight: 500;
+}
+
+.chat-launcher:hover .chat-launcher-text {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Badge thông báo */
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #f44336;
+    color: white;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Cửa sổ chat */
+.chat-window {
+    position: absolute;
+    bottom: 80px;
+    right: 0;
+    width: 380px;
+    height: 500px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 5px 40px rgba(0,0,0,0.16);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+}
+
+.chat-window.active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* Header chat */
+.chat-header {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background-color: {{ theme_color|default:"#df2626" }};
+    color: white;
+}
+
+.chat-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 15px;
+}
+
+.chat-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.chat-title {
+    flex: 1;
+}
+
+.chat-name {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.chat-status {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.chat-actions button {
+    background: transparent;
+    border: none;
+    color: white;
+    margin-left: 10px;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.3s;
+}
+
+.chat-actions button:hover {
+    opacity: 1;
+}
+
+/* Body chat */
+.chat-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    background-color: #f5f5f5;
+}
+
+.chat-messages {
+    display: flex;
+    flex-direction: column;
+}
+
+.message {
+    display: flex;
+    margin-bottom: 15px;
+    max-width: 85%;
+}
+
+.message.bot {
+    align-self: flex-start;
+}
+
+.message.user {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
+.message-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 10px;
+}
+
+.message-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.message-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.message-text {
+    padding: 12px 15px;
+    border-radius: 18px;
+    position: relative;
+    word-wrap: break-word;
+}
+
+.message.bot .message-text {
+    background-color: #fff;
+    color: #333;
+    border-bottom-left-radius: 5px;
+}
+
+.message.user .message-text {
+    background-color: {{ theme_color|default:"#df2626" }};
+    color: white;
+    border-bottom-right-radius: 5px;
+}
+
+.message-time {
+    font-size: 11px;
+    margin-top: 5px;
+    opacity: 0.7;
+    align-self: flex-end;
+}
+
+.message.user .message-time {
+    align-self: flex-start;
+}
+
+/* Gợi ý câu hỏi */
+.suggestions .message-text {
+    margin-bottom: 10px;
+}
+
+.suggestion-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.suggestion-btn {
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 18px;
+    padding: 8px 15px;
+    text-align: left;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #333;
+}
+
+.suggestion-btn:hover {
+    background-color: #f9f9f9;
+    border-color: #ccc;
+}
+
+/* Card sản phẩm */
+.product-card {
+    width: 100%;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 5px 0;
+    background: white;
+}
+
+.product-card-img {
+    width: 100%;
+    height: 120px;
+    overflow: hidden;
+}
+
+.product-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-card-content {
+    padding: 10px;
+}
+
+.product-card-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.product-card-price {
+    color: {{ theme_color|default:"#df2626" }};
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.product-card-action {
+    text-align: right;
+}
+
+.product-card-btn {
+    background-color: {{ theme_color|default:"#df2626" }};
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+/* Các nút lựa chọn thể loại */
+.category-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.category-btn {
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 18px;
+    padding: 8px 15px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.category-btn:hover, .category-btn.active {
+    background-color: {{ theme_color|default:"#df2626" }};
+    border-color: {{ theme_color|default:"#df2626" }};
+    color: white;
+}
+
+/* Footer chat */
+.chat-footer {
+    padding: 10px 15px;
+    border-top: 1px solid #eee;
+    background-color: #fff;
+}
+
+.chat-input-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+#chat-input {
+    flex: 1;
+    border: none;
+    background-color: #f5f5f5;
+    border-radius: 20px;
+    padding: 10px 15px;
+    font-size: 14px;
+    outline: none;
+}
+
+.btn-send {
+    background-color: {{ theme_color|default:"#df2626" }};
+    color: white;
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-send:hover {
+    background-color: #c72020;
+}
+
+/* Hiệu ứng loading khi chờ phản hồi */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+}
+
+.typing-dot {
+    width: 8px;
+    height: 8px;
+    margin: 0 1px;
+    background-color: #999;
+    border-radius: 50%;
+    animation: typingAnimation 1.5s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(1) { animation-delay: 0s; }
+.typing-dot:nth-child(2) { animation-delay: 0.5s; }
+.typing-dot:nth-child(3) { animation-delay: 1s; }
+
+@keyframes typingAnimation {
+    0% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.6; }
+}
+
+/* Thêm hiệu ứng rung cho nút chat */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.shake {
+    animation: shake 0.8s cubic-bezier(.36,.07,.19,.97) both;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* Thêm vào JS để kích hoạt hiệu ứng */
+
+/* Responsive */
+@media (max-width: 480px) {
+    .chat-window {
+        width: 100%;
+        height: 80vh;
+        right: 0;
+        bottom: 0;
+        border-radius: 15px 15px 0 0;
+    }
+    
+    .chat-launcher-text {
+        display: none;
+    }
+} 

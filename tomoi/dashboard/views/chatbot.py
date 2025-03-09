@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator
 from django.db.models import Q, Avg
 from django.utils import timezone
@@ -15,6 +16,250 @@ from ..models.chatbot import (
     AllowedCategory, ForbiddenKeyword
 )
 from store.models import Product, Category
+from dashboard.models.api import APIConfig
+
+def is_admin(user):
+    return user.is_superuser or user.is_staff
+
+@login_required
+@user_passes_test(is_admin)
+def dashboard(request):
+    """Trang tổng quan Chatbot"""
+    # Lấy thông tin cấu hình hiện tại
+    try:
+        config = ChatbotConfig.objects.filter(is_active=True).first()
+        api = APIConfig.objects.filter(active=True).first()
+    except Exception as e:
+        print(f"Lỗi khi lấy cấu hình chatbot: {str(e)}")
+        config = None
+        api = None
+    
+    # Thống kê cơ bản
+    context = {
+        'total_chats': 0,
+        'resolution_rate': 0,
+        'avg_response_time': 0,
+        'avg_satisfaction': 0,
+        'active_tab': 'chatbot',
+        'config': config,
+        'api_config': api
+    }
+    
+    return render(request, 'dashboard/chatbot/dashboard.html', context)
+
+@login_required
+@user_passes_test(is_admin)
+def chatbot_api_settings(request):
+    """Trang cấu hình API Chatbot"""
+    active_api_config = APIConfig.objects.filter(active=True, api_type='gemini').first()
+    
+    context = {
+        'active_api_config': active_api_config,
+        'active_tab': 'chatbot'
+    }
+    
+    return render(request, 'dashboard/chatbot/api.html', context)
+
+@login_required
+@user_passes_test(is_admin)
+@require_POST
+def chatbot_save_api(request):
+    """Lưu cấu hình API"""
+    try:
+        data = json.loads(request.body)
+        api_type = data.get('api_type')
+        api_key = data.get('api_key')
+        model = data.get('model')
+        temperature = float(data.get('temperature', 0.7))
+        max_tokens = int(data.get('max_tokens', 2048))
+        endpoint = data.get('endpoint', '')
+        
+        # Debug log
+        print(f"Received API config: type={api_type}, key={api_key[:5]}..., model={model}")
+        
+        # Kiểm tra API key
+        test_result = test_api_connection(api_type, api_key, model, endpoint)
+        
+        if not test_result.get('success'):
+            return JsonResponse({
+                'success': False,
+                'message': f'Kiểm tra API thất bại: {test_result.get("message")}'
+            })
+        
+        # Lưu cấu hình
+        try:
+            config = APIConfig.objects.filter(api_type=api_type).first()
+            if config:
+                config.api_key = api_key
+                config.model = model
+                config.temperature = temperature
+                config.max_tokens = max_tokens
+                config.endpoint = endpoint
+                config.active = True
+                config.save()
+                print(f"Updated existing API config: {config.id}")
+            else:
+                config = APIConfig.objects.create(
+                    api_type=api_type,
+                    api_key=api_key,
+                    model=model,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    endpoint=endpoint,
+                    active=True
+                )
+                print(f"Created new API config: {config.id}")
+            
+            # Vô hiệu hóa các cấu hình khác cùng loại
+            APIConfig.objects.filter(api_type=api_type).exclude(id=config.id).update(active=False)
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Đã lưu cấu hình API thành công'
+            })
+        except Exception as e:
+            print(f"Database error when saving API config: {str(e)}")
+            return JsonResponse({
+                'success': False,
+                'message': f'Lỗi database: {str(e)}'
+            })
+            
+    except Exception as e:
+        print(f"Unexpected error when saving API config: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': f'Lỗi: {str(e)}'
+        })
+
+@login_required
+@user_passes_test(is_admin)
+@require_POST
+def chatbot_test_api(request):
+    """Kiểm tra kết nối API"""
+    try:
+        data = json.loads(request.body)
+        api_type = data.get('api_type')
+        api_key = data.get('api_key')
+        model = data.get('model', 'gemini-pro')
+        endpoint = data.get('endpoint', '')
+        
+        result = test_api_connection(api_type, api_key, model, endpoint)
+        
+        return JsonResponse(result)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Lỗi: {str(e)}'
+        })
+
+@login_required
+@user_passes_test(is_admin)
+def settings(request):
+    """Trang cài đặt Chatbot"""
+    # Lấy cấu hình hiện tại nếu có
+    try:
+        config = ChatbotConfig.objects.filter(is_active=True).first()
+        api_config = APIConfig.objects.filter(active=True).first()
+        
+        # Log để kiểm tra
+        if config:
+            print(f"Đã tìm thấy cấu hình chatbot: {config.name}, is_active={config.is_active}")
+        if api_config:
+            print(f"Đã tìm thấy cấu hình API: {api_config.api_type}, model={api_config.model}")
+            
+    except Exception as e:
+        print(f"Lỗi khi lấy cấu hình chatbot: {str(e)}")
+        config = None
+        api_config = None
+    
+    context = {
+        'active_tab': 'chatbot',
+        'config': config,
+        'api_config': api_config
+    }
+    
+    return render(request, 'dashboard/chatbot/settings.html', context)
+
+@login_required
+@user_passes_test(is_admin)
+def logs(request):
+    """Trang lịch sử trò chuyện"""
+    context = {
+        'logs': [],  # Thay bằng dữ liệu thực tế
+        'active_tab': 'chatbot'
+    }
+    
+    return render(request, 'dashboard/chatbot/logs.html', context)
+
+@login_required
+@user_passes_test(is_admin)
+def responses(request):
+    """Trang quản lý câu trả lời tự động"""
+    context = {
+        'responses': [],  # Thay bằng dữ liệu thực tế
+        'active_tab': 'chatbot'
+    }
+    
+    return render(request, 'dashboard/chatbot/responses.html', context)
+
+def test_api_connection(api_type, api_key, model, endpoint=None):
+    """Kiểm tra kết nối API"""
+    print(f"Kiểm tra kết nối {api_type} API với key: {api_key[:5]}...")
+    
+    try:
+        if api_type == 'gemini':
+            import google.generativeai as genai
+            genai.configure(api_key=api_key)
+            model_obj = genai.GenerativeModel(model)
+            response = model_obj.generate_content("Xin chào, đây là tin nhắn kiểm tra kết nối. Trả lời ngắn gọn.")
+            
+            if response and hasattr(response, 'text'):
+                return {
+                    'success': True,
+                    'message': 'Kết nối Gemini API thành công'
+                }
+            return {
+                'success': False,
+                'message': 'Không nhận được phản hồi hợp lệ từ Gemini API'
+            }
+            
+        elif api_type == 'openai':
+            import openai
+            openai.api_key = api_key
+            if endpoint:
+                openai.api_base = endpoint
+                
+            response = openai.ChatCompletion.create(
+                model=model,
+                messages=[
+                    {"role": "user", "content": "Xin chào, đây là tin nhắn kiểm tra kết nối. Trả lời ngắn gọn."}
+                ],
+                max_tokens=20
+            )
+            
+            if response and 'choices' in response and len(response['choices']) > 0:
+                return {
+                    'success': True,
+                    'message': 'Kết nối OpenAI API thành công'
+                }
+            return {
+                'success': False,
+                'message': 'Không nhận được phản hồi hợp lệ từ OpenAI API'
+            }
+            
+        # Thêm các loại API khác nếu cần
+        
+        return {
+            'success': False,
+            'message': f'Loại API không được hỗ trợ: {api_type}'
+        }
+        
+    except Exception as e:
+        print(f"Lỗi kết nối: {str(e)}")
+        return {
+            'success': False,
+            'message': f'Lỗi kết nối: {str(e)}'
+        }
 
 @staff_member_required
 def chatbot_dashboard(request):
@@ -517,4 +762,102 @@ def send_anthropic_request(api_integration, prompt):
         text_content = response_data['content'][0]['text']
         return {'response': text_content}
     except (KeyError, IndexError) as e:
-        raise Exception(f"Lỗi phân tích phản hồi Anthropic: {str(e)}") 
+        raise Exception(f"Lỗi phân tích phản hồi Anthropic: {str(e)}")
+
+@login_required
+@user_passes_test(is_admin)
+@require_POST
+def save_chatbot_settings(request):
+    """Lưu cấu hình Chatbot và API"""
+    try:
+        data = json.loads(request.body)
+        
+        # Lấy dữ liệu từ request
+        api_type = data.get('api_type', 'gemini')
+        api_key = data.get('api_key')
+        model = data.get('model', 'gemini-1.5-pro')  # Mặc định là 1.5 pro thay vì 2.0 pro
+        temperature = float(data.get('temperature', 0.7))
+        chatbot_name = data.get('chatbot_name')
+        base_prompt = data.get('base_prompt')
+        endpoint = data.get('endpoint', '')
+        
+        print(f"Saving APIConfig: {api_type}, key={api_key[:5]}..., model={model}")
+        
+        # Cập nhật hoặc tạo mới cấu hình API
+        api_config, created = APIConfig.objects.update_or_create(
+            api_type=api_type,
+            defaults={
+                'api_key': api_key,
+                'model': model,
+                'temperature': temperature,
+                'endpoint': endpoint,
+                'active': True
+            }
+        )
+        
+        # Vô hiệu hóa các cấu hình API khác
+        APIConfig.objects.exclude(id=api_config.id).update(active=False)
+        
+        # Kiểm tra các trường có trong model trước khi cập nhật
+        chatbot_config_fields = {
+            'chatbot_name': chatbot_name,
+            'base_prompt': base_prompt,
+            'is_active': True
+        }
+        
+        # Cập nhật hoặc tạo mới cấu hình Chatbot
+        chatbot_config, created = ChatbotConfig.objects.update_or_create(
+            name=chatbot_name,
+            defaults=chatbot_config_fields
+        )
+        
+        # Vô hiệu hóa các cấu hình Chatbot khác
+        ChatbotConfig.objects.exclude(id=chatbot_config.id).update(is_active=False)
+        
+        print(f"Đã lưu cấu hình Chatbot thành công: {chatbot_config.name}, API: {api_config.api_type}")
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Đã lưu cấu hình Chatbot thành công'
+        })
+        
+    except Exception as e:
+        print(f"Lỗi khi lưu cấu hình Chatbot: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': f'Lỗi: {str(e)}'
+        })
+
+@csrf_exempt
+def get_chatbot_config(request):
+    """Trả về cấu hình chatbot cho frontend"""
+    try:
+        # Lấy cấu hình chatbot và API đang hoạt động
+        config = ChatbotConfig.objects.filter(is_active=True).first()
+        api_config = APIConfig.objects.filter(active=True).first()
+        
+        if not config or not api_config:
+            return JsonResponse({
+                'success': False,
+                'message': 'Chưa cấu hình chatbot hoặc API'
+            })
+        
+        # Trả về thông tin cấu hình
+        return JsonResponse({
+            'success': True,
+            'config': {
+                'chatbot_name': config.chatbot_name,
+                'base_prompt': config.base_prompt,
+                'api_type': api_config.api_type,
+                'api_key': api_config.api_key,
+                'model': api_config.model,
+                'temperature': api_config.temperature,
+                'endpoint': api_config.endpoint
+            }
+        })
+    except Exception as e:
+        print(f"Lỗi khi lấy cấu hình chatbot: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': f'Lỗi: {str(e)}'
+        }) 

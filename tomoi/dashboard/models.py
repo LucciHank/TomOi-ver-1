@@ -488,4 +488,100 @@ class Event(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-start_time'] 
+        ordering = ['-start_time']
+
+class APIConfig(models.Model):
+    """Model lưu trữ cấu hình API cho các dịch vụ bên ngoài"""
+    name = models.CharField(max_length=100, verbose_name="Tên cấu hình")
+    api_type = models.CharField(max_length=50, verbose_name="Loại API", 
+                               choices=[('gemini', 'Google Gemini'), 
+                                        ('openai', 'OpenAI'), 
+                                        ('azure', 'Azure AI')])
+    api_key = models.CharField(max_length=255, verbose_name="API Key")
+    model = models.CharField(max_length=100, verbose_name="Model", default="gemini-2.0-flash")
+    endpoint = models.URLField(verbose_name="Endpoint URL", blank=True, null=True)
+    temperature = models.FloatField(verbose_name="Temperature", default=0.7)
+    max_tokens = models.IntegerField(verbose_name="Max Tokens", default=2048)
+    active = models.BooleanField(default=True, verbose_name="Đang hoạt động")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Cấu hình API"
+        verbose_name_plural = "Cấu hình API"
+        
+    def __str__(self):
+        return f"{self.name} ({self.api_type})"
+        
+    def save(self, *args, **kwargs):
+        # Nếu cấu hình này được kích hoạt, vô hiệu hóa các cấu hình khác cùng loại
+        if self.active:
+            APIConfig.objects.filter(api_type=self.api_type).exclude(pk=self.pk).update(active=False)
+        super().save(*args, **kwargs)
+        
+class ChatbotConfig(models.Model):
+    """Model lưu trữ cấu hình chatbot"""
+    name = models.CharField(max_length=100, verbose_name="Tên cấu hình")
+    system_prompt = models.TextField(verbose_name="System Prompt", 
+                                   help_text="Prompt hệ thống để định hướng chatbot")
+    chatbot_name = models.CharField(max_length=100, verbose_name="Tên Chatbot", default="TomOi Assistant")
+    theme_color = models.CharField(max_length=20, verbose_name="Màu chủ đề", default="#df2626")
+    avatar = models.ImageField(upload_to='chatbot', verbose_name="Avatar chatbot", null=True, blank=True)
+    active = models.BooleanField(default=True, verbose_name="Đang hoạt động")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Cấu hình Chatbot"
+        verbose_name_plural = "Cấu hình Chatbot"
+        
+    def __str__(self):
+        return self.name
+        
+    def save(self, *args, **kwargs):
+        # Nếu cấu hình này được kích hoạt, vô hiệu hóa các cấu hình khác
+        if self.active:
+            ChatbotConfig.objects.filter(active=True).exclude(pk=self.pk).update(active=False)
+        super().save(*args, **kwargs)
+
+class ChatbotConversation(models.Model):
+    """Model lưu trữ lịch sử cuộc trò chuyện với chatbot"""
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True, 
+                            verbose_name="Người dùng")
+    session_id = models.CharField(max_length=100, verbose_name="Session ID")
+    conversation_data = models.JSONField(verbose_name="Dữ liệu cuộc trò chuyện")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Lịch sử cuộc trò chuyện"
+        verbose_name_plural = "Lịch sử cuộc trò chuyện"
+        indexes = [
+            models.Index(fields=['session_id']),
+            models.Index(fields=['user', 'created_at']),
+        ]
+        
+    def __str__(self):
+        return f"Cuộc trò chuyện {self.session_id}"
+        
+    @classmethod
+    def create(cls, user_id, session_id, history):
+        """Tạo hoặc cập nhật bản ghi lịch sử cuộc trò chuyện"""
+        from django.contrib.auth.models import User
+        user = User.objects.get(id=user_id) if user_id else None
+        
+        # Tìm hoặc tạo mới
+        obj, created = cls.objects.get_or_create(
+            session_id=session_id,
+            defaults={
+                'user': user,
+                'conversation_data': history
+            }
+        )
+        
+        # Nếu đã tồn tại, cập nhật dữ liệu
+        if not created:
+            obj.conversation_data = history
+            obj.save()
+            
+        return obj 

@@ -126,6 +126,7 @@ TEMPLATES = [
                 'store.context_processors.categories',
                 'store.context_processors.wishlist_status',
                 'dashboard.context_processors.dashboard_settings',
+                'store.context_processors.chatbot_config',
             ],
         },
     },

@@ -1,0 +1,183 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Lịch sử trò chuyện Chatbot{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Lịch sử trò chuyện Chatbot</h1>
+    
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">Thống kê</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Tổng số cuộc trò chuyện</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_conversations }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-comments fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Số người dùng đã trò chuyện</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_users }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-users fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bộ lọc -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Bộ lọc</h6>
+        </div>
+        <div class="card-body">
+            <form method="get" action="{% url 'dashboard:chat_history' %}">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="user_id">Người dùng</label>
+                        <select class="form-control" id="user_id" name="user_id">
+                            <option value="">Tất cả người dùng</option>
+                            {% for user in users %}
+                                <option value="{{ user.id }}" {% if filters.user_id == user.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ user.username }} ({{ user.email }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="date_from">Từ ngày</label>
+                        <input type="date" class="form-control" id="date_from" name="date_from" value="{{ filters.date_from|date:'Y-m-d' }}">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="date_to">Đến ngày</label>
+                        <input type="date" class="form-control" id="date_to" name="date_to" value="{{ filters.date_to|date:'Y-m-d' }}">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="keyword">Từ khóa</label>
+                        <input type="text" class="form-control" id="keyword" name="keyword" value="{{ filters.keyword }}">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Lọc</button>
+                <a href="{% url 'dashboard:chat_history' %}" class="btn btn-secondary">Đặt lại</a>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Danh sách cuộc trò chuyện -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách cuộc trò chuyện</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Người dùng</th>
+                            <th>Session ID</th>
+                            <th>Thời gian</th>
+                            <th>Số tin nhắn</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for conversation in conversations %}
+                        <tr>
+                            <td>{{ conversation.id }}</td>
+                            <td>
+                                {% if conversation.user %}
+                                    {{ conversation.user.username }}
+                                {% else %}
+                                    Khách
+                                {% endif %}
+                            </td>
+                            <td>{{ conversation.session_id }}</td>
+                            <td>{{ conversation.created_at }}</td>
+                            <td>{{ conversation.message_count }}</td>
+                            <td>
+                                <a href="{% url 'dashboard:conversation_detail' conversation.id %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i> Xem
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">Không có dữ liệu</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Phân trang -->
+            {% if conversations.has_other_pages %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if conversations.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% for key, value in filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ conversations.previous_page_number }}{% for key, value in filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for i in conversations.paginator.page_range %}
+                        {% if conversations.number == i %}
+                        <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                        {% elif i > conversations.number|add:'-3' and i < conversations.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ i }}{% for key, value in filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if conversations.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ conversations.next_page_number }}{% for key, value in filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ conversations.paginator.num_pages }}{% for key, value in filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

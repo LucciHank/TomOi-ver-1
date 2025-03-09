@@ -1,0 +1,258 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+
+{% block title %}Cấu hình API Chatbot{% endblock %}
+
+{% block extra_css %}
+<style>
+    .api-status {
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 15px;
+    }
+    
+    .api-test-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .api-test-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    
+    .api-key-input {
+        font-family: monospace;
+    }
+    
+    .api-settings-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .card-api {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 25px rgba(0,0,0,.1);
+        transition: all 0.3s ease;
+    }
+    
+    .card-api:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 30px rgba(0,0,0,.15);
+    }
+    
+    .api-card-header {
+        background: linear-gradient(to right, #4e73df, #36b9cc);
+        color: white;
+        padding: 20px;
+    }
+    
+    .instruction-step {
+        padding: 10px;
+        margin-bottom: 8px;
+        border-radius: 5px;
+        background-color: #f8f9fc;
+    }
+    
+    .instruction-step i {
+        color: #4e73df;
+        margin-right: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Cấu hình API Chatbot</h1>
+    </div>
+    
+    <!-- Nội dung chính -->
+    <div class="row">
+        <!-- Form cấu hình API -->
+        <div class="col-lg-7">
+            <div class="card shadow mb-4 card-api">
+                <div class="card-header py-3 api-card-header">
+                    <h6 class="m-0 font-weight-bold text-white">
+                        <i class="fas fa-key"></i> Cấu hình API của bạn
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form id="api-form" class="user">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="api_type" class="form-label fw-bold">Loại API:</label>
+                            <select class="form-select form-control" id="api_type" name="api_type">
+                                <option value="gemini" {% if active_api_config.api_type == 'gemini' %}selected{% endif %}>Google Gemini AI</option>
+                                <option value="openai" {% if active_api_config.api_type == 'openai' %}selected{% endif %}>OpenAI</option>
+                                <option value="anthropic" {% if active_api_config.api_type == 'anthropic' %}selected{% endif %}>Anthropic Claude</option>
+                                <option value="cohere" {% if active_api_config.api_type == 'cohere' %}selected{% endif %}>Cohere</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="api_key" class="form-label fw-bold">API Key:</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control api-key-input" id="api_key" name="api_key" value="{{ active_api_config.api_key }}" placeholder="Nhập API key của bạn">
+                                <button class="btn btn-outline-secondary toggle-password" type="button">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="model" class="form-label fw-bold">Model:</label>
+                            <select class="form-select form-control" id="model" name="model">
+                                <!-- Google Gemini models -->
+                                <optgroup label="Google Gemini">
+                                    <option value="gemini-pro" {% if active_api_config.api_type == 'gemini' and active_api_config.model == 'gemini-pro' %}selected{% endif %}>Gemini Pro</option>
+                                    <option value="gemini-pro-vision" {% if active_api_config.api_type == 'gemini' and active_api_config.model == 'gemini-pro-vision' %}selected{% endif %}>Gemini Pro Vision</option>
+                                    <option value="gemini-ultra" {% if active_api_config.api_type == 'gemini' and active_api_config.model == 'gemini-ultra' %}selected{% endif %}>Gemini Ultra</option>
+                                </optgroup>
+                                
+                                <!-- OpenAI models -->
+                                <optgroup label="OpenAI">
+                                    <option value="gpt-4o" {% if active_api_config.api_type == 'openai' and active_api_config.model == 'gpt-4o' %}selected{% endif %}>GPT-4o</option>
+                                    <option value="gpt-4" {% if active_api_config.api_type == 'openai' and active_api_config.model == 'gpt-4' %}selected{% endif %}>GPT-4</option>
+                                    <option value="gpt-3.5-turbo" {% if active_api_config.api_type == 'openai' and active_api_config.model == 'gpt-3.5-turbo' %}selected{% endif %}>GPT-3.5 Turbo</option>
+                                </optgroup>
+                                
+                                <!-- Anthropic models -->
+                                <optgroup label="Anthropic">
+                                    <option value="claude-3-opus" {% if active_api_config.api_type == 'anthropic' and active_api_config.model == 'claude-3-opus' %}selected{% endif %}>Claude 3 Opus</option>
+                                    <option value="claude-3-sonnet" {% if active_api_config.api_type == 'anthropic' and active_api_config.model == 'claude-3-sonnet' %}selected{% endif %}>Claude 3 Sonnet</option>
+                                    <option value="claude-3-haiku" {% if active_api_config.api_type == 'anthropic' and active_api_config.model == 'claude-3-haiku' %}selected{% endif %}>Claude 3 Haiku</option>
+                                </optgroup>
+                                
+                                <!-- Cohere models -->
+                                <optgroup label="Cohere">
+                                    <option value="command" {% if active_api_config.api_type == 'cohere' and active_api_config.model == 'command' %}selected{% endif %}>Command</option>
+                                    <option value="command-light" {% if active_api_config.api_type == 'cohere' and active_api_config.model == 'command-light' %}selected{% endif %}>Command Light</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="temperature" class="form-label fw-bold">Temperature:</label>
+                                <input type="range" class="form-range" id="temperature" name="temperature" min="0" max="1" step="0.1" value="{{ active_api_config.temperature|default:0.7 }}">
+                                <div class="d-flex justify-content-between">
+                                    <small>Chính xác</small>
+                                    <small id="temp-value">{{ active_api_config.temperature|default:0.7 }}</small>
+                                    <small>Sáng tạo</small>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="max_tokens" class="form-label fw-bold">Max Tokens:</label>
+                                <input type="number" class="form-control" id="max_tokens" name="max_tokens" min="10" max="8000" value="{{ active_api_config.max_tokens|default:2048 }}">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4" id="endpoint-container" style="display: none;">
+                            <label for="endpoint" class="form-label fw-bold">API Endpoint:</label>
+                            <input type="text" class="form-control" id="endpoint" name="endpoint" value="{{ active_api_config.endpoint }}" placeholder="https://api.example.com/v1">
+                        </div>
+                        
+                        <!-- Trạng thái kết nối API -->
+                        <div id="api-status" class="api-status mb-4">
+                            {% if active_api_config %}
+                                <span class="text-success"><i class="fas fa-check-circle"></i> Đã cấu hình API</span>
+                            {% else %}
+                                <span class="text-warning"><i class="fas fa-exclamation-circle"></i> Chưa cấu hình API</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex">
+                            <button type="button" id="test-api-connection" class="btn btn-info me-2">
+                                <i class="fas fa-link"></i> Kiểm tra kết nối
+                            </button>
+                            
+                            <button type="button" id="save-api-config" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Lưu cấu hình
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hướng dẫn -->
+        <div class="col-lg-5">
+            <div class="card shadow mb-4 card-api">
+                <div class="card-header py-3 api-card-header">
+                    <h6 class="m-0 font-weight-bold text-white">
+                        <i class="fas fa-question-circle"></i> Hướng dẫn cấu hình
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <h5 class="mb-3">Làm thế nào để lấy API key?</h5>
+                    
+                    <div class="instruction-step">
+                        <i class="fas fa-arrow-right"></i> <strong>Google Gemini AI:</strong>
+                        <ol class="mt-2">
+                            <li>Truy cập <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio</a></li>
+                            <li>Đăng nhập bằng tài khoản Google của bạn</li>
+                            <li>Chọn "Get API key" hoặc "Create API key"</li>
+                            <li>Sao chép API key và dán vào ô bên trái</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="instruction-step">
+                        <i class="fas fa-arrow-right"></i> <strong>OpenAI:</strong>
+                        <ol class="mt-2">
+                            <li>Truy cập <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI Platform</a></li>
+                            <li>Đăng nhập tài khoản OpenAI</li>
+                            <li>Tạo Secret key mới và sao chép</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="instruction-step">
+                        <i class="fas fa-arrow-right"></i> <strong>Anthropic:</strong>
+                        <ol class="mt-2">
+                            <li>Truy cập <a href="https://console.anthropic.com/keys" target="_blank">Anthropic Console</a></li>
+                            <li>Đăng ký tài khoản nếu chưa có</li>
+                            <li>Tạo API key mới</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle mr-1"></i> Google Gemini AI cho phép sử dụng miễn phí với giới hạn 60 request/phút
+                    </div>
+                    
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-exclamation-triangle mr-1"></i> Không chia sẻ API key của bạn với người khác.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'dashboard/js/api-settings.js' %}"></script>
+<script>
+    // Hiển thị giá trị temperature
+    document.getElementById('temperature').addEventListener('input', function() {
+        document.getElementById('temp-value').textContent = this.value;
+    });
+    
+    // Hiển thị/ẩn endpoint tùy thuộc vào loại API
+    document.getElementById('api_type').addEventListener('change', function() {
+        const endpointContainer = document.getElementById('endpoint-container');
+        if (this.value === 'openai' || this.value === 'anthropic' || this.value === 'cohere') {
+            endpointContainer.style.display = 'block';
+        } else {
+            endpointContainer.style.display = 'none';
+        }
+    });
+    
+    // Kích hoạt change event khi page load
+    document.getElementById('api_type').dispatchEvent(new Event('change'));
+</script>
+{% endblock %} 

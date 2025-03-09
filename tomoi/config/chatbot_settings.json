@@ -1,0 +1,13 @@
+{
+    "GEMINI_API_KEY": "L\u1ed7i khi l\u1ea5y c\u1ea5u h\u00ecnh chatbot: Cannot resolve keyword 'active' into field. Choices are: allowed_categories, base_prompt, created_at, forbidden_keywords, id, is_active, name, rejection_message, updated_at \"GET /dashboard/settings/?tab=chatbot HTTP/1.1\" 200 68301 L\u1ed7i khi l\u1ea5y c\u1ea5u h\u00ecnh chatbot: Cannot resolve keyword 'active' into field. Choices are: allowed_categories, base_prompt, created_at, forbidden_keywords, id, is_active, name, rejection_message, updated_at \"GET /dashboard/settings/?tab=chatbot HTTP/1.1\" 200 68301 Ki\u1ec3m tra k\u1ebft n\u1ed1i Gemini API v\u1edbi key: AIzaS... \u0110ang g\u1eedi request t\u1edbi Gemini API... Nh\u1eadn \u0111\u01b0\u1ee3c ph\u1ea3n h\u1ed3i v\u1edbi status code: 200 K\u1ebft n\u1ed1i th\u00e0nh c\u00f4ng! \"POST /dashboard/settings/test-gemini-api/ HTTP/1.1\" 200 17 \"POST /dashboard/settings/save-chatbot/ HTTP/1.1\" 302 0 L\u1ed7i khi l\u1ea5y c\u1ea5u h\u00ecnh chatbot: Cannot resolve keyword 'active' into field. Choices are: allowed_categories, base_prompt, created_at, forbidden_keywords, id, is_active, name, rejection_message, updated_at \"GET /dashboard/settings/ HTTP/1.1\" 200 54574 L\u1ed7i khi l\u1ea5y c\u1ea5u h\u00ecnh chatbot: Cannot resolve keyword 'active' into field. Choices are: allowed_categories, base_prompt, created_at, forbidden_keywords, id, is_active, name, rejection_message, updated_at \"GET /dashboard/settings/?tab=chatbot HTTP/1.1\" 200 68301",
+    "GEMINI_MODEL": "gemini-2.0-flash",
+    "GEMINI_TEMPERATURE": 0.7,
+    "GEMINI_MAX_TOKENS": 2048,
+    "GEMINI_SYSTEM_PROMPT": "B\u1ea1n l\u00e0 tr\u1ee3 l\u00fd \u1ea3o c\u1ee7a TomOi, h\u1ed7 tr\u1ee3 kh\u00e1ch h\u00e0ng m\u1ed9t c\u00e1ch l\u1ecbch s\u1ef1 v\u00e0 chuy\u00ean nghi\u1ec7p. Tr\u1ea3 l\u1eddi b\u1eb1ng ti\u1ebfng Vi\u1ec7t, ng\u1eafn g\u1ecdn v\u00e0 h\u1eefu \u00edch.s\u0111sa",
+    "GEMINI_ENABLE_CHAT_HISTORY": true,
+    "GEMINI_ENABLE_PRODUCT_SEARCH": true,
+    "GEMINI_ENABLE_STREAMING": true,
+    "CHATBOT_NAME": "TomOi Assistant",
+    "CHATBOT_THEME_COLOR": "#df2626",
+    "CHATBOT_POSITION": "bottom-right"
+}

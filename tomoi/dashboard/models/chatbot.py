@@ -8,15 +8,23 @@ User = get_user_model()
 
 class ChatbotConfig(models.Model):
     """Cấu hình chung của chatbot"""
-    name = models.CharField(max_length=100, verbose_name="Tên cấu hình")
-    is_active = models.BooleanField(default=False, verbose_name="Kích hoạt")
-    base_prompt = models.TextField(verbose_name="Prompt cơ bản")
+    name = models.CharField(max_length=100)
+    base_prompt = models.TextField()
     rejection_message = models.CharField(max_length=255, default="Xin lỗi, tôi không thể hỗ trợ câu hỏi này.")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+    
+    # Thêm các trường UI
+    chatbot_name = models.CharField(max_length=50, default="TomOi Assistant")
+    theme_color = models.CharField(max_length=20, default="#df2626")
+    avatar = models.ImageField(upload_to='chatbot/', blank=True, null=True)
+    
+    # Thêm cấu hình system prompt để nạp cho model NLP
+    system_prompt = models.TextField(blank=True, null=True)
     
     def __str__(self):
-        return self.name
+        return f"{self.name} ({'Kích hoạt' if self.is_active else 'Không kích hoạt'})"
     
     class Meta:
         verbose_name = "Cấu hình Chatbot"

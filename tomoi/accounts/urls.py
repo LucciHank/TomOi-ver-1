@@ -62,4 +62,8 @@ urlpatterns = [
     path('apply-voucher/', views.apply_voucher, name='apply_voucher'),
     path('apply-gift/', views.apply_gift, name='apply_gift'),
     path('api/transaction/<int:transaction_id>/', views.get_transaction_detail, name='transaction_detail'),
+    path('api/public/chatbot-config/', views.public_chatbot_config, name='public_chatbot_config'),
+    path('api/public/chatbot-process/', views.public_chatbot_process, name='public_chatbot_process'),
+    path('api/chatbot/', views.public_chatbot_process, name='api_chatbot'),
+    path('api/log-chat/', views.log_chat, name='log_chat'),
 ]

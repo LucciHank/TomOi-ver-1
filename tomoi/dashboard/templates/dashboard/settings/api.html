@@ -1,0 +1,686 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Cài đặt hệ thống - TomOi Admin{% endblock %}
+
+{% block css %}
+<style>
+    /* Styling cho tab cài đặt */
+    .nav-tabs .nav-item .nav-link {
+        color: #6e707e;
+        font-weight: 500;
+        border: none;
+        padding: 1rem 1.5rem;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-tabs .nav-item .nav-link.active {
+        color: #df2626;
+        border-bottom: 3px solid #df2626;
+        background-color: transparent;
+    }
+    
+    .nav-tabs .nav-item .nav-link:hover:not(.active) {
+        border-bottom: 3px solid #f8f9fc;
+        background-color: #f8f9fc;
+    }
+    
+    .settings-card {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .settings-card .card-header {
+        background-color: white;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        padding: 1.5rem;
+    }
+    
+    .settings-card .card-body {
+        padding: 1.5rem;
+    }
+    
+    .settings-form .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .settings-form label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+    
+    .settings-form .form-control {
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        border: 1px solid rgba(0,0,0,0.15);
+    }
+    
+    .settings-form .form-control:focus {
+        border-color: #df2626;
+        box-shadow: 0 0 0 0.2rem rgba(223, 38, 38, 0.25);
+    }
+    
+    .btn-save-settings {
+        background-color: #df2626;
+        border-color: #df2626;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        border-radius: 8px;
+    }
+    
+    .btn-save-settings:hover {
+        background-color: #c51f1f;
+        border-color: #c51f1f;
+    }
+    
+    .settings-item {
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .settings-item:last-child {
+        border-bottom: none;
+    }
+    
+    .settings-item-title {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .settings-item-description {
+        color: #6e707e;
+        margin-bottom: 1rem;
+    }
+    
+    .api-key-field {
+        font-family: monospace;
+        letter-spacing: 0.5px;
+    }
+    
+    .api-field-group {
+        position: relative;
+    }
+    
+    .api-field-action {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+    }
+    
+    .api-status {
+        display: inline-block;
+        padding: 0.35rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .api-status.connected {
+        background-color: rgba(28, 200, 138, 0.2);
+        color: #1cc88a;
+    }
+    
+    .api-status.disconnected {
+        background-color: rgba(231, 74, 59, 0.2);
+        color: #e74a3b;
+    }
+    
+    .api-test-result {
+        margin-top: 1rem;
+        padding: 1rem;
+        border-radius: 8px;
+        display: none;
+    }
+    
+    .api-test-success {
+        background-color: rgba(28, 200, 138, 0.1);
+        border: 1px solid rgba(28, 200, 138, 0.3);
+        color: #1cc88a;
+    }
+    
+    .api-test-error {
+        background-color: rgba(231, 74, 59, 0.1);
+        border: 1px solid rgba(231, 74, 59, 0.3);
+        color: #e74a3b;
+    }
+</style>
+{% endblock %}
+
+{% block extra_head %}
+<script>
+    console.log("API Configs loaded:", {{ api_configs|safe }});
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Cài đặt hệ thống</h1>
+    </div>
+    
+    <!-- Settings Tabs -->
+    <ul class="nav nav-tabs mb-4" id="settingsTabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link {% if active_tab == 'general' or not active_tab %}active{% endif %}" id="general-tab" data-toggle="tab" href="#general" role="tab" aria-controls="general" aria-selected="true">
+                <i class="fas fa-sliders-h mr-2"></i>Cài đặt chung
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if active_tab == 'email' %}active{% endif %}" id="email-tab" data-toggle="tab" href="#email" role="tab" aria-controls="email" aria-selected="false">
+                <i class="fas fa-envelope mr-2"></i>Email
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if active_tab == 'payment' %}active{% endif %}" id="payment-tab" data-toggle="tab" href="#payment" role="tab" aria-controls="payment" aria-selected="false">
+                <i class="fas fa-credit-card mr-2"></i>Thanh toán
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if active_tab == 'chatbot' %}active{% endif %}" id="chatbot-tab" data-toggle="tab" href="#chatbot" role="tab" aria-controls="chatbot" aria-selected="false">
+                <i class="fas fa-robot mr-2"></i>Chatbot
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if active_tab == 'security' %}active{% endif %}" id="security-tab" data-toggle="tab" href="#security" role="tab" aria-controls="security" aria-selected="false">
+                <i class="fas fa-shield-alt mr-2"></i>Bảo mật
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if active_tab == 'backup' %}active{% endif %}" id="backup-tab" data-toggle="tab" href="#backup" role="tab" aria-controls="backup" aria-selected="false">
+                <i class="fas fa-database mr-2"></i>Sao lưu
+            </a>
+        </li>
+    </ul>
+    
+    <!-- Tab Content -->
+    <div class="tab-content" id="settingsTabContent">
+        <!-- General Settings Tab -->
+        <div class="tab-pane fade {% if active_tab == 'general' or not active_tab %}show active{% endif %}" id="general" role="tabpanel" aria-labelledby="general-tab">
+            <div class="card settings-card">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">Cài đặt chung</h6>
+                </div>
+                <div class="card-body">
+                    <form class="settings-form" id="generalSettingsForm">
+                        <div class="form-group">
+                            <label for="siteName">Tên website</label>
+                            <input type="text" class="form-control" id="siteName" value="TomOi.vn">
+                        </div>
+                        <div class="form-group">
+                            <label for="siteDescription">Mô tả website</label>
+                            <textarea class="form-control" id="siteDescription" rows="3">TomOi - Nền tảng thương mại điện tử hàng đầu Việt Nam</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="adminEmail">Email quản trị</label>
+                            <input type="email" class="form-control" id="adminEmail" value="admin@tomoi.vn">
+                        </div>
+                        <div class="form-group">
+                            <label for="timeZone">Múi giờ</label>
+                            <select class="form-control" id="timeZone">
+                                <option value="Asia/Ho_Chi_Minh" selected>Việt Nam (UTC+7)</option>
+                                <option value="Asia/Bangkok">Thái Lan (UTC+7)</option>
+                                <option value="Asia/Singapore">Singapore (UTC+8)</option>
+                                <option value="Asia/Tokyo">Nhật Bản (UTC+9)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-save-settings">Lưu cài đặt</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Email Settings Tab -->
+        <div class="tab-pane fade {% if active_tab == 'email' %}show active{% endif %}" id="email" role="tabpanel" aria-labelledby="email-tab">
+            <div class="card settings-card">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">Cấu hình SMTP</h6>
+                </div>
+                <div class="card-body">
+                    <form class="settings-form" id="emailSettingsForm">
+                        <div class="form-group">
+                            <label for="smtpServer">Máy chủ SMTP</label>
+                            <input type="text" class="form-control" id="smtpServer" value="smtp.gmail.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="smtpPort">Cổng SMTP</label>
+                            <input type="text" class="form-control" id="smtpPort" value="587">
+                        </div>
+                        <div class="form-group">
+                            <label for="smtpEmail">Email</label>
+                            <input type="email" class="form-control" id="smtpEmail" value="tomoivn2024@gmail.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="smtpPassword">Mật khẩu ứng dụng</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control api-key-field" id="smtpPassword" value="vhnl yeww apjf jaar">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-secondary toggle-password">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Trạng thái</label>
+                            <div>
+                                <span class="api-status connected"><i class="fas fa-check-circle mr-1"></i> Đã kết nối</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="btn btn-info" id="testEmailBtn">
+                                <i class="fas fa-paper-plane mr-1"></i> Gửi email kiểm tra
+                            </button>
+                            <button type="submit" class="btn btn-primary btn-save-settings">Lưu cài đặt</button>
+                        </div>
+                        <div id="emailTestResult" class="api-test-result api-test-success">
+                            <i class="fas fa-check-circle mr-1"></i> Email kiểm tra đã được gửi thành công!
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Payment Settings Tab -->
+        <div class="tab-pane fade {% if active_tab == 'payment' %}show active{% endif %}" id="payment" role="tabpanel" aria-labelledby="payment-tab">
+            <div class="card settings-card">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">Cổng thanh toán</h6>
+                </div>
+                <div class="card-body">
+                    <div class="settings-item">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <div class="settings-item-title">
+                                    <i class="fas fa-credit-card text-primary mr-2"></i> VNPay
+                                </div>
+                                <div class="settings-item-description">
+                                    Cổng thanh toán trực tuyến của Việt Nam
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-right">
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="vnPaySwitch" checked>
+                                    <label class="custom-control-label" for="vnPaySwitch">Kích hoạt</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="vnpay-settings mt-3" id="vnpaySettings">
+                            <form class="settings-form">
+                                <div class="form-group">
+                                    <label for="vnpayTmnCode">Terminal ID (TMN Code)</label>
+                                    <input type="text" class="form-control" id="vnpayTmnCode" value="B2RG0YSD">
+                                </div>
+                                <div class="form-group">
+                                    <label for="vnpayHashSecret">Hash Secret</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control api-key-field" id="vnpayHashSecret" value="S500OYUZE6YZRFNMC2LFQZZXMXATAJKK">
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-outline-secondary toggle-password">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-save-settings">Lưu cài đặt</button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-item">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <div class="settings-item-title">
+                                    <i class="fas fa-money-bill-wave text-success mr-2"></i> SePay
+                                </div>
+                                <div class="settings-item-description">
+                                    Cổng thanh toán thẻ cào và ví điện tử
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-right">
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="sePaySwitch" checked>
+                                    <label class="custom-control-label" for="sePaySwitch">Kích hoạt</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sepay-settings mt-3" id="sepaySettings">
+                            <form class="settings-form">
+                                <div class="form-group">
+                                    <label for="sepayAccount">Tài khoản SePay</label>
+                                    <input type="text" class="form-control" id="sepayAccount" value="VQRQABHEI5230">
+                                </div>
+                                <div class="form-group">
+                                    <label for="sepayApiKey">API Key</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control api-key-field" id="sepayApiKey" value="ZMR2Y3H54KLIZSKG0YYST8AJWCPCPN0D7KAUUXTUETG6HTOQGXL3NJDORFXZWQB1">
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-outline-secondary toggle-password">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-save-settings">Lưu cài đặt</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chatbot Settings Tab -->
+        <div class="tab-pane fade {% if active_tab == 'chatbot' %}show active{% endif %}" id="chatbot" role="tabpanel" aria-labelledby="chatbot-tab">
+            <div class="card settings-card">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">Cấu hình Chatbot</h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-2"></i> Cấu hình API để sử dụng Google Gemini AI cho chatbot của bạn. Nếu bạn chưa có API key, hãy truy cập <a href="https://ai.google.dev/" target="_blank">Google AI Developer Hub</a> để đăng ký.
+                    </div>
+                    
+                    <form class="settings-form" id="chatbotSettingsForm">
+                        <div class="form-group">
+                            <label for="geminiApiKey">Gemini API Key</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control api-key-field" id="geminiApiKey" placeholder="Nhập Gemini API Key của bạn..." value="{{ active_api_config.api_key|default:'' }}">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-secondary toggle-password">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="geminiModel">Model AI</label>
+                            <select class="form-control" id="geminiModel">
+                                <option value="gemini-pro">Gemini Pro</option>
+                                <option value="gemini-pro-vision">Gemini Pro Vision</option>
+                                <option value="gemini-ultra">Gemini Ultra</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="chatbotName">Tên Chatbot</label>
+                            <input type="text" class="form-control" id="chatbotName" value="TomOi Assistant">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="chatbotContext">Bối cảnh của Chatbot</label>
+                            <textarea class="form-control" id="chatbotContext" rows="4">Bạn là trợ lý ảo của TomOi.vn, một nền tảng thương mại điện tử Việt Nam. Bạn có thể giúp người dùng tìm kiếm sản phẩm, giải đáp thắc mắc về đơn hàng, thanh toán và các chính sách của website.</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="chatbotTemperature">Nhiệt độ (Temperature)</label>
+                            <input type="range" class="custom-range" id="chatbotTemperature" min="0" max="1" step="0.1" value="0.7">
+                            <div class="d-flex justify-content-between">
+                                <small>Chính xác (0.0)</small>
+                                <small>Cân bằng (0.7)</small>
+                                <small>Sáng tạo (1.0)</small>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Trạng thái API</label>
+                            <div>
+                                <span class="api-status disconnected"><i class="fas fa-times-circle mr-1"></i> Chưa kết nối</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button type="button" class="btn btn-info" id="testGeminiBtn">
+                                <i class="fas fa-vial mr-1"></i> Kiểm tra kết nối
+                            </button>
+                            <button type="submit" class="btn btn-primary btn-save-settings ml-2">
+                                <i class="fas fa-save mr-1"></i> Lưu cài đặt
+                            </button>
+                        </div>
+                        
+                        <div id="geminiTestResult" class="api-test-result api-test-error">
+                            <i class="fas fa-exclamation-circle mr-1"></i> Kết nối thất bại! Vui lòng kiểm tra lại API key.
+                        </div>
+                    </form>
+                    
+                    <div class="mt-4">
+                        <h6 class="font-weight-bold mb-3">Tùy chọn nâng cao</h6>
+                        
+                        <div class="settings-item">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <div class="settings-item-title">Tự động khởi động Chatbot</div>
+                                    <div class="settings-item-description">
+                                        Chatbot sẽ tự động hiển thị sau 30 giây khi người dùng truy cập website
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-right">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="autoStartSwitch" checked>
+                                        <label class="custom-control-label" for="autoStartSwitch">Kích hoạt</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-item">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <div class="settings-item-title">Nhớ lịch sử hội thoại</div>
+                                    <div class="settings-item-description">
+                                        Lưu và sử dụng lịch sử hội thoại để cá nhân hóa trải nghiệm
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-right">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="rememberHistorySwitch" checked>
+                                        <label class="custom-control-label" for="rememberHistorySwitch">Kích hoạt</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Security Settings Tab -->
+        <div class="tab-pane fade {% if active_tab == 'security' %}show active{% endif %}" id="security" role="tabpanel" aria-labelledby="security-tab">
+            <div class="card settings-card">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">Cài đặt bảo mật</h6>
+                </div>
+                <div class="card-body">
+                    <form class="settings-form">
+                        <div class="settings-item">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <div class="settings-item-title">Xác thực hai yếu tố (2FA)</div>
+                                    <div class="settings-item-description">
+                                        Bảo mật tài khoản bằng xác thực hai yếu tố
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-right">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="twoFactorSwitch" checked>
+                                        <label class="custom-control-label" for="twoFactorSwitch">Kích hoạt</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-item">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <div class="settings-item-title">CAPTCHA</div>
+                                    <div class="settings-item-description">
+                                        Kích hoạt CAPTCHA cho các form đăng nhập và đăng ký
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-right">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="captchaSwitch" checked>
+                                        <label class="custom-control-label" for="captchaSwitch">Kích hoạt</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-item">
+                            <div class="form-group">
+                                <label for="sessionTimeout">Thời gian timeout phiên đăng nhập (phút)</label>
+                                <input type="number" class="form-control" id="sessionTimeout" value="30">
+                            </div>
+                        </div>
+                        
+                        <div class="settings-item">
+                            <div class="form-group">
+                                <label for="maxLoginAttempts">Số lần đăng nhập sai tối đa</label>
+                                <input type="number" class="form-control" id="maxLoginAttempts" value="5">
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-save-settings">Lưu cài đặt</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Backup Settings Tab -->
+        <div class="tab-pane fade {% if active_tab == 'backup' %}show active{% endif %}" id="backup" role="tabpanel" aria-labelledby="backup-tab">
+            <div class="card settings-card">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">Sao lưu & Phục hồi</h6>
+                </div>
+                <div class="card-body">
+                    <div class="settings-item">
+                        <div class="settings-item-title">Sao lưu cơ sở dữ liệu</div>
+                        <div class="settings-item-description mb-3">
+                            Tạo bản sao lưu cơ sở dữ liệu và tải xuống
+                        </div>
+                        <button type="button" class="btn btn-primary">
+                            <i class="fas fa-download mr-1"></i> Tạo bản sao lưu
+                        </button>
+                    </div>
+                    
+                    <div class="settings-item">
+                        <div class="settings-item-title">Sao lưu tự động</div>
+                        <div class="settings-item-description mb-3">
+                            Lên lịch sao lưu tự động cơ sở dữ liệu
+                        </div>
+                        <div class="form-group">
+                            <label for="backupSchedule">Tần suất sao lưu</label>
+                            <select class="form-control" id="backupSchedule">
+                                <option value="daily">Hàng ngày</option>
+                                <option value="weekly" selected>Hàng tuần</option>
+                                <option value="monthly">Hàng tháng</option>
+                            </select>
+                        </div>
+                        <div class="custom-control custom-checkbox mb-3">
+                            <input type="checkbox" class="custom-control-input" id="storeBackupRemote" checked>
+                            <label class="custom-control-label" for="storeBackupRemote">Lưu trữ bản sao lưu trên dịch vụ đám mây</label>
+                        </div>
+                        <button type="button" class="btn btn-primary">
+                            <i class="fas fa-save mr-1"></i> Lưu cài đặt
+                        </button>
+                    </div>
+                    
+                    <div class="settings-item">
+                        <div class="settings-item-title">Phục hồi cơ sở dữ liệu</div>
+                        <div class="settings-item-description mb-3">
+                            Phục hồi cơ sở dữ liệu từ bản sao lưu
+                        </div>
+                        <div class="input-group mb-3">
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="backupFile">
+                                <label class="custom-file-label" for="backupFile">Chọn file</label>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-warning">
+                            <i class="fas fa-undo mr-1"></i> Phục hồi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    $(document).ready(function() {
+        // Xử lý chuyển tab dựa trên URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabParam = urlParams.get('tab');
+        
+        if (tabParam) {
+            $('.nav-tabs a[href="#' + tabParam + '"]').tab('show');
+        }
+        
+        // Xử lý khi click vào tab
+        $('.nav-tabs a').on('click', function(e) {
+            e.preventDefault();
+            $(this).tab('show');
+            
+            // Cập nhật URL
+            const tabId = $(this).attr('href').substring(1);
+            window.history.replaceState(null, null, '?tab=' + tabId);
+        });
+        
+        // Xử lý hiển thị/ẩn mật khẩu
+        $('.toggle-password').on('click', function() {
+            const passwordField = $(this).closest('.api-field-group').find('input');
+            const type = passwordField.attr('type') === 'password' ? 'text' : 'password';
+            passwordField.attr('type', type);
+            
+            // Thay đổi icon
+            const icon = $(this).find('i');
+            if (type === 'text') {
+                icon.removeClass('fa-eye').addClass('fa-eye-slash');
+            } else {
+                icon.removeClass('fa-eye-slash').addClass('fa-eye');
+            }
+        });
+        
+        // Xử lý kiểm tra kết nối Gemini API
+        $('#testGeminiBtn').on('click', function() {
+            const apiKey = $('#geminiApiKey').val();
+            
+            if (!apiKey) {
+                $('#geminiTestResult')
+                    .removeClass('api-test-success')
+                    .addClass('api-test-error')
+                    .html('<i class="fas fa-exclamation-circle mr-1"></i> Vui lòng nhập API key!')
+                    .show();
+                return;
+            }
+            
+            // Hiển thị đang kiểm tra
+            $(this).html('<i class="fas fa-spinner fa-spin mr-1"></i> Đang kiểm tra...');
+            $('#geminiTestResult').hide();
+            
+            // Giả lập kiểm tra kết nối (trong thực tế sẽ gọi API)
+            setTimeout(() => {
+                if (apiKey.length > 10) {
+                    $('#geminiTestResult')
+                        .removeClass('api-test-error')
+                        .addClass('api-test-success')
+                        .html('<i class="fas fa-check-circle mr-1"></i> Kết nối thành công');
+                } else {
+                    $('#geminiTestResult')
+                        .removeClass('api-test-success')
+                        .addClass('api-test-error')
+                        .html('<i class="fas fa-exclamation-circle mr-1"></i> Kết nối thất bại! Vui lòng kiểm tra lại API key.');
+                }
+            }, 1000);
+        });
+    });
+</script>
+{% endblock %}

@@ -158,6 +158,54 @@ function Tooltip(el, options) {
 }
 
 /**
+ * Hoàn toàn mới - Sửa triệt để vấn đề màu sắc sự kiện
+ * Gọi hàm này khi load calendar hoặc khi có thay đổi
+ */
+function forceEventColoring() {
+    console.log("Áp dụng màu sắc cho tất cả sự kiện...");
+    
+    // Xác định các loại sự kiện và màu sắc tương ứng
+    const typeColors = {
+        'meeting': '#E63946',    // đỏ
+        'task': '#1D3557',       // xanh đậm
+        'deadline': '#F77F00',   // cam
+        'reminder': '#2A9D8F',   // xanh lá
+        'appointment': '#457B9D',// xanh dương
+        'other': '#6C757D'       // xám
+    };
+    
+    // Áp dụng màu sắc cho tất cả các sự kiện
+    document.querySelectorAll('.fc-event, .fc-daygrid-event, .fc-timegrid-event').forEach(el => {
+        // Xác định loại sự kiện từ class
+        let eventType = 'other';
+        
+        if (el.classList.contains('fc-event-type-meeting')) eventType = 'meeting';
+        else if (el.classList.contains('fc-event-type-task')) eventType = 'task';
+        else if (el.classList.contains('fc-event-type-deadline')) eventType = 'deadline';
+        else if (el.classList.contains('fc-event-type-reminder')) eventType = 'reminder';
+        else if (el.classList.contains('fc-event-type-appointment')) eventType = 'appointment';
+        
+        // Lấy màu tương ứng
+        const color = typeColors[eventType];
+        
+        // Áp dụng trực tiếp vào element
+        el.style.setProperty('background-color', color, 'important');
+        el.style.setProperty('border-color', color, 'important');
+        el.style.setProperty('color', 'white', 'important');
+        
+        // Set data attribute để CSS có thể target dễ dàng hơn
+        el.setAttribute('data-event-type', eventType);
+        
+        // Áp dụng cho tất cả các phần tử con
+        el.querySelectorAll('*').forEach(child => {
+            child.style.setProperty('color', 'white', 'important');
+        });
+    });
+    
+    console.log("Đã áp dụng màu sắc xong.");
+}
+
+/**
  * Khởi tạo lịch
  */
 function initCalendar() {
@@ -169,6 +217,7 @@ function initCalendar() {
         }
         
         window.calendar = new FullCalendar.Calendar(calendarEl, {
+            // Cấu hình ban đầu
             initialView: 'dayGridMonth',
             locale: 'vi',
             headerToolbar: {
@@ -176,311 +225,294 @@ function initCalendar() {
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
             },
+            
+            // Cấu hình hiển thị sự kiện
+            dayMaxEventRows: false,
+            dayMaxEvents: false,
+            moreLinkClick: 'day',
+            
+            // Đảm bảo sự kiện nhiều ngày kết nối đúng
+            eventDisplay: 'block',
+            displayEventTime: true,
+            displayEventEnd: true,
+            nextDayThreshold: '00:00:00',
+            nowIndicator: true,
+            
+            // Cấu hình hiển thị
+            height: 'auto',
+            firstDay: 1,
+            
+            // Các sự kiện click
+            dateClick: function(info) {
+                showDayEvents(info.date);
+            },
+            
+            eventClick: function(info) {
+                info.jsEvent.preventDefault();
+                editEvent(info.event);
+            },
+            
+            // Xử lý hiển thị sự kiện
+            eventDidMount: function(info) {
+                const eventType = info.event.extendedProps.type || 'other';
+                const color = getBorderColorForEventType(eventType);
+                
+                // Force màu sắc cho sự kiện
+                info.el.style.setProperty('background-color', color, 'important');
+                info.el.style.setProperty('border-color', color, 'important');
+                info.el.style.setProperty('color', 'white', 'important');
+                
+                // Force màu chữ trắng cho tất cả phần tử con
+                info.el.querySelectorAll('*').forEach(child => {
+                    child.style.setProperty('color', 'white', 'important');
+                });
+                
+                // Thêm class để CSS có thể target
+                info.el.classList.add('fc-event-type-' + eventType);
+            },
+            
+            // Thêm datesSet để force lại màu sắc khi view thay đổi
+            datesSet: function() {
+                setTimeout(() => {
+                    document.querySelectorAll('.fc-event, .fc-daygrid-event').forEach(el => {
+                        const type = el.className.match(/fc-event-type-(\w+)/);
+                        if (type && type[1]) {
+                            const color = getBorderColorForEventType(type[1]);
+                            el.style.setProperty('background-color', color, 'important');
+                            el.style.setProperty('border-color', color, 'important');
+                            el.style.setProperty('color', 'white', 'important');
+                            
+                            el.querySelectorAll('*').forEach(child => {
+                                child.style.setProperty('color', 'white', 'important');
+                            });
+                        }
+                    });
+                }, 100);
+            },
+            
+            // Các cấu hình còn lại giữ nguyên
             buttonText: {
                 today: 'Hôm nay',
                 month: 'Tháng',
                 week: 'Tuần',
                 day: 'Ngày',
                 list: 'Danh sách'
-            },
-            selectable: true,
-            selectMirror: true,
-            dayMaxEvents: true,
-            themeSystem: 'bootstrap',
-            eventDisplay: 'block',
-            eventTimeFormat: {
-                hour: '2-digit',
-                minute: '2-digit',
-                meridiem: false,
-                hour12: false
-            },
-            
-            // Hiển thị dây nối từ ngày có sự kiện
-            eventContent: function(info) {
-                const colorBadge = `<div class="fc-event-dot" style="background-color:${info.event.backgroundColor}"></div>`;
-                
-                return {
-                    html: 
-                    `<div class="fc-event-main">
-                        ${colorBadge}
-                        <div class="fc-event-title">${info.event.title}</div>
-                        ${info.timeText ? `<div class="fc-event-time">${info.timeText}</div>` : ''}
-                    </div>`
-                };
-            },
-            
-            // Sự kiện khi click vào ngày
-            dateClick: function(info) {
-                showDayEvents(info.date);
-            },
-            
-            // Sự kiện khi click vào event
-            eventClick: function(info) {
-                info.jsEvent.preventDefault();
-                editEvent(info.event);
-            },
-            
-            // Cập nhật khi kéo thả
-            eventDrop: function(info) {
-                handleEventChange(info, 'Di chuyển sự kiện');
-            },
-            
-            // Cập nhật khi thay đổi kích thước
-            eventResize: function(info) {
-                handleEventChange(info, 'Thay đổi thời gian sự kiện');
-            },
-            
-            // Hiển thị tooltip
-            eventDidMount: function(info) {
-                // Thêm tooltip
-                new Tooltip(info.el, {
-                    title: getEventTooltipContent(info.event),
-                    html: true,
-                    placement: 'top',
-                    trigger: 'hover',
-                    container: 'body'
-                });
             }
         });
         
         // Render lịch
         window.calendar.render();
         
-        // Tải sự kiện từ server (chỉ gọi một lần sau khi render)
+        // Tải sự kiện
         loadEvents();
         
-        // Thêm nút tạo sự kiện mới
-        document.getElementById('addEventBtn').addEventListener('click', function() {
-            const today = new Date();
-            showEventForm(today);
+        // Thêm nút Add Event
+        setTimeout(addFloatingAddButton, 500);
+        
+        // Thêm event listener toàn cục để đảm bảo hiển thị đúng
+        document.addEventListener('DOMContentLoaded', () => {
+            addFloatingAddButton();
+            setTimeout(forceEventColoring, 500);
         });
         
     } catch (e) {
         console.error("Lỗi khởi tạo lịch:", e);
+        Swal.fire({
+            icon: 'error',
+            title: 'Đã xảy ra lỗi',
+            text: 'Có lỗi khi tải dashboard. Vui lòng tải lại trang.',
+            confirmButtonColor: '#df2626',
+            confirmButtonText: 'Tải lại trang',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.reload();
+            }
+        });
     }
 }
 
 /**
- * Tải sự kiện từ API
+ * Tải sự kiện từ server
  */
 function loadEvents() {
-    $.ajax({
-        url: '/dashboard/api/events/',
-        method: 'GET',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        success: function(events) {
-            if (window.calendar) {
-                window.calendar.removeAllEvents();
-                events.forEach(event => {
-                    window.calendar.addEvent(event);
-                });
+    fetch('/dashboard/api/events/')
+        .then(response => response.json())
+        .then(events => {
+            // Xóa tất cả sự kiện hiện có
+            window.calendar.removeAllEvents();
+            
+            // Mảng để theo dõi sự kiện đã thêm
+            let addedEvents = [];
+            
+            // Thêm các sự kiện mới
+            events.forEach(event => {
+                // Xác định loại và màu sắc
+                const eventType = event.type || 'other';
+                const color = getBorderColorForEventType(eventType);
+                
+                // Tạo đối tượng sự kiện với thuộc tính màu cứng
+                const calEvent = {
+                    id: event.id,
+                    title: event.title,
+                    start: new Date(event.start),
+                    end: event.end ? new Date(event.end) : null,
+                    allDay: event.allDay,
+                    backgroundColor: color,
+                    borderColor: color,
+                    textColor: '#FFFFFF',
+                    classNames: ['fc-event-type-' + eventType],
+                    extendedProps: {
+                        type: eventType,
+                        description: event.description || ''
+                    }
+                };
+                
+                // Thêm sự kiện vào calendar
+                const addedEvent = window.calendar.addEvent(calEvent);
+                addedEvents.push(addedEvent);
+                
+                // Áp dụng màu sắc cho event element ngay khi có thể
+                setTimeout(() => {
+                    const eventEl = document.querySelector(`.fc-event[data-event-id="${event.id}"], .fc-daygrid-event[data-event-id="${event.id}"]`);
+                    if (eventEl) {
+                        applyColorToEvent(eventEl, color);
+                    }
+                }, 10);
+            });
+            
+            // Render lại calendar để đảm bảo hiển thị đúng
+            window.calendar.render();
+            
+            // Force màu sắc cho tất cả sự kiện sau khi render
+            setTimeout(() => {
+                forceAllEventColors();
+            }, 100);
+            
+            return addedEvents;
+        });
+}
+
+// Hàm mới để áp dụng màu sắc cho một phần tử sự kiện
+function applyColorToEvent(element, color) {
+    if (!element) return;
+    
+    // Áp dụng màu sắc với inline style (mức ưu tiên cao nhất)
+    element.style = `
+        background-color: ${color} !important;
+        border-color: ${color} !important;
+        color: white !important;
+    `;
+    
+    // Áp dụng màu sắc cho tất cả phần tử con
+    element.querySelectorAll('*').forEach(child => {
+        child.style = `color: white !important;`;
+    });
+    
+    // Thêm data-attribute để có thể xác định lại sau này
+    element.setAttribute('data-color-applied', 'true');
+    element.setAttribute('data-event-color', color);
+}
+
+// Hàm mới để force màu sắc cho tất cả sự kiện
+function forceAllEventColors() {
+    const events = window.calendar.getEvents();
+    
+    events.forEach(event => {
+        const eventType = event.extendedProps.type || 'other';
+        const color = getBorderColorForEventType(eventType);
+        const elements = document.querySelectorAll(`.fc-event[data-event-id="${event.id}"], .fc-daygrid-event[data-event-id="${event.id}"]`);
+        
+        elements.forEach(el => {
+            applyColorToEvent(el, color);
+        });
+    });
+    
+    // Ngoài ra tìm kiếm tất cả các sự kiện theo class
+    document.querySelectorAll('.fc-event, .fc-daygrid-event').forEach(el => {
+        // Tìm loại từ class
+        let eventType = null;
+        const classes = el.className.split(' ');
+        
+        for (const cls of classes) {
+            if (cls.includes('fc-event-type-')) {
+                eventType = cls.replace('fc-event-type-', '');
+                break;
             }
-        },
-        error: function(xhr, status, error) {
-            console.error("Lỗi khi tải sự kiện:", error);
-            console.log("Lỗi API:", xhr.status, error);
+        }
+        
+        if (eventType) {
+            const color = getBorderColorForEventType(eventType);
+            applyColorToEvent(el, color);
         }
     });
 }
 
 /**
- * Hiển thị modal sự kiện trong ngày
+ * Hiển thị danh sách sự kiện trong ngày
  */
 function showDayEvents(date) {
-    const formattedDate = date.toLocaleDateString('vi-VN', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
+    const formattedDate = moment(date).format('DD/MM/YYYY');
+    const events = window.calendar.getEvents();
+    const dayEvents = events.filter(event => {
+        const eventDate = moment(event.start);
+        return eventDate.format('DD/MM/YYYY') === formattedDate;
     });
     
-    // Lấy các sự kiện trong ngày này
-    const events = window.calendar ? window.calendar.getEvents().filter(event => {
-        const eventDate = new Date(event.start);
-        return eventDate.toDateString() === date.toDateString();
-    }) : [];
-    
-    // Tạo HTML cho danh sách sự kiện
     let eventsHtml = '';
     
-    if (events.length > 0) {
-        events.forEach(event => {
-            // Định dạng thời gian
-            const startTime = event.start ? new Date(event.start).toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'}) : '00:00';
-            const endTime = event.end ? new Date(event.end).toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'}) : '00:00';
-            
-            // Lấy màu dựa trên loại sự kiện
-            const eventColor = event.backgroundColor || getBorderColorForEventType(event.extendedProps?.type || 'other');
+    if (dayEvents.length > 0) {
+        eventsHtml = `<ul class="event-list">`;
+        
+        dayEvents.forEach(event => {
+            const startTime = moment(event.start).format('HH:mm');
+            const endTime = event.end ? moment(event.end).format('HH:mm') : '';
+            const timeDisplay = event.allDay ? 'Cả ngày' : `${startTime}${endTime ? ' - ' + endTime : ''}`;
+            const eventType = event.extendedProps.type || 'other';
+            const description = event.extendedProps.description || 'Không có mô tả';
+            const typeText = getEventTypeText(eventType);
+            const borderColor = getBorderColorForEventType(eventType);
             
             eventsHtml += `
-                <div class="event-card" style="
-                    background: #fff;
-                    border-radius: 10px;
-                    padding: 15px;
-                    margin-bottom: 15px;
-                    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-                    border-left: 5px solid ${eventColor};
-                    transition: all 0.3s ease;
-                    position: relative;
-                    overflow: hidden;
-                " data-event-id="${event.id}">
-                    <div class="event-time" style="
-                        font-size: 13px;
-                        color: #6c757d;
-                        margin-bottom: 8px;
-                        display: flex;
-                        align-items: center;
-                    ">
-                        <i class="far fa-clock mr-1" style="margin-right: 5px; color: #df2626;"></i> 
-                        ${event.allDay ? 'Cả ngày' : `${startTime} - ${endTime}`}
-                    </div>
-                    <div class="event-title" style="
-                        font-weight: 700;
-                        margin-bottom: 8px;
-                        font-size: 16px;
-                        color: #333;
-                    ">${event.title}</div>
-                    ${event.extendedProps?.description ? `<div class="event-desc" style="
-                        font-size: 14px;
-                        color: #495057;
-                        line-height: 1.4;
-                    ">${event.extendedProps.description}</div>` : ''}
-                    <div class="event-actions" style="
-                        position: absolute;
-                        right: 15px;
-                        top: 15px;
-                        display: flex;
-                        gap: 8px;
-                    ">
-                        <button class="btn btn-sm btn-outline-primary edit-event-btn" title="Sửa sự kiện" style="
-                            padding: 4px 8px;
-                            font-size: 12px;
-                            border-radius: 5px;
-                            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-                            color: #4e73df;
-                            border-color: #4e73df;
-                        ">
-                            <i class="fas fa-pencil-alt"></i>
+                <li class="event-list-item" data-type="${eventType}" data-id="${event.id}">
+                    <div class="event-list-item-title">${event.title}</div>
+                    <div class="event-list-item-time"><i class="far fa-clock mr-1"></i> ${timeDisplay}</div>
+                    <div class="event-list-item-description">${description}</div>
+                    <span class="event-list-item-type" data-type="${eventType}">${typeText}</span>
+                    <div class="mt-2 d-flex justify-content-end">
+                        <button class="btn btn-sm btn-outline-primary mr-2 edit-event-btn" data-id="${event.id}">
+                            <i class="fas fa-edit"></i> Sửa
                         </button>
-                        <button class="btn btn-sm btn-outline-danger delete-event-btn" title="Xóa sự kiện" style="
-                            padding: 4px 8px;
-                            font-size: 12px;
-                            border-radius: 5px;
-                            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-                            color: #e74a3b;
-                            border-color: #e74a3b;
-                        ">
-                            <i class="fas fa-trash-alt"></i>
+                        <button class="btn btn-sm btn-outline-danger delete-event-btn" data-id="${event.id}">
+                            <i class="fas fa-trash-alt"></i> Xóa
                         </button>
                     </div>
-                </div>
+                </li>
             `;
         });
+        
+        eventsHtml += `</ul>`;
     } else {
-        eventsHtml = '<div class="text-center py-4 text-muted animate__animated animate__fadeIn">Không có sự kiện nào</div>';
+        eventsHtml = `<div class="alert alert-info">
+            <i class="fas fa-info-circle mr-2"></i> Không có sự kiện nào vào ngày ${formattedDate}
+        </div>`;
     }
     
-    // Thêm CSS cho modal
-    const modalCSS = `
-        <style>
-            .day-events-container {
-                max-height: 65vh;
-                overflow-y: auto;
-                padding: 0 5px;
-            }
-            
-            .day-events-container::-webkit-scrollbar {
-                width: 6px;
-            }
-            
-            .day-events-container::-webkit-scrollbar-track {
-                background: #f1f1f1;
-                border-radius: 10px;
-            }
-            
-            .day-events-container::-webkit-scrollbar-thumb {
-                background: #c1c1c1;
-                border-radius: 10px;
-            }
-            
-            #createNewEventBtn {
-                background-color: #df2626;
-                border-color: #df2626;
-                padding: 10px 20px;
-                font-weight: 600;
-                border-radius: 8px;
-                box-shadow: 0 4px 10px rgba(223, 38, 38, 0.3);
-                transition: all 0.3s ease;
-            }
-            
-            #createNewEventBtn:hover {
-                background-color: #c51f1f;
-                border-color: #c51f1f;
-                transform: translateY(-2px);
-                box-shadow: 0 6px 15px rgba(223, 38, 38, 0.4);
-            }
-            
-            .event-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-            }
-            
-            .event-card:hover .event-actions {
-                opacity: 1;
-                visibility: visible;
-            }
-        </style>
-    `;
-    
-    // Hiển thị modal với SweetAlert2
     Swal.fire({
-        title: `<i class="far fa-calendar-alt mr-2"></i>Sự kiện ngày ${formattedDate}`,
-        html: `
-            ${modalCSS}
-            <div class="day-events-container">
-                <div class="day-events-list">
-                    ${eventsHtml}
-                </div>
-                <div class="text-center mt-4">
-                    <button id="createNewEventBtn" class="btn btn-primary btn-lg">
-                        <i class="fas fa-plus mr-2"></i> Tạo sự kiện mới
-                    </button>
-                </div>
-            </div>
-        `,
+        title: `Sự kiện ngày ${formattedDate}`,
+        html: eventsHtml,
+        width: '600px',
         showCloseButton: true,
         showConfirmButton: false,
-        width: '500px',
-        customClass: {
-            container: 'day-events-modal-container',
-            popup: 'animate__animated animate__fadeInDown',
-            title: 'day-events-title',
-            content: 'day-events-content'
-        },
+        showCancelButton: true,
+        cancelButtonText: 'Đóng',
+        cancelButtonColor: '#6c757d',
+        footer: `<button id="add-event-day-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Thêm sự kiện</button>`,
         didOpen: () => {
-            // Thêm animation cho nút
-            const createBtn = document.getElementById('createNewEventBtn');
-            if (createBtn) {
-                createBtn.classList.add('pulse-animation');
-            }
-            
-            // Thêm event listener cho nút "Tạo sự kiện mới"
-            document.getElementById('createNewEventBtn').addEventListener('click', () => {
-                Swal.close();
-                setTimeout(() => {
-                    showEventForm(date);
-                }, 300);
-            });
-            
-            // Thêm event listener cho các nút sửa và xóa
+            // Thêm sự kiện cho các nút
             document.querySelectorAll('.edit-event-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    const eventCard = e.target.closest('.event-card');
-                    const eventId = eventCard.getAttribute('data-event-id');
+                    const eventId = btn.getAttribute('data-id');
                     const event = window.calendar.getEventById(eventId);
-                    
                     if (event) {
                         Swal.close();
                         setTimeout(() => {
@@ -492,166 +524,387 @@ function showDayEvents(date) {
             
             document.querySelectorAll('.delete-event-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    const eventCard = e.target.closest('.event-card');
-                    const eventId = eventCard.getAttribute('data-event-id');
-                    const event = window.calendar.getEventById(eventId);
-                    
-                    if (event) {
-                        Swal.close();
-                        setTimeout(() => {
-                            deleteEvent(event);
-                        }, 300);
-                    }
+                    const eventId = btn.getAttribute('data-id');
+                    Swal.close();
+                    setTimeout(() => {
+                        confirmDeleteEvent(eventId);
+                    }, 300);
                 });
+            });
+            
+            // Thêm sự kiện cho nút thêm mới
+            document.getElementById('add-event-day-btn').addEventListener('click', () => {
+                Swal.close();
+                setTimeout(() => {
+                    showCreateEventModal(date);
+                }, 300);
             });
         }
     });
 }
 
 /**
- * Hiển thị form tạo/sửa sự kiện
+ * Hiển thị form tạo/chỉnh sửa sự kiện
  */
 function showEventForm(date, event = null) {
-    const isEdit = event !== null;
-    const formattedDate = date.toLocaleDateString('vi-VN', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
+    // Tạo tiêu đề modal
+    const modalTitle = event ? 'Chỉnh sửa sự kiện' : 'Tạo sự kiện mới';
+    
+    // Chuẩn bị ngày/giờ
+    const eventDate = date ? date : (event ? event.start : new Date());
+    
+    // Format ngày theo định dạng d/m/y cho hiển thị
+    const formattedDateDisplay = eventDate.toLocaleDateString('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        timeZone: 'Asia/Ho_Chi_Minh'
     });
     
-    // Lấy giá trị mặc định cho form từ sự kiện nếu đang chỉnh sửa
-    const defaultTitle = isEdit ? event.title : '';
-    const defaultType = isEdit ? event.extendedProps.type : 'other';
-    const defaultDesc = isEdit ? event.extendedProps.description : '';
-    const defaultAllDay = isEdit ? event.allDay : false;
+    // Format ngày theo định dạng yyyy-mm-dd cho input date
+    const formattedDate = eventDate.toISOString().substring(0, 10);
     
-    // Định dạng ngày và giờ cho input
-    const defaultDate = formatDateForInput(date);
-    const defaultStartTime = isEdit && !event.allDay ? formatTimeForInput(event.start) : '09:00';
-    const defaultEndTime = isEdit && !event.allDay && event.end ? formatTimeForInput(event.end) : '10:00';
+    // Chuẩn bị ngày kết thúc
+    let endDate, endDateDisplay;
+    if (event && event.end) {
+        // Nếu là sự kiện đã có, lấy ngày kết thúc từ sự kiện
+        const eventEnd = new Date(event.end);
+        if (event.allDay) {
+            // Nếu là sự kiện cả ngày, trừ đi 1 ngày vì FullCalendar tính ngày kết thúc là ngày tiếp theo
+            eventEnd.setDate(eventEnd.getDate() - 1);
+        }
+        endDate = eventEnd.toISOString().substring(0, 10);
+        endDateDisplay = eventEnd.toLocaleDateString('vi-VN', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            timeZone: 'Asia/Ho_Chi_Minh'
+        });
+    } else {
+        // Nếu là sự kiện mới, mặc định ngày kết thúc = ngày bắt đầu
+        endDate = formattedDate;
+        endDateDisplay = formattedDateDisplay;
+    }
     
+    // Chuẩn bị giờ bắt đầu
+    let startTime = '09:00';
+    if (event && event.start) {
+        const eventStart = new Date(event.start);
+        startTime = eventStart.getHours().toString().padStart(2, '0') + ':' + 
+                    eventStart.getMinutes().toString().padStart(2, '0');
+    }
+    
+    // Chuẩn bị giờ kết thúc
+    let endTime = '10:00';
+    if (event && event.end) {
+        const eventEnd = new Date(event.end);
+        endTime = eventEnd.getHours().toString().padStart(2, '0') + ':' + 
+                 eventEnd.getMinutes().toString().padStart(2, '0');
+    }
+    
+    // Tạo HTML cho form với thiết kế đẹp hơn và thêm trường ngày kết thúc
     Swal.fire({
-        title: isEdit ? 'Chỉnh sửa sự kiện' : 'Tạo sự kiện mới',
+        title: `<div class="event-form-title"><i class="fas fa-calendar-plus"></i> ${modalTitle}</div>`,
         html: `
-            <form id="eventForm" class="event-form">
-                <div class="form-group">
-                    <label for="eventTitle">Tiêu đề</label>
-                    <input type="text" class="form-control" id="eventTitle" value="${defaultTitle}" required>
-                </div>
-                <div class="form-group">
-                    <label for="eventType">Loại sự kiện</label>
-                    <select class="form-control" id="eventType">
-                        <option value="meeting" ${defaultType === 'meeting' ? 'selected' : ''}>Cuộc họp</option>
-                        <option value="deadline" ${defaultType === 'deadline' ? 'selected' : ''}>Deadline</option>
-                        <option value="reminder" ${defaultType === 'reminder' ? 'selected' : ''}>Nhắc nhở</option>
-                        <option value="other" ${defaultType === 'other' ? 'selected' : ''}>Khác</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="eventDate">Ngày</label>
-                    <input type="date" class="form-control" id="eventDate" value="${defaultDate}" required>
-                </div>
-                <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox" id="eventAllDay" ${defaultAllDay ? 'checked' : ''}>
-                    <label class="form-check-label" for="eventAllDay">
-                        Cả ngày
+            <form id="eventForm" class="text-left event-create-form">
+                <div class="form-group mb-3">
+                    <label for="swal-event-title" class="form-label">
+                        <i class="fas fa-heading text-primary"></i> Tiêu đề <span class="text-danger">*</span>
                     </label>
+                    <input type="text" class="form-control form-control-lg" id="swal-event-title" 
+                        value="${event ? event.title : ''}" placeholder="Nhập tiêu đề sự kiện" required>
                 </div>
-                <div id="timeFields" class="${defaultAllDay ? 'd-none' : ''}">
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label for="eventStartTime">Thời gian bắt đầu</label>
-                                <input type="time" class="form-control" id="eventStartTime" value="${defaultStartTime}">
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label for="eventEndTime">Thời gian kết thúc</label>
-                                <input type="time" class="form-control" id="eventEndTime" value="${defaultEndTime}">
-                            </div>
-                        </div>
+                
+                <div class="form-group mb-3">
+                    <label for="swal-event-type" class="form-label">
+                        <i class="fas fa-tag text-info"></i> Loại sự kiện
+                    </label>
+                    <select class="form-control form-select" id="swal-event-type">
+                        <option value="meeting" ${event && event.extendedProps.type === 'meeting' ? 'selected' : ''}>
+                            <i class="fas fa-users"></i> Cuộc họp
+                        </option>
+                        <option value="deadline" ${event && event.extendedProps.type === 'deadline' ? 'selected' : ''}>
+                            <i class="fas fa-hourglass-end"></i> Deadline
+                        </option>
+                        <option value="reminder" ${event && event.extendedProps.type === 'reminder' ? 'selected' : ''}>
+                            <i class="fas fa-bell"></i> Nhắc nhở
+                        </option>
+                        <option value="other" ${!event || event.extendedProps.type === 'other' ? 'selected' : ''}>
+                            <i class="fas fa-calendar-day"></i> Khác
+                        </option>
+                    </select>
+                    <div class="event-type-preview mt-2">
+                        <span class="badge" style="background-color: ${getBorderColorForEventType(event ? event.extendedProps.type : 'other')}">
+                            Xem trước màu sự kiện
+                        </span>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="eventDescription">Mô tả</label>
-                    <textarea class="form-control" id="eventDescription" rows="3">${defaultDesc}</textarea>
+                
+                <div class="form-check mb-3 all-day-check">
+                    <input class="form-check-input" type="checkbox" id="swal-all-day-event" ${event && event.allDay ? 'checked' : ''}>
+                    <label class="form-check-label" for="swal-all-day-event">
+                        <i class="fas fa-clock"></i> Cả ngày
+                    </label>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="swal-event-date" class="form-label">
+                            <i class="fas fa-calendar-alt text-success"></i> Ngày bắt đầu
+                        </label>
+                        <div class="input-group date">
+                            <input type="date" class="form-control event-date-input" id="swal-event-date" value="${formattedDate}" required>
+                            <div class="input-group-text d-none d-md-flex">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                        </div>
+                        <div class="date-display-text form-text text-muted">Hiển thị: ${formattedDateDisplay}</div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="swal-event-end-date" class="form-label">
+                            <i class="fas fa-calendar-check text-danger"></i> Ngày kết thúc
+                        </label>
+                        <div class="input-group date">
+                            <input type="date" class="form-control event-date-input" id="swal-event-end-date" value="${endDate}" required>
+                            <div class="input-group-text d-none d-md-flex">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                        </div>
+                        <div class="date-display-text form-text text-muted">Hiển thị: ${endDateDisplay}</div>
+                    </div>
+                </div>
+                
+                <div class="row time-inputs ${event && event.allDay ? 'd-none' : ''}">
+                    <div class="col-md-6 mb-3">
+                        <label for="swal-event-start-time" class="form-label">
+                            <i class="fas fa-hourglass-start text-warning"></i> Thời gian bắt đầu
+                        </label>
+                        <input type="time" class="form-control" id="swal-event-start-time" value="${startTime}">
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="swal-event-end-time" class="form-label">
+                            <i class="fas fa-hourglass-end text-danger"></i> Thời gian kết thúc
+                        </label>
+                        <input type="time" class="form-control" id="swal-event-end-time" value="${endTime}">
+                    </div>
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="swal-event-description" class="form-label">
+                        <i class="fas fa-align-left text-secondary"></i> Mô tả
+                    </label>
+                    <textarea class="form-control" id="swal-event-description" rows="3" 
+                        placeholder="Nhập mô tả sự kiện (không bắt buộc)">${event && event.extendedProps.description ? event.extendedProps.description : ''}</textarea>
                 </div>
             </form>
         `,
         showCancelButton: true,
-        confirmButtonText: isEdit ? 'Cập nhật' : 'Tạo',
+        confirmButtonText: event ? 'Cập nhật' : 'Tạo mới',
         cancelButtonText: 'Hủy',
+        showDenyButton: event ? true : false,
+        denyButtonText: event ? 'Xóa' : '',
         confirmButtonColor: '#df2626',
+        denyButtonColor: '#dc3545',
         cancelButtonColor: '#6c757d',
-        width: '500px',
         customClass: {
-            popup: 'animate__animated animate__fadeInDown'
+            confirmButton: 'event-form-confirm',
+            denyButton: 'event-form-deny',
+            cancelButton: 'event-form-cancel'
         },
+        focusConfirm: false,
         didOpen: () => {
-            // Toggle hiển thị trường thời gian khi checkbox "Cả ngày" thay đổi
-            document.getElementById('eventAllDay').addEventListener('change', function() {
-                const timeFields = document.getElementById('timeFields');
+            // Xử lý sự kiện khi checkbox "Cả ngày" thay đổi
+            document.getElementById('swal-all-day-event').addEventListener('change', function() {
+                const timeInputs = document.querySelector('.time-inputs');
                 if (this.checked) {
-                    timeFields.classList.add('d-none');
+                    timeInputs.classList.add('d-none');
                 } else {
-                    timeFields.classList.remove('d-none');
+                    timeInputs.classList.remove('d-none');
                 }
             });
+            
+            // Xử lý sự kiện khi loại sự kiện thay đổi
+            document.getElementById('swal-event-type').addEventListener('change', function() {
+                const badge = document.querySelector('.event-type-preview .badge');
+                badge.style.backgroundColor = getBorderColorForEventType(this.value);
+            });
+            
+            // Đảm bảo ngày kết thúc không sớm hơn ngày bắt đầu
+            document.getElementById('swal-event-date').addEventListener('change', function() {
+                try {
+                    const startDate = new Date(this.value + 'T00:00:00');
+                    const startDateDisplay = startDate.toLocaleDateString('vi-VN', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        timeZone: 'Asia/Ho_Chi_Minh'
+                    });
+                    
+                    const displayElement = this.closest('.col-md-6').querySelector('.date-display-text');
+                    if (displayElement) {
+                        displayElement.textContent = `Hiển thị: ${startDateDisplay}`;
+                    }
+                    
+                    // Cập nhật ngày kết thúc nếu cần
+                    const endDateInput = document.getElementById('swal-event-end-date');
+                    if (endDateInput && endDateInput.value === this.value) {
+                        const endDisplayElement = endDateInput.closest('.col-md-6').querySelector('.date-display-text');
+                        if (endDisplayElement) {
+                            endDisplayElement.textContent = `Hiển thị: ${startDateDisplay}`;
+                        }
+                    }
+                } catch (error) {
+                    console.error("Lỗi cập nhật hiển thị ngày:", error);
+                }
+            });
+            
+            // Cập nhật hiển thị khi ngày kết thúc thay đổi
+            document.getElementById('swal-event-end-date').addEventListener('change', function() {
+                try {
+                    const endDate = new Date(this.value);
+                    const endDateDisplay = endDate.toLocaleDateString('vi-VN', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    });
+                    
+                    const displayElement = document.querySelector('#swal-event-end-date').closest('.col-md-6').querySelector('.date-display-text');
+                    if (displayElement) {
+                        displayElement.textContent = `Hiển thị: ${endDateDisplay}`;
+                    }
+    } catch (error) {
+                    console.error("Lỗi cập nhật hiển thị ngày kết thúc:", error);
+                }
+            });
+            
+            // Đặt giá trị min cho ngày kết thúc
+            document.getElementById('swal-event-end-date').min = document.getElementById('swal-event-date').value;
         },
         preConfirm: () => {
-            const title = document.getElementById('eventTitle').value;
-            if (!title) {
-                Swal.showValidationMessage('Vui lòng nhập tiêu đề sự kiện');
-                return false;
-            }
-            
-            const eventType = document.getElementById('eventType').value;
-            const eventDate = document.getElementById('eventDate').value;
-            const eventAllDay = document.getElementById('eventAllDay').checked;
-            const eventStartTime = document.getElementById('eventStartTime').value;
-            const eventEndTime = document.getElementById('eventEndTime').value;
-            const eventDescription = document.getElementById('eventDescription').value;
-            
-            // Tạo đối tượng Date từ các giá trị đầu vào
-            let startDate = new Date(eventDate);
-            let endDate = new Date(eventDate);
-            
-            if (!eventAllDay) {
-                const [startHours, startMinutes] = eventStartTime.split(':');
-                const [endHours, endMinutes] = eventEndTime.split(':');
+            try {
+                // Lấy giá trị từ form
+                const titleInput = document.getElementById('swal-event-title');
+                const title = titleInput ? titleInput.value.trim() : '';
                 
-                startDate.setHours(parseInt(startHours), parseInt(startMinutes), 0);
-                endDate.setHours(parseInt(endHours), parseInt(endMinutes), 0);
+                const typeInput = document.getElementById('swal-event-type');
+                const type = typeInput ? typeInput.value : 'other';
                 
-                // Kiểm tra nếu thời gian kết thúc trước thời gian bắt đầu
-                if (endDate < startDate) {
-                    Swal.showValidationMessage('Thời gian kết thúc phải sau thời gian bắt đầu');
+                const dateInput = document.getElementById('swal-event-date');
+                const eventDate = dateInput ? dateInput.value : '';
+                
+                const endDateInput = document.getElementById('swal-event-end-date');
+                const eventEndDate = endDateInput ? endDateInput.value : '';
+                
+                const allDayInput = document.getElementById('swal-all-day-event');
+                const allDay = allDayInput ? allDayInput.checked : false;
+                
+                const startTimeInput = document.getElementById('swal-event-start-time');
+                const startTime = startTimeInput ? startTimeInput.value : '';
+                
+                const endTimeInput = document.getElementById('swal-event-end-time');
+                const endTime = endTimeInput ? endTimeInput.value : '';
+                
+                const descInput = document.getElementById('swal-event-description');
+                const description = descInput ? descInput.value.trim() : '';
+                
+                console.log("Form values:", { title, type, eventDate, eventEndDate, allDay, startTime, endTime, description });
+                
+                // Kiểm tra tiêu đề
+                if (!title) {
+                    Swal.showValidationMessage('Vui lòng nhập tiêu đề sự kiện');
                     return false;
                 }
+                
+                // Kiểm tra ngày
+                if (!eventDate) {
+                    Swal.showValidationMessage('Vui lòng chọn ngày bắt đầu');
+                    return false;
+                }
+                
+                if (!eventEndDate) {
+                    Swal.showValidationMessage('Vui lòng chọn ngày kết thúc');
+                    return false;
+                }
+                
+                // Kiểm tra ngày kết thúc phải sau hoặc bằng ngày bắt đầu
+                if (eventEndDate < eventDate) {
+                    Swal.showValidationMessage('Ngày kết thúc phải sau hoặc bằng ngày bắt đầu');
+                    return false;
+                }
+                
+                // Kiểm tra thời gian nếu không phải cả ngày
+                if (!allDay) {
+                    if (!startTime) {
+                        Swal.showValidationMessage('Vui lòng chọn thời gian bắt đầu');
+                        return false;
+                    }
+                    
+                    if (!endTime) {
+                        Swal.showValidationMessage('Vui lòng chọn thời gian kết thúc');
+                        return false;
+                    }
+                    
+                    // Kiểm tra thời gian kết thúc > thời gian bắt đầu nếu cùng ngày
+                    if (eventDate === eventEndDate && startTime >= endTime) {
+                        Swal.showValidationMessage('Thời gian kết thúc phải sau thời gian bắt đầu');
+                        return false;
+                    }
+                }
+                
+                // Tạo đối tượng ngày
+                let start, end;
+                
+                if (allDay) {
+                    // Nếu là sự kiện cả ngày
+                    start = new Date(eventDate + 'T00:00:00');
+                    end = new Date(eventEndDate + 'T23:59:59');
+                    // Thêm 1 ngày vào ngày kết thúc vì FullCalendar tính ngày kết thúc là ngày tiếp theo
+                    end.setDate(end.getDate() + 1);
+                } else {
+                    // Nếu có thời gian cụ thể
+                    const [startHour, startMinute] = startTime.split(':');
+                    const [endHour, endMinute] = endTime.split(':');
+                    
+                    start = new Date(eventDate);
+                    start.setHours(parseInt(startHour), parseInt(startMinute), 0);
+                    
+                    end = new Date(eventEndDate);
+                    end.setHours(parseInt(endHour), parseInt(endMinute), 0);
+                }
+                
+                console.log("Event dates:", { start, end });
+                
+                // Trả về dữ liệu sự kiện
+                return {
+                    title: title,
+                    type: type,
+                    start: start,
+                    end: end,
+                    allDay: allDay,
+                    description: description
+                };
+    } catch (error) {
+                console.error("Error in preConfirm:", error);
+                Swal.showValidationMessage('Đã xảy ra lỗi: ' + error.message);
+                return false;
             }
-            
-            return {
-                title: title,
-                type: eventType,
-                start: startDate,
-                end: eventAllDay ? null : endDate,
-                allDay: eventAllDay,
-                description: eventDescription,
-                id: isEdit ? event.id : null
-            };
         }
     }).then((result) => {
-        if (result.isConfirmed) {
+        if (result.isConfirmed && result.value) {
             const eventData = result.value;
             
-            if (isEdit) {
-                // Cập nhật sự kiện
-                updateEvent(eventData);
+            if (event) {
+                // Cập nhật sự kiện hiện có
+                updateEvent(event.id, eventData);
             } else {
                 // Tạo sự kiện mới
                 createEvent(eventData);
             }
+        } else if (result.isDenied && event) {
+            // Xóa sự kiện
+            deleteEvent(event);
         }
     });
 }
@@ -660,60 +913,102 @@ function showEventForm(date, event = null) {
  * Tạo sự kiện mới
  */
 function createEvent(eventData) {
-    $.ajax({
-        url: '/dashboard/api/events/create/',
-        method: 'POST',
-        contentType: 'application/json',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        data: JSON.stringify({
-            title: eventData.title,
-            type: eventData.type,
-            start: eventData.start.toISOString(),
-            end: eventData.end ? eventData.end.toISOString() : null,
-            allDay: eventData.allDay,
-            description: eventData.description
-        }),
-        success: function(response) {
-            // Thêm sự kiện vào lịch
-            const color = getEventColor(eventData.type);
-            window.calendar.addEvent({
-                id: response.id,
-                title: eventData.title,
-                start: eventData.start,
-                end: eventData.end,
-                allDay: eventData.allDay,
-                backgroundColor: color,
-                borderColor: color,
-                extendedProps: {
-                    type: eventData.type,
-                    description: eventData.description
-                }
-            });
-            
-            Swal.fire({
-                title: 'Thành công!',
-                text: 'Sự kiện đã được tạo thành công.',
-                icon: 'success',
-                confirmButtonColor: '#df2626',
-                showClass: {
-                    popup: 'animate__animated animate__fadeIn'
-                },
-                hideClass: {
-                    popup: 'animate__animated animate__fadeOut'
-                }
-            });
-        },
-        error: function(xhr, status, error) {
-            console.error("Lỗi khi tạo sự kiện:", error);
-            Swal.fire({
-                title: 'Lỗi!',
-                text: 'Không thể tạo sự kiện. Vui lòng thử lại.',
-                icon: 'error',
-                confirmButtonColor: '#df2626'
-            });
+    console.log("Đang tạo sự kiện mới với dữ liệu:", eventData);
+    
+    // Hiển thị loading
+    Swal.fire({
+        title: 'Đang xử lý...',
+        text: 'Đang tạo sự kiện mới',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
         }
+    });
+    
+    // Chuyển đổi đối tượng Date thành chuỗi ISO để gửi lên server
+    const eventToSend = {
+        title: eventData.title,
+        type: eventData.type,
+        start: eventData.start.toISOString().split('.')[0],
+        end: eventData.end.toISOString().split('.')[0],
+        allDay: eventData.allDay,
+        description: eventData.description || ''
+    };
+    
+    console.log("Dữ liệu gửi lên server:", eventToSend);
+    
+    // Lấy CSRF token từ cookie
+    const csrftoken = getCookie('csrftoken');
+    
+    // Gửi request tạo sự kiện
+    fetch('/dashboard/api/events/create/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify(eventToSend)
+    })
+    .then(async response => {
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(data.error || `Lỗi HTTP: ${response.status} - ${response.statusText}`);
+        }
+        return data;
+    })
+    .then(data => {
+        console.log("Sự kiện đã được tạo:", data);
+        
+        // Xác định màu cho sự kiện dựa vào loại
+        const backgroundColor = getBorderColorForEventType(eventData.type);
+        const borderColor = backgroundColor;
+        
+        // Thêm sự kiện vào lịch
+        window.calendar.addEvent({
+            id: data.id || new Date().getTime(),
+            title: eventData.title,
+            start: eventData.start,
+            end: eventData.end,
+            allDay: eventData.allDay,
+            backgroundColor: backgroundColor,
+            borderColor: borderColor,
+            display: eventData.allDay ? 'block' : 'auto',
+            extendedProps: {
+                type: eventData.type,
+                description: eventData.description || ''
+            }
+        });
+        
+        // Hiển thị thông báo thành công
+        Swal.fire({
+            icon: 'success',
+            title: 'Thành công!',
+            text: 'Sự kiện đã được tạo',
+            confirmButtonColor: '#df2626',
+            timer: 2000,
+            timerProgressBar: true,
+            showClass: {
+                popup: 'animate__animated animate__fadeInDown'
+            },
+            hideClass: {
+                popup: 'animate__animated animate__fadeOutUp'
+            }
+        });
+        
+        // Cập nhật lại lịch
+        window.calendar.render();
+        
+        // Lưu ý: có thể cần làm mới lịch sau khi thêm sự kiện
+        // window.calendar.refetchEvents();
+    })
+    .catch(error => {
+        console.error("Chi tiết lỗi:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi!',
+            text: error.message || 'Không thể tạo sự kiện. Vui lòng thử lại sau.',
+            confirmButtonColor: '#df2626'
+        });
     });
 }
 
@@ -824,16 +1119,79 @@ function getEventColor(eventType) {
 }
 
 /**
- * Lấy màu viền cho loại sự kiện
+ * Lấy màu viền cho từng loại sự kiện
  */
 function getBorderColorForEventType(type) {
+    // Log để debug
+    console.log("Đang tìm màu cho loại sự kiện:", type);
+    
+    // Chuẩn hóa type để đảm bảo so sánh chính xác
+    const normalizedType = type ? type.toLowerCase().trim() : 'other';
+    
+    // Cấu hình màu sắc rõ ràng hơn
     const colors = {
-        'meeting': '#4e73df',
-        'deadline': '#e74a3b', 
-        'reminder': '#f6c23e',
-        'other': '#1cc88a'
+        'meeting': '#E63946',     // Đỏ
+        'task': '#1D3557',        // Xanh đậm
+        'deadline': '#F77F00',    // Cam
+        'reminder': '#2A9D8F',    // Xanh lá
+        'appointment': '#457B9D', // Xanh dương
+        'other': '#6C757D'        // Xám (mặc định)
     };
-    return colors[type] || '#4e73df';
+    
+    // Kiểm tra type có chứa từ khóa thay vì so sánh chính xác
+    if (normalizedType.includes('meeting')) return colors['meeting'];
+    if (normalizedType.includes('task')) return colors['task']; 
+    if (normalizedType.includes('deadline')) return colors['deadline'];
+    if (normalizedType.includes('reminder')) return colors['reminder'];
+    if (normalizedType.includes('appointment')) return colors['appointment'];
+    
+    // Trả về màu mặc định nếu không tìm thấy
+    console.log("Không tìm thấy màu phù hợp, sử dụng màu mặc định:", colors['other']);
+    return colors['other'];
+}
+
+/**
+ * Lấy text hiển thị cho từng loại sự kiện
+ */
+function getEventTypeText(type) {
+    const eventTypes = {
+        'meeting': 'Cuộc họp',
+        'task': 'Công việc',
+        'deadline': 'Hạn chót',
+        'reminder': 'Nhắc nhở',
+        'appointment': 'Cuộc hẹn',
+        'other': 'Khác'
+    };
+    
+    return eventTypes[type] || 'Khác';
+}
+
+/**
+ * Lấy nội dung tooltip cho sự kiện
+ */
+function getEventTooltipContent(event) {
+    const type = event.extendedProps?.type || 'other';
+    const typeText = getEventTypeText(type);
+    const description = event.extendedProps?.description || '';
+    
+    // Định dạng thời gian
+    const startFormat = event.allDay ? 'DD/MM/YYYY' : 'DD/MM/YYYY HH:mm';
+    const endFormat = event.allDay ? 'DD/MM/YYYY' : 'DD/MM/YYYY HH:mm';
+    
+    const start = moment(event.start).format(startFormat);
+    const end = event.end ? moment(event.end).format(endFormat) : '';
+    const timeInfo = event.allDay 
+        ? (end ? `Cả ngày (${start} - ${end})` : `Cả ngày ${start}`) 
+        : (end ? `${start} - ${end}` : start);
+    
+    return `
+        <div class="event-tooltip">
+            <div style="font-weight:bold; margin-bottom:5px;">${event.title}</div>
+            <div style="margin-bottom:3px;"><i class="far fa-clock mr-1"></i> ${timeInfo}</div>
+            <div style="margin-bottom:3px;"><i class="far fa-bookmark mr-1"></i> ${typeText}</div>
+            ${description ? `<div style="border-top:1px solid #eee; padding-top:5px; margin-top:5px;">${description}</div>` : ''}
+        </div>
+    `;
 }
 
 /**
@@ -1149,7 +1507,7 @@ function exportRevenueReport() {
                         <option value="quarter">Quý</option>
                         <option value="year">Năm</option>
                     </select>
-            </div>
+                </div>
                 <div class="mb-3">
                     <label class="form-label">Định dạng</label>
                     <select class="form-control" id="reportFormat">
@@ -1172,8 +1530,8 @@ function exportRevenueReport() {
         confirmButtonText: 'Xuất báo cáo',
                 cancelButtonText: 'Hủy',
         confirmButtonColor: '#df2626'
-            }).then((result) => {
-                if (result.isConfirmed) {
+    }).then((result) => {
+        if (result.isConfirmed) {
             const timeRange = document.getElementById('reportTimeRange').value;
             const format = document.getElementById('reportFormat').value;
             const detail = document.getElementById('reportDetail').value;
@@ -1194,7 +1552,7 @@ function exportRevenueReport() {
             }
             
             // Giả lập xuất báo cáo
-                    Swal.fire({
+                Swal.fire({
                 title: 'Đang chuẩn bị báo cáo...',
                 html: 'Vui lòng đợi trong giây lát',
                 allowOutsideClick: false,
@@ -1204,16 +1562,16 @@ function exportRevenueReport() {
                     // Giả lập tạo báo cáo
                     setTimeout(() => {
                         Swal.fire({
-                        icon: 'success',
+                    icon: 'success',
                             title: 'Đã tạo báo cáo',
                             html: `Báo cáo doanh thu ${dateRange} (${detail === 'summary' ? 'tóm tắt' : detail === 'detailed' ? 'chi tiết' : 'đầy đủ'}) đã được tạo thành công.<br><br>
                                 <a href="#" class="btn btn-sm btn-primary download-link">
                                     <i class="fas fa-download"></i> Tải báo cáo ${format.toUpperCase()}
                                 </a>`,
-                        confirmButtonColor: '#df2626'
-                    });
+                    confirmButtonColor: '#df2626'
+                });
                     }, 2000);
-                }
+            }
             });
         }
     });
@@ -1237,7 +1595,7 @@ function exportProfitReport() {
                         <option value="quarter">Quý</option>
                         <option value="year">Năm</option>
                     </select>
-                </div>
+            </div>
                 <div class="mb-3">
                     <label class="form-label">Định dạng</label>
                     <select class="form-control" id="profitFormat">
@@ -1258,7 +1616,7 @@ function exportProfitReport() {
         `,
         showCancelButton: true,
         confirmButtonText: 'Xuất báo cáo',
-        cancelButtonText: 'Hủy',
+                cancelButtonText: 'Hủy',
         confirmButtonColor: '#df2626'
     }).then((result) => {
         if (result.isConfirmed) {
@@ -1292,14 +1650,14 @@ function exportProfitReport() {
                     // Giả lập tạo báo cáo
                     setTimeout(() => {
                         Swal.fire({
-                icon: 'success',
+                        icon: 'success',
                             title: 'Đã tạo báo cáo',
                             html: `Báo cáo lợi nhuận ${dateRange} (${detail === 'summary' ? 'tóm tắt' : detail === 'detailed' ? 'chi tiết' : 'đầy đủ'}) đã được tạo thành công.<br><br>
                                 <a href="#" class="btn btn-sm btn-primary download-link">
                                     <i class="fas fa-download"></i> Tải báo cáo ${format.toUpperCase()}
                                 </a>`,
-                confirmButtonColor: '#df2626'
-                        });
+                        confirmButtonColor: '#df2626'
+                    });
                     }, 2000);
                 }
             });
@@ -1358,11 +1716,11 @@ function showDashboardTutorial() {
         element.classList.add('tutorial-highlight');
         
         // Hiển thị thông tin bước
-        Swal.fire({
+    Swal.fire({
             title: step.title,
             text: step.text,
             icon: 'info',
-            showCancelButton: true,
+                showCancelButton: true,
             confirmButtonText: currentStep < steps.length - 1 ? 'Tiếp tục' : 'Kết thúc',
             cancelButtonText: 'Bỏ qua',
             confirmButtonColor: '#df2626',
@@ -1370,25 +1728,25 @@ function showDashboardTutorial() {
                 container: 'tutorial-swal-container',
                 popup: `tutorial-popup-${step.position}`
             }
-        }).then((result) => {
+            }).then((result) => {
             // Xóa highlight
             element.classList.remove('tutorial-highlight');
             
-            if (result.isConfirmed) {
+                if (result.isConfirmed) {
                 nextStep();
         } else {
                 // Người dùng bỏ qua tour
-                Swal.fire({
+                    Swal.fire({
                     title: 'Hướng dẫn đã kết thúc',
                     text: 'Bạn có thể mở lại hướng dẫn bất kỳ lúc nào từ menu trợ giúp',
-                    icon: 'success',
+                        icon: 'success',
                     confirmButtonColor: '#df2626',
                     timer: 2000,
                     timerProgressBar: true
-                });
-            }
-        });
-    }
+                    });
+                }
+            });
+        }
     
     function nextStep() {
         currentStep++;
@@ -1409,7 +1767,9 @@ function showDashboardTutorial() {
     showStep(steps[0]);
 }
 
-// Thêm hàm xử lý hiển thị chi tiết đơn hàng
+/**
+ * Hiển thị chi tiết đơn hàng
+ */
 function showOrderDetails(orderId) {
     // Giả lập dữ liệu đơn hàng
     const orderData = {
@@ -1427,62 +1787,76 @@ function showOrderDetails(orderId) {
         address: '123 Đường ABC, Quận XYZ, TP.HCM'
     };
 
+    // Format tiền tệ
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('vi-VN', { 
+            style: 'decimal',
+            maximumFractionDigits: 0
+        }).format(amount) + 'đ';
+    };
+    
     Swal.fire({
-        title: `<div class="order-title">Chi tiết đơn hàng #${orderId}</div>`,
+        title: `<div class="order-detail-title">
+                    <i class="fas fa-shopping-cart text-primary mr-2"></i>
+                    Chi tiết đơn hàng #${orderId}
+                </div>`,
         html: `
-            <div class="order-details">
-                <div class="order-section customer-info">
-                    <div class="section-header">
-                        <i class="fas fa-user-circle"></i>
-                        <h6>Thông tin khách hàng</h6>
-                    </div>
-                    <div class="section-content">
-                        <div class="info-row">
-                            <span class="info-label"><i class="fas fa-user"></i> Tên:</span>
-                            <span class="info-value">${orderData.customer}</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label"><i class="fas fa-phone"></i> SĐT:</span>
-                            <span class="info-value">${orderData.phone}</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label"><i class="fas fa-envelope"></i> Email:</span>
-                            <span class="info-value">${orderData.email}</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label"><i class="fas fa-map-marker-alt"></i> Địa chỉ:</span>
-                            <span class="info-value">${orderData.address}</span>
-                        </div>
-                    </div>
+            <div class="order-details-container">
+                <!-- Thông tin khách hàng -->
+                <div class="order-detail-block customer-block">
+                    <div class="block-header">
+                        <i class="fas fa-user-circle text-primary"></i>
+                        <h5>Thông tin khách hàng</h5>
+                </div>
+                    <div class="block-content">
+                        <div class="info-item">
+                            <div class="info-label"><i class="fas fa-user text-muted"></i> Tên:</div>
+                            <div class="info-value">${orderData.customer}</div>
+                </div>
+                        <div class="info-item">
+                            <div class="info-label"><i class="fas fa-phone text-muted"></i> SĐT:</div>
+                            <div class="info-value">${orderData.phone}</div>
+                </div>
+                        <div class="info-item">
+                            <div class="info-label"><i class="fas fa-envelope text-muted"></i> Email:</div>
+                            <div class="info-value">${orderData.email}</div>
+                </div>
+                        <div class="info-item">
+                            <div class="info-label"><i class="fas fa-map-marker-alt text-muted"></i> Địa chỉ:</div>
+                            <div class="info-value">${orderData.address}</div>
+                </div>
+                </div>
                 </div>
 
-                <div class="order-section order-info">
-                    <div class="section-header">
-                        <i class="fas fa-info-circle"></i>
-                        <h6>Thông tin đơn hàng</h6>
+                <!-- Thông tin đơn hàng -->
+                <div class="order-detail-block order-block">
+                    <div class="block-header">
+                        <i class="fas fa-info-circle text-info"></i>
+                        <h5>Thông tin đơn hàng</h5>
                     </div>
-                    <div class="section-content">
-                        <div class="info-row">
-                            <span class="info-label"><i class="fas fa-calendar"></i> Ngày đặt:</span>
-                            <span class="info-value">${orderData.date}</span>
+                    <div class="block-content">
+                        <div class="info-item">
+                            <div class="info-label"><i class="fas fa-calendar-alt text-muted"></i> Ngày đặt:</div>
+                            <div class="info-value">${orderData.date}</div>
                         </div>
-                        <div class="info-row">
-                            <span class="info-label"><i class="fas fa-check-circle"></i> Trạng thái:</span>
-                            <span class="info-value">
+                        <div class="info-item">
+                            <div class="info-label"><i class="fas fa-check-circle text-muted"></i> Trạng thái:</div>
+                            <div class="info-value">
                                 <span class="badge badge-success">${orderData.status}</span>
-                            </span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="order-section products-info">
-                    <div class="section-header">
-                        <i class="fas fa-shopping-cart"></i>
-                        <h6>Sản phẩm</h6>
+                <!-- Sản phẩm -->
+                <div class="order-detail-block products-block">
+                    <div class="block-header">
+                        <i class="fas fa-box-open text-warning"></i>
+                        <h5>Sản phẩm</h5>
                     </div>
-                    <div class="section-content">
-                        <table class="table table-hover">
-                            <thead class="thead-light">
+                    <div class="block-content">
+                        <table class="table table-striped product-table">
+                            <thead>
                                 <tr>
                                     <th>Sản phẩm</th>
                                     <th class="text-center">SL</th>
@@ -1495,15 +1869,15 @@ function showOrderDetails(orderId) {
                                     <tr>
                                         <td>${p.name}</td>
                                         <td class="text-center">${p.quantity}</td>
-                                        <td class="text-right">${p.price.toLocaleString('vi-VN')}đ</td>
-                                        <td class="text-right">${(p.quantity * p.price).toLocaleString('vi-VN')}đ</td>
+                                        <td class="text-right">${formatCurrency(p.price)}</td>
+                                        <td class="text-right">${formatCurrency(p.price * p.quantity)}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
                             <tfoot>
-                                <tr class="font-weight-bold">
-                                    <td colspan="3" class="text-right">Tổng cộng:</td>
-                                    <td class="text-right">${orderData.total.toLocaleString('vi-VN')}đ</td>
+                                <tr class="total-row">
+                                    <td colspan="3" class="text-right font-weight-bold">Tổng cộng:</td>
+                                    <td class="text-right font-weight-bold">${formatCurrency(orderData.total)}</td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -1512,12 +1886,15 @@ function showOrderDetails(orderId) {
             </div>
         `,
         width: '700px',
-        confirmButtonText: 'Đóng',
-        confirmButtonColor: '#df2626',
+        padding: '0',
+        background: '#fff',
+        showCloseButton: true,
+        showConfirmButton: false,
         customClass: {
-            container: 'order-details-modal',
-            popup: 'order-details-popup',
-            content: 'order-details-content'
+            container: 'order-detail-container',
+            popup: 'order-detail-popup',
+            header: 'order-detail-header',
+            closeButton: 'order-detail-close'
         }
     });
 }
@@ -1535,7 +1912,7 @@ document.querySelectorAll('.btn-view-order').forEach(btn => {
  * Xử lý thay đổi sự kiện (kéo thả hoặc resize)
  */
 function handleEventChange(info, action) {
-    Swal.fire({
+            Swal.fire({
         title: 'Xác nhận thay đổi',
         text: `${action} "${info.event.title}" đến ${info.event.start.toLocaleDateString('vi-VN')}?`,
         icon: 'question',
@@ -1791,3 +2168,313 @@ function updateChart(chartType, range) {
         window.dashboardCharts.order.update();
     }
 }
+
+/**
+ * Cập nhật sự kiện
+ */
+function updateEvent(eventId, eventData) {
+    console.log("Đang cập nhật sự kiện:", eventId, eventData);
+    
+    // Hiển thị loading
+    Swal.fire({
+        title: 'Đang xử lý...',
+        text: 'Đang cập nhật sự kiện',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    
+    // Chuyển đổi đối tượng Date thành chuỗi ISO để gửi lên server
+    const eventToSend = {
+        id: eventId,
+        title: eventData.title,
+        type: eventData.type,
+        start: eventData.start.toISOString().split('.')[0],
+        end: eventData.end.toISOString().split('.')[0],
+        allDay: eventData.allDay,
+        description: eventData.description || ''
+    };
+    
+    console.log("Dữ liệu gửi lên server:", eventToSend);
+    
+    // Lấy CSRF token từ cookie
+    const csrftoken = getCookie('csrftoken');
+    
+    // Thử phương thức PUT thay vì POST (vì lỗi 405)
+    fetch(`/dashboard/api/events/${eventId}/update/`, {
+        method: 'PUT', // Đổi từ POST sang PUT
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify(eventToSend)
+    })
+    .then(async response => {
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            // Nếu PUT không hoạt động, thử xuống các phương thức khác
+            if (response.status === 405) {
+                throw new Error('API yêu cầu phương thức khác. Vui lòng kiểm tra document API hoặc liên hệ quản trị viên.');
+            }
+            throw new Error(data.error || `Lỗi HTTP: ${response.status} - ${response.statusText}`);
+        }
+        return data;
+    })
+    .then(data => {
+        console.log("Sự kiện đã được cập nhật:", data);
+        
+        // Lấy sự kiện hiện tại từ lịch
+        const event = window.calendar.getEventById(eventId);
+        if (event) {
+            // Trước khi cập nhật, xóa sự kiện cũ
+            event.remove();
+            
+            // Tạo sự kiện mới với thông tin đã cập nhật
+            window.calendar.addEvent({
+                id: eventId,
+                title: eventData.title,
+                start: eventData.start,
+                end: eventData.end,
+                allDay: eventData.allDay,
+                backgroundColor: getBorderColorForEventType(eventData.type),
+                borderColor: getBorderColorForEventType(eventData.type),
+                display: eventData.allDay ? 'block' : 'auto',
+                extendedProps: {
+                    type: eventData.type,
+                    description: eventData.description || ''
+                }
+            });
+        }
+        
+        // Hiển thị thông báo thành công với animation
+            Swal.fire({
+                icon: 'success',
+            title: 'Thành công!',
+            text: 'Sự kiện đã được cập nhật',
+            confirmButtonColor: '#df2626',
+            timer: 2000,
+            timerProgressBar: true,
+            showClass: {
+                popup: 'animate__animated animate__fadeInDown'
+            },
+            hideClass: {
+                popup: 'animate__animated animate__fadeOutUp'
+            }
+        });
+        
+        // Cập nhật lại lịch để đảm bảo hiển thị đúng
+        window.calendar.render();
+    })
+    .catch(error => {
+        console.error("Chi tiết lỗi:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi!',
+            text: error.message || 'Không thể cập nhật sự kiện. Vui lòng thử lại sau.',
+                confirmButtonColor: '#df2626'
+            });
+    });
+}
+
+/**
+ * Cập nhật sự kiện sau khi kéo thả
+ */
+function updateEventAfterDrag(event) {
+    console.log("Cập nhật sau khi kéo thả:", event);
+    
+    const eventData = {
+        title: event.title,
+        type: event.extendedProps.type || 'other',
+        start: event.start,
+        end: event.end || new Date(event.start.getTime() + 3600000), // Mặc định thêm 1 giờ nếu không có end
+        allDay: event.allDay,
+        description: event.extendedProps.description || ''
+    };
+    
+    updateEvent(event.id, eventData);
+}
+
+/**
+ * Thêm nút tạo sự kiện nổi ở góc dưới bên phải
+ */
+function addFloatingAddButton() {
+    // Kiểm tra xem nút đã tồn tại chưa
+    if (document.querySelector('.floating-add-button')) {
+        document.querySelector('.floating-add-button').remove();
+    }
+    
+    // Tạo nút
+    const addButton = document.createElement('button');
+    addButton.className = 'floating-add-button';
+    addButton.innerHTML = '<i class="fas fa-plus"></i>';
+    addButton.title = 'Tạo sự kiện mới';
+    
+    // Thêm sự kiện click
+    addButton.addEventListener('click', function() {
+        // Sử dụng showEventForm nếu showCreateEventModal không tồn tại
+        if (typeof showCreateEventModal === 'function') {
+            showCreateEventModal();
+        } else if (typeof showEventForm === 'function') {
+            showEventForm();
+        } else {
+            console.error('Không tìm thấy hàm tạo sự kiện');
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Không thể tạo sự kiện mới. Vui lòng tải lại trang.',
+                confirmButtonColor: '#df2626'
+            });
+        }
+    });
+    
+    // Thêm vào body
+    document.body.appendChild(addButton);
+    
+    console.log("Đã thêm nút Add Event cố định");
+}
+
+// Thêm event listener để force màu sắc khi DOM load xong
+document.addEventListener('DOMContentLoaded', () => {
+    // Force màu sắc sau khi trang load xong
+    setTimeout(() => {
+        document.querySelectorAll('.fc-event, .fc-daygrid-event').forEach(el => {
+            const typeMatch = Array.from(el.classList)
+                .find(cls => cls.startsWith('fc-event-type-'));
+            
+            if (typeMatch) {
+                const eventType = typeMatch.replace('fc-event-type-', '');
+                const color = getBorderColorForEventType(eventType);
+                
+                el.style.cssText = `
+                    background-color: ${color} !important;
+                    border-color: ${color} !important;
+                    color: white !important;
+                `;
+                
+                el.querySelectorAll('*').forEach(child => {
+                    child.style.cssText = `
+                        color: white !important;
+                        font-weight: 500 !important;
+                    `;
+                });
+            }
+        });
+    }, 500);
+});
+
+// Thêm đoạn code theo dõi DOM và force màu sắc liên tục
+function setupEventColoringObserver() {
+    console.log("Đang thiết lập observer theo dõi màu sắc sự kiện...");
+    
+    // Tạo một MutationObserver để theo dõi DOM thay đổi
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            // Kiểm tra nếu có node mới được thêm vào
+            if (mutation.addedNodes.length) {
+                // Lặp qua các node đã thêm
+                mutation.addedNodes.forEach(function(node) {
+                    // Kiểm tra xem node có phải là element không
+                    if (node.nodeType === 1) {
+                        // Xử lý nếu đây là event
+                        if (node.classList && (node.classList.contains('fc-event') || 
+                            node.classList.contains('fc-daygrid-event'))) {
+                            applyEventColor(node);
+                        }
+                        
+                        // Tìm kiếm các event bên trong node
+                        const events = node.querySelectorAll('.fc-event, .fc-daygrid-event');
+                        events.forEach(applyEventColor);
+                    }
+                });
+            }
+            
+            // Nếu có thay đổi thuộc tính của các node hiện có
+            if (mutation.type === 'attributes' && mutation.target.nodeType === 1) {
+                const el = mutation.target;
+                if (el.classList && (el.classList.contains('fc-event') || 
+                    el.classList.contains('fc-daygrid-event'))) {
+                    applyEventColor(el);
+                }
+            }
+        });
+    });
+    
+    // Bắt đầu theo dõi toàn bộ DOM với cấu hình
+    observer.observe(document.body, {
+        childList: true,     // Theo dõi thêm/xóa node
+        subtree: true,       // Theo dõi toàn bộ cây DOM
+        attributes: true,    // Theo dõi thay đổi thuộc tính
+        attributeFilter: ['class'] // Chỉ quan tâm đến thay đổi class
+    });
+    
+    console.log("Đã thiết lập observer thành công!");
+    
+    // Áp dụng màu sắc ngay lập tức cho tất cả sự kiện hiện có
+    document.querySelectorAll('.fc-event, .fc-daygrid-event').forEach(applyEventColor);
+    
+    return observer;
+}
+
+// Hàm áp dụng màu sắc cho một sự kiện
+function applyEventColor(el) {
+    // Xác định loại sự kiện
+    let eventType = 'other';
+    
+    // Tìm kiếm trong các data attributes
+    if (el.getAttribute('data-fc-event-type')) {
+        eventType = el.getAttribute('data-fc-event-type');
+    }
+    
+    // Tìm kiếm trong class
+    const classNames = el.className.split(' ');
+    for (const cls of classNames) {
+        if (cls.includes('meeting')) eventType = 'meeting';
+        else if (cls.includes('task')) eventType = 'task'; 
+        else if (cls.includes('deadline')) eventType = 'deadline';
+        else if (cls.includes('reminder')) eventType = 'reminder';
+        else if (cls.includes('appointment')) eventType = 'appointment';
+    }
+    
+    // Lấy màu tương ứng
+    const color = getBorderColorForEventType(eventType);
+    console.log("Áp dụng màu", color, "cho sự kiện loại", eventType);
+    
+    // Sử dụng !important ở cấp cao nhất có thể
+    el.style = `
+        background-color: ${color} !important;
+        border-color: ${color} !important;
+        color: white !important;
+    `;
+    
+    // Ghi đè style cho tất cả các phần tử con
+    Array.from(el.querySelectorAll('*')).forEach(child => {
+        child.style = `color: white !important;`;
+    });
+    
+    // Đánh dấu đã xử lý
+    el.setAttribute('data-event-colored', 'true');
+}
+
+// Khởi chạy observer khi trang load xong
+document.addEventListener('DOMContentLoaded', function() {
+    // Đăng ký observer để theo dõi DOM
+    const observer = setupEventColoringObserver();
+    
+    // Force một lần nữa sau khi trang đã load hoàn toàn
+    setTimeout(() => {
+        document.querySelectorAll('.fc-event, .fc-daygrid-event').forEach(applyEventColor);
+    }, 1000);
+    
+    // Force lại một lần nữa để đảm bảo
+    setTimeout(() => {
+        document.querySelectorAll('.fc-event, .fc-daygrid-event').forEach(applyEventColor);
+    }, 2000);
+});
+
+// Tạo một interval để liên tục kiểm tra và áp dụng màu sắc
+setInterval(function() {
+    document.querySelectorAll('.fc-event, .fc-daygrid-event').forEach(el => {
+        applyEventColor(el);
+    });
+}, 1000); // Kiểm tra mỗi 1 giây

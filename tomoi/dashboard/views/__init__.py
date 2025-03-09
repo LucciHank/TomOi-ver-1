@@ -42,6 +42,16 @@ from .marketing import *
 from .source import *
 from .discount import *
 from .banner import *
+from .api_settings import api_settings, save_api_config, test_api
+from .chatbot import (
+    dashboard, 
+    chatbot_api_settings,
+    chatbot_save_api,
+    chatbot_test_api,
+    settings,
+    logs,
+    responses
+)
 
 # Hàm tạm thời cho các view chưa được triển khai
 def not_implemented(request, *args, **kwargs):

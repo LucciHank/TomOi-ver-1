@@ -17,7 +17,8 @@ from .views import (
     discount,
     banner
 )
-from .views.settings import settings_view
+from .views.api_settings import api_settings, save_api_config, test_api
+from .views.settings import settings_view, save_chatbot_settings, test_gemini_api
 
 # Import các view mới
 from .views.messaging import messaging_view
@@ -122,6 +123,8 @@ urlpatterns = [
 
     # Settings URLs
     path('settings/', settings_view, name='settings'),
+    path('settings/save-chatbot/', save_chatbot_settings, name='save_chatbot_settings'),
+    path('settings/test-gemini-api/', test_gemini_api, name='test_gemini_api'),
     
     # Tab phụ Dashboard
     path('reports/', reports, name='reports'),
@@ -172,5 +175,27 @@ urlpatterns = [
     path('api/events/create/', api.create_event, name='create_event'),
     path('api/events/<int:event_id>/update/', api.update_event, name='update_event'),
     path('api/events/<int:event_id>/delete/', api.delete_event, name='delete_event'),
+
+    # Thêm các URL patterns này
+    path('settings/api/', api_settings, name='api_settings'),
+    path('settings/api/save/', save_api_config, name='save_api_config'),
+    path('settings/api/test/', test_api, name='test_api'),
+
+    # Thêm các URL cho Chatbot - sửa lại cho đúng với tên hàm trong chatbot.py
+    path('chatbot/', views.chatbot.dashboard, name='chatbot_dashboard'),
+    path('chatbot/settings/', views.chatbot.settings, name='chatbot_settings'),
+    path('chatbot/api/', api_settings, name='chatbot_api'),
+    path('chatbot/logs/', views.chatbot.logs, name='chatbot_logs'),
+    path('chatbot/responses/', views.chatbot.responses, name='chatbot_responses'),
+
+    # API endpoints cho Chatbot
+    path('chatbot/api/save/', save_api_config, name='chatbot_save_api'),
+    path('chatbot/api/test/', test_api, name='chatbot_test_api'),
+
+    # Thêm URL pattern cho save_chatbot_settings
+    path('chatbot/settings/save/', views.chatbot.save_chatbot_settings, name='chatbot_settings_save'),
+
+    # Thêm endpoint cho việc lấy cấu hình chatbot từ frontend
+    path('api/chatbot-config/', views.chatbot.get_chatbot_config, name='get_chatbot_config'),
 
 ] 

@@ -9,8 +9,8 @@
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Quản lý Chatbot Tư Vấn</h1>
         <div>
-            <a href="{% url 'dashboard:chatbot_config' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-                <i class="fas fa-plus fa-sm text-white-50"></i> Tạo cấu hình mới
+            <a href="{% url 'dashboard:chatbot_settings' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+                <i class="fas fa-cogs fa-sm text-white-50"></i> Cài đặt chatbot
             </a>
         </div>
     </div>
@@ -110,55 +110,48 @@
             <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">Cấu hình hiện tại</h6>
-                    {% if active_config %}
-                    <a href="{% url 'dashboard:chatbot_config_edit' active_config.id %}" class="btn btn-sm btn-info">
+                    {% if config %}
+                    <a href="{% url 'dashboard:chatbot_settings' %}" class="btn btn-sm btn-info">
                         <i class="fas fa-edit"></i> Chỉnh sửa
                     </a>
                     {% endif %}
                 </div>
                 <div class="card-body">
-                    {% if active_config %}
+                    {% if config %}
                         <div>
-                            <h5>{{ active_config.name }}</h5>
-                            <div class="small text-gray-600 mb-2">Cập nhật: {{ active_config.updated_at|date:"d/m/Y H:i" }}</div>
+                            <h5>{{ config.name }}</h5>
+                            <div class="small text-gray-600 mb-2">Cập nhật: {{ config.updated_at|date:"d/m/Y H:i" }}</div>
                             
                             <div class="card bg-light mb-3">
                                 <div class="card-header">Base Prompt</div>
                                 <div class="card-body">
-                                    <p class="card-text" style="white-space: pre-wrap;">{{ active_config.base_prompt }}</p>
+                                    <p class="card-text">{{ config.base_prompt|truncatechars:150 }}</p>
                                 </div>
                             </div>
                             
+                            <!-- Thêm thông tin về API -->
+                            {% if api_config %}
+                            <div class="card bg-light mb-3">
+                                <div class="card-header">API Được Sử Dụng</div>
+                                <div class="card-body">
+                                    <p class="card-text">
+                                        <strong>Loại:</strong> {{ api_config.api_type|upper }}<br>
+                                        <strong>Model:</strong> {{ api_config.model }}
+                                    </p>
+                                    <a href="{% url 'dashboard:chatbot_api' %}" class="btn btn-info m-2">
+                                        <i class="fas fa-plug mr-1"></i> Cấu hình API
+                                    </a>
+                                </div>
+                            </div>
+                            {% else %}
                             <div class="alert alert-warning">
-                                <strong>Thông báo từ chối:</strong> {{ active_config.rejection_message }}
+                                Chưa cấu hình API. <a href="{% url 'dashboard:chatbot_api' %}">Cấu hình ngay</a>
                             </div>
-                            
-                            <h6>Danh mục được phép:</h6>
-                            <ul>
-                                {% for category in active_config.allowed_categories.all %}
-                                <li>{{ category.category.name }}</li>
-                                {% empty %}
-                                <li>Chưa có danh mục được phép</li>
-                                {% endfor %}
-                            </ul>
-                            
-                            <h6>Từ khóa cấm:</h6>
-                            <div class="badge-group">
-                                {% for keyword in active_config.forbidden_keywords.all %}
-                                <span class="badge badge-danger">{{ keyword.keyword }}</span>
-                                {% empty %}
-                                <span class="text-muted">Chưa có từ khóa cấm</span>
-                                {% endfor %}
-                            </div>
+                            {% endif %}
                         </div>
                     {% else %}
-                        <div class="text-center my-5">
-                            <div class="error mx-auto" data-text="404">!</div>
-                            <p class="lead text-gray-800 mb-4">Chưa có cấu hình nào</p>
-                            <p class="text-gray-500 mb-0">Vui lòng tạo cấu hình chatbot mới</p>
-                            <a href="{% url 'dashboard:chatbot_config' %}" class="btn btn-primary mt-3">
-                                <i class="fas fa-plus"></i> Tạo cấu hình
-                            </a>
+                        <div class="alert alert-warning">
+                            Chưa có cấu hình Chatbot. <a href="{% url 'dashboard:chatbot_settings' %}">Tạo cấu hình mới</a>
                         </div>
                     {% endif %}
                 </div>
@@ -174,11 +167,8 @@
                 </div>
                 <div class="card-body text-center">
                     <div class="btn-group-lg">
-                        <a href="{% url 'dashboard:chatbot_config' %}" class="btn btn-primary m-2">
+                        <a href="{% url 'dashboard:chatbot_settings' %}" class="btn btn-primary m-2">
                             <i class="fas fa-cog mr-1"></i> Cấu hình Chatbot
-                        </a>
-                        <a href="{% url 'dashboard:api_integration' %}" class="btn btn-info m-2">
-                            <i class="fas fa-plug mr-1"></i> Tích hợp API
                         </a>
                         <a href="{% url 'dashboard:chat_logs' %}" class="btn btn-success m-2">
                             <i class="fas fa-history mr-1"></i> Lịch sử hội thoại

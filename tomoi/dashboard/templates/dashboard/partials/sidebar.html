@@ -140,6 +140,44 @@
         </div>
     </li>
 
+    <!-- Nav Item - Chatbot Menu -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseChatbot"
+            aria-expanded="true" aria-controls="collapseChatbot">
+            <i class="fas fa-robot"></i>
+            <span>Chatbot</span>
+        </a>
+        <div id="collapseChatbot" class="collapse" aria-labelledby="headingChatbot" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản lý Chatbot:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:chatbot_dashboard' %}">Tổng quan</a>
+                <a class="collapse-item" href="{% url 'dashboard:chatbot_settings' %}">Cài đặt</a>
+                <a class="collapse-item" href="{% url 'dashboard:chatbot_api' %}">Cấu hình API</a>
+                <a class="collapse-item" href="{% url 'dashboard:chatbot_logs' %}">Lịch sử trò chuyện</a>
+                <a class="collapse-item" href="{% url 'dashboard:chatbot_responses' %}">Câu trả lời</a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Add this to your sidebar navigation -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSettings" aria-expanded="false" aria-controls="collapseSettings">
+            <i class="fas fa-cogs"></i>
+            <span>Cài đặt hệ thống</span>
+        </a>
+        <div id="collapseSettings" class="collapse" aria-labelledby="headingSettings" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Tùy chọn cài đặt:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:settings' %}?tab=general">Cài đặt chung</a>
+                <a class="collapse-item" href="{% url 'dashboard:settings' %}?tab=email">Cấu hình Email</a>
+                <a class="collapse-item" href="{% url 'dashboard:settings' %}?tab=payment">Cổng thanh toán</a>
+                <a class="collapse-item" href="{% url 'dashboard:settings' %}?tab=chatbot">Cấu hình Chatbot</a>
+                <a class="collapse-item" href="{% url 'dashboard:settings' %}?tab=security">Bảo mật</a>
+                <a class="collapse-item" href="{% url 'dashboard:settings' %}?tab=backup">Sao lưu & Phục hồi</a>
+            </div>
+        </div>
+    </li>
+
     <!-- Divider -->
     <hr class="sidebar-divider d-none d-md-block">
 

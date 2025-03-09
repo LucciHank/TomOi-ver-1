@@ -9,906 +9,11 @@
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/main.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+<!-- Thêm file CSS mới dành riêng cho trang index -->
+<link href="{% static 'dashboard/css/index.css' %}" rel="stylesheet">
 <style>
-    /* Card Styling nâng cấp */
-    .dashboard-card {
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        border: none;
-        overflow: hidden;
-        background: linear-gradient(145deg, #ffffff, #f8f9fc);
-    }
+    /* Inline CSS nếu cần thiết */
     
-    .dashboard-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
-    }
-    
-    /* Icons thống kê */
-    .stats-icon {
-        width: 55px;
-        height: 55px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 12px;
-        font-size: 24px;
-        margin-bottom: 1rem;
-        color: white;
-        background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        position: relative;
-        transition: all 0.4s ease;
-    }
-    
-    .icon-primary { background-color: #df2626; }
-    .icon-success { background-color: #1cc88a; }
-    .icon-info { background-color: #36b9cc; }
-    .icon-warning { background-color: #f6c23e; }
-    
-    /* Cải thiện giao diện lịch */
-    .fc {
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        padding: 1rem;
-    }
-    
-    /* View tháng */
-    .fc .fc-daygrid-day {
-        min-height: 120px !important;
-    }
-    
-    .fc .fc-daygrid-day-frame {
-        padding: 8px;
-    }
-    
-    .fc-event-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        display: inline-block;
-        margin: 2px;
-    }
-    
-    /* View tuần và ngày */
-    .fc .fc-timegrid-slot {
-        height: 50px !important;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .fc .fc-timegrid-event {
-        border-radius: 4px;
-        padding: 2px 4px;
-        margin: 1px;
-    }
-    
-    .fc .fc-timegrid-event .fc-event-main {
-        padding: 4px;
-    }
-    
-    .fc .fc-timegrid-event .fc-event-time {
-        font-size: 0.85em;
-        font-weight: bold;
-    }
-    
-    .fc .fc-timegrid-event .fc-event-title {
-        font-size: 0.9em;
-    }
-    
-    /* Modal sự kiện */
-    .event-details-modal {
-        padding: 0;
-    }
-    
-    .event-details-header {
-        padding: 1rem;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .event-details-body {
-        padding: 1rem;
-    }
-    
-    .event-time-badge {
-        display: inline-block;
-        padding: 0.25rem 0.5rem;
-        border-radius: 4px;
-        background: #f8f9fa;
-        margin-top: 0.5rem;
-    }
-    
-    /* Màu sắc cho các loại sự kiện */
-    .event-meeting { background-color: #4e73df !important; }
-    .event-deadline { background-color: #e74a3b !important; }
-    .event-reminder { background-color: #f6c23e !important; }
-    .event-other { background-color: #1cc88a !important; }
-    
-    /* Đồng nhất các chiều cao */
-    .equal-height-row {
-        display: flex;
-        flex-wrap: wrap;
-    }
-    
-    .equal-height-row > div {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .equal-height-row .card {
-        flex: 1;
-        margin-bottom: 20px;
-    }
-    
-    /* Cải thiện display cho các chart */
-    .chart-card, .chart-area, .chart-pie, .chart-container {
-        height: 300px;
-        position: relative;
-        width: 100%;
-        margin-bottom: 20px;
-    }
-    
-    .chart-container.miniature {
-        height: 200px;
-    }
-    
-    /* Cải thiện dropdown menu */
-    .card-header {
-        position: relative;
-        z-index: 10;
-        background: linear-gradient(45deg, #f8f9fc, #ffffff);
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        padding: 1.25rem 1.5rem;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    
-    .dropdown-menu {
-        position: absolute;
-        z-index: 1000;
-    }
-    
-    .dropdown-menu-right {
-        right: 0;
-        left: auto;
-    }
-    
-    /* FullCalendar styling (đã gộp và tối ưu) */
-    .fc-header-toolbar {
-        padding: 1rem;
-        background: linear-gradient(to right, #f8f9fc, #eaecf4);
-        border-bottom: 1px solid #e3e6f0;
-        margin-bottom: 1.5em !important;
-    }
-    
-    .fc-button-primary:not(:disabled):active,
-    .fc-button-primary:not(:disabled).fc-button-active {
-        background-color: #b51818 !important;
-        border-color: #b51818 !important;
-    }
-    
-    .fc-event:hover {
-        transform: translateY(-3px) !important;
-        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1) !important;
-        z-index: 10 !important;
-    }
-    
-    .fc-daygrid-event-dot {
-        border-color: #df2626 !important;
-    }
-    
-    .fc-day-today {
-        background-color: rgba(223, 38, 38, 0.05) !important;
-    }
-    
-    .fc-highlight {
-        background-color: rgba(223, 38, 38, 0.2) !important;
-        border: 1px dashed #df2626 !important;
-    }
-    
-    .fc-daygrid-day {
-        cursor: pointer;
-    }
-    
-    .fc-daygrid-day-number {
-        font-weight: 600;
-        color: #5a5c69;
-    }
-    
-    .fc-daygrid-day-top {
-        justify-content: center;
-    }
-    
-    .fc-col-header-cell-cushion {
-        font-weight: 700;
-        color: #4e73df;
-    }
-    
-    /* Nút thêm sự kiện cố định */
-    .btn-add-event {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        width: 55px;
-        height: 55px;
-        border-radius: 50%;
-        background: linear-gradient(45deg, #4e73df, #2653d4);
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 20px rgba(78, 115, 223, 0.4);
-        cursor: pointer;
-        border: none;
-        z-index: 1000;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-add-event:hover {
-        transform: scale(1.1) rotate(90deg);
-        box-shadow: 0 6px 30px rgba(78, 115, 223, 0.6);
-    }
-    
-    .btn-add-event i {
-        font-size: 24px;
-    }
-    
-    /* Card styling (đã gộp các thuộc tính trùng lặp) */
-    .card {
-        border-radius: 15px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s;
-        border: none;
-        overflow: hidden;
-        position: relative;
-    }
-    
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    }
-    
-    .card-body {
-        padding: 1.5rem;
-    }
-    
-    /* Button styling */
-    .btn {
-        border-radius: 8px;
-        padding: 0.5rem 1rem;
-        font-weight: 600;
-        transition: all 0.3s;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
-    }
-    
-    .btn-primary {
-        background-color: #df2626;
-        border-color: #df2626;
-    }
-    
-    .btn-primary:hover {
-        background-color: #c51d1d;
-        border-color: #c51d1d;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(223, 38, 38, 0.25);
-    }
-    
-    .btn-secondary {
-        background-color: #858796;
-        border-color: #858796;
-    }
-    
-    .btn-secondary:hover {
-        background-color: #717384;
-        border-color: #717384;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(133, 135, 150, 0.25);
-    }
-    
-    /* Nút đồng bộ Google Calendar */
-    .btn-sync-google {
-        background: linear-gradient(135deg, #4285F4, #34A853);
-        color: #fff;
-        border: none;
-        position: relative;
-        overflow: hidden;
-        z-index: 1;
-        transition: all 0.3s;
-        box-shadow: 0 4px 6px rgba(66, 133, 244, 0.3);
-    }
-    
-    .btn-sync-google:before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, #34A853, #FBBC05, #EA4335);
-        transition: 0.5s;
-        z-index: -1;
-    }
-    
-    .btn-sync-google:hover:before {
-        left: 0;
-    }
-    
-    .btn-sync-google:hover {
-        color: #fff;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(66, 133, 244, 0.4);
-    }
-    
-    .btn-sync-google:focus, 
-    .btn-sync-google:active {
-        outline: none;
-        box-shadow: 0 0 0 0.2rem rgba(66, 133, 244, 0.5);
-    }
-    
-    .btn-sync-google i {
-        margin-right: 8px;
-    }
-    
-    /* Badge styling */
-    .badge {
-        padding: 0.5em 0.75em;
-        font-weight: 600;
-        border-radius: 30px;
-    }
-    
-    .badge-success { background-color: #1cc88a; color: white; }
-    .badge-warning { background-color: #f6c23e; color: white; }
-    .badge-danger { background-color: #e74a3b; color: white; }
-    .badge-primary { background-color: #4e73df; color: white; }
-    .badge-info { background-color: #36b9cc; color: white; }
-    
-    /* Tooltip cải tiến */
-    .custom-tooltip {
-        position: relative;
-        display: inline-block;
-    }
-    
-    .custom-tooltip .tooltip-text {
-        visibility: hidden;
-        width: 200px;
-        background-color: #333;
-        color: #fff;
-        text-align: center;
-        border-radius: 6px;
-        padding: 10px;
-        position: absolute;
-        z-index: 1;
-        bottom: 125%;
-        left: 50%;
-        transform: translateX(-50%);
-        opacity: 0;
-        transition: opacity 0.3s;
-    }
-    
-    .custom-tooltip .tooltip-text::after {
-        content: "";
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        margin-left: -5px;
-        border-width: 5px;
-        border-style: solid;
-        border-color: #333 transparent transparent transparent;
-    }
-    
-    .custom-tooltip:hover .tooltip-text {
-        visibility: visible;
-        opacity: 1;
-    }
-    
-    /* Table styling */
-    .table {
-        border-radius: 10px;
-        overflow: hidden;
-    }
-    
-    .table thead th {
-        background-color: #f8f9fc;
-        border-top: none;
-        border-bottom: 1px solid #e3e6f0;
-        font-weight: 700;
-        color: #4e73df;
-    }
-    
-    .table-hover tbody tr {
-        transition: all 0.2s ease;
-    }
-    
-    .table-hover tbody tr:hover {
-        background-color: rgba(78, 115, 223, 0.05);
-        transform: translateX(5px);
-    }
-    
-    /* Method select styling */
-    .method-select {
-        cursor: pointer;
-        transition: all 0.2s ease;
-        border-radius: 8px;
-    }
-    
-    .method-select:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-    }
-    
-    .method-select.selected {
-        background-color: rgba(223, 38, 38, 0.1);
-        border-color: #df2626 !important;
-        transform: translateY(-3px);
-    }
-    
-    /* Toast container */
-    #toastContainer {
-        z-index: 9999;
-        position: fixed;
-        top: 20px;
-        right: 20px;
-    }
-    
-    .toast {
-        opacity: 0;
-        animation: fadeIn 0.3s ease forwards;
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    /* Tab styling */
-    .dashboard-tabs .nav-link {
-        color: #5a5c69;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 5px 5px 0 0;
-        font-weight: 600;
-    }
-    
-    .dashboard-tabs .nav-link.active {
-        color: #df2626;
-        background-color: #fff;
-        border-bottom: 3px solid #df2626;
-    }
-    
-    .tab-content > .tab-pane {
-        display: none;
-    }
-    
-    .tab-content > .active {
-        display: block;
-    }
-    
-    /* Modal styling */
-    .modal-header {
-        background-color: #f8f9fc;
-        border-bottom: 1px solid #e3e6f0;
-    }
-    
-    .modal-footer {
-        background-color: #f8f9fc;
-        border-top: 1px solid #e3e6f0;
-    }
-    
-    /* Order status styling */
-    .order-status {
-        color: #fff;
-        font-weight: 600;
-        padding: 5px 10px;
-        border-radius: 5px;
-        display: inline-block;
-        font-size: 0.85rem;
-    }
-    
-    .status-completed { background-color: #1cc88a; }
-    .status-shipping { background-color: #36b9cc; }
-    .status-processing { background-color: #4e73df; }
-    .status-cancelled { background-color: #e74a3b; }
-    .status-pending { background-color: #f6c23e; }
-    
-    /* Premium subscription table */
-    .premium-table tr {
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-    
-    .premium-table tr:hover {
-        background-color: rgba(0,0,0,0.02);
-    }
-    
-    /* Media queries */
-    @media (max-width: 1200px) {
-        .dashboard-col-calendar, .dashboard-col-charts {
-            flex: 0 0 100%;
-            max-width: 100%;
-        }
-    }
-
-    /* CSS cho tour hướng dẫn */
-    .tutorial-highlight {
-        position: relative;
-        z-index: 9998;
-        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
-        border-radius: 5px;
-        animation: tutorialPulse 1.5s infinite;
-    }
-
-    @keyframes tutorialPulse {
-        0% { box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7), 0 0 0 0 rgba(223, 38, 38, 0.7); }
-        70% { box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7), 0 0 0 10px rgba(223, 38, 38, 0); }
-        100% { box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7), 0 0 0 0 rgba(223, 38, 38, 0); }
-    }
-
-    .tutorial-swal-container {
-        z-index: 9999;
-    }
-
-    .tutorial-popup-top {
-        margin-top: 150px !important;
-    }
-
-    .tutorial-popup-bottom {
-        margin-top: -150px !important;
-    }
-
-    .tutorial-popup-left {
-        margin-left: 150px !important;
-    }
-
-    .tutorial-popup-right {
-        margin-left: -150px !important;
-    }
-
-    /* CSS cho toast notification */
-    #toastContainer {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 9999;
-    }
-
-    .toast {
-        min-width: 250px;
-        background-color: white;
-        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
-        backdrop-filter: blur(10px);
-        opacity: 0;
-        border-radius: 0.5rem;
-        border-left: 4px solid #df2626;
-        animation: toastFadeIn 0.3s ease forwards;
-    }
-
-    @keyframes toastFadeIn {
-        from { opacity: 0; transform: translateX(20px); }
-        to { opacity: 1; transform: translateX(0); }
-    }
-
-    /* CSS cho chế độ in */
-    @media print {
-        .no-print, .no-print * {
-            display: none !important;
-        }
-        
-        .print-only {
-            display: block !important;
-        }
-        
-        body {
-            background-color: white;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-        }
-        
-        .container-fluid {
-            padding: 0;
-        }
-        
-        .card {
-            box-shadow: none !important;
-            border: 1px solid #e3e6f0 !important;
-        }
-    }
-
-    /* Styles cho hover effects */
-    .hover-effect {
-        transition: all 0.3s ease;
-    }
-
-    .hover-effect:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
-    }
-
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-        background: #d4d4d4;
-        border-radius: 10px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-        background: #df2626;
-    }
-
-    /* Loading indicator */
-    .loading-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(255, 255, 255, 0.8);
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        backdrop-filter: blur(5px);
-    }
-
-    .spinner {
-        width: 40px;
-        height: 40px;
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #df2626;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    /* Responsive improvements */
-    @media (max-width: 768px) {
-        .stats-icon {
-            width: 45px;
-            height: 45px;
-            font-size: 20px;
-        }
-        
-        .card-header {
-            padding: 0.75rem 1rem;
-        }
-        
-        .card-body {
-            padding: 1rem;
-        }
-        
-        .calendar-container {
-            height: 450px !important;
-        }
-        
-        #calendar {
-            height: 450px !important;
-        }
-        
-        .fc-toolbar {
-            flex-direction: column;
-        }
-        
-        .fc-toolbar-chunk {
-            margin-bottom: 0.5rem;
-        }
-    }
-
-    /* Modal chi tiết đơn hàng */
-    .order-details-popup {
-        padding: 1.5rem;
-        border-radius: 15px;
-    }
-
-    .order-title {
-        color: #df2626;
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin-bottom: 1.5rem;
-        text-align: left;
-        border-bottom: 2px solid #df2626;
-        padding-bottom: 0.5rem;
-    }
-
-    .order-section {
-        background: #fff;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        margin-bottom: 1.5rem;
-        padding: 1.25rem;
-        text-align: left;
-    }
-
-    .section-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 1rem;
-        color: #df2626;
-    }
-
-    .section-header i {
-        margin-right: 0.5rem;
-        font-size: 1.2rem;
-    }
-
-    .section-header h6 {
-        margin: 0;
-        font-weight: 600;
-        font-size: 1.1rem;
-    }
-
-    .info-row {
-        display: grid;
-        grid-template-columns: 150px 1fr;
-        margin-bottom: 0.75rem;
-        align-items: center;
-    }
-
-    .info-label {
-        color: #666;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-    }
-
-    .info-label i {
-        width: 20px;
-        color: #df2626;
-        margin-right: 0.5rem;
-    }
-
-    .info-value {
-        color: #333;
-    }
-
-    .table {
-        margin-bottom: 0;
-        width: 100%;
-    }
-
-    .table thead th {
-        background-color: #f8f9fc;
-        border-top: none;
-        font-weight: 600;
-        white-space: nowrap;
-    }
-
-    .table td, .table th {
-        padding: 0.75rem;
-        vertical-align: middle;
-    }
-
-    .table td:first-child {
-        text-align: left;
-    }
-
-    .table td.text-center {
-        text-align: center !important;
-    }
-
-    .table td.text-right, 
-    .table th.text-right {
-        text-align: right !important;
-    }
-
-    .badge {
-        padding: 0.5em 1em;
-        font-size: 0.85em;
-    }
-
-    /* Sửa lại style cho SweetAlert2 */
-    .swal2-popup {
-        text-align: left !important;
-    }
-
-    .swal2-html-container {
-        text-align: left !important;
-    }
-
-    /* Form sự kiện */
-    .event-modal .swal2-html-container {
-        text-align: left;
-    }
-
-    .event-modal .form-label.required::after {
-        content: '*';
-        color: #df2626;
-        margin-left: 4px;
-    }
-
-    .event-modal .form-control {
-        margin-bottom: 0.5rem;
-    }
-
-    /* Tooltip sự kiện */
-    .event-tooltip {
-        padding: 8px;
-    }
-
-    .event-tooltip .event-title {
-        font-weight: bold;
-        margin-bottom: 4px;
-    }
-
-    .event-tooltip .event-time {
-        font-size: 0.9em;
-        color: #666;
-    }
-
-    .event-tooltip .event-desc {
-        margin-top: 4px;
-        font-size: 0.9em;
-    }
-
-    /* Modal sự kiện trong ngày */
-    .day-events {
-        max-height: 400px;
-        overflow-y: auto;
-        padding: 10px;
-    }
-
-    .event-block {
-        margin-bottom: 15px;
-        padding: 12px;
-        border-radius: 8px;
-        background: #fff;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        border-left: 4px solid;
-    }
-
-    .event-block.event-meeting {
-        border-color: #4e73df;
-    }
-
-    .event-block.event-deadline {
-        border-color: #e74a3b;
-    }
-
-    .event-block.event-reminder {
-        border-color: #f6c23e;
-    }
-
-    .event-block .event-time {
-        font-size: 0.9em;
-        color: #666;
-        margin-bottom: 5px;
-    }
-
-    .event-block .event-title {
-        font-weight: bold;
-        margin-bottom: 5px;
-    }
-
-    .event-block .event-description {
-        font-size: 0.9em;
-        color: #666;
-    }
-
-    /* Nút thêm sự kiện */
-    .btn-add-event {
-        background-color: #df2626;
-        border-color: #df2626;
-    }
-
-    .btn-add-event:hover {
-        background-color: #c51f1f;
-        border-color: #c51f1f;
-    }
-
     /* Cải thiện hiển thị của các card thống kê */
     .card-stats {
         height: 100%;
@@ -934,79 +39,30 @@
         border-left-color: #f6c23e;
     }
     
-    /* Cải thiện hiển thị nội dung trong card */
-    .card-stats .card-body {
-        padding: 1.25rem;
-        display: flex;
-        flex-direction: column;
+    /* CSS bổ sung để đảm bảo thanh nối trên lịch */
+    .fc-dayGridMonth-view .fc-event-dot {
+        display: inline-block !important;
+        margin-right: 4px !important;
     }
     
-    /* Tiêu đề card */
-    .card-stats .card-title {
-        font-size: 0.8rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        color: #858796;
-        margin-bottom: 0.75rem;
-        letter-spacing: 0.05rem;
+    /* Điều chỉnh khoảng cách giữa các event trong lịch */
+    .fc-daygrid-event {
+        margin-top: 3px !important;
+        margin-bottom: 3px !important;
     }
     
-    /* Giá trị chính */
-    .card-stats .card-value {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #5a5c69;
-        margin-bottom: 0.5rem;
-        line-height: 1.2;
+    @media (max-width: 768px) {
+        .dashboard-card {
+            margin-bottom: 15px;
     }
-    
-    /* Phần so sánh */
-    .card-stats .card-comparison {
-        font-size: 0.8rem;
-        display: flex;
-        align-items: center;
-        margin-top: auto;
-    }
-    
-    /* Icon tăng/giảm */
-    .card-stats .card-comparison i {
-        margin-right: 0.25rem;
-        font-size: 0.9rem;
-    }
-    
-    /* Màu sắc cho tăng/giảm */
-    .card-stats .text-success {
-        color: #1cc88a !important;
-    }
-    
-    .card-stats .text-danger {
-        color: #e74a3b !important;
-    }
-    
-    /* Icon cho từng loại card */
-    .card-stats .card-icon {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        font-size: 2rem;
-        opacity: 0.3;
-        color: #4e73df;
-    }
-    
-    /* Hiệu ứng hover */
-    .card-stats:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    }
-    
-    /* Đảm bảo các card có chiều cao bằng nhau */
-    .row-stats {
-        display: flex;
-        flex-wrap: wrap;
-    }
-    
-    .row-stats > div {
-        margin-bottom: 1.5rem;
+
+    .fc-header-toolbar {
+            flex-wrap: wrap;
+        }
+        
+        .fc-toolbar-chunk {
+            margin-bottom: 5px;
+        }
     }
 </style>
 {% endblock %}
@@ -1128,89 +184,70 @@
         </div>
     </div>
 
-    <!-- Bố cục mới với chiều cao đồng đều -->
+    <!-- Phần row chứa biểu đồ và lịch -->
     <div class="row equal-height-row">
-        <!-- Khối lịch sự kiện -->
-        <div class="col-xl-6 col-lg-6">
-            <div class="card shadow h-100">
-                <!-- Thêm thông tin trạng thái đồng bộ vào header của khối lịch -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        Lịch sự kiện và nhắc nhở 
-                        <span class="ml-2" id="syncStatus"></span>
-                    </h6>
-                    <div>
-                        <small id="lastSyncTime" class="text-muted mr-2"></small>
-                    <div class="dropdown no-arrow">
-                            <a class="dropdown-toggle" href="#" role="button" id="calendarDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                        </a>
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="calendarDropdown">
-                                <div class="dropdown-header">Tùy chọn:</div>
-                                <a class="dropdown-item" href="#" id="syncWithGoogleDropdown">
-                                    <i class="fas fa-sync fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Đồng bộ với Google
-                                </a>
-                                <a class="dropdown-item" href="#" id="printCalendarDropdown">
-                                    <i class="fas fa-print fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    In lịch
-                                </a>
-                        </div>
-                    </div>
-                </div>
-                    </div>
-                <div class="card-body calendar-container p-0">
-                    <div id="calendar"></div>
-                    </div>
-            </div>
-        </div>
-        
-        <!-- Khối biểu đồ bên phải -->
-        <div class="col-xl-6 col-lg-6">
+        <!-- Cột chứa 2 biểu đồ -->
+        <div class="col-xl-7 col-lg-7">
+            <div class="chart-column-container">
             <!-- Biểu đồ doanh thu -->
-            <div class="card shadow chart-card">
+                <div class="card shadow">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">Doanh thu</h6>
-                    <div class="dropdown">
-                        <button class="btn btn-link text-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <span class="filter-text">Tháng này</span>
+                        <div class="dropdown">
+                            <button class="btn btn-link text-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <span class="filter-text">Tháng này</span>
                         </button>
-                        <div class="dropdown-menu dropdown-menu-right shadow">
-                            <a class="dropdown-item chart-filter" href="#" data-chart="revenue" data-range="day">Hôm nay</a>
-                            <a class="dropdown-item chart-filter" href="#" data-chart="revenue" data-range="week">Tuần này</a>
-                            <a class="dropdown-item chart-filter active" href="#" data-chart="revenue" data-range="month">Tháng này</a>
-                            <a class="dropdown-item chart-filter" href="#" data-chart="revenue" data-range="quarter">Quý này</a>
-                            <a class="dropdown-item chart-filter" href="#" data-chart="revenue" data-range="year">Năm nay</a>
-                        </div>
+                            <div class="dropdown-menu dropdown-menu-right shadow">
+                                <a class="dropdown-item chart-filter" href="#" data-chart="revenue" data-range="day">Hôm nay</a>
+                                <a class="dropdown-item chart-filter" href="#" data-chart="revenue" data-range="week">Tuần này</a>
+                                <a class="dropdown-item chart-filter active" href="#" data-chart="revenue" data-range="month">Tháng này</a>
+                                <a class="dropdown-item chart-filter" href="#" data-chart="revenue" data-range="quarter">Quý này</a>
+                                <a class="dropdown-item chart-filter" href="#" data-chart="revenue" data-range="year">Năm nay</a>
+                            </div>
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="chart-area card-chart-container">
+                        <div class="chart-container">
                         <canvas id="revenueChart"></canvas>
                 </div>
             </div>
         </div>
 
             <!-- Biểu đồ lợi nhuận -->
-            <div class="card shadow chart-card">
+                <div class="card shadow">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">Lợi nhuận</h6>
-                    <div class="dropdown">
-                        <button class="btn btn-link text-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <span class="filter-text">Tháng này</span>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right shadow">
-                            <a class="dropdown-item chart-filter" href="#" data-chart="profit" data-range="day">Hôm nay</a>
-                            <a class="dropdown-item chart-filter" href="#" data-chart="profit" data-range="week">Tuần này</a>
-                            <a class="dropdown-item chart-filter active" href="#" data-chart="profit" data-range="month">Tháng này</a>
-                            <a class="dropdown-item chart-filter" href="#" data-chart="profit" data-range="quarter">Quý này</a>
-                            <a class="dropdown-item chart-filter" href="#" data-chart="profit" data-range="year">Năm nay</a>
+                        <div class="dropdown">
+                            <button class="btn btn-link text-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <span class="filter-text">Tháng này</span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right shadow">
+                                <a class="dropdown-item chart-filter" href="#" data-chart="profit" data-range="day">Hôm nay</a>
+                                <a class="dropdown-item chart-filter" href="#" data-chart="profit" data-range="week">Tuần này</a>
+                                <a class="dropdown-item chart-filter active" href="#" data-chart="profit" data-range="month">Tháng này</a>
+                                <a class="dropdown-item chart-filter" href="#" data-chart="profit" data-range="quarter">Quý này</a>
+                                <a class="dropdown-item chart-filter" href="#" data-chart="profit" data-range="year">Năm nay</a>
                         </div>
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="chart-area card-chart-container">
+                        <div class="chart-container">
                         <canvas id="profitChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Cột chứa lịch -->
+        <div class="col-xl-5 col-lg-5">
+            <div class="calendar-wrapper">
+                <div class="card shadow calendar-container">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Lịch sự kiện và nhắc nhở</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div id="calendar"></div>
                     </div>
                         </div>
                         </div>
@@ -1345,10 +382,6 @@
         </div>
     </div>
     
-    <!-- Nút thêm sự kiện cố định -->
-    <button class="btn-add-event" id="addEventBtn" title="Thêm sự kiện mới">
-        <i class="fas fa-plus"></i>
-    </button>
 </div>
 
 <!-- Tài khoản Premium -->
@@ -1797,7 +830,7 @@
 
 <script>
 // Thêm vào phần JavaScript hiện có
-$(document).ready(function() {
+    $(document).ready(function() {
     // Biến để lưu trữ ID sự kiện đang được cập nhật
     let currentEventId = null;
     
@@ -1836,7 +869,7 @@ $(document).ready(function() {
         if (!currentEventId) return;
         
         // Hiển thị hộp thoại xác nhận
-        Swal.fire({
+            Swal.fire({
             title: 'Xác nhận xóa',
             text: 'Bạn có chắc chắn muốn xóa sự kiện này?',
             icon: 'warning',
@@ -1858,10 +891,10 @@ $(document).ready(function() {
         // Gọi API để xóa sự kiện
         // Ví dụ:
         /*
-        $.ajax({
+                        $.ajax({
             url: `/api/events/${eventId}/`,
             method: 'DELETE',
-            success: function(response) {
+                            success: function(response) {
                 // Đóng modal
                 $('#addEventModal').modal('hide');
                 
@@ -1897,11 +930,102 @@ $(document).ready(function() {
         );
         
         // Cập nhật lại lịch (nếu có)
-        if (typeof calendar !== 'undefined') {
-            calendar.refetchEvents();
-        }
+            if (typeof calendar !== 'undefined') {
+                calendar.refetchEvents();
+            }
     }
-});
+    });
+</script>
+
+<!-- Thêm script này ở cuối trang, ngay trước </body> -->
+<script>
+// Chạy ngay lập tức khi trang tải
+(function() {
+    // Hàm ghi đè trực tiếp style của sự kiện
+    function forceEventColors() {
+        console.log('Đang áp dụng màu sắc cho tất cả sự kiện...');
+        
+        // Cấu hình màu sắc cứng
+        const COLORS = {
+            'meeting': '#E63946',     // Đỏ
+            'task': '#1D3557',        // Xanh đậm
+            'deadline': '#F77F00',    // Cam
+            'reminder': '#2A9D8F',    // Xanh lá
+            'appointment': '#457B9D', // Xanh dương
+            'other': '#6C757D'        // Xám
+        };
+        
+        // Tìm tất cả sự kiện
+        document.querySelectorAll('.fc-event, .fc-daygrid-event').forEach(el => {
+            // Xác định loại sự kiện
+            let eventType = 'other';
+            
+            // Tìm kiếm trong tên class
+            if (el.className.includes('meeting')) eventType = 'meeting';
+            else if (el.className.includes('task')) eventType = 'task';
+            else if (el.className.includes('deadline')) eventType = 'deadline';
+            else if (el.className.includes('reminder')) eventType = 'reminder';
+            else if (el.className.includes('appointment')) eventType = 'appointment';
+            
+            // Tìm kiếm trong data-event-type
+            if (el.getAttribute('data-event-type')) {
+                eventType = el.getAttribute('data-event-type');
+            }
+            
+            // Lấy màu
+            const color = COLORS[eventType] || COLORS.other;
+            
+            // Ghi đè style trực tiếp
+            el.setAttribute('style', `
+                background-color: ${color} !important;
+                border-color: ${color} !important;
+                color: white !important;
+            `);
+            
+            // Ghi đè style cho tất cả phần tử con
+            el.querySelectorAll('*').forEach(child => {
+                child.setAttribute('style', 'color: white !important;');
+            });
+            
+            console.log(`Đã áp dụng màu ${color} cho sự kiện loại ${eventType}`);
+        });
+    }
+    
+    // Chạy ngay khi script được tải
+    forceEventColors();
+    
+    // Chạy lại sau 500ms
+    setTimeout(forceEventColors, 500);
+    
+    // Chạy lại sau 1000ms
+    setTimeout(forceEventColors, 1000);
+    
+    // Chạy lại sau 2000ms
+    setTimeout(forceEventColors, 2000);
+    
+    // Theo dõi thay đổi view trong FullCalendar
+    if (window.calendar) {
+        window.calendar.on('viewDidMount', forceEventColors);
+        window.calendar.on('datesSet', forceEventColors);
+        window.calendar.on('eventDidMount', function(info) {
+            const eventType = info.event.extendedProps.type || 'other';
+            const color = COLORS[eventType] || COLORS.other;
+            
+            info.el.setAttribute('style', `
+                background-color: ${color} !important;
+                border-color: ${color} !important;
+                color: white !important;
+            `);
+            
+            info.el.querySelectorAll('*').forEach(child => {
+                child.setAttribute('style', 'color: white !important;');
+            });
+        });
+    }
+    
+    // Tạo interval kiểm tra liên tục
+    setInterval(forceEventColors, 1000);
+})();
 </script>
 {% endblock %}
 

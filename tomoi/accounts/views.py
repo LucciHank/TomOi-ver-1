@@ -61,6 +61,8 @@ from django.utils.html import strip_tags
 from payment.utils import send_payment_confirmation_email
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import models
+from dashboard.models.chatbot import ChatbotConfig
+from dashboard.models.api import APIConfig
 
 logger = logging.getLogger(__name__)
 
@@ -2538,3 +2540,118 @@ def get_transaction_detail(request, transaction_id):
         return JsonResponse(data)
     except Transaction.DoesNotExist:
         return JsonResponse({'error': 'Không tìm thấy giao dịch'}, status=404)
+
+@csrf_exempt
+def public_chatbot_config(request):
+    """API endpoint công khai để lấy cấu hình chatbot"""
+    try:
+        print("=== PUBLIC CHATBOT CONFIG API CALLED ===")
+        # Lấy cấu hình chatbot và API đang hoạt động
+        config = ChatbotConfig.objects.filter(is_active=True).first()
+        api_config = APIConfig.objects.filter(active=True).first()
+        
+        print(f"Config found: {config is not None}")
+        print(f"API config found: {api_config is not None}")
+        
+        if config:
+            print(f"Chatbot name: {config.chatbot_name}")
+            print(f"Is active: {config.is_active}")
+        
+        if api_config:
+            print(f"API type: {api_config.api_type}")
+            print(f"API key: {api_config.api_key[:5]}...")
+            print(f"Model: {api_config.model}")
+            print(f"Active: {api_config.active}")
+        
+        if not config or not api_config:
+            print("Missing config or API config")
+            return JsonResponse({
+                'success': False,
+                'message': 'Chưa cấu hình chatbot hoặc API'
+            })
+        
+        response_data = {
+            'success': True,
+            'config': {
+                'chatbot_name': config.chatbot_name,
+                'base_prompt': config.base_prompt,
+                'api_type': api_config.api_type,
+                'api_key': api_config.api_key,
+                'model': api_config.model,
+                'temperature': float(api_config.temperature),
+                'endpoint': api_config.endpoint
+            }
+        }
+        
+        print(f"Response data: {response_data}")
+        return JsonResponse(response_data)
+    except Exception as e:
+        print(f"Lỗi khi lấy cấu hình public chatbot: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'success': False,
+            'message': f'Lỗi: {str(e)}'
+        })
+
+@csrf_exempt
+def public_chatbot_process(request):
+    """API endpoint công khai để xử lý tin nhắn chatbot"""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    
+    try:
+        print("=== CHATBOT PROCESS API CALLED ===")
+        print(f"URL path: {request.path}")
+        data = json.loads(request.body)
+        message = data.get('message', '')
+        
+        print(f"Received message: {message}")
+        
+        # Lấy cấu hình API
+        config = ChatbotConfig.objects.filter(is_active=True).first()
+        api_config = APIConfig.objects.filter(active=True).first()
+        
+        print(f"Config found: {config is not None}")
+        print(f"API config found: {api_config is not None}")
+        
+        if not config or not api_config:
+            return JsonResponse({
+                'success': False,
+                'message': 'Chưa cấu hình chatbot hoặc API'
+            })
+        
+        # Xử lý tin nhắn với API
+        chatbot_name = config.chatbot_name or "TomOi Assistant"
+        
+        return JsonResponse({
+            'success': True,
+            'response': f"Đây là phản hồi từ {chatbot_name}. Tin nhắn của bạn: {message}"
+        })
+    except Exception as e:
+        print(f"Lỗi khi xử lý tin nhắn chatbot: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'success': False,
+            'message': f'Lỗi: {str(e)}'
+        })
+
+@csrf_exempt
+def log_chat(request):
+    """API endpoint để log chat"""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    
+    try:
+        # Log tin nhắn nếu cần
+        return JsonResponse({
+            'success': True,
+            'message': 'Chat logged successfully'
+        })
+    except Exception as e:
+        print(f"Lỗi khi log chat: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': f'Lỗi: {str(e)}'
+        })

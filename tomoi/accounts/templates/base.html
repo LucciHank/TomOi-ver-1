@@ -311,6 +311,9 @@
       font-size: 1.1rem;
   }
   </style>
+  {% block extra_head %}
+    <link rel="stylesheet" href="{% static 'store/css/chatbot.css' %}">
+  {% endblock %}
 </head>
 <body data-user-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
   {% csrf_token %}
@@ -1040,7 +1043,7 @@ document.getElementById('sendOtpBtn').addEventListener('click', function() {
         console.error('Error:', error);
         Swal.fire({
             icon: 'error',
-            text: 'Có lỗi xảy ra, vui lòng thử lại sau',
+            text: 'Có lỗi xảy ra, vui lòng thử lại',
             showConfirmButton: true
         });
     })
@@ -1585,6 +1588,8 @@ function getCookie(name) {
   }
   </script>
   <script src="{% static 'store/js/search.js' %}"></script>
+  {% include 'store/chatbot.html' %}
+  <script src="{% static 'store/js/chatbot.js' %}"></script>
 </body>
 </html>
 
