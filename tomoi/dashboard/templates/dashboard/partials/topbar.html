@@ -244,4 +244,66 @@
     right: 0.25rem;
     top: 0.25rem;
 }
+
+/* Đảm bảo avatar hiển thị đúng */
+.img-profile {
+    height: 2rem;
+    width: 2rem;
+    object-fit: cover;
+    border: 2px solid #eaecf4;
+}
+
+/* Sửa vị trí dropdown */
+.topbar .dropdown {
+    position: static;
+}
+
+.topbar .dropdown-menu {
+    position: absolute;
+    right: 0;
+    left: auto;
+    top: 100%;
+}
+
+/* Trigger để dropdown hiển thị khi hover */
+.topbar .dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+/* Sửa vị trí badge */
+.dropdown .dropdown-toggle .badge {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+    font-size: 0.75rem;
+    transform: scale(0.85);
+}
+
+/* Xác định rõ vị trí icon trong dropdown */
+.topbar .nav-item .nav-link {
+    position: relative;
+    height: 4.375rem;
+    display: flex;
+    align-items: center;
+}
+
+/* Đảm bảo dropdown hiển thị đúng */
+.topbar .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: auto;
+    z-index: 1000;
+}
+
+/* Thêm transition cho dropdown hover */
+.topbar .dropdown-menu {
+    animation-duration: 0.3s;
+    animation-fill-mode: both;
+}
+
+/* Sửa hiển thị của dropdown notification */
+.dropdown-list {
+    width: 20rem !important;
+}
 </style> 
