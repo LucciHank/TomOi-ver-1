@@ -2,14 +2,103 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %}Bảng điều khiển nguồn nhập{% endblock %}
+{% block title %}Tổng quan nguồn cung cấp{% endblock %}
+
+{% block extra_css %}
+<style>
+    .source-card {
+        transition: all 0.3s ease;
+    }
+    
+    .source-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    .product-card {
+        border: 1px solid #e3e6f0;
+        border-radius: 0.35rem;
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    .product-card .product-header {
+        background-color: #f8f9fc;
+        padding: 1rem;
+        border-bottom: 1px solid #e3e6f0;
+    }
+    
+    .product-card .product-body {
+        padding: 1rem;
+    }
+    
+    .product-card .product-footer {
+        padding: 0.75rem 1rem;
+        background-color: #f8f9fc;
+        border-top: 1px solid #e3e6f0;
+    }
+    
+    .stat-item {
+        margin-bottom: 0.5rem;
+    }
+    
+    .search-container {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+    
+    .search-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #e3e6f0;
+        border-radius: 0.35rem;
+        z-index: 1000;
+        max-height: 300px;
+        overflow-y: auto;
+        display: none;
+    }
+    
+    .search-item {
+        padding: 0.5rem 1rem;
+        border-bottom: 1px solid #e3e6f0;
+        cursor: pointer;
+    }
+    
+    .search-item:hover {
+        background-color: #f8f9fc;
+    }
+    
+    .badge-high {
+        background-color: #1cc88a;
+        color: white;
+    }
+    
+    .badge-medium {
+        background-color: #f6c23e;
+        color: white;
+    }
+    
+    .badge-low {
+        background-color: #e74a3b;
+        color: white;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
-    <h1 class="h3 mb-2 text-gray-800">Bảng điều khiển nguồn nhập</h1>
-    <p class="mb-4">Tổng quan về các nguồn nhập hàng trong hệ thống.</p>
+    <h1 class="h3 mb-2 text-gray-800">Tổng quan nguồn cung cấp</h1>
+    <p class="mb-4">Quản lý và theo dõi các nguồn cung cấp sản phẩm.</p>
 
-    <!-- Thống kê -->
+    <!-- Thống kê tổng quan -->
     <div class="row">
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-primary shadow h-100 py-2">
@@ -21,7 +110,7 @@
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_sources }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-truck fa-2x text-gray-300"></i>
+                            <i class="fas fa-database fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -34,11 +123,11 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Nguồn hoạt động tốt</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ active_sources }}</div>
+                                Tổng chi phí nhập</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_spend|intcomma }} đ</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -51,17 +140,15 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Tỷ lệ có hàng TB</div>
+                                Tỷ lệ có hàng trung bình</div>
                             <div class="row no-gutters align-items-center">
                                 <div class="col-auto">
-                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ avg_availability|floatformat:1 }}%</div>
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ avg_availability }}%</div>
                                 </div>
                                 <div class="col">
                                     <div class="progress progress-sm mr-2">
-                                        <div class="progress-bar bg-info" role="progressbar"
-                                            style="width: {{ avg_availability|floatformat:0 }}%"
-                                            aria-valuenow="{{ avg_availability|floatformat:0 }}"
-                                            aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ avg_availability }}%"
+                                            aria-valuenow="{{ avg_availability }}" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </div>
                             </div>
@@ -80,11 +167,11 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Nhật ký gần đây</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ recent_logs|length }}</div>
+                                Thời gian nhập trung bình</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ avg_processing_time|floatformat:0 }} phút</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-history fa-2x text-gray-300"></i>
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -92,47 +179,219 @@
         </div>
     </div>
 
-    <!-- Nhật ký gần đây -->
+    <!-- Tìm kiếm sản phẩm -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Nhật ký gần đây</h6>
+            <h6 class="m-0 font-weight-bold text-primary">Tìm kiếm sản phẩm để lấy nguồn</h6>
+        </div>
+        <div class="card-body">
+            <div class="search-container">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="search-product" placeholder="Nhập tên sản phẩm (ví dụ: Netflix, Spotify, Disney+...)">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="button" id="search-button">
+                            <i class="fas fa-search"></i> Tìm kiếm
+                        </button>
+                    </div>
+                </div>
+                <div class="search-results" id="search-results">
+                    <!-- Kết quả tìm kiếm sẽ hiển thị ở đây -->
+                </div>
+            </div>
+
+            <div class="row" id="product-cards">
+                <!-- Các card sản phẩm sẽ hiển thị ở đây -->
+                {% for product in products %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="product-card">
+                        <div class="product-header">
+                            <h5 class="mb-0">{{ product.product.name }}</h5>
+                        </div>
+                        <div class="product-body">
+                            <div class="stat-item">
+                                <strong>Giá nhập chuẩn:</strong> <span class="float-right text-primary">{{ product.price|intcomma }} đ</span>
+                            </div>
+                            <div class="stat-item">
+                                <strong>Nguồn cung cấp:</strong> <span class="float-right">{{ product.source.name }}</span>
+                            </div>
+                            <div class="stat-item">
+                                <strong>Tỷ lệ có hàng:</strong>
+                                <div class="progress mt-1" style="height: 8px;">
+                                    {% if product.source.availability_rate >= 80 %}
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ product.source.availability_rate }}%"></div>
+                                    {% elif product.source.availability_rate >= 50 %}
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{ product.source.availability_rate }}%"></div>
+                                    {% else %}
+                                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ product.source.availability_rate }}%"></div>
+                                    {% endif %}
+                                </div>
+                                <div class="text-right">{{ product.source.availability_rate }}%</div>
+                            </div>
+                            
+                            <div class="stat-item">
+                                <strong>Thời gian chờ trung bình:</strong> <span class="float-right">{{ product.source.avg_processing_time|floatformat:0 }} phút</span>
+                            </div>
+                            <div class="stat-item">
+                                <strong>Tỷ lệ lỗi:</strong> <span class="float-right">{{ product.error_rate|floatformat:1 }}%</span>
+                            </div>
+                            <div class="stat-item">
+                                <strong>Mức độ ưu tiên:</strong>
+                                <span class="float-right">
+                                    {% if product.source.priority == 1 %}
+                                    <span class="badge badge-high">Cao</span>
+                                    {% elif product.source.priority == 2 %}
+                                    <span class="badge badge-medium">Trung bình</span>
+                                    {% else %}
+                                    <span class="badge badge-low">Thấp</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="product-footer text-right">
+                            <button class="btn btn-sm btn-primary order-button" data-product-id="{{ product.id }}" data-source-id="{{ product.source.id }}">
+                                <i class="fas fa-shopping-cart"></i> Lấy hàng
+                            </button>
+                            <a href="{% url 'dashboard:source_detail' product.source.id %}" class="btn btn-sm btn-info">
+                                <i class="fas fa-info-circle"></i> Chi tiết
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <div class="text-gray-500 mb-3">
+                        <i class="fas fa-search fa-3x"></i>
+                    </div>
+                    <h4>Chưa có kết quả tìm kiếm</h4>
+                    <p>Vui lòng nhập tên sản phẩm để tìm kiếm nguồn phù hợp</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal lấy hàng -->
+    <div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="orderModalLabel">Đặt hàng từ nguồn</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="order-form">
+                        <input type="hidden" id="product-id" name="product_id">
+                        <input type="hidden" id="source-id" name="source_id">
+                        
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Sản phẩm:</label>
+                            <div class="col-sm-9">
+                                <p class="form-control-plaintext" id="product-name"></p>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Nguồn cung cấp:</label>
+                            <div class="col-sm-9">
+                                <p class="form-control-plaintext" id="source-name"></p>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Giá nhập:</label>
+                            <div class="col-sm-9">
+                                <p class="form-control-plaintext" id="product-price"></p>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label for="quantity" class="col-sm-3 col-form-label">Số lượng:</label>
+                            <div class="col-sm-9">
+                                <input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label for="has-stock" class="col-sm-3 col-form-label">Có hàng:</label>
+                            <div class="col-sm-9">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="has-stock" name="has_stock" checked>
+                                    <label class="custom-control-label" for="has-stock">Nguồn có sẵn hàng</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label for="processing-time" class="col-sm-3 col-form-label">Thời gian chờ (phút):</label>
+                            <div class="col-sm-9">
+                                <input type="number" class="form-control" id="processing-time" name="processing_time" min="0">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label for="notes" class="col-sm-3 col-form-label">Ghi chú:</label>
+                            <div class="col-sm-9">
+                                <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="save-order">Xác nhận đặt hàng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lịch sử lấy hàng -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">Lịch sử lấy hàng gần đây</h6>
+            <a href="{% url 'dashboard:source_log_list' %}" class="btn btn-sm btn-primary">
+                <i class="fas fa-history"></i> Xem tất cả
+            </a>
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered" width="100%" cellspacing="0">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                     <thead>
                         <tr>
+                            <th>Thời gian</th>
                             <th>Nguồn</th>
+                            <th>Sản phẩm</th>
                             <th>Trạng thái</th>
-                            <th>Giá</th>
                             <th>Thời gian xử lý</th>
                             <th>Người tạo</th>
-                            <th>Thời gian</th>
+                            <th>Chi tiết</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for log in recent_logs %}
+                        {% for log in logs %}
                         <tr>
+                            <td>{{ log.created_at|date:"d/m/Y H:i" }}</td>
                             <td>{{ log.source.name }}</td>
+                            <td>{{ log.source_product.name|default:"--" }}</td>
                             <td>
-                                {% if log.status == 'available' %}
-                                <span class="badge badge-success">{{ log.get_status_display }}</span>
-                                {% elif log.status == 'unavailable' %}
-                                <span class="badge badge-danger">{{ log.get_status_display }}</span>
-                                {% elif log.status == 'pending' %}
-                                <span class="badge badge-warning">{{ log.get_status_display }}</span>
+                                {% if log.has_stock %}
+                                <span class="badge badge-success">Có hàng</span>
                                 {% else %}
-                                <span class="badge badge-info">{{ log.get_status_display }}</span>
+                                <span class="badge badge-danger">Hết hàng</span>
                                 {% endif %}
                             </td>
-                            <td>{{ log.formatted_price }} VNĐ</td>
-                            <td>{{ log.processing_time }} phút</td>
+                            <td>{{ log.processing_time|default:"--" }} phút</td>
                             <td>{{ log.created_by.username|default:"Hệ thống" }}</td>
-                            <td>{{ log.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-info view-log" data-log-id="{{ log.id }}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="6" class="text-center">Chưa có nhật ký nào</td>
+                            <td colspan="7" class="text-center">Chưa có nhật ký nào</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -144,165 +403,258 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Chart.js -->
-<script src="{% static 'dashboard/vendor/chart.js/Chart.min.js' %}"></script>
-
 <script>
-// Biểu đồ hiệu quả theo thời gian
-var ctx = document.getElementById("sourceEfficiencyChart");
-var efficiencyChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: {{ efficiency_dates|safe }},
-        datasets: [{
-            label: "Tỉ lệ có hàng (%)",
-            lineTension: 0.3,
-            backgroundColor: "rgba(78, 115, 223, 0.05)",
-            borderColor: "rgba(78, 115, 223, 1)",
-            pointRadius: 3,
-            pointBackgroundColor: "rgba(78, 115, 223, 1)",
-            pointBorderColor: "rgba(78, 115, 223, 1)",
-            pointHoverRadius: 3,
-            pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
-            pointHoverBorderColor: "rgba(78, 115, 223, 1)",
-            pointHitRadius: 10,
-            pointBorderWidth: 2,
-            data: {{ efficiency_data|safe }},
-        }],
-    },
-    options: {
-        maintainAspectRatio: false,
-        layout: {
-            padding: {
-                left: 10,
-                right: 25,
-                top: 25,
-                bottom: 0
+    $(document).ready(function() {
+        // Khởi tạo DataTable
+        $('#dataTable').DataTable({
+            "order": [[0, "desc"]],
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json"
             }
-        },
-        scales: {
-            xAxes: [{
-                time: {
-                    unit: 'date'
-                },
-                gridLines: {
-                    display: false,
-                    drawBorder: false
-                },
-                ticks: {
-                    maxTicksLimit: 7
-                }
-            }],
-            yAxes: [{
-                ticks: {
-                    maxTicksLimit: 5,
-                    padding: 10,
-                    callback: function(value, index, values) {
-                        return value + '%';
+        });
+        
+        // Tìm kiếm sản phẩm
+        $("#search-button").click(function() {
+            let query = $("#search-product").val();
+            
+            if (query.length > 2) {
+                // Gửi AJAX request để tìm kiếm
+                $.ajax({
+                    url: "{% url 'dashboard:api_search_products' %}",
+                    data: {
+                        'query': query
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        // Hiển thị kết quả
+                        displaySearchResults(data.products);
                     }
+                });
+            }
+        });
+        
+        // Hiển thị kết quả tìm kiếm
+        function displaySearchResults(products) {
+            let resultsDiv = $("#search-results");
+            resultsDiv.empty();
+            
+            if (products.length === 0) {
+                resultsDiv.append('<div class="search-item">Không tìm thấy sản phẩm nào</div>');
+            } else {
+                products.forEach(function(product) {
+                    resultsDiv.append(`
+                        <div class="search-item" data-product-id="${product.id}">
+                            <strong>${product.name}</strong> - ${product.category}
+                        </div>
+                    `);
+                });
+            }
+            
+            resultsDiv.show();
+        }
+        
+        // Ẩn kết quả tìm kiếm khi click ra ngoài
+        $(document).click(function(event) {
+            if (!$(event.target).closest('.search-container').length) {
+                $("#search-results").hide();
+            }
+        });
+        
+        // Khi click vào kết quả tìm kiếm
+        $(document).on('click', '.search-item', function() {
+            let productId = $(this).data('product-id');
+            
+            // Load thông tin sản phẩm và các nguồn của nó
+            $.ajax({
+                url: "{% url 'dashboard:api_product_sources' %}",
+                data: {
+                    'product_id': productId
                 },
-                gridLines: {
-                    color: "rgb(234, 236, 244)",
-                    zeroLineColor: "rgb(234, 236, 244)",
-                    drawBorder: false,
-                    borderDash: [2],
-                    zeroLineBorderDash: [2]
+                dataType: 'json',
+                success: function(data) {
+                    // Hiển thị các nguồn cung cấp cho sản phẩm
+                    displayProductSources(data.product, data.sources);
+                    $("#search-results").hide();
                 }
-            }],
-        },
-        legend: {
-            display: false
-        },
-        tooltips: {
-            backgroundColor: "rgb(255,255,255)",
-            bodyFontColor: "#858796",
-            titleMarginBottom: 10,
-            titleFontColor: '#6e707e',
-            titleFontSize: 14,
-            borderColor: '#dddfeb',
-            borderWidth: 1,
-            xPadding: 15,
-            yPadding: 15,
-            displayColors: false,
-            intersect: false,
-            mode: 'index',
-            caretPadding: 10,
-            callbacks: {
-                label: function(tooltipItem, chart) {
-                    var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
-                    return datasetLabel + ': ' + tooltipItem.yLabel + '%';
-                }
+            });
+        });
+        
+        // Hiển thị các nguồn cung cấp cho sản phẩm
+        function displayProductSources(product, sources) {
+            let cardsDiv = $("#product-cards");
+            cardsDiv.empty();
+            
+            if (sources.length === 0) {
+                cardsDiv.append(`
+                    <div class="col-12 text-center py-5">
+                        <div class="text-gray-500 mb-3">
+                            <i class="fas fa-exclamation-circle fa-3x"></i>
+                        </div>
+                        <h4>Không có nguồn cung cấp</h4>
+                        <p>Sản phẩm "${product.name}" chưa có nguồn cung cấp nào</p>
+                        <a href="{% url 'dashboard:add_source_product' %}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Thêm nguồn cho sản phẩm này
+                        </a>
+                    </div>
+                `);
+            } else {
+                sources.forEach(function(source) {
+                    let badgeClass = "badge-high";
+                    if (source.priority === 2) {
+                        badgeClass = "badge-medium";
+                    } else if (source.priority === 3) {
+                        badgeClass = "badge-low";
+                    }
+                    
+                    let progressClass = "bg-success";
+                    if (source.availability_rate < 80 && source.availability_rate >= 50) {
+                        progressClass = "bg-warning";
+                    } else if (source.availability_rate < 50) {
+                        progressClass = "bg-danger";
+                    }
+                    
+                    cardsDiv.append(`
+                        <div class="col-lg-4 col-md-6">
+                            <div class="product-card">
+                                <div class="product-header">
+                                    <h5 class="mb-0">${product.name}</h5>
+                                </div>
+                                <div class="product-body">
+                                    <div class="stat-item">
+                                        <strong>Giá nhập chuẩn:</strong> <span class="float-right text-primary">${source.formatted_price} đ</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <strong>Nguồn cung cấp:</strong> <span class="float-right">${source.name}</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <strong>Tỷ lệ có hàng:</strong>
+                                        <div class="progress mt-1" style="height: 8px;">
+                                            <div class="progress-bar ${progressClass}" role="progressbar" style="width: ${source.availability_rate}%"></div>
+                                        </div>
+                                        <div class="text-right">${source.availability_rate}%</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <strong>Thời gian chờ trung bình:</strong> <span class="float-right">${source.avg_processing_time} phút</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <strong>Tỷ lệ lỗi:</strong> <span class="float-right">${source.error_rate}%</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <strong>Mức độ ưu tiên:</strong>
+                                        <span class="float-right">
+                                            <span class="badge ${badgeClass}">${source.priority_display}</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="product-footer text-right">
+                                    <button class="btn btn-sm btn-primary order-button" 
+                                            data-product-id="${product.id}" 
+                                            data-source-id="${source.id}"
+                                            data-product-name="${product.name}"
+                                            data-source-name="${source.name}"
+                                            data-product-price="${source.formatted_price}">
+                                        <i class="fas fa-shopping-cart"></i> Lấy hàng
+                                    </button>
+                                    <a href="{% url 'dashboard:source_detail' source.id %}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-info-circle"></i> Chi tiết
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                });
             }
         }
-    }
-});
-
-// Biểu đồ phân bố nền tảng
-var ctx = document.getElementById("platformDistributionChart");
-var platformChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-        labels: {{ platform_labels|safe }},
-        datasets: [{
-            data: {{ platform_data|safe }},
-            backgroundColor: {{ platform_colors|safe }},
-            hoverBackgroundColor: {{ platform_hover_colors|safe }},
-            hoverBorderColor: "rgba(234, 236, 244, 1)",
-        }],
-    },
-    options: {
-        maintainAspectRatio: false,
-        tooltips: {
-            backgroundColor: "rgb(255,255,255)",
-            bodyFontColor: "#858796",
-            borderColor: '#dddfeb',
-            borderWidth: 1,
-            xPadding: 15,
-            yPadding: 15,
-            displayColors: false,
-            caretPadding: 10,
-        },
-        legend: {
-            display: false
-        },
-        cutoutPercentage: 80,
-    },
-});
+        
+        // Khi click nút lấy hàng
+        $(document).on('click', '.order-button', function() {
+            let productId = $(this).data('product-id');
+            let sourceId = $(this).data('source-id');
+            let productName = $(this).data('product-name');
+            let sourceName = $(this).data('source-name');
+            let productPrice = $(this).data('product-price');
+            
+            // Điền thông tin vào modal
+            $("#product-id").val(productId);
+            $("#source-id").val(sourceId);
+            $("#product-name").text(productName);
+            $("#source-name").text(sourceName);
+            $("#product-price").text(productPrice + ' đ');
+            
+            // Hiển thị modal
+            $("#orderModal").modal('show');
+        });
+        
+        // Lưu đơn hàng
+        $("#save-order").click(function() {
+            let formData = $("#order-form").serialize();
+            
+            // Gửi AJAX request để lưu đơn hàng
+            $.ajax({
+                url: "{% url 'dashboard:add_source_log' %}",
+                type: "POST",
+                data: formData,
+                dataType: 'json',
+                success: function(data) {
+                    // Đóng modal
+                    $("#orderModal").modal('hide');
+                    
+                    // Hiển thị thông báo thành công
+                    Swal.fire({
+                        title: 'Thành công!',
+                        text: 'Đã lưu thông tin đặt hàng thành công',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        // Tải lại trang để cập nhật dữ liệu
+                        location.reload();
+                    });
+                },
+                error: function(xhr, status, error) {
+                    // Hiển thị thông báo lỗi
+                    Swal.fire({
+                        title: 'Lỗi!',
+                        text: 'Có lỗi xảy ra: ' + xhr.responseJSON.error,
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        });
+        
+        // Xem chi tiết log
+        $(document).on('click', '.view-log', function() {
+            let logId = $(this).data('log-id');
+            
+            // Gửi AJAX request để lấy chi tiết log
+            $.ajax({
+                url: "{% url 'dashboard:api_source_log_detail' %}",
+                data: {
+                    'log_id': logId
+                },
+                dataType: 'json',
+                success: function(data) {
+                    // Hiển thị modal chi tiết log
+                    Swal.fire({
+                        title: 'Chi tiết nhật ký',
+                        html: `
+                            <div class="text-left">
+                                <p><strong>Nguồn:</strong> ${data.log.source_name}</p>
+                                <p><strong>Sản phẩm:</strong> ${data.log.product_name || '--'}</p>
+                                <p><strong>Loại log:</strong> ${data.log.log_type_display}</p>
+                                <p><strong>Trạng thái:</strong> ${data.log.has_stock ? 'Có hàng' : 'Hết hàng'}</p>
+                                <p><strong>Thời gian xử lý:</strong> ${data.log.processing_time || '--'} phút</p>
+                                <p><strong>Người tạo:</strong> ${data.log.created_by || 'Hệ thống'}</p>
+                                <p><strong>Thời gian:</strong> ${data.log.created_at}</p>
+                                <p><strong>Ghi chú:</strong> ${data.log.notes || '--'}</p>
+                            </div>
+                        `,
+                        width: '600px',
+                        confirmButtonText: 'Đóng'
+                    });
+                }
+            });
+        });
+    });
 </script>
-
-<style>
-.activity-feed {
-    padding: 15px;
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.feed-item {
-    border-left: 2px solid #f0f0f0;
-    padding-left: 15px;
-    margin-bottom: 15px;
-    position: relative;
-}
-
-.feed-item:last-child {
-    margin-bottom: 0;
-}
-
-.feed-item:before {
-    content: "";
-    display: block;
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #4e73df;
-    left: -5px;
-    top: 5px;
-}
-
-.feed-item .date {
-    display: block;
-    margin-bottom: 4px;
-}
-</style>
 {% endblock %} 

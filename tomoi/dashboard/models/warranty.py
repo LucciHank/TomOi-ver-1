@@ -5,6 +5,9 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 import uuid
 from store.models import Product, Order
+from django.utils.translation import gettext_lazy as _
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 class WarrantyTicket(models.Model):
     """Vé bảo hành sản phẩm"""
@@ -80,4 +83,188 @@ class WarrantyHistory(models.Model):
             [self.subscription.user.email],
             html_message=customer_message,
             fail_silently=True
-        ) 
+        )
+
+class WarrantyReason(models.Model):
+    """
+    Mô hình lưu trữ các lý do bảo hành
+    """
+    name = models.CharField(_('Tên lý do'), max_length=255)
+    description = models.TextField(_('Mô tả'), blank=True, null=True)
+    is_active = models.BooleanField(_('Đang hoạt động'), default=True)
+    created_at = models.DateTimeField(_('Ngày tạo'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Ngày cập nhật'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('Lý do bảo hành')
+        verbose_name_plural = _('Lý do bảo hành')
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+class WarrantyService(models.Model):
+    """
+    Mô hình lưu trữ các dịch vụ bảo hành
+    """
+    name = models.CharField(_('Tên dịch vụ'), max_length=255)
+    description = models.TextField(_('Mô tả'), blank=True, null=True)
+    price = models.DecimalField(_('Giá dịch vụ'), max_digits=10, decimal_places=2, default=0)
+    is_active = models.BooleanField(_('Đang hoạt động'), default=True)
+    created_at = models.DateTimeField(_('Ngày tạo'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Ngày cập nhật'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('Dịch vụ bảo hành')
+        verbose_name_plural = _('Dịch vụ bảo hành')
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+class WarrantyRequest(models.Model):
+    """
+    Mô hình lưu trữ các yêu cầu bảo hành
+    """
+    STATUS_CHOICES = (
+        ('pending', _('Đang chờ xử lý')),
+        ('processing', _('Đang xử lý')),
+        ('completed', _('Đã hoàn thành')),
+        ('rejected', _('Đã từ chối')),
+    )
+    
+    PLATFORM_CHOICES = (
+        ('facebook', _('Facebook')),
+        ('telegram', _('Telegram')),
+        ('zalo', _('Zalo')),
+        ('email', _('Email')),
+        ('phone', _('Điện thoại')),
+        ('other', _('Khác')),
+    )
+    
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE,
+        related_name='warranty_requests',
+        verbose_name=_('Người dùng')
+    )
+    
+    order = models.ForeignKey(
+        'store.Order',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='warranty_requests',
+        verbose_name=_('Đơn hàng')
+    )
+    
+    reason = models.ForeignKey(
+        WarrantyReason,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='warranty_requests',
+        verbose_name=_('Lý do')
+    )
+    
+    custom_reason = models.TextField(_('Lý do khác'), blank=True, null=True)
+    account_username = models.CharField(_('Tên đăng nhập tài khoản'), max_length=255)
+    account_password = models.CharField(_('Mật khẩu tài khoản'), max_length=255)
+    account_type = models.CharField(_('Loại tài khoản'), max_length=255)
+    error_screenshot = models.ImageField(_('Ảnh chụp lỗi'), upload_to='warranty_screenshots/')
+    
+    platform = models.CharField(
+        _('Nền tảng liên hệ'),
+        max_length=20,
+        choices=PLATFORM_CHOICES,
+        default='other'
+    )
+    
+    notes = models.TextField(_('Ghi chú'), blank=True, null=True)
+    status = models.CharField(_('Trạng thái'), max_length=20, choices=STATUS_CHOICES, default='pending')
+    
+    source = models.ForeignKey(
+        'dashboard.Source',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='warranty_requests',
+        verbose_name=_('Nguồn')
+    )
+    
+    is_self_registered = models.BooleanField(_('Tự đăng ký'), default=False)
+    created_at = models.DateTimeField(_('Ngày tạo'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Ngày cập nhật'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('Yêu cầu bảo hành')
+        verbose_name_plural = _('Yêu cầu bảo hành')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Yêu cầu bảo hành #{self.id} - {self.account_username}"
+
+class WarrantyRequestHistory(models.Model):
+    """
+    Mô hình lưu trữ lịch sử xử lý yêu cầu bảo hành, bao gồm các thông tin chi tiết về xử lý
+    """
+    WARRANTY_TYPE_CHOICES = (
+        ('new_account', _('Cấp tài khoản mới')),
+        ('fix', _('Sửa chữa')),
+        ('refund', _('Hoàn tiền')),
+        ('add_days', _('Bù thêm ngày')),
+    )
+    
+    warranty_request = models.ForeignKey(
+        WarrantyRequest,
+        on_delete=models.CASCADE,
+        related_name='request_histories',
+        verbose_name=_('Yêu cầu bảo hành')
+    )
+    
+    status = models.CharField(_('Trạng thái'), max_length=20, choices=WarrantyRequest.STATUS_CHOICES)
+    notes = models.TextField(_('Ghi chú cho khách'), blank=True, null=True)
+    admin_notes = models.TextField(_('Ghi chú nội bộ'), blank=True, null=True)
+    
+    # Các trường cho loại xử lý bảo hành
+    warranty_types = models.JSONField(_('Loại bảo hành'), default=list, blank=True, null=True)
+    
+    # Thông tin bổ sung khi bù thêm ngày
+    added_days = models.IntegerField(_('Số ngày bù thêm'), default=0)
+    
+    # Thông tin bổ sung khi hoàn tiền
+    refund_amount = models.DecimalField(_('Số tiền hoàn trả'), max_digits=10, decimal_places=2, default=0)
+    
+    # Thông tin bổ sung khi cấp tài khoản mới
+    new_account_info = models.JSONField(_('Thông tin tài khoản mới'), blank=True, null=True)
+    
+    admin = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='warranty_request_histories',
+        verbose_name=_('Admin xử lý')
+    )
+    
+    created_at = models.DateTimeField(_('Ngày tạo'), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _('Lịch sử xử lý bảo hành')
+        verbose_name_plural = _('Lịch sử xử lý bảo hành')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Lịch sử xử lý #{self.id} - {self.warranty_request}"
+
+@receiver(post_save, sender=WarrantyRequest)
+def update_warranty_status(sender, instance, created, **kwargs):
+    """Tạo lịch sử khi trạng thái thay đổi"""
+    if not created:
+        # Lấy bản ghi cũ từ CSDL
+        old_instance = WarrantyRequest.objects.get(id=instance.id)
+        
+        # Kiểm tra xem trạng thái có thay đổi không
+        if old_instance.status != instance.status:
+            # Tạo bản ghi lịch sử
+            WarrantyHistory.objects.create(
+                warranty_request=instance,
+                status=instance.status,
+                notes=f"Trạng thái đã thay đổi từ {old_instance.get_status_display()} sang {instance.get_status_display()}"
+            ) 

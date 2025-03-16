@@ -2548,7 +2548,7 @@ def public_chatbot_config(request):
         print("=== PUBLIC CHATBOT CONFIG API CALLED ===")
         # Lấy cấu hình chatbot và API đang hoạt động
         config = ChatbotConfig.objects.filter(is_active=True).first()
-        api_config = APIConfig.objects.filter(active=True).first()
+        api_config = APIConfig.objects.filter(is_active=True).first()
         
         print(f"Config found: {config is not None}")
         print(f"API config found: {api_config is not None}")
@@ -2610,7 +2610,7 @@ def public_chatbot_process(request):
         
         # Lấy cấu hình API
         config = ChatbotConfig.objects.filter(is_active=True).first()
-        api_config = APIConfig.objects.filter(active=True).first()
+        api_config = APIConfig.objects.filter(is_active=True).first()
         
         print(f"Config found: {config is not None}")
         print(f"API config found: {api_config is not None}")

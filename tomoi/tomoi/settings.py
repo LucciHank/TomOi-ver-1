@@ -98,6 +98,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'accounts.middleware.EmailVerificationMiddleware',
     'accounts.middleware.RequestBodyMiddleware',
+    'dashboard.middleware.SubscriptionExpiryMiddleware',
     # 'dashboard.middleware.AnalyticsMiddleware',  # Vô hiệu hóa tạm thời
     'dashboard.middleware.APILoggingMiddleware',
     'dashboard.middleware.APIRateLimitMiddleware',

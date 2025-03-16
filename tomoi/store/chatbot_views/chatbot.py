@@ -34,7 +34,7 @@ def chatbot_api(request):
         # Lấy API key từ cấu hình động (từ database)
         from tomoi.dashboard.models import APIConfig
         try:
-            api_config = APIConfig.objects.filter(active=True, api_type='gemini').first()
+            api_config = APIConfig.objects.filter(is_active=True, api_type='gemini').first()
             api_key = api_config.api_key if api_config else ''
             model = api_config.model if api_config else 'gemini-2.0-flash'
             temperature = api_config.temperature if api_config else 0.7
@@ -170,7 +170,7 @@ def chatbot_api(request):
         # Tạo prompt cho Gemini API
         from tomoi.dashboard.models import ChatbotConfig
         try:
-            chatbot_config = ChatbotConfig.objects.filter(active=True).first()
+            chatbot_config = ChatbotConfig.objects.filter(is_active=True).first()
             system_prompt = chatbot_config.system_prompt if chatbot_config else None
         except:
             system_prompt = None

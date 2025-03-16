@@ -1,25 +1,46 @@
 from django import forms
 from store.models import Banner
-from .models import Campaign, APIKey, Webhook
-from .models.source import Source, SourceLog, SourceProduct
+from .models import Campaign, APIKey, Webhook, Source, Product, Discount, WarrantyRequest, WarrantyReason
+from .models.source import SourceLog, SourceProduct
 from accounts.models import CustomUser
 from django.contrib.auth.models import Group, Permission
 from django.db.utils import IntegrityError
 from .models.user_activity import UserActivityLog
+from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm, SetPasswordForm
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.conf import settings
+from datetime import date, datetime, timedelta
+import pytz
+from store.models import Order, OrderItem, Product
+from .models import (
+    UserSubscription,
+    Source, WarrantyRequest,
+    WarrantyReason, WarrantyRequestHistory, WarrantyHistory
+)
+from .models.conversation import ChatbotConversation
+from django.shortcuts import get_object_or_404
+import json
 
 class CampaignForm(forms.ModelForm):
     class Meta:
         model = Campaign
         fields = ['name', 'description', 'start_date', 'end_date', 'is_active']
         widgets = {
-            'start_date': forms.DateInput(attrs={'type': 'date'}),
-            'end_date': forms.DateInput(attrs={'type': 'date'}),
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'start_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'end_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'})
         }
 
 class BannerForm(forms.ModelForm):
     class Meta:
         model = Banner
         fields = ['title', 'image', 'is_active']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'})
+        }
 
 class GeneralSettingsForm(forms.Form):
     site_name = forms.CharField(max_length=100)
@@ -27,6 +48,8 @@ class GeneralSettingsForm(forms.Form):
     contact_email = forms.EmailField()
     contact_phone = forms.CharField(max_length=20)
     logo = forms.ImageField(required=False)
+    favicon = forms.ImageField(required=False)
+    footer_text = forms.CharField(widget=forms.Textarea)
 
 class EmailSettingsForm(forms.Form):
     smtp_host = forms.CharField(max_length=100)
@@ -34,6 +57,7 @@ class EmailSettingsForm(forms.Form):
     smtp_username = forms.CharField(max_length=100)
     smtp_password = forms.CharField(widget=forms.PasswordInput)
     smtp_use_tls = forms.BooleanField(required=False)
+    default_from_email = forms.EmailField()
 
 class PaymentSettingsForm(forms.Form):
     momo_partner_code = forms.CharField(max_length=100)
@@ -44,18 +68,29 @@ class PaymentSettingsForm(forms.Form):
     vnpay_terminal_id = forms.CharField(max_length=100)
     vnpay_secret_key = forms.CharField(widget=forms.PasswordInput)
     vnpay_enabled = forms.BooleanField(required=False)
+    
+    bank_transfer_enabled = forms.BooleanField(required=False)
+    bank_account_number = forms.CharField(max_length=100, required=False)
+    bank_account_name = forms.CharField(max_length=100, required=False)
+    bank_name = forms.CharField(max_length=100, required=False)
 
 class APIKeyForm(forms.ModelForm):
     class Meta:
         model = APIKey
         fields = ['name', 'is_active']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'})
+        }
 
 class WebhookForm(forms.ModelForm):
     class Meta:
         model = Webhook
         fields = ['url', 'events', 'is_active']
         widgets = {
-            'events': forms.CheckboxSelectMultiple
+            'url': forms.URLInput(attrs={'class': 'form-control'}),
+            'events': forms.SelectMultiple(attrs={'class': 'form-select'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'})
         }
 
 class SourceForm(forms.ModelForm):
@@ -64,7 +99,12 @@ class SourceForm(forms.ModelForm):
         fields = ['name', 'url', 'platform', 'product_type', 'base_price',
                  'availability_rate', 'priority', 'notes']
         widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'url': forms.URLInput(attrs={'class': 'form-control'}),
             'platform': forms.Select(attrs={'class': 'form-select'}),
+            'product_type': forms.TextInput(attrs={'class': 'form-control'}),
+            'base_price': forms.NumberInput(attrs={'class': 'form-control'}),
+            'availability_rate': forms.NumberInput(attrs={'class': 'form-control'}),
             'priority': forms.Select(attrs={'class': 'form-select'}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3})
         }
@@ -78,9 +118,20 @@ class SourceLogForm(forms.ModelForm):
             'source': forms.Select(attrs={'class': 'form-select'}),
             'source_product': forms.Select(attrs={'class': 'form-select'}),
             'log_type': forms.Select(attrs={'class': 'form-select'}),
+            'has_stock': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'processing_time': forms.NumberInput(attrs={'class': 'form-control'}),
-            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3})
         }
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Lọc source product theo source được chọn
+        if 'source' in self.data:
+            try:
+                source_id = int(self.data.get('source'))
+                self.fields['source_product'].queryset = SourceProduct.objects.filter(source_id=source_id)
+            except (ValueError, TypeError):
+                pass
 
 class SourceProductForm(forms.ModelForm):
     class Meta:
@@ -90,7 +141,11 @@ class SourceProductForm(forms.ModelForm):
         widgets = {
             'source': forms.Select(attrs={'class': 'form-select'}),
             'product': forms.Select(attrs={'class': 'form-select'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3})
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'product_url': forms.URLInput(attrs={'class': 'form-control'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control'}),
+            'error_rate': forms.NumberInput(attrs={'class': 'form-control'})
         }
 
 class UserFilterForm(forms.Form):
@@ -118,6 +173,16 @@ class UserFilterForm(forms.Form):
     user_type = forms.ChoiceField(choices=USER_TYPE_CHOICES, required=False)
     source = forms.ChoiceField(choices=SOURCE_CHOICES, required=False)
     search = forms.CharField(required=False)
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['status'].widget.attrs.update({'class': 'form-select', 'onchange': 'this.form.submit()'})
+        self.fields['user_type'].widget.attrs.update({'class': 'form-select', 'onchange': 'this.form.submit()'})
+        self.fields['source'].widget.attrs.update({'class': 'form-select', 'onchange': 'this.form.submit()'})
+        self.fields['search'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Tìm kiếm tên, email, số điện thoại...'
+        })
 
 class UserEditForm(forms.ModelForm):
     class Meta:
@@ -126,17 +191,23 @@ class UserEditForm(forms.ModelForm):
                  'phone_number', 'address', 'birth_date', 'gender',
                  'is_active', 'user_type', 'avatar']
         widgets = {
-            'user_type': forms.Select(attrs={'class': 'form-select'}),
-            'gender': forms.Select(attrs={'class': 'form-select'}),
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'birth_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'avatar': forms.FileInput(attrs={'class': 'form-control'})
+            'gender': forms.Select(attrs={'class': 'form-select'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'user_type': forms.Select(attrs={'class': 'form-select'})
         }
-
+        
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field in self.fields:
-            if not isinstance(self.fields[field].widget, (forms.CheckboxInput, forms.FileInput)):
-                self.fields[field].widget.attrs['class'] = 'form-control' 
+        # Trường username chỉ đọc nếu đang chỉnh sửa
+        if self.instance and self.instance.pk:
+            self.fields['username'].widget.attrs['readonly'] = True
 
 class UserAddForm(forms.ModelForm):
     USER_GROUPS = (
@@ -260,74 +331,83 @@ class UserAddForm(forms.ModelForm):
         required=False,
         widget=forms.Textarea(attrs={
             'class': 'form-control',
-            'rows': 3,
-            'placeholder': 'Nhập ghi chú nếu có',
-            'id': 'id_user_notes'
+            'placeholder': 'Ghi chú về người dùng',
+            'id': 'id_user_notes',
+            'rows': 3
         })
     )
-
+    
+    referral_code = forms.CharField(
+        label='Mã giới thiệu',
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Nhập mã giới thiệu nếu có',
+            'id': 'id_referral_code'
+        })
+    )
+    
     class Meta:
         model = CustomUser
         fields = [
-            'username', 'email', 'phone_number', 'password',
-            'first_name', 'last_name', 'is_active', 'user_group',
-            'bank_account', 'bank_name', 'bank_branch', 'user_notes'
+            'username', 'email', 'password', 'first_name', 'last_name',
+            'phone_number', 'bank_account', 'bank_name', 'bank_branch',
+            'is_active', 'user_notes', 'referral_code'
         ]
-
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Đặt label tiếng Việt
-        self.fields['email'].label = 'Email'
-        self.fields['phone_number'].label = 'Số điện thoại'
-        self.fields['password'].label = 'Mật khẩu'
-        self.fields['first_name'].label = 'Tên'
-        self.fields['last_name'].label = 'Họ'
-        self.fields['is_active'].label = 'Kích hoạt tài khoản'
-
+        self.fields['username'].help_text = 'Yêu cầu: tối đa 150 ký tự, chỉ dùng chữ cái, số và các ký tự @/./+/-/_'
+        self.fields['password'].help_text = 'Mật khẩu cần ít nhất 8 ký tự, bao gồm chữ, số và ký tự đặc biệt'
+        self.fields['is_active'].label_suffix = ''
+        self.fields['user_notes'].widget.attrs.update({'rows': '3'})
+    
     def clean_username(self):
         username = self.cleaned_data.get('username')
-        if not username:
-            raise forms.ValidationError("Tên đăng nhập không được để trống")
-        if len(username) < 3:
-            raise forms.ValidationError("Tên đăng nhập phải có ít nhất 3 ký tự")
         if CustomUser.objects.filter(username=username).exists():
-            raise forms.ValidationError("Tên đăng nhập này đã được sử dụng")
+            raise forms.ValidationError('Tên đăng nhập này đã được sử dụng')
         return username
-
+    
     def clean_password(self):
         password = self.cleaned_data.get('password')
-        if not password:
-            raise forms.ValidationError("Mật khẩu không được để trống")
         if len(password) < 8:
-            raise forms.ValidationError("Mật khẩu phải có ít nhất 8 ký tự")
+            raise forms.ValidationError('Mật khẩu cần ít nhất 8 ký tự')
+        # Có thể thêm nhiều điều kiện về độ phức tạp của mật khẩu
         return password
-
+    
     def save(self, commit=True):
+        # Lưu người dùng với mật khẩu được mã hóa
         user = super().save(commit=False)
         user.set_password(self.cleaned_data["password"])
         
-        # Set user type based on group
-        group = self.cleaned_data['user_group']
-        if group == 'admin':
+        # Thiết lập loại người dùng dựa trên nhóm được chọn
+        user_group = self.cleaned_data.get('user_group', 'customer')
+        if user_group == 'admin':
             user.is_staff = True
             user.is_superuser = True
-        elif group in ['staff', 'collaborator']:
+            user.user_type = 'admin'
+        elif user_group == 'staff':
             user.is_staff = True
             user.is_superuser = False
+            user.user_type = 'staff'
+        elif user_group == 'collaborator':
+            user.is_staff = False
+            user.is_superuser = False
+            user.user_type = 'collaborator'
+        else:
+            user.is_staff = False
+            user.is_superuser = False
+            user.user_type = 'customer'
         
         if commit:
-            try:
-                user.save()
-                # Tạo log
-                if hasattr(self, 'admin_user'):
-                    UserActivityLog.objects.create(
-                        user=user,
-                        admin=self.admin_user,
-                        action_type='create',
-                        description=f'Tạo mới người dùng {user.username}'
-                    )
-            except IntegrityError as e:
-                raise forms.ValidationError(f'Có lỗi xảy ra khi tạo người dùng: {str(e)}')
+            user.save()
+            # Xử lý mã giới thiệu nếu có
+            referral_code = self.cleaned_data.get('referral_code')
+            if referral_code:
+                referred_user = CustomUser.objects.filter(referral_code=referral_code).first()
+                if referred_user:
+                    user.referred_by = referred_user
+                    user.save(update_fields=['referred_by'])
         return user
 
 class UserForm(forms.ModelForm):
@@ -344,7 +424,7 @@ class UserForm(forms.ModelForm):
         required=False,
         label='Xác nhận mật khẩu'
     )
-
+    
     class Meta:
         model = CustomUser
         fields = [
@@ -358,31 +438,32 @@ class UserForm(forms.ModelForm):
             'bio'
         ]
         widgets = {
-            'bio': forms.Textarea(attrs={'rows': 3}),
-            'birth_date': forms.DateInput(attrs={'type': 'date'}),
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
             'gender': forms.Select(attrs={'class': 'form-control'}),
+            'birth_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'account_type': forms.Select(attrs={'class': 'form-control'}),
+            'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 3})
         }
-
+    
     def clean(self):
         cleaned_data = super().clean()
         password = cleaned_data.get('password')
         confirm_password = cleaned_data.get('confirm_password')
-
-        if password and confirm_password and password != confirm_password:
-            raise forms.ValidationError('Mật khẩu xác nhận không khớp')
-
+        
+        if password and password != confirm_password:
+            self.add_error('confirm_password', 'Mật khẩu xác nhận không khớp')
+            
         return cleaned_data
-
+    
     def clean_username(self):
         username = self.cleaned_data.get('username')
-        if username == self.instance.username:
-            return username
-            
-        if CustomUser.objects.filter(username=username).exists():
+        if CustomUser.objects.exclude(pk=self.instance.pk).filter(username=username).exists():
             raise forms.ValidationError('Tên đăng nhập này đã được sử dụng')
         return username
-
+    
     def save(self, commit=True):
         user = super().save(commit=False)
         password = self.cleaned_data.get('password')
@@ -391,26 +472,8 @@ class UserForm(forms.ModelForm):
             user.set_password(password)
             
         if commit:
-            try:
-                user.save()
-                # Log thay đổi nếu có admin user
-                if hasattr(self, 'admin_user'):
-                    changes = []
-                    for field in self.changed_data:
-                        old_value = getattr(self.instance, field)
-                        new_value = self.cleaned_data[field]
-                        if old_value != new_value:
-                            changes.append(f"{field}: {old_value} -> {new_value}")
-                    
-                    if changes:
-                        UserActivityLog.objects.create(
-                            user=user,
-                            admin=self.admin_user,
-                            action_type='update',
-                            description=f'Cập nhật thông tin: {", ".join(changes)}'
-                        )
-            except Exception as e:
-                raise forms.ValidationError(f'Có lỗi xảy ra khi lưu thông tin: {str(e)}')
+            user.save()
+            
         return user
 
 class UserPermissionForm(forms.Form):
@@ -473,55 +536,149 @@ class UserPermissionForm(forms.Form):
         required=False,
         label='Quyền quản lý người dùng'
     )
-
+    
+    report_permissions = forms.ModelMultipleChoiceField(
+        queryset=Permission.objects.filter(content_type__app_label='dashboard', content_type__model='report'),
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'permission-checkbox report-permission'}),
+        required=False,
+        label='Quyền báo cáo'
+    )
+    
     def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
+        user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         
-        if self.user:
-            self.fields['role'].initial = self.user.user_type
-            self.fields['groups'].initial = self.user.groups.all()
-            self.fields['is_staff'].initial = self.user.is_staff
-            self.fields['is_superuser'].initial = self.user.is_superuser
+        if user:
+            # Điền dữ liệu hiện tại
+            self.fields['is_staff'].initial = user.is_staff
+            self.fields['is_superuser'].initial = user.is_superuser
             
-            # Set initial permissions
-            self.fields['product_permissions'].initial = self.user.user_permissions.filter(
-                content_type__app_label='store', 
-                content_type__model='product'
-            )
-            self.fields['category_permissions'].initial = self.user.user_permissions.filter(
-                content_type__app_label='store',
-                content_type__model='category'
-            )
-            self.fields['order_permissions'].initial = self.user.user_permissions.filter(
-                content_type__app_label='store',
-                content_type__model='order'
-            )
-            self.fields['user_permissions'].initial = self.user.user_permissions.filter(
-                content_type__app_label='accounts',
-                content_type__model='customuser'
-            )
-
+            # Vai trò
+            if user.is_superuser:
+                self.fields['role'].initial = 'admin'
+            elif user.is_staff:
+                self.fields['role'].initial = 'staff'
+            else:
+                self.fields['role'].initial = 'user'
+                
+            # Nhóm
+            self.fields['groups'].initial = user.groups.all()
+            
+            # Các quyền
+            user_perms = user.user_permissions.all()
+            self.fields['product_permissions'].initial = [p for p in user_perms if p in self.fields['product_permissions'].queryset]
+            self.fields['category_permissions'].initial = [p for p in user_perms if p in self.fields['category_permissions'].queryset]
+            self.fields['order_permissions'].initial = [p for p in user_perms if p in self.fields['order_permissions'].queryset]
+            self.fields['user_permissions'].initial = [p for p in user_perms if p in self.fields['user_permissions'].queryset]
+            self.fields['report_permissions'].initial = [p for p in user_perms if p in self.fields['report_permissions'].queryset]
+    
     def save(self):
-        if not self.user:
-            return
+        # Cần phải cập nhật người dùng từ view
+        pass
+
+class WarrantyRequestForm(forms.ModelForm):
+    """Form yêu cầu bảo hành từ người dùng"""
+    custom_reason = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+        required=False,
+        label="Lý do khác"
+    )
+    
+    notes = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+        required=False,
+        label="Ghi chú"
+    )
+    
+    is_self_registered = forms.BooleanField(
+        required=False,
+        label="Tự đăng ký",
+        help_text="Đánh dấu nếu bạn đã tự đăng ký tài khoản này"
+    )
+    
+    class Meta:
+        model = WarrantyRequest
+        fields = [
+            'order', 'account_username', 'account_password', 'account_type',
+            'reason', 'custom_reason', 'error_screenshot', 'notes',
+            'platform', 'source', 'is_self_registered'
+        ]
+        widgets = {
+            'order': forms.Select(attrs={'class': 'form-select'}),
+            'account_username': forms.TextInput(attrs={'class': 'form-control'}),
+            'account_password': forms.TextInput(attrs={'class': 'form-control'}),
+            'account_type': forms.TextInput(attrs={'class': 'form-control'}),
+            'reason': forms.Select(attrs={'class': 'form-select'}),
+            'platform': forms.Select(attrs={'class': 'form-select'}),
+            'source': forms.Select(attrs={'class': 'form-select'}),
+        }
+        
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        # Lọc đơn hàng chỉ của người dùng đăng nhập
+        if user:
+            self.fields['order'].queryset = Order.objects.filter(user=user).order_by('-created_at')
             
-        # Update role
-        self.user.user_type = self.cleaned_data['role']
+        # Lọc lý do bảo hành đang hoạt động
+        self.fields['reason'].queryset = WarrantyReason.objects.filter(is_active=True)
         
-        # Update groups
-        self.user.groups.set(self.cleaned_data['groups'])
-        
-        # Update staff status
-        self.user.is_staff = self.cleaned_data['is_staff']
-        self.user.is_superuser = self.cleaned_data['is_superuser']
-        
-        # Update permissions
-        permissions = []
-        permissions.extend(self.cleaned_data['product_permissions'])
-        permissions.extend(self.cleaned_data['category_permissions'])
-        permissions.extend(self.cleaned_data['order_permissions'])
-        permissions.extend(self.cleaned_data['user_permissions'])
-        
-        self.user.user_permissions.set(permissions)
-        self.user.save() 
+        # Lọc nguồn đang hoạt động
+        self.fields['source'].queryset = Source.objects.filter(is_active=True)
+
+class WarrantyProcessForm(forms.Form):
+    """Form xử lý yêu cầu bảo hành"""
+    WARRANTY_TYPE_CHOICES = WarrantyRequestHistory.WARRANTY_TYPE_CHOICES
+    
+    warranty_types = forms.MultipleChoiceField(
+        choices=WARRANTY_TYPE_CHOICES,
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+        required=True,
+        label="Hình thức bảo hành"
+    )
+    
+    added_days = forms.IntegerField(
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
+        required=False,
+        initial=0,
+        label="Số ngày bù thêm"
+    )
+    
+    refund_amount = forms.DecimalField(
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'step': '0.01'}),
+        required=False,
+        initial=0,
+        label="Số tiền hoàn trả"
+    )
+    
+    new_account_username = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        required=False,
+        label="Tên đăng nhập tài khoản mới"
+    )
+    
+    new_account_password = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        required=False,
+        label="Mật khẩu tài khoản mới"
+    )
+    
+    status = forms.ChoiceField(
+        choices=WarrantyRequest.STATUS_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        required=True,
+        label="Trạng thái"
+    )
+    
+    notes = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+        required=False,
+        label="Ghi chú"
+    )
+    
+    admin_notes = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+        required=False,
+        label="Ghi chú nội bộ (chỉ admin thấy)"
+    ) 

@@ -13,13 +13,13 @@
             <h6 class="m-0 font-weight-bold text-primary">Thông tin nhật ký</h6>
         </div>
         <div class="card-body">
-            <form method="post">
+            <form method="post" id="sourceLogForm">
                 {% csrf_token %}
                 
                 <div class="form-group row">
-                    <label for="source" class="col-sm-2 col-form-label">Nguồn nhập</label>
+                    <label for="source_id" class="col-sm-2 col-form-label">Nguồn nhập</label>
                     <div class="col-sm-10">
-                        <select class="form-control" id="source" name="source" required>
+                        <select class="form-control" id="source_id" name="source_id" required>
                             <option value="">-- Chọn nguồn nhập --</option>
                             {% for source in sources %}
                             <option value="{{ source.id }}">{{ source.name }}</option>
@@ -29,14 +29,66 @@
                 </div>
                 
                 <div class="form-group row">
-                    <label for="status" class="col-sm-2 col-form-label">Trạng thái</label>
+                    <label for="product_select" class="col-sm-2 col-form-label">Sản phẩm</label>
                     <div class="col-sm-10">
-                        <select class="form-control" id="status" name="status">
-                            <option value="available">Có hàng</option>
-                            <option value="unavailable">Không có hàng</option>
-                            <option value="pending">Đang chờ</option>
-                            <option value="processing">Đang xử lý</option>
+                        <select class="form-control" id="product_select" multiple="multiple" style="width: 100%;" required>
+                            {% for product in products %}
+                            <option value="{{ product.id }}" data-name="{{ product.name }}">{{ product.name }}</option>
+                            {% endfor %}
                         </select>
+                        <small class="form-text text-muted">Chọn một hoặc nhiều sản phẩm</small>
+                        <div id="selected-products" class="mt-2">
+                            <!-- Sản phẩm đã chọn sẽ hiển thị ở đây -->
+                        </div>
+                        <!-- Input ẩn để lưu danh sách sản phẩm đã chọn -->
+                        <input type="hidden" name="products" id="products_json" value="[]">
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="account_type" class="col-sm-2 col-form-label">Hình thức nhập</label>
+                    <div class="col-sm-10">
+                        <select class="form-control" id="account_type" name="account_type">
+                            <option value="new_account">Tài khoản cấp mới</option>
+                            <option value="upgrade">Up chính chủ</option>
+                            <option value="activation_code">Code kích hoạt</option>
+                            <option value="other">Khác</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Thông tin đăng nhập khi Up chính chủ -->
+                <div id="account_info" style="display: none;">
+                    <div class="form-group row">
+                        <label for="account_username" class="col-sm-2 col-form-label">Tài khoản chính chủ</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="account_username" name="account_username" placeholder="Nhập tài khoản cần up">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group row">
+                        <label for="account_password" class="col-sm-2 col-form-label">Mật khẩu</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="account_password" name="account_password" placeholder="Nhập mật khẩu">
+                            <small class="form-text text-muted">Lưu ý: Thông tin này sẽ được lưu trữ trong hệ thống.</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="has_stock" class="col-sm-2 col-form-label">Có hàng</label>
+                    <div class="col-sm-10">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="has_stock" name="has_stock" checked>
+                            <label class="form-check-label" for="has_stock">Nguồn này có hàng</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="quantity" class="col-sm-2 col-form-label">Số lượng</label>
+                    <div class="col-sm-10">
+                        <input type="number" class="form-control" id="quantity" name="quantity" min="1" value="1">
                     </div>
                 </div>
                 
@@ -55,7 +107,7 @@
                 <div class="form-group row">
                     <label for="processing_time" class="col-sm-2 col-form-label">Thời gian xử lý (phút)</label>
                     <div class="col-sm-10">
-                        <input type="number" class="form-control" id="processing_time" name="processing_time" min="0">
+                        <input type="number" class="form-control" id="processing_time" name="processing_time" min="0" value="0">
                     </div>
                 </div>
                 
@@ -76,4 +128,156 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'vendor/select2/js/select2.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'vendor/select2/css/select2.min.css' %}">
+<style>
+    .selected-product-tag {
+        display: inline-block;
+        background-color: #e9ecef;
+        padding: 5px 10px;
+        margin-right: 5px;
+        margin-bottom: 5px;
+        border-radius: 4px;
+    }
+    .selected-product-tag .remove-product {
+        margin-left: 5px;
+        cursor: pointer;
+        color: #dc3545;
+    }
+</style>
+<script>
+    $(document).ready(function() {
+        // Kiểm tra có thư viện Select2 không
+        if ($.fn.select2) {
+            // Khởi tạo Select2 để chọn nhiều sản phẩm
+            $('#product_select').select2({
+                placeholder: "Chọn một hoặc nhiều sản phẩm",
+                allowClear: true
+            });
+        } else {
+            console.error("Thư viện Select2 không được tải. Vui lòng kiểm tra cài đặt.");
+            // Thêm thông báo cho người dùng
+            $('#product_select').after('<div class="alert alert-warning mt-2">Thư viện Select2 chưa được tải. Chức năng chọn nhiều sản phẩm có thể không hoạt động đúng.</div>');
+        }
+        
+        // Mảng lưu các sản phẩm đã chọn
+        var selectedProducts = [];
+        
+        // Xử lý khi chọn sản phẩm
+        $('#product_select').on('select2:select', function(e) {
+            var data = e.params.data;
+            var productId = data.id;
+            var productName = data.text;
+            
+            // Thêm sản phẩm vào mảng nếu chưa có
+            if (!selectedProducts.some(p => p.id === productId)) {
+                selectedProducts.push({
+                    id: productId,
+                    name: productName
+                });
+                
+                // Cập nhật hiển thị và input hidden
+                updateSelectedProductsDisplay();
+            }
+        });
+        
+        // Xử lý khi bỏ chọn sản phẩm từ dropdown
+        $('#product_select').on('select2:unselect', function(e) {
+            var productId = e.params.data.id;
+            
+            // Xóa sản phẩm khỏi mảng
+            selectedProducts = selectedProducts.filter(p => p.id !== productId);
+            
+            // Cập nhật hiển thị và input hidden
+            updateSelectedProductsDisplay();
+        });
+        
+        // Hàm cập nhật hiển thị sản phẩm đã chọn
+        function updateSelectedProductsDisplay() {
+            var container = $('#selected-products');
+            container.empty();
+            
+            selectedProducts.forEach(function(product) {
+                var tag = $('<div class="selected-product-tag"></div>');
+                tag.attr('data-id', product.id);
+                tag.text(product.name);
+                tag.append('<span class="remove-product"><i class="fas fa-times"></i></span>');
+                container.append(tag);
+            });
+            
+            // Cập nhật input hidden để gửi lên server
+            $('#products_json').val(JSON.stringify(selectedProducts));
+        }
+        
+        // Xử lý khi click nút xóa sản phẩm đã chọn
+        $(document).on('click', '.remove-product', function() {
+            var tag = $(this).parent();
+            var productId = tag.attr('data-id');
+            
+            // Xóa sản phẩm khỏi mảng
+            selectedProducts = selectedProducts.filter(p => p.id !== productId);
+            
+            // Xóa sản phẩm khỏi select2
+            var option = $('#product_select option[value="' + productId + '"]');
+            option.prop('selected', false);
+            $('#product_select').trigger('change');
+            
+            // Cập nhật hiển thị
+            updateSelectedProductsDisplay();
+        });
+        
+        // Hiển thị ẩn form thông tin tài khoản dựa vào loại tài khoản
+        function toggleAccountInfo() {
+            console.log("Loại tài khoản đã chọn:", $('#account_type').val());
+            if ($('#account_type').val() === 'upgrade') {
+                $('#account_info').show();
+            } else {
+                $('#account_info').hide();
+            }
+        }
+        
+        // Kiểm tra ngay khi trang load
+        toggleAccountInfo();
+        
+        // Gắn sự kiện change
+        $('#account_type').on('change', function() {
+            toggleAccountInfo();
+        });
+        
+        // Có thể thêm mã để tự động tính giá dựa trên nguồn được chọn
+        $('#source_id').change(function() {
+            // Gọi API để lấy thông tin về nguồn
+            var sourceId = $(this).val();
+            if (sourceId) {
+                // Ví dụ: Gửi Ajax để lấy giá cơ bản
+                // $.getJSON('/api/sources/' + sourceId + '/base-price', function(data) {
+                //     $('#price').val(data.base_price);
+                // });
+            }
+        });
+        
+        // Kiểm tra form trước khi submit
+        $('#sourceLogForm').submit(function(e) {
+            if (selectedProducts.length === 0) {
+                alert('Vui lòng chọn ít nhất một sản phẩm');
+                e.preventDefault();
+                return false;
+            }
+            
+            // Nếu là up chính chủ, kiểm tra thông tin tài khoản
+            if ($('#account_type').val() === 'upgrade') {
+                if (!$('#account_username').val()) {
+                    alert('Vui lòng nhập tài khoản chính chủ');
+                    e.preventDefault();
+                    return false;
+                }
+            }
+            
+            return true;
+        });
+    });
+</script>
 {% endblock %} 

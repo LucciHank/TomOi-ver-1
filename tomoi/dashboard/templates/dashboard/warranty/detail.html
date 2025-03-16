@@ -1,278 +1,423 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
 
-{% block title %}Chi tiết bảo hành #{{ ticket.id }}{% endblock %}
+{% block title %}Chi tiết yêu cầu bảo hành #{{ warranty.id }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <h1 class="h3 mb-2 text-gray-800">Chi tiết bảo hành #{{ ticket.id }}</h1>
-    <p class="mb-4">
-        <a href="{% url 'dashboard:warranty_management' %}" class="btn btn-sm btn-secondary">
-            <i class="fas fa-arrow-left"></i> Quay lại
+<!-- Tiêu đề trang -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Chi tiết yêu cầu bảo hành #{{ warranty.id }}</h1>
+    <div>
+        <a href="{% url 'dashboard:warranty' %}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Quay lại
         </a>
-    </p>
+        {% if warranty.status == 'pending' %}
+        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" data-toggle="modal" data-target="#processModal">
+            <i class="fas fa-tools fa-sm text-white-50"></i> Xử lý yêu cầu
+        </a>
+        {% endif %}
+    </div>
+</div>
 
-    <div class="row">
-        <!-- Thông tin yêu cầu -->
-        <div class="col-lg-8">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Thông tin yêu cầu</h6>
-                    <div class="dropdown no-arrow">
-                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                            aria-labelledby="dropdownMenuLink">
-                            <div class="dropdown-header">Hành động:</div>
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#statusModal">
-                                <i class="fas fa-sync fa-sm fa-fw mr-2 text-gray-400"></i>
-                                Cập nhật trạng thái
-                            </a>
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#assignModal">
-                                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                Phân công xử lý
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#deleteModal">
-                                <i class="fas fa-trash fa-sm fa-fw mr-2 text-gray-400"></i>
-                                Xóa yêu cầu
-                            </a>
-                        </div>
+<!-- Thông tin chung -->
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Thông tin chung</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                         aria-labelledby="dropdownMenuLink">
+                        <a class="dropdown-item" href="#">Liên hệ người dùng</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Đánh dấu đã đọc</a>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table">
-                            <tr>
-                                <th style="width: 200px;">ID:</th>
-                                <td>{{ ticket.id }}</td>
-                            </tr>
-                            <tr>
-                                <th>Khách hàng:</th>
-                                <td>
-                                    <strong>{{ ticket.customer.username }}</strong>
-                                    <br>
-                                    <small>{{ ticket.customer.email }}</small>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Sản phẩm:</th>
-                                <td>{% if ticket.product %}{{ ticket.product.name }}{% else %}Không áp dụng{% endif %}</td>
-                            </tr>
-                            <tr>
-                                <th>Mô tả vấn đề:</th>
-                                <td>{{ ticket.issue_description|linebreaks }}</td>
-                            </tr>
-                            <tr>
-                                <th>Trạng thái:</th>
-                                <td>
-                                    {% if ticket.status == 'pending' %}
-                                    <span class="badge badge-warning">Đang chờ xử lý</span>
-                                    {% elif ticket.status == 'in_progress' %}
-                                    <span class="badge badge-info">Đang xử lý</span>
-                                    {% elif ticket.status == 'resolved' %}
-                                    <span class="badge badge-success">Đã giải quyết</span>
-                                    {% else %}
-                                    <span class="badge badge-secondary">Đã đóng</span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6 class="font-weight-bold">Người yêu cầu:</h6>
+                        <p>{{ warranty.user.username }} ({{ warranty.user.email }})</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="font-weight-bold">Trạng thái:</h6>
+                        <p>
+                            <span class="badge badge-{% if warranty.status == 'pending' %}warning{% elif warranty.status == 'processing' %}info{% elif warranty.status == 'completed' %}success{% elif warranty.status == 'rejected' %}danger{% endif %} px-3 py-2">
+                                {% for status_code, status_name in status_choices %}
+                                    {% if status_code == warranty.status %}
+                                        {{ status_name }}
                                     {% endif %}
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Người được phân công:</th>
-                                <td>{% if ticket.assigned_to %}{{ ticket.assigned_to.username }}{% else %}Chưa phân công{% endif %}</td>
-                            </tr>
-                            <tr>
-                                <th>Cách giải quyết:</th>
-                                <td>{% if ticket.resolution %}{{ ticket.resolution|linebreaks }}{% else %}Chưa có{% endif %}</td>
-                            </tr>
-                            <tr>
-                                <th>Ngày tạo:</th>
-                                <td>{{ ticket.created_at|date:"d/m/Y H:i" }}</td>
-                            </tr>
-                            <tr>
-                                <th>Cập nhật lần cuối:</th>
-                                <td>{{ ticket.updated_at|date:"d/m/Y H:i" }}</td>
-                            </tr>
-                        </table>
+                                {% endfor %}
+                            </span>
+                        </p>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Lịch sử xử lý -->
-        <div class="col-lg-4">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Lịch sử xử lý</h6>
-                </div>
-                <div class="card-body">
-                    <div class="activity-feed">
-                        {% for history in ticket_history %}
-                        <div class="feed-item">
-                            <div class="date text-muted small">{{ history.created_at|date:"d/m/Y H:i" }}</div>
-                            <strong>{{ history.action }}</strong>
-                            {% if history.performed_by %}
-                            <span class="text-muted">bởi {{ history.performed_by.username }}</span>
-                            {% endif %}
-                            {% if history.notes %}
-                            <p>{{ history.notes }}</p>
-                            {% endif %}
-                        </div>
-                        {% empty %}
-                        <p class="text-center">Chưa có lịch sử xử lý</p>
-                        {% endfor %}
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6 class="font-weight-bold">Ngày tạo:</h6>
+                        <p>{{ warranty.created_at|date:"d/m/Y H:i" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="font-weight-bold">Cập nhật lần cuối:</h6>
+                        <p>{{ warranty.updated_at|date:"d/m/Y H:i" }}</p>
                     </div>
                 </div>
-            </div>
-
-            <!-- Thêm ghi chú -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Thêm ghi chú</h6>
-                </div>
-                <div class="card-body">
-                    <form method="post" action="{% url 'dashboard:add_warranty_note' ticket.id %}">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <textarea class="form-control" name="notes" rows="3" placeholder="Nhập ghi chú..." required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-block">Lưu ghi chú</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Status Modal -->
-<div class="modal fade" id="statusModal" tabindex="-1" role="dialog" aria-labelledby="statusModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="statusModalLabel">Cập nhật trạng thái</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form method="post" action="{% url 'dashboard:update_warranty_status' ticket.id %}">
-                {% csrf_token %}
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="status">Trạng thái mới</label>
-                        <select class="form-control" id="status" name="status">
-                            <option value="pending" {% if ticket.status == 'pending' %}selected{% endif %}>Đang chờ xử lý</option>
-                            <option value="in_progress" {% if ticket.status == 'in_progress' %}selected{% endif %}>Đang xử lý</option>
-                            <option value="resolved" {% if ticket.status == 'resolved' %}selected{% endif %}>Đã giải quyết</option>
-                            <option value="closed" {% if ticket.status == 'closed' %}selected{% endif %}>Đã đóng</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="notes">Ghi chú</label>
-                        <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="resolution">Cách giải quyết (chỉ áp dụng cho trạng thái "Đã giải quyết")</label>
-                        <textarea class="form-control" id="resolution" name="resolution" rows="3"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
-                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Assign Modal -->
-<div class="modal fade" id="assignModal" tabindex="-1" role="dialog" aria-labelledby="assignModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="assignModalLabel">Phân công xử lý</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form method="post" action="{% url 'dashboard:assign_warranty' ticket.id %}">
-                {% csrf_token %}
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="assigned_to">Phân công cho</label>
-                        <select class="form-control" id="assigned_to" name="assigned_to" required>
-                            <option value="">Chọn nhân viên</option>
-                            {% for staff in staff_members %}
-                            <option value="{{ staff.id }}" {% if ticket.assigned_to == staff %}selected{% endif %}>{{ staff.username }}</option>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6 class="font-weight-bold">Nền tảng:</h6>
+                        <p>
+                            {% for platform_code, platform_name in platform_choices %}
+                                {% if platform_code == warranty.platform %}
+                                    {{ platform_name }}
+                                {% endif %}
                             {% endfor %}
-                        </select>
+                        </p>
                     </div>
-                    <div class="form-group">
-                        <label for="assign_notes">Ghi chú</label>
-                        <textarea class="form-control" id="assign_notes" name="notes" rows="3"></textarea>
+                    <div class="col-md-6">
+                        <h6 class="font-weight-bold">Nguồn:</h6>
+                        <p>{{ warranty.source }}</p>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
-                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6 class="font-weight-bold">Tài khoản lỗi:</h6>
+                        <p>{{ warranty.account_username }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="font-weight-bold">Loại tài khoản:</h6>
+                        <p>{{ warranty.account_type }}</p>
+                    </div>
                 </div>
-            </form>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <h6 class="font-weight-bold">Lý do bảo hành:</h6>
+                        <p>{{ warranty.reason }}</p>
+                    </div>
+                </div>
+                {% if warranty.custom_reason %}
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <h6 class="font-weight-bold">Lý do chi tiết:</h6>
+                        <p>{{ warranty.custom_reason }}</p>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <h6 class="font-weight-bold">Ghi chú của người dùng:</h6>
+                        <p>{{ warranty.notes|default:'Không có ghi chú' }}</p>
+                    </div>
+                </div>
+                {% if warranty.error_screenshot %}
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <h6 class="font-weight-bold">Ảnh chụp lỗi:</h6>
+                        <a href="{{ warranty.error_screenshot.url }}" target="_blank">
+                            <img src="{{ warranty.error_screenshot.url }}" alt="Ảnh lỗi" class="img-fluid img-thumbnail" style="max-height: 300px;">
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Thông tin đơn hàng -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Thông tin đơn hàng</h6>
+            </div>
+            <div class="card-body">
+                {% if order %}
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6 class="font-weight-bold">Mã đơn hàng:</h6>
+                        <p><a href="{% url 'dashboard:order_detail' order.id %}" target="_blank">#{{ order.id }}</a></p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="font-weight-bold">Ngày mua:</h6>
+                        <p>{{ order.created_at|date:"d/m/Y" }}</p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6 class="font-weight-bold">Giá trị:</h6>
+                        <p>{{ order.total_price|floatformat:0 }} VNĐ</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="font-weight-bold">Số lần bảo hành:</h6>
+                        <p>{{ warranty_count }} lần</p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <h6 class="font-weight-bold">Trạng thái đơn:</h6>
+                        <p>
+                            <span class="badge badge-{% if order.status == 'pending' %}warning{% elif order.status == 'completed' %}success{% elif order.status == 'cancelled' %}danger{% endif %} px-3 py-2">
+                                {{ order.get_status_display }}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center">
+                    <p>Không tìm thấy thông tin đơn hàng hoặc đây là trường hợp tự đăng ký</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Lịch sử bảo hành -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Lịch sử bảo hành</h6>
+            </div>
+            <div class="card-body">
+                <div class="timeline-container">
+                    {% for history in warranty_history %}
+                    <div class="timeline-item">
+                        <div class="timeline-item-dot {% if history.status == 'pending' %}bg-warning{% elif history.status == 'processing' %}bg-info{% elif history.status == 'completed' %}bg-success{% elif history.status == 'rejected' %}bg-danger{% endif %}"></div>
+                        <div class="timeline-item-content">
+                            <div class="timeline-item-time">{{ history.created_at|date:"d/m/Y H:i" }}</div>
+                            <div class="timeline-item-title">
+                                {% for status_code, status_name in status_choices %}
+                                    {% if status_code == history.status %}
+                                        {{ status_name }}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <div class="timeline-item-body">
+                                {{ history.notes|default:'Không có ghi chú' }}
+                            </div>
+                            <div class="timeline-item-footer">
+                                <small>Xử lý bởi: {{ history.admin.get_full_name|default:history.admin.username }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center">
+                        <p>Chưa có lịch sử xử lý</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Delete Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+<!-- Modal xử lý yêu cầu -->
+<div class="modal fade" id="processModal" tabindex="-1" role="dialog" aria-labelledby="processModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                <h5 class="modal-title" id="processModalLabel">Xử lý yêu cầu bảo hành #{{ warranty.id }}</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <p>Bạn có chắc chắn muốn xóa yêu cầu bảo hành này không? Hành động này không thể hoàn tác.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
-                <a href="{% url 'dashboard:delete_warranty' ticket.id %}" class="btn btn-danger">Xóa</a>
-            </div>
+            <form action="{% url 'dashboard:process_warranty' request_id=warranty.id %}" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="status">Cập nhật trạng thái:</label>
+                                <select class="form-control" id="status" name="status" required>
+                                    {% for status_code, status_name in status_choices %}
+                                        {% if status_code != 'pending' %}
+                                        <option value="{{ status_code }}">{{ status_name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Hình thức bảo hành:</label>
+                                <div class="form-group">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="new_account" name="warranty_type" value="new_account">
+                                        <label class="custom-control-label" for="new_account">Cấp tài khoản mới</label>
+                                    </div>
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="fix" name="warranty_type" value="fix">
+                                        <label class="custom-control-label" for="fix">Sửa chữa</label>
+                                    </div>
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="refund" name="warranty_type" value="refund">
+                                        <label class="custom-control-label" for="refund">Hoàn tiền</label>
+                                    </div>
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="add_days" name="warranty_type" value="add_days">
+                                        <label class="custom-control-label" for="add_days">Bù thêm ngày</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 add-days-container d-none">
+                            <div class="form-group">
+                                <label for="days_added">Số ngày bù thêm:</label>
+                                <input type="number" class="form-control" id="days_added" name="days_added" min="1" value="0">
+                            </div>
+                        </div>
+                        <div class="col-md-6 refund-container d-none">
+                            <div class="form-group">
+                                <label for="refund_amount">Số tiền hoàn trả (VNĐ):</label>
+                                <input type="number" class="form-control" id="refund_amount" name="refund_amount" min="0" step="1000" value="0">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 new-account-container d-none">
+                            <div class="form-group">
+                                <label for="new_account_info">Thông tin tài khoản mới:</label>
+                                <textarea class="form-control" id="new_account_info" name="new_account_info" rows="3" placeholder="Nhập thông tin tài khoản mới (tên đăng nhập, mật khẩu, etc.)"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="admin_notes">Ghi chú nội bộ:</label>
+                                <textarea class="form-control" id="admin_notes" name="admin_notes" rows="3" placeholder="Thông tin ghi chú nội bộ (chỉ admin thấy)"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="user_notes">Phản hồi đến khách hàng:</label>
+                                <textarea class="form-control" id="user_notes" name="user_notes" rows="3" placeholder="Thông tin phản hồi cho khách hàng" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Cập nhật</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 {% endblock %}
 
-{% block extra_css %}
+{% block styles %}
 <style>
-.activity-feed {
-    padding: 15px;
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.feed-item {
-    border-left: 2px solid #f0f0f0;
-    padding-left: 15px;
-    margin-bottom: 15px;
-    position: relative;
-}
-
-.feed-item:last-child {
-    margin-bottom: 0;
-}
-
-.feed-item:before {
-    content: "";
-    display: block;
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #4e73df;
-    left: -5px;
-    top: 5px;
-}
+    .timeline-container {
+        position: relative;
+        padding-left: 25px;
+    }
+    
+    .timeline-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 7px;
+        height: 100%;
+        width: 2px;
+        background-color: #e3e6f0;
+    }
+    
+    .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    
+    .timeline-item-dot {
+        position: absolute;
+        left: -25px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        top: 5px;
+    }
+    
+    .timeline-item-content {
+        padding: 10px 15px;
+        background-color: #f8f9fc;
+        border-radius: 5px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+    
+    .timeline-item-time {
+        font-size: 0.8rem;
+        color: #888;
+        margin-bottom: 5px;
+    }
+    
+    .timeline-item-title {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    .timeline-item-body {
+        margin-bottom: 5px;
+    }
+    
+    .timeline-item-footer {
+        font-size: 0.8rem;
+        color: #888;
+        text-align: right;
+    }
 </style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Hiển thị/ẩn các trường tùy chọn dựa trên loại bảo hành được chọn
+        $('input[name="warranty_type"]').change(function() {
+            // Bù thêm ngày
+            if ($('#add_days').is(':checked')) {
+                $('.add-days-container').removeClass('d-none');
+            } else {
+                $('.add-days-container').addClass('d-none');
+                $('#days_added').val(0);
+            }
+            
+            // Hoàn tiền
+            if ($('#refund').is(':checked')) {
+                $('.refund-container').removeClass('d-none');
+            } else {
+                $('.refund-container').addClass('d-none');
+                $('#refund_amount').val(0);
+            }
+            
+            // Cấp tài khoản mới
+            if ($('#new_account').is(':checked')) {
+                $('.new-account-container').removeClass('d-none');
+            } else {
+                $('.new-account-container').addClass('d-none');
+                $('#new_account_info').val('');
+            }
+        });
+        
+        // Kiểm tra trạng thái khi submit form
+        $('form').submit(function(e) {
+            var status = $('#status').val();
+            
+            // Nếu trạng thái là hoàn thành, đảm bảo đã chọn ít nhất một hình thức bảo hành
+            if (status === 'completed') {
+                var hasWarrantyType = $('input[name="warranty_type"]:checked').length > 0;
+                
+                if (!hasWarrantyType) {
+                    e.preventDefault();
+                    alert('Vui lòng chọn ít nhất một hình thức bảo hành khi hoàn thành yêu cầu.');
+                    return false;
+                }
+            }
+            
+            return true;
+        });
+    });
+</script>
 {% endblock %} 

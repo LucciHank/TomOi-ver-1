@@ -15,7 +15,8 @@ from .views import (
     marketing,
     source,
     discount,
-    banner
+    banner,
+    subscription
 )
 from .views.api_settings import api_settings, save_api_config, test_api
 from .views.settings import settings_view, save_chatbot_settings, test_gemini_api
@@ -37,6 +38,12 @@ from . import views_temp
 # Import views mới
 from .views.premium_reminder import send_reminder, cancel_subscription
 from .views import api
+from .views.chat_history import chat_history, conversation_detail, chatbot_log_api
+from .views.subscription import subscription_list, subscription_detail, renew_subscription, cancel_subscription
+
+# Import trực tiếp hàm compare_sources từ views.py
+from .views.compare import compare_sources
+from .views.product_source import add_source_product
 
 app_name = 'dashboard'
 
@@ -88,7 +95,13 @@ urlpatterns = [
     path('sources/dashboard/', source.source_dashboard, name='source_dashboard'),
     path('sources/add/', source.source_add, name='source_add'),
     path('sources/logs/', source.source_log_list, name='source_log_list'),
-    path('sources/compare/', source.compare_sources, name='compare_sources'),
+    path('sources/compare/', compare_sources, name='compare_sources'),
+    path('sources/logs/add/', source.add_source_log, name='add_source_log'),
+    path('sources/products/add/', add_source_product, name='add_source_product'),
+    path('sources/analytics/', source.source_dashboard, name='source_analytics'),
+    path('sources/<int:source_id>/edit/', source.source_add, name='source_edit'),
+    path('sources/<int:source_id>/delete/', source.source_add, name='source_delete'),
+    path('sources/<int:source_id>/', source.source_detail, name='source_detail'),
 
     # Core URLs
     path('login/', dashboard_login, name='login'),
@@ -146,6 +159,8 @@ urlpatterns = [
     path('messaging/', messaging_view, name='messaging'),
     path('complaints/', complaints_list, name='complaints'),
     path('warranty/', warranty_list, name='warranty'),
+    path('warranty/<int:request_id>/', views.warranty.warranty_detail, name='warranty_detail'),
+    path('warranty/<int:request_id>/process/', views.warranty.process_warranty, name='process_warranty'),
 
     # API URLs
     path('api/calendar/events/', calendar_events, name='calendar_events'),
@@ -186,6 +201,7 @@ urlpatterns = [
     path('chatbot/settings/', views.chatbot.settings, name='chatbot_settings'),
     path('chatbot/api/', api_settings, name='chatbot_api'),
     path('chatbot/logs/', views.chatbot.logs, name='chatbot_logs'),
+    path('chatbot/chat-logs/', views.chatbot.chat_logs, name='chat_logs'),
     path('chatbot/responses/', views.chatbot.responses, name='chatbot_responses'),
 
     # API endpoints cho Chatbot
@@ -198,4 +214,23 @@ urlpatterns = [
     # Thêm endpoint cho việc lấy cấu hình chatbot từ frontend
     path('api/chatbot-config/', views.chatbot.get_chatbot_config, name='get_chatbot_config'),
 
+    # Chat history
+    path('chat-history/', chat_history, name='chat_history'),
+    path('chat-history/detail/<int:conversation_id>/', conversation_detail, name='conversation_detail'),
+    
+    # API endpoints
+    path('api/chatbot/log/', chatbot_log_api, name='chatbot_log_api'),
+
+    # Quản lý gia hạn
+    path('subscriptions/', subscription_list, name='subscription_list'),
+    path('subscriptions/<int:subscription_id>/', subscription_detail, name='subscription_detail'),
+    path('subscriptions/<int:subscription_id>/renew/', renew_subscription, name='renew_subscription'),
+    path('subscriptions/<int:subscription_id>/cancel/', cancel_subscription, name='cancel_subscription'),
+    path('api/check-expired-subscriptions/', subscription.check_expired_subscriptions_ajax, name='check_expired_subscriptions'),
+
+    # Source API endpoints
+    path('api/sources/add-log/', source.add_source_log, name='add_source_log'),
+    path('api/sources/search-products/', source.api_search_products, name='api_search_products'),
+    path('api/sources/product-sources/', source.api_product_sources, name='api_product_sources'),
+    path('api/sources/log-detail/', source.api_source_log_detail, name='api_source_log_detail'),
 ] 

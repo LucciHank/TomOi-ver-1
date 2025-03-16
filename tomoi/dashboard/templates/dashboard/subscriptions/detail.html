@@ -1,0 +1,333 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<!-- Tiêu đề trang -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Chi tiết gói đăng ký</h1>
+    <div>
+        <a href="{% url 'dashboard:subscription_list' %}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Quay lại
+        </a>
+    </div>
+</div>
+
+<!-- Thông tin chung -->
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Thông tin gói đăng ký</h6>
+                <div class="dropdown no-arrow">
+                    {% if subscription.status == 'active' %}
+                    <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#renewModal">
+                        <i class="fas fa-sync-alt fa-sm"></i> Gia hạn
+                    </button>
+                    <button class="btn btn-sm btn-danger" data-toggle="modal" data-target="#cancelModal">
+                        <i class="fas fa-times fa-sm"></i> Hủy gói
+                    </button>
+                    {% elif subscription.status == 'expired' %}
+                    <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#renewModal">
+                        <i class="fas fa-sync-alt fa-sm"></i> Gia hạn
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">ID gói:</label>
+                            <p>{{ subscription.id }}</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="font-weight-bold">Tên gói:</label>
+                            <p>{{ subscription.plan.name }}</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="font-weight-bold">Người dùng:</label>
+                            <p>{{ subscription.user.username }} ({{ subscription.user.email }})</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="font-weight-bold">Giá:</label>
+                            <p>{{ subscription.plan.price|floatformat:0 }}đ</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">Trạng thái:</label>
+                            <p>
+                                {% if subscription.status == 'active' %}
+                                <span class="badge badge-success">Đang hoạt động</span>
+                                {% elif subscription.status == 'pending' %}
+                                <span class="badge badge-warning">Chờ thanh toán</span>
+                                {% elif subscription.status == 'expired' %}
+                                <span class="badge badge-danger">Hết hạn</span>
+                                {% elif subscription.status == 'cancelled' %}
+                                <span class="badge badge-secondary">Đã hủy</span>
+                                {% else %}
+                                <span class="badge badge-info">{{ subscription.status }}</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="form-group">
+                            <label class="font-weight-bold">Ngày bắt đầu:</label>
+                            <p>{{ subscription.start_date|date:"d/m/Y H:i" }}</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="font-weight-bold">Ngày hết hạn:</label>
+                            <p>{{ subscription.end_date|date:"d/m/Y H:i" }}</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="font-weight-bold">Tự động gia hạn:</label>
+                            <p>{{ subscription.is_auto_renew|yesno:"Có,Không" }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Thanh tiến trình -->
+                <div class="mt-4">
+                    <label class="font-weight-bold">Thời gian còn lại:</label>
+                    <div class="progress mb-2">
+                        <div class="progress-bar {% if percentage <= 10 %}bg-danger{% elif percentage <= 30 %}bg-warning{% else %}bg-success{% endif %}" 
+                             role="progressbar" 
+                             style="width: {{ percentage }}%" 
+                             aria-valuenow="{{ percentage }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">{{ percentage }}%</div>
+                    </div>
+                    <p class="text-right">{% if days_left > 0 %}{{ days_left }} ngày{% else %}Đã hết hạn{% endif %}</p>
+                </div>
+                
+                <!-- Thông tin đơn hàng nếu có -->
+                {% if subscription.order %}
+                <div class="mt-4">
+                    <h5 class="font-weight-bold">Thông tin đơn hàng</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <tr>
+                                <th>Mã đơn hàng</th>
+                                <td>{{ subscription.order.order_code }}</td>
+                                <th>Ngày mua</th>
+                                <td>{{ subscription.order.created_at|date:"d/m/Y" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Tổng tiền</th>
+                                <td>{{ subscription.order.total_amount|floatformat:0 }}đ</td>
+                                <th>Phương thức</th>
+                                <td>{{ subscription.order.payment_method_display }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Thông tin tính năng gói -->
+                <div class="mt-4">
+                    <h5 class="font-weight-bold">Tính năng gói</h5>
+                    <ul class="list-group">
+                        {% for feature in subscription.plan.features %}
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success mr-2"></i> {{ feature }}
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item">Không có thông tin</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Thông tin bảo hành -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Thông tin bảo hành</h6>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="font-weight-bold">Số lần bảo hành đã sử dụng:</label>
+                    <p>{{ subscription.warranty_count }} / {{ subscription.plan.max_warranty_count }}</p>
+                </div>
+                <div class="progress mb-4">
+                    <div class="progress-bar" role="progressbar" style="width: {{ subscription.warranty_count|default:0|divisibleby:subscription.plan.max_warranty_count|floatformat:0 }}%"
+                        aria-valuenow="{{ subscription.warranty_count|default:0 }}" aria-valuemin="0" aria-valuemax="{{ subscription.plan.max_warranty_count }}"></div>
+                </div>
+                
+                <!-- Danh sách yêu cầu bảo hành -->
+                <h6 class="font-weight-bold">Lịch sử bảo hành</h6>
+                <div class="list-group">
+                    {% for ticket in subscription.warranty_tickets.all %}
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Yêu cầu #{{ ticket.id }}</h6>
+                            <small>{{ ticket.created_at|date:"d/m/Y" }}</small>
+                        </div>
+                        <p class="mb-1">{{ ticket.issue_description|truncatechars:50 }}</p>
+                        <small>
+                            {% if ticket.status == 'pending' %}
+                            <span class="badge badge-warning">Chờ xử lý</span>
+                            {% elif ticket.status == 'processing' %}
+                            <span class="badge badge-info">Đang xử lý</span>
+                            {% elif ticket.status == 'resolved' %}
+                            <span class="badge badge-success">Đã xử lý</span>
+                            {% elif ticket.status == 'rejected' %}
+                            <span class="badge badge-danger">Từ chối</span>
+                            {% endif %}
+                        </small>
+                    </a>
+                    {% empty %}
+                    <div class="list-group-item">Không có yêu cầu bảo hành nào</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Lịch sử gia hạn -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Lịch sử gia hạn</h6>
+            </div>
+            <div class="card-body">
+                <div class="timeline-small">
+                    {% for transaction in transactions %}
+                    <div class="timeline-item">
+                        <div class="timeline-point 
+                            {% if transaction.transaction_type == 'new' %}timeline-point-primary
+                            {% elif transaction.transaction_type == 'renewal' %}timeline-point-success
+                            {% elif transaction.transaction_type == 'refund' %}timeline-point-danger
+                            {% else %}timeline-point-info{% endif %}">
+                            {% if transaction.transaction_type == 'new' %}<i class="fas fa-plus"></i>
+                            {% elif transaction.transaction_type == 'renewal' %}<i class="fas fa-sync-alt"></i>
+                            {% elif transaction.transaction_type == 'refund' %}<i class="fas fa-undo"></i>
+                            {% else %}<i class="fas fa-arrow-up"></i>{% endif %}
+                        </div>
+                        <div class="timeline-content">
+                            <h6 class="mb-0">
+                                {% if transaction.transaction_type == 'new' %}Đăng ký mới
+                                {% elif transaction.transaction_type == 'renewal' %}Gia hạn
+                                {% elif transaction.transaction_type == 'upgrade' %}Nâng cấp
+                                {% elif transaction.transaction_type == 'refund' %}Hoàn tiền
+                                {% else %}{{ transaction.transaction_type }}{% endif %}
+                            </h6>
+                            <p class="mb-0">{{ transaction.amount|floatformat:0 }}đ - {{ transaction.payment_method }}</p>
+                            <small class="text-muted">{{ transaction.created_at|date:"d/m/Y H:i" }}</small>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p>Không có lịch sử giao dịch</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+<!-- Modal Gia hạn gói -->
+<div class="modal fade" id="renewModal" tabindex="-1" role="dialog" aria-labelledby="renewModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="renewModalLabel">Gia hạn gói đăng ký</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="{% url 'dashboard:renew_subscription' subscription.id %}" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>Bạn đang gia hạn gói <span class="font-weight-bold">{{ subscription.plan.name }}</span> cho người dùng <span class="font-weight-bold">{{ subscription.user.username }}</span>.</p>
+                    <div class="form-group">
+                        <label for="duration_days">Thời hạn gia hạn (ngày)</label>
+                        <input type="number" class="form-control" id="duration_days" name="duration_days" value="30" min="1">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-success">Gia hạn</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Hủy gói -->
+<div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="cancelModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelModalLabel">Xác nhận hủy gói</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="{% url 'dashboard:cancel_subscription' subscription.id %}" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn hủy gói <span class="font-weight-bold">{{ subscription.plan.name }}</span> của người dùng <span class="font-weight-bold">{{ subscription.user.username }}</span>?</p>
+                    <p class="text-danger">Lưu ý: Hành động này không thể hoàn tác!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-danger">Hủy gói</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    /* Timeline styles */
+    .timeline-small {
+        position: relative;
+        padding-left: 22px;
+    }
+    
+    .timeline-small .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    
+    .timeline-small .timeline-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .timeline-small:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 8px;
+        height: 100%;
+        width: 2px;
+        background-color: #e3e6f0;
+    }
+    
+    .timeline-small .timeline-point {
+        position: absolute;
+        left: -22px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 18px;
+        color: white;
+        font-size: 10px;
+    }
+    
+    .timeline-small .timeline-point i {
+        line-height: 18px;
+    }
+    
+    .timeline-point-primary { background-color: #4e73df; }
+    .timeline-point-success { background-color: #1cc88a; }
+    .timeline-point-info { background-color: #36b9cc; }
+    .timeline-point-warning { background-color: #f6c23e; }
+    .timeline-point-danger { background-color: #e74a3b; }
+</style>
+{% endblock %} 

@@ -54,20 +54,39 @@
         </a>
     </li>
     
-    <!-- Nav Item - Complaints -->
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'dashboard:complaints' %}">
-            <i class="fas fa-fw fa-exclamation-circle"></i>
-            <span>Khiếu nại</span>
-        </a>
-    </li>
-    
     <!-- Nav Item - Warranty -->
     <li class="nav-item">
         <a class="nav-link" href="{% url 'dashboard:warranty' %}">
             <i class="fas fa-fw fa-shield-alt"></i>
             <span>Bảo hành</span>
         </a>
+    </li>
+
+    <!-- Nav Item - Subscription Management -->
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'dashboard:subscription_list' %}">
+            <i class="fas fa-fw fa-sync-alt"></i>
+            <span>Quản lý Gia hạn</span>
+        </a>
+    </li>
+    
+    <!-- Nav Item - Source Management -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSources"
+            aria-expanded="false" aria-controls="collapseSources">
+            <i class="fas fa-fw fa-database"></i>
+            <span>Nhà cung cấp</span>
+        </a>
+        <div id="collapseSources" class="collapse" aria-labelledby="headingSources"
+            data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản lý nguồn nhập:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:source_list' %}">Danh sách</a>
+                <a class="collapse-item" href="{% url 'dashboard:compare_sources' %}">So sánh nguồn</a>
+                <a class="collapse-item" href="{% url 'dashboard:source_add' %}">Thêm mới</a>
+                <a class="collapse-item" href="{% url 'dashboard:source_log_list' %}">Nhật ký</a>
+            </div>
+        </div>
     </li>
 
     <!-- Divider -->
@@ -151,10 +170,11 @@
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Quản lý Chatbot:</h6>
                 <a class="collapse-item" href="{% url 'dashboard:chatbot_dashboard' %}">Tổng quan</a>
-                <a class="collapse-item" href="{% url 'dashboard:chatbot_settings' %}">Cài đặt</a>
-                <a class="collapse-item" href="{% url 'dashboard:chatbot_api' %}">Cấu hình API</a>
-                <a class="collapse-item" href="{% url 'dashboard:chatbot_logs' %}">Lịch sử trò chuyện</a>
-                <a class="collapse-item" href="{% url 'dashboard:chatbot_responses' %}">Câu trả lời</a>
+                <a class="collapse-item" href="{% url 'dashboard:chatbot_settings' %}">Cấu hình</a>
+                <a class="collapse-item" href="{% url 'dashboard:chat_history' %}">
+                    <i class="fas fa-history fa-sm fa-fw mr-1"></i>
+                    Lịch sử trò chuyện
+                </a>
             </div>
         </div>
     </li>

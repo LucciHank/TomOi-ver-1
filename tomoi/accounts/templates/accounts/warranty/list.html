@@ -1,0 +1,289 @@
+{% extends 'accounts/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .warranty-card {
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        transition: transform 0.2s;
+    }
+    
+    .warranty-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    
+    .status-pending {
+        background-color: #ffeeba;
+        color: #856404;
+    }
+    
+    .status-processing {
+        background-color: #b8daff;
+        color: #004085;
+    }
+    
+    .status-completed {
+        background-color: #c3e6cb;
+        color: #155724;
+    }
+    
+    .status-rejected {
+        background-color: #f5c6cb;
+        color: #721c24;
+    }
+    
+    .create-btn {
+        margin-bottom: 20px;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 50px 0;
+    }
+    
+    .empty-state i {
+        font-size: 70px;
+        color: #ccc;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="h3 mb-0">Yêu cầu bảo hành tài khoản</h1>
+            <p class="text-muted">Danh sách các yêu cầu bảo hành của bạn</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'accounts:create_warranty' %}" class="btn btn-primary create-btn">
+                <i class="fas fa-plus-circle me-2"></i>Tạo yêu cầu bảo hành mới
+            </a>
+        </div>
+    </div>
+    
+    {% if page_obj %}
+        <div class="row">
+            {% for warranty in page_obj %}
+                <div class="col-md-6">
+                    <div class="card warranty-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="card-title mb-0">Yêu cầu #{{ warranty.id }}</h5>
+                                <span class="status-badge status-{{ warranty.status }}">
+                                    {{ warranty.get_status_display }}
+                                </span>
+                            </div>
+                            <p class="card-text text-truncate mb-1">
+                                <strong>Tài khoản:</strong> {{ warranty.account_username }}
+                            </p>
+                            <p class="card-text text-truncate mb-1">
+                                <strong>Loại:</strong> {{ warranty.account_type }}
+                            </p>
+                            <p class="card-text text-truncate mb-1">
+                                <strong>Lý do:</strong> {{ warranty.reason.name|default:warranty.custom_reason|truncatechars:30 }}
+                            </p>
+                            <p class="card-text text-truncate mb-3">
+                                <strong>Ngày tạo:</strong> {{ warranty.created_at|date:"d/m/Y H:i" }}
+                            </p>
+                            <div class="text-end">
+                                <a href="{% url 'accounts:warranty_detail' request_id=warranty.id %}" class="btn btn-sm btn-outline-primary">
+                                    Xem chi tiết
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Phân trang -->
+        {% if page_obj.paginator.num_pages > 1 %}
+        <div class="d-flex justify-content-center mt-4">
+            <nav aria-label="Phân trang">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Trước">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&laquo;</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if num == page_obj.number %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Sau">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&raquo;</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+        
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-tools"></i>
+            <h3>Bạn chưa có yêu cầu bảo hành nào</h3>
+            <p class="text-muted">Hãy tạo yêu cầu bảo hành nếu bạn gặp vấn đề với tài khoản của mình.</p>
+            <a href="{% url 'accounts:create_warranty' %}" class="btn btn-primary mt-3">
+                <i class="fas fa-plus-circle me-2"></i>Tạo yêu cầu bảo hành mới
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Modal tạo yêu cầu bảo hành -->
+<div class="modal fade" id="createWarrantyModal" tabindex="-1" aria-labelledby="createWarrantyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createWarrantyModalLabel">Tạo yêu cầu bảo hành mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'accounts:create_warranty' %}" enctype="multipart/form-data" id="warrantyForm">
+                    {% csrf_token %}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="id_order" class="form-label">Mã đơn hàng</label>
+                            <select name="order" id="id_order" class="form-select">
+                                <option value="">-- Chọn đơn hàng --</option>
+                                {% for order in orders %}
+                                <option value="{{ order.id }}">{{ order.code }} - {{ order.created_at|date:"d/m/Y" }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_platform" class="form-label">Nền tảng liên hệ</label>
+                            <select name="platform" id="id_platform" class="form-select">
+                                {% for value, label in platform_choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="id_account_username" class="form-label">Tên đăng nhập tài khoản lỗi</label>
+                            <input type="text" name="account_username" id="id_account_username" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_account_password" class="form-label">Mật khẩu tài khoản lỗi</label>
+                            <input type="text" name="account_password" id="id_account_password" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="id_account_type" class="form-label">Loại tài khoản</label>
+                            <input type="text" name="account_type" id="id_account_type" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_reason" class="form-label">Lý do lỗi</label>
+                            <select name="reason" id="id_reason" class="form-select">
+                                <option value="">-- Chọn lý do --</option>
+                                {% for reason in reasons %}
+                                <option value="{{ reason.id }}">{{ reason.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_custom_reason" class="form-label">Lý do khác</label>
+                        <textarea name="custom_reason" id="id_custom_reason" rows="3" class="form-control"></textarea>
+                        <small class="text-muted">Điền nếu không tìm thấy lý do phù hợp trong danh sách.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_error_screenshot" class="form-label">Ảnh chụp lỗi</label>
+                        <input type="file" name="error_screenshot" id="id_error_screenshot" class="form-control" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_notes" class="form-label">Ghi chú bổ sung</label>
+                        <textarea name="notes" id="id_notes" rows="3" class="form-control"></textarea>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="id_source" class="form-label">Nguồn cung cấp</label>
+                            <select name="source" id="id_source" class="form-select">
+                                <option value="">-- Chọn nguồn --</option>
+                                {% for source in sources %}
+                                <option value="{{ source.id }}">{{ source.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end">
+                            <div class="form-check">
+                                <input type="checkbox" name="is_self_registered" id="id_is_self_registered" class="form-check-input">
+                                <label for="id_is_self_registered" class="form-check-label">Tự đăng ký</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy bỏ</button>
+                <button type="button" class="btn btn-primary" onclick="document.getElementById('warrantyForm').submit()">Gửi yêu cầu</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Xử lý logic tương tác cho form tạo yêu cầu bảo hành
+        const reasonSelect = document.getElementById('id_reason');
+        const customReasonField = document.getElementById('id_custom_reason');
+        
+        if (reasonSelect && customReasonField) {
+            reasonSelect.addEventListener('change', function() {
+                if (this.value === '') {
+                    customReasonField.setAttribute('required', 'required');
+                } else {
+                    customReasonField.removeAttribute('required');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %} 

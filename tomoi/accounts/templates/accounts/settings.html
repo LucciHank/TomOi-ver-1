@@ -198,14 +198,16 @@
                         <span data-i18n="orders_text">Sản phẩm đã mua</span>
                     </a>
 
-                    <a href="/accounts/payment-history/" class="list-group-item list-group-item-action">
-                        <i class="fas fa-money-bill-wave me-2"></i>
-                        <span data-i18n="payment_history_text">Lịch sử nạp tiền</span>
+                    <a href="{% url 'accounts:payment_history' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-money-bill-wave me-2"></i> Lịch sử nạp tiền
                     </a>
 
-                    <a href="/accounts/security/" class="list-group-item list-group-item-action">
-                        <i class="fas fa-shield-alt me-2"></i>
-                        <span data-i18n="security_text">Bảo mật</span>
+                    <a href="{% url 'accounts:warranty_list' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tools me-2"></i> Bảo hành
+                    </a>
+
+                    <a href="{% url 'accounts:security' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-shield-alt me-2"></i> Bảo mật
                     </a>
 
                     <a href="/accounts/user-info/wishlist/" class="list-group-item list-group-item-action">

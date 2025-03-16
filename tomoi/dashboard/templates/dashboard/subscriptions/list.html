@@ -1,0 +1,394 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<!-- Tiêu đề trang -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Quản lý gia hạn tài khoản</h1>
+    <div>
+        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" id="exportBtn">
+            <i class="fas fa-download fa-sm text-white-50"></i> Xuất báo cáo
+        </a>
+    </div>
+</div>
+
+<!-- Hiển thị cảnh báo về các gói sắp hết hạn -->
+{% if expiring_soon > 0 %}
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-triangle mr-2"></i>
+    <strong>Cảnh báo!</strong> Có {{ expiring_soon }} gói đang hoạt động sẽ hết hạn trong 7 ngày tới.
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+{% endif %}
+
+<!-- Hiển thị thông báo về các gói đã hết hạn -->
+{% if expired_subscriptions > 0 %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-times-circle mr-2"></i>
+    <strong>Chú ý!</strong> Có {{ expired_subscriptions }} gói đã hết hạn. Vui lòng kiểm tra và gia hạn nếu cần thiết.
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+{% endif %}
+
+<!-- Cards thống kê -->
+<div class="row">
+    <!-- Tổng số gói -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Tổng số gói</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_subscriptions }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Gói đang hoạt động -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Đang hoạt động</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ active_subscriptions }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Gói hết hạn -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-danger shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                            Đã hết hạn</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ expired_subscriptions }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar-times fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sắp hết hạn -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Sắp hết hạn (7 ngày)</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ expiring_soon }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-exclamation-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bộ lọc -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Bộ lọc</h6>
+    </div>
+    <div class="card-body">
+        <form method="get" id="filterForm">
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label for="status">Trạng thái</label>
+                    <select class="form-control" id="status" name="status">
+                        <option value="" {% if not status_filter %}selected{% endif %}>Tất cả</option>
+                        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Đang hoạt động</option>
+                        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Chờ thanh toán</option>
+                        <option value="expired" {% if status_filter == 'expired' %}selected{% endif %}>Hết hạn</option>
+                        <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Đã hủy</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="days_left">Số ngày còn lại</label>
+                    <select class="form-control" id="days_left" name="days_left">
+                        <option value="" {% if not days_left_filter %}selected{% endif %}>Tất cả</option>
+                        <option value="7" {% if days_left_filter == '7' %}selected{% endif %}>≤ 7 ngày</option>
+                        <option value="30" {% if days_left_filter == '30' %}selected{% endif %}>≤ 30 ngày</option>
+                        <option value="90" {% if days_left_filter == '90' %}selected{% endif %}>≤ 90 ngày</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="expired">Còn hạn/Hết hạn</label>
+                    <select class="form-control" id="expired" name="expired">
+                        <option value="" {% if expired_filter == '' %}selected{% endif %}>Tất cả</option>
+                        <option value="false" {% if expired_filter == 'false' %}selected{% endif %}>Còn hạn</option>
+                        <option value="true" {% if expired_filter == 'true' %}selected{% endif %}>Đã hết hạn</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="search">Tìm kiếm</label>
+                    <input type="text" class="form-control" id="search" name="search" value="{{ search_query }}" placeholder="Tên người dùng, email...">
+                </div>
+            </div>
+            <div class="text-right">
+                <button type="submit" class="btn btn-primary">Lọc</button>
+                <a href="{% url 'dashboard:subscription_list' %}" class="btn btn-secondary">Xóa bộ lọc</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Bảng danh sách gói -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Danh sách gói đăng ký</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Người dùng</th>
+                        <th>Gói đăng ký</th>
+                        <th>Ngày bắt đầu</th>
+                        <th>Ngày hết hạn</th>
+                        <th>Trạng thái</th>
+                        <th>Thời gian còn lại</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for subscription in page_obj %}
+                    <tr>
+                        <td>{{ subscription.id }}</td>
+                        <td>{{ subscription.user.username }}</td>
+                        <td>{{ subscription.plan.name }}</td>
+                        <td>{{ subscription.start_date|date:"d/m/Y" }}</td>
+                        <td>{{ subscription.end_date|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if subscription.status == 'active' %}
+                                <span class="badge badge-success">Đang hoạt động</span>
+                            {% elif subscription.status == 'pending' %}
+                                <span class="badge badge-warning">Chờ thanh toán</span>
+                            {% elif subscription.status == 'expired' %}
+                                <span class="badge badge-danger">Hết hạn</span>
+                            {% elif subscription.status == 'cancelled' %}
+                                <span class="badge badge-secondary">Đã hủy</span>
+                            {% else %}
+                                <span class="badge badge-info">{{ subscription.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="progress mb-1">
+                                <div class="progress-bar {% if subscription.percentage <= 10 %}bg-danger{% elif subscription.percentage <= 30 %}bg-warning{% else %}bg-success{% endif %}" 
+                                     role="progressbar" 
+                                     style="width: {{ subscription.percentage }}%" 
+                                     aria-valuenow="{{ subscription.percentage }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">{{ subscription.percentage }}%</div>
+                            </div>
+                            <small>{% if subscription.days_left > 0 %}{{ subscription.days_left }} ngày{% else %}Hết hạn{% endif %}</small>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{% url 'dashboard:subscription_detail' subscription.id %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if subscription.status == 'active' or subscription.status == 'expired' %}
+                                <button type="button" class="btn btn-sm btn-success renew-btn" data-id="{{ subscription.id }}" data-user="{{ subscription.user.username }}" data-plan="{{ subscription.plan.name }}">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                                {% endif %}
+                                {% if subscription.status == 'active' %}
+                                <button type="button" class="btn btn-sm btn-danger cancel-btn" data-id="{{ subscription.id }}" data-user="{{ subscription.user.username }}" data-plan="{{ subscription.plan.name }}">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center">Không có dữ liệu</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Phân trang -->
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center mt-4">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="First">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for i in page_obj.paginator.page_range %}
+                    {% if page_obj.number == i %}
+                    <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+                    {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
+                    <li class="page-item"><a class="page-link" href="?page={{ i }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Last">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modals -->
+<!-- Modal Gia hạn gói -->
+<div class="modal fade" id="renewModal" tabindex="-1" role="dialog" aria-labelledby="renewModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="renewModalLabel">Gia hạn gói đăng ký</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="renewForm" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>Bạn đang gia hạn gói <span id="renewPlanName" class="font-weight-bold"></span> cho người dùng <span id="renewUserName" class="font-weight-bold"></span>.</p>
+                    <div class="form-group">
+                        <label for="duration_days">Thời hạn gia hạn (ngày)</label>
+                        <input type="number" class="form-control" id="duration_days" name="duration_days" value="30" min="1">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-success">Gia hạn</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Hủy gói -->
+<div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="cancelModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelModalLabel">Xác nhận hủy gói</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="cancelForm" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn hủy gói <span id="cancelPlanName" class="font-weight-bold"></span> của người dùng <span id="cancelUserName" class="font-weight-bold"></span>?</p>
+                    <p class="text-danger">Lưu ý: Hành động này không thể hoàn tác!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-danger">Hủy gói</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Tự động làm mới trang mỗi 5 phút để cập nhật trạng thái gói
+        setTimeout(function() {
+            location.reload();
+        }, 5 * 60 * 1000);  // 5 phút = 300,000 ms
+        
+        // Xử lý nút gia hạn
+        $('.renew-btn').click(function() {
+            var id = $(this).data('id');
+            var user = $(this).data('user');
+            var plan = $(this).data('plan');
+            
+            $('#renewUserName').text(user);
+            $('#renewPlanName').text(plan);
+            $('#renewForm').attr('action', '{% url "dashboard:subscription_list" %}' + id + '/renew/');
+            
+            $('#renewModal').modal('show');
+        });
+        
+        // Xử lý nút hủy gói
+        $('.cancel-btn').click(function() {
+            var id = $(this).data('id');
+            var user = $(this).data('user');
+            var plan = $(this).data('plan');
+            
+            $('#cancelUserName').text(user);
+            $('#cancelPlanName').text(plan);
+            $('#cancelForm').attr('action', '{% url "dashboard:subscription_list" %}' + id + '/cancel/');
+            
+            $('#cancelModal').modal('show');
+        });
+        
+        // Xử lý nút export
+        $('#exportBtn').click(function(e) {
+            e.preventDefault();
+            
+            // Thêm logic export báo cáo ở đây
+            alert('Chức năng xuất báo cáo đang được phát triển!');
+        });
+        
+        // Đặt màu cho thanh tiến trình dựa trên %
+        $('.progress-bar').each(function() {
+            var percentage = parseInt($(this).attr('aria-valuenow'));
+            if (percentage <= 10) {
+                $(this).addClass('bg-danger');
+            } else if (percentage <= 30) {
+                $(this).addClass('bg-warning');
+            } else {
+                $(this).addClass('bg-success');
+            }
+        });
+    });
+</script>
+{% endblock %} 

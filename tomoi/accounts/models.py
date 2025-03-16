@@ -100,6 +100,7 @@ class CustomUser(AbstractUser):
         ('female', 'Nữ'),
         ('other', 'Khác')
     ), blank=True)
+    last_activity = models.DateTimeField(null=True, blank=True, verbose_name="Hoạt động cuối")
     
     account_label = models.ForeignKey(
         AccountType,

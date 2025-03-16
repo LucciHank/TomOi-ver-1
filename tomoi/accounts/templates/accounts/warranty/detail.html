@@ -1,0 +1,318 @@
+{% extends 'accounts/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .warranty-detail-container {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        margin-bottom: 20px;
+    }
+    
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    
+    .status-pending {
+        background-color: #ffeeba;
+        color: #856404;
+    }
+    
+    .status-processing {
+        background-color: #b8daff;
+        color: #004085;
+    }
+    
+    .status-completed {
+        background-color: #c3e6cb;
+        color: #155724;
+    }
+    
+    .status-rejected {
+        background-color: #f5c6cb;
+        color: #721c24;
+    }
+    
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+        margin-top: 20px;
+    }
+    
+    .timeline-item {
+        position: relative;
+        padding-bottom: 25px;
+    }
+    
+    .timeline-item:last-child {
+        padding-bottom: 0;
+    }
+    
+    .timeline-item:before {
+        content: "";
+        width: 3px;
+        height: 100%;
+        background-color: #e9ecef;
+        position: absolute;
+        left: -18px;
+        top: 0;
+    }
+    
+    .timeline-item:last-child:before {
+        height: 15px;
+    }
+    
+    .timeline-point {
+        position: absolute;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background-color: #6c757d;
+        left: -24px;
+        top: 4px;
+        border: 2px solid #fff;
+    }
+    
+    .timeline-point-pending {
+        background-color: #ffc107;
+    }
+    
+    .timeline-point-processing {
+        background-color: #007bff;
+    }
+    
+    .timeline-point-completed {
+        background-color: #28a745;
+    }
+    
+    .timeline-point-rejected {
+        background-color: #dc3545;
+    }
+    
+    .timeline-date {
+        font-size: 12px;
+        color: #6c757d;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+    
+    .timeline-content {
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 0;
+    }
+    
+    .timeline-item-title {
+        font-weight: bold;
+        margin-bottom: 8px;
+        font-size: 1.1rem;
+    }
+    
+    .timeline-item-body {
+        margin-bottom: 8px;
+    }
+    
+    .error-screenshot {
+        max-width: 100%;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+    }
+    
+    .warranty-detail-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .warranty-type-badge {
+        display: inline-block;
+        border-radius: 15px;
+        padding: 5px 12px;
+        margin-right: 10px;
+        margin-bottom: 5px;
+        font-size: 12px;
+        background-color: #e9ecef;
+        color: #495057;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">Chi tiết yêu cầu bảo hành #{{ warranty.id }}</h1>
+                <a href="{% url 'accounts:warranty_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại
+                </a>
+            </div>
+            
+            <div class="warranty-detail-container">
+                <div class="warranty-detail-header">
+                    <div>
+                        <h4 class="mb-1">Yêu cầu #{{ warranty.id }}</h4>
+                        <p class="text-muted mb-0">Đã tạo vào {{ warranty.created_at|date:"d/m/Y H:i" }}</p>
+                    </div>
+                    <span class="status-badge status-{{ warranty.status }}">
+                        {{ warranty.get_status_display }}
+                    </span>
+                </div>
+                
+                <div class="row mb-5">
+                    <div class="col-md-6">
+                        <h5 class="mb-3">Thông tin yêu cầu</h5>
+                        <table class="table table-bordered">
+                            <tr>
+                                <th style="width: 40%">Tài khoản:</th>
+                                <td>{{ warranty.account_username }}</td>
+                            </tr>
+                            <tr>
+                                <th>Mật khẩu:</th>
+                                <td>{{ warranty.account_password }}</td>
+                            </tr>
+                            <tr>
+                                <th>Loại tài khoản:</th>
+                                <td>{{ warranty.account_type }}</td>
+                            </tr>
+                            <tr>
+                                <th>Lý do:</th>
+                                <td>{{ warranty.reason.name|default:'' }}</td>
+                            </tr>
+                            {% if warranty.custom_reason %}
+                            <tr>
+                                <th>Lý do khác:</th>
+                                <td>{{ warranty.custom_reason }}</td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <th>Nền tảng liên hệ:</th>
+                                <td>{{ warranty.get_platform_display }}</td>
+                            </tr>
+                            {% if warranty.notes %}
+                            <tr>
+                                <th>Ghi chú:</th>
+                                <td>{{ warranty.notes }}</td>
+                            </tr>
+                            {% endif %}
+                        </table>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h5 class="mb-3">Ảnh chụp lỗi</h5>
+                        <div class="text-center">
+                            <img src="{{ warranty.error_screenshot.url }}" class="error-screenshot" alt="Ảnh chụp lỗi">
+                        </div>
+                        
+                        {% if order %}
+                        <div class="mt-4">
+                            <h5 class="mb-3">Thông tin đơn hàng</h5>
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th style="width: 40%">Mã đơn hàng:</th>
+                                    <td>{{ order.code }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Ngày mua:</th>
+                                    <td>{{ order.created_at|date:"d/m/Y" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Tổng tiền:</th>
+                                    <td>{{ order.total_amount|floatformat:0 }} đ</td>
+                                </tr>
+                            </table>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if warranty.status == 'completed' %}
+                <div class="alert alert-success mb-4">
+                    <h5><i class="fas fa-check-circle me-2"></i>Yêu cầu bảo hành đã được xử lý</h5>
+                    <div class="mt-3">
+                        <p><strong>Hình thức bảo hành:</strong></p>
+                        <div class="mb-2">
+                            {% for type in warranty_types %}
+                                {% if type == 'new_account' %}
+                                    <span class="warranty-type-badge"><i class="fas fa-user-plus me-1"></i>Cấp tài khoản mới</span>
+                                {% elif type == 'fix' %}
+                                    <span class="warranty-type-badge"><i class="fas fa-tools me-1"></i>Sửa chữa</span>
+                                {% elif type == 'refund' %}
+                                    <span class="warranty-type-badge"><i class="fas fa-money-bill-wave me-1"></i>Hoàn tiền</span>
+                                {% elif type == 'add_days' %}
+                                    <span class="warranty-type-badge"><i class="fas fa-calendar-plus me-1"></i>Bù thêm ngày</span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        
+                        {% if new_account_info %}
+                        <div class="alert alert-info">
+                            <p class="mb-1"><strong>Thông tin tài khoản mới:</strong></p>
+                            <p class="mb-1">Tên đăng nhập: <strong>{{ new_account_info.username }}</strong></p>
+                            <p class="mb-0">Mật khẩu: <strong>{{ new_account_info.password }}</strong></p>
+                        </div>
+                        {% endif %}
+                        
+                        {% if days_added > 0 %}
+                        <p class="mb-1"><strong>Số ngày bù thêm:</strong> {{ days_added }} ngày</p>
+                        {% endif %}
+                        
+                        {% if refund_amount > 0 %}
+                        <p class="mb-0"><strong>Số tiền hoàn trả:</strong> {{ refund_amount|floatformat:0 }} đ</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <h5 class="mb-3">Lịch sử xử lý</h5>
+                <div class="timeline">
+                    {% for history in warranty_history %}
+                    <div class="timeline-item">
+                        <div class="timeline-point timeline-point-{{ history.status }}"></div>
+                        <div class="timeline-date">{{ history.created_at|date:"d/m/Y H:i" }}</div>
+                        <div class="timeline-content">
+                            <div class="timeline-item-title">
+                                {% if history.status == 'pending' %}
+                                    <i class="fas fa-clock me-2 text-warning"></i>Yêu cầu đang chờ xử lý
+                                {% elif history.status == 'processing' %}
+                                    <i class="fas fa-cog me-2 text-primary"></i>Yêu cầu đang được xử lý
+                                {% elif history.status == 'completed' %}
+                                    <i class="fas fa-check-circle me-2 text-success"></i>Yêu cầu đã được hoàn thành
+                                {% elif history.status == 'rejected' %}
+                                    <i class="fas fa-times-circle me-2 text-danger"></i>Yêu cầu đã bị từ chối
+                                {% endif %}
+                            </div>
+                            {% if history.notes %}
+                            <div class="timeline-item-body">
+                                {{ history.notes|linebreaks }}
+                            </div>
+                            {% endif %}
+                            {% if history.admin %}
+                            <div class="text-end">
+                                <small class="text-muted">Xử lý bởi: {{ history.admin.username }}</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>Chưa có cập nhật nào cho yêu cầu bảo hành này.
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

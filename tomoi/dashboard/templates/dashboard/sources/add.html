@@ -1,104 +1,161 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
 
-{% block title %}Thêm nguồn nhập mới{% endblock %}
+{% block title %}Thêm nguồn cung cấp{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
-    <h1 class="h3 mb-2 text-gray-800">Thêm nguồn nhập mới</h1>
-    <p class="mb-4">Nhập thông tin chi tiết cho nguồn nhập mới.</p>
+    <h1 class="h3 mb-2 text-gray-800">Thêm nguồn cung cấp mới</h1>
+    <p class="mb-4">Vui lòng điền đầy đủ thông tin để thêm nguồn cung cấp mới vào hệ thống.</p>
 
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Thông tin nguồn nhập</h6>
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin nguồn cung cấp</h6>
         </div>
         <div class="card-body">
-            <form method="post">
+            <form method="POST" action="{% url 'dashboard:source_add' %}" id="add-source-form">
                 {% csrf_token %}
-                
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    <strong>Có lỗi xảy ra!</strong>
+                    <ul>
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <li>{{ field }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
                 <div class="form-group row">
-                    <label for="name" class="col-sm-2 col-form-label">Tên nguồn</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="name" name="name" required>
+                    <label for="name" class="col-sm-3 col-form-label">Tên nguồn <span class="text-danger">*</span></label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="name" name="name" placeholder="Nhập tên nguồn cung cấp" required>
+                        <small class="form-text text-muted">Ví dụ: WebAccess Shop, Digital Store, etc.</small>
                     </div>
                 </div>
-                
+
                 <div class="form-group row">
-                    <label for="url" class="col-sm-2 col-form-label">Link nguồn</label>
-                    <div class="col-sm-10">
-                        <input type="url" class="form-control" id="url" name="url">
+                    <label for="url" class="col-sm-3 col-form-label">URL</label>
+                    <div class="col-sm-9">
+                        <input type="url" class="form-control" id="url" name="url" placeholder="Nhập URL của nguồn (nếu có)">
+                        <small class="form-text text-muted">URL trang web hoặc thông tin liên hệ của nguồn</small>
                     </div>
                 </div>
-                
+
                 <div class="form-group row">
-                    <label for="platform" class="col-sm-2 col-form-label">Nền tảng</label>
-                    <div class="col-sm-10">
-                        <select class="form-control" id="platform" name="platform">
-                            <option value="facebook">Facebook</option>
-                            <option value="zalo">Zalo</option>
-                            <option value="instagram">Instagram</option>
-                            <option value="tiktok">TikTok</option>
-                            <option value="discord">Discord</option>
-                            <option value="telegram">Telegram</option>
-                            <option value="other">Khác</option>
+                    <label for="platform" class="col-sm-3 col-form-label">Nền tảng <span class="text-danger">*</span></label>
+                    <div class="col-sm-9">
+                        <select class="form-control" id="platform" name="platform" required>
+                            <option value="" selected disabled>-- Chọn nền tảng --</option>
+                            {% for value, label in platforms %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                 </div>
-                
+
                 <div class="form-group row">
-                    <label for="product_type" class="col-sm-2 col-form-label">Loại sản phẩm</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="product_type" name="product_type">
+                    <label for="product_type" class="col-sm-3 col-form-label">Loại sản phẩm <span class="text-danger">*</span></label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="product_type" name="product_type" placeholder="Nhập loại sản phẩm" required>
+                        <small class="form-text text-muted">Ví dụ: Tài khoản, Ứng dụng, Khóa bản quyền, vv.</small>
                     </div>
                 </div>
-                
+
                 <div class="form-group row">
-                    <label for="base_price" class="col-sm-2 col-form-label">Giá nhập chuẩn</label>
-                    <div class="col-sm-10">
+                    <label for="base_price" class="col-sm-3 col-form-label">Giá gốc <span class="text-danger">*</span></label>
+                    <div class="col-sm-9">
                         <div class="input-group">
-                            <input type="number" class="form-control" id="base_price" name="base_price" step="1000">
+                            <input type="number" class="form-control" id="base_price" name="base_price" placeholder="Nhập giá gốc" min="0" step="1000" required>
                             <div class="input-group-append">
                                 <span class="input-group-text">VNĐ</span>
                             </div>
                         </div>
+                        <small class="form-text text-muted">Giá trung bình để lấy hàng từ nguồn này</small>
                     </div>
                 </div>
-                
+
                 <div class="form-group row">
-                    <label for="availability_rate" class="col-sm-2 col-form-label">Tỷ lệ có hàng (%)</label>
-                    <div class="col-sm-10">
-                        <input type="number" class="form-control" id="availability_rate" name="availability_rate" min="0" max="100">
+                    <label for="availability_rate" class="col-sm-3 col-form-label">Tỷ lệ có hàng (%)</label>
+                    <div class="col-sm-9">
+                        <input type="number" class="form-control" id="availability_rate" name="availability_rate" placeholder="Nhập tỷ lệ có hàng" min="0" max="100" value="100">
+                        <small class="form-text text-muted">Tỷ lệ ước tính khi nguồn này có sẵn hàng</small>
                     </div>
                 </div>
-                
+
                 <div class="form-group row">
-                    <label for="priority" class="col-sm-2 col-form-label">Mức độ ưu tiên</label>
-                    <div class="col-sm-10">
-                        <select class="form-control" id="priority" name="priority">
-                            <option value="1">1 - Cao nhất</option>
-                            <option value="2">2 - Cao</option>
-                            <option value="3">3 - Trung bình</option>
-                            <option value="4">4 - Thấp</option>
-                            <option value="5">5 - Thấp nhất</option>
+                    <label for="priority" class="col-sm-3 col-form-label">Mức độ ưu tiên <span class="text-danger">*</span></label>
+                    <div class="col-sm-9">
+                        <select class="form-control" id="priority" name="priority" required>
+                            <option value="" selected disabled>-- Chọn mức độ ưu tiên --</option>
+                            {% for value, label in priorities %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
                         </select>
+                        <small class="form-text text-muted">Mức độ ưu tiên khi chọn nguồn cung cấp</small>
                     </div>
                 </div>
-                
+
                 <div class="form-group row">
-                    <label for="notes" class="col-sm-2 col-form-label">Ghi chú</label>
-                    <div class="col-sm-10">
-                        <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                    <label for="notes" class="col-sm-3 col-form-label">Ghi chú</label>
+                    <div class="col-sm-9">
+                        <textarea class="form-control" id="notes" name="notes" rows="4" placeholder="Nhập ghi chú về nguồn cung cấp này (nếu có)"></textarea>
                     </div>
                 </div>
-                
+
                 <div class="form-group row">
-                    <div class="col-sm-10 offset-sm-2">
-                        <button type="submit" class="btn btn-primary">Lưu nguồn nhập</button>
-                        <a href="{% url 'dashboard:source_list' %}" class="btn btn-secondary">Hủy</a>
+                    <div class="col-sm-9 offset-sm-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Lưu nguồn
+                        </button>
+                        <a href="{% url 'dashboard:source_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Quay lại
+                        </a>
                     </div>
                 </div>
             </form>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Auto focus vào trường đầu tiên
+        $('#name').focus();
+        
+        // Format giá khi nhập
+        $('#base_price').on('change', function() {
+            var value = $(this).val().replace(/,/g, '');
+            $(this).val(value);
+        });
+        
+        // Validate form trước khi submit
+        $('#add-source-form').on('submit', function(e) {
+            var name = $('#name').val();
+            var platform = $('#platform').val();
+            var product_type = $('#product_type').val();
+            var base_price = $('#base_price').val();
+            var priority = $('#priority').val();
+            
+            if (!name || !platform || !product_type || !base_price || !priority) {
+                e.preventDefault();
+                
+                Swal.fire({
+                    title: 'Lỗi!',
+                    text: 'Vui lòng điền đầy đủ các trường bắt buộc',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                
+                return false;
+            }
+            
+            return true;
+        });
+    });
+</script>
 {% endblock %} 

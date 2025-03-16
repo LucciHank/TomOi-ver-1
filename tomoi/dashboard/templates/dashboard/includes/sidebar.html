@@ -92,6 +92,14 @@
         </div>
     </li>
 
+    <!-- Quản lý gia hạn -->
+    <li class="nav-item {% if 'subscription' in request.path %}active{% endif %}">
+        <a class="nav-link" href="{% url 'dashboard:subscription_list' %}">
+            <i class="fas fa-fw fa-sync-alt"></i>
+            <span>Quản lý Gia hạn</span>
+        </a>
+    </li>
+
     <!-- Đơn hàng -->
     <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseOrders"

@@ -19,7 +19,7 @@ def api_settings(request):
     """Trang cài đặt API"""
     try:
         api_configs = APIConfig.objects.all()
-        active_api_config = APIConfig.objects.filter(active=True, api_type='gemini').first()
+        active_api_config = APIConfig.objects.filter(is_active=True, api_type='gemini').first()
         chatbot_configs = ChatbotConfig.objects.all()
         active_chatbot_config = ChatbotConfig.objects.filter(is_active=True).first()
     except Exception as e:
@@ -77,7 +77,7 @@ def save_api_config(request):
                 config.temperature = temperature
                 config.max_tokens = max_tokens
                 config.endpoint = endpoint
-                config.active = True
+                config.is_active = True
                 config.save()
                 print(f"Updated existing API config: {config.id}")
             else:
@@ -88,12 +88,12 @@ def save_api_config(request):
                     temperature=temperature,
                     max_tokens=max_tokens,
                     endpoint=endpoint,
-                    active=True
+                    is_active=True
                 )
                 print(f"Created new API config: {config.id}")
             
             # Vô hiệu hóa các cấu hình khác cùng loại
-            APIConfig.objects.filter(api_type=api_type).exclude(id=config.id).update(active=False)
+            APIConfig.objects.filter(api_type=api_type).exclude(id=config.id).update(is_active=False)
             
             return JsonResponse({
                 'success': True,

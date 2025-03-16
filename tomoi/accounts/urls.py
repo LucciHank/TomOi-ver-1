@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import views_warranty
 
 app_name = 'accounts'
 
@@ -66,4 +67,9 @@ urlpatterns = [
     path('api/public/chatbot-process/', views.public_chatbot_process, name='public_chatbot_process'),
     path('api/chatbot/', views.public_chatbot_process, name='api_chatbot'),
     path('api/log-chat/', views.log_chat, name='log_chat'),
+    path('deposit/card-callback/', views.card_callback, name='card_callback'),
+    path('deposit/vnpay-deposit-ipn/', views.vnpay_deposit_return, name='vnpay_deposit_ipn'),
+    path('warranty/', views_warranty.user_warranty_list, name='warranty_list'),
+    path('warranty/create/', views_warranty.create_warranty_request, name='create_warranty'),
+    path('warranty/<int:request_id>/', views_warranty.warranty_detail_user, name='warranty_detail'),
 ]

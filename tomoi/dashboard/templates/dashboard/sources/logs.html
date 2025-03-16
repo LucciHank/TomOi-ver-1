@@ -19,6 +19,43 @@
         </a>
     </div>
 
+    <!-- Bộ lọc -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Bộ lọc</h6>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row">
+                <div class="col-md-3 mb-3">
+                    <label for="source">Nguồn nhập</label>
+                    <select class="form-control" id="source" name="source">
+                        <option value="">Tất cả</option>
+                        {% for source in sources %}
+                        <option value="{{ source.id }}" {% if source_id == source.id|stringformat:"s" %}selected{% endif %}>{{ source.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="log_type">Loại nhật ký</label>
+                    <select class="form-control" id="log_type" name="log_type">
+                        <option value="">Tất cả</option>
+                        {% for type_value, type_name in log_types %}
+                        <option value="{{ type_value }}" {% if log_type == type_value %}selected{% endif %}>{{ type_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="q">Tìm kiếm</label>
+                    <input type="text" class="form-control" id="q" name="q" value="{{ query|default:'' }}" placeholder="Tìm kiếm...">
+                </div>
+                <div class="col-md-3 mb-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">Lọc</button>
+                    <a href="{% url 'dashboard:source_log_list' %}" class="btn btn-secondary ml-2">Đặt lại</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Danh sách nhật ký -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
@@ -30,12 +67,12 @@
                     <thead>
                         <tr>
                             <th>Nguồn</th>
+                            <th>Sản phẩm</th>
+                            <th>Hình thức</th>
                             <th>Trạng thái</th>
                             <th>Giá</th>
-                            <th>Thời gian xử lý</th>
-                            <th>Người tạo</th>
                             <th>Thời gian</th>
-                            <th>Ghi chú</th>
+                            <th>Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -43,21 +80,50 @@
                         <tr>
                             <td>{{ log.source.name }}</td>
                             <td>
-                                {% if log.status == 'available' %}
-                                <span class="badge badge-success">{{ log.get_status_display }}</span>
-                                {% elif log.status == 'unavailable' %}
-                                <span class="badge badge-danger">{{ log.get_status_display }}</span>
-                                {% elif log.status == 'pending' %}
-                                <span class="badge badge-warning">{{ log.get_status_display }}</span>
+                                {% if log.products %}
+                                    <div class="product-list">
+                                        {% for product in log.products %}
+                                            <span class="badge badge-info">{{ product.name }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% elif log.source_product.product %}
+                                    {{ log.source_product.product.name }}
                                 {% else %}
-                                <span class="badge badge-info">{{ log.get_status_display }}</span>
+                                    <span class="text-muted">-</span>
                                 {% endif %}
                             </td>
-                            <td>{{ log.formatted_price }} VNĐ</td>
-                            <td>{{ log.processing_time }} phút</td>
-                            <td>{{ log.created_by.username|default:"Hệ thống" }}</td>
-                            <td>{{ log.created_at|date:"d/m/Y H:i" }}</td>
-                            <td>{{ log.notes|truncatechars:50 }}</td>
+                            <td>
+                                {% if log.account_type == 'new_account' %}
+                                    <span class="badge badge-primary">Tài khoản cấp mới</span>
+                                {% elif log.account_type == 'upgrade' %}
+                                    <span class="badge badge-warning">Up chính chủ</span>
+                                    {% if log.account_username %}
+                                        <span class="small d-block text-muted">{{ log.account_username }}</span>
+                                    {% endif %}
+                                {% elif log.account_type == 'activation_code' %}
+                                    <span class="badge badge-success">Code kích hoạt</span>
+                                {% else %}
+                                    <span class="badge badge-secondary">Khác</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if log.has_stock %}
+                                <span class="badge badge-success">Có hàng</span>
+                                {% else %}
+                                <span class="badge badge-danger">Hết hàng</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ log.price|intcomma }} VNĐ</td>
+                            <td>
+                                {{ log.created_at|date:"d/m/Y H:i" }}
+                                <div class="small text-muted">{{ log.created_by.username|default:"Hệ thống" }}</div>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-info view-details" data-id="{{ log.id }}" 
+                                        data-toggle="modal" data-target="#logDetailModal">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
                         </tr>
                         {% empty %}
                         <tr>
@@ -67,20 +133,260 @@
                     </tbody>
                 </table>
             </div>
+            
+            <!-- Phân trang -->
+            {% if logs.has_other_pages %}
+            <div class="pagination">
+                <ul class="pagination justify-content-center mt-4">
+                    {% if logs.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ logs.previous_page_number }}&q={{ query|default:'' }}&source={{ source_id|default:'' }}&log_type={{ log_type|default:'' }}">&laquo;</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&laquo;</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% for i in logs.paginator.page_range %}
+                    {% if logs.number == i %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ i }} <span class="sr-only">(hiện tại)</span></span>
+                    </li>
+                    {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ i }}&q={{ query|default:'' }}&source={{ source_id|default:'' }}&log_type={{ log_type|default:'' }}">{{ i }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if logs.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ logs.next_page_number }}&q={{ query|default:'' }}&source={{ source_id|default:'' }}&log_type={{ log_type|default:'' }}">&raquo;</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&raquo;</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Log Detail Modal -->
+<div class="modal fade" id="logDetailModal" tabindex="-1" role="dialog" aria-labelledby="logDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="logDetailModalLabel">Chi tiết nhật ký</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <div class="spinner-border text-primary" role="status" id="logDetailSpinner">
+                        <span class="sr-only">Đang tải...</span>
+                    </div>
+                </div>
+                <div id="logDetailContent" style="display: none;">
+                    <!-- Chi tiết nhật ký sẽ được load ở đây -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<style>
+    .product-list {
+        max-width: 200px;
+    }
+    .product-list .badge {
+        margin-right: 3px;
+        margin-bottom: 3px;
+        display: inline-block;
+    }
+</style>
 <script>
     $(document).ready(function() {
-        $('#dataTable').DataTable({
+        // Khởi tạo DataTable
+        var table = $('#dataTable').DataTable({
+            "paging": false,
+            "info": false,
+            "ordering": true,
             "order": [[5, "desc"]],
             "language": {
                 "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json"
             }
         });
+        
+        // Xử lý xem chi tiết nhật ký
+        $('.view-details').on('click', function() {
+            var logId = $(this).data('id');
+            $('#logDetailSpinner').show();
+            $('#logDetailContent').hide();
+            
+            // API endpoint để lấy chi tiết
+            $.getJSON('/dashboard/api/sources/log-detail/?log_id=' + logId, function(data) {
+                var log = data.log;
+                
+                // Định dạng nội dung hiển thị
+                var content = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Thông tin chung</h5>
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th>Nguồn nhập</th>
+                                    <td>${log.source_name}</td>
+                                </tr>
+                                <tr>
+                                    <th>Loại nhật ký</th>
+                                    <td>${log.log_type_display}</td>
+                                </tr>
+                                <tr>
+                                    <th>Trạng thái</th>
+                                    <td>${log.has_stock ? '<span class="badge badge-success">Có hàng</span>' : '<span class="badge badge-danger">Hết hàng</span>'}</td>
+                                </tr>
+                                <tr>
+                                    <th>Số lượng</th>
+                                    <td>${log.quantity}</td>
+                                </tr>
+                                <tr>
+                                    <th>Giá</th>
+                                    <td>${log.price.toLocaleString()} VND</td>
+                                </tr>
+                                <tr>
+                                    <th>Thời gian xử lý</th>
+                                    <td>${log.processing_time} phút</td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h5>Thông tin bổ sung</h5>
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th>Hình thức nhập</th>
+                                    <td>${getAccountTypeDisplay(log.account_type)}</td>
+                                </tr>`;
+                
+                // Hiển thị thông tin tài khoản nếu là Up chính chủ
+                if (log.account_type === 'upgrade' && log.account_username) {
+                    content += `
+                                <tr>
+                                    <th>Tài khoản chính chủ</th>
+                                    <td>${log.account_username}</td>
+                                </tr>`;
+                    if (log.account_password) {
+                        content += `
+                                <tr>
+                                    <th>Mật khẩu</th>
+                                    <td>${log.account_password}</td>
+                                </tr>`;
+                    }
+                }
+                
+                content += `
+                                <tr>
+                                    <th>Người tạo</th>
+                                    <td>${log.created_by || 'Hệ thống'}</td>
+                                </tr>
+                                <tr>
+                                    <th>Thời gian tạo</th>
+                                    <td>${log.created_at}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <h5>Sản phẩm</h5>`;
+                
+                // Hiển thị danh sách sản phẩm
+                if (log.products && log.products.length > 0) {
+                    content += `
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Tên sản phẩm</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>`;
+                    
+                    log.products.forEach(function(product, index) {
+                        content += `
+                                        <tr>
+                                            <td>${index + 1}</td>
+                                            <td>${product.name}</td>
+                                        </tr>`;
+                    });
+                    
+                    content += `
+                                    </tbody>
+                                </table>
+                            </div>`;
+                } else if (log.product_name) {
+                    content += `
+                            <div class="alert alert-info">
+                                ${log.product_name}
+                            </div>`;
+                } else {
+                    content += `
+                            <div class="alert alert-secondary">
+                                Không có sản phẩm
+                            </div>`;
+                }
+                
+                content += `
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h5>Ghi chú</h5>
+                            <div class="card">
+                                <div class="card-body">
+                                    ${log.notes || '<em>Không có ghi chú</em>'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                
+                $('#logDetailContent').html(content);
+                $('#logDetailSpinner').hide();
+                $('#logDetailContent').show();
+            }).fail(function() {
+                $('#logDetailContent').html('<div class="alert alert-danger">Không thể tải thông tin nhật ký. Vui lòng thử lại.</div>');
+                $('#logDetailSpinner').hide();
+                $('#logDetailContent').show();
+            });
+        });
+        
+        // Hàm chuyển đổi loại tài khoản sang text hiển thị
+        function getAccountTypeDisplay(type) {
+            switch(type) {
+                case 'new_account':
+                    return '<span class="badge badge-primary">Tài khoản cấp mới</span>';
+                case 'upgrade':
+                    return '<span class="badge badge-warning">Up chính chủ</span>';
+                case 'activation_code':
+                    return '<span class="badge badge-success">Code kích hoạt</span>';
+                default:
+                    return '<span class="badge badge-secondary">Khác</span>';
+            }
+        }
     });
 </script>
 {% endblock %} 

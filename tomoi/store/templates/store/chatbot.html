@@ -544,76 +544,110 @@ function sendMessageToAPI(message) {
 
 // Hàm gửi log chat lên server - cập nhật endpoint chính xác
 function logChatHistory(userMessage, botResponse) {
-    // Không cần CSRF token cho API endpoint public
-    
-    // Lấy thông tin người dùng
-    const userInfo = {
-        ip_address: '',
-        user_agent: navigator.userAgent,
-        page_url: window.location.href,
-        timestamp: new Date().toISOString()
-    };
+    console.log("Đang lưu lịch sử chat...");
+    // Lấy CSRF token từ cookie
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
     
     const sessionId = getSessionId();
-    console.log("Gửi log với session ID:", sessionId);
+    const csrftoken = getCookie('csrftoken');
     
-    // Gửi đến endpoint chính xác
-    fetch('/api/chatbot/log/', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            user_message: userMessage,
-            bot_response: botResponse,
-            session_id: sessionId,
-            metadata: JSON.stringify(userInfo)
+    // Dữ liệu gửi lên server
+    const data = {
+        session_id: sessionId,
+        user_message: userMessage,
+        bot_response: botResponse,
+        metadata: JSON.stringify({
+            ip_address: '',
+            user_agent: navigator.userAgent,
+            page_url: window.location.href,
+            timestamp: new Date().toISOString()
         })
+    };
+    
+    console.log("Gửi dữ liệu lịch sử chat:", data);
+    
+    // Gửi đến endpoint chính của dashboard để lưu lịch sử chat
+    fetch('/dashboard/api/chatbot/log/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify(data),
+        credentials: 'include'
     })
     .then(response => {
-        console.log("Trạng thái phản hồi log:", response.status);
-        return response.json().catch(() => ({}));
+        console.log("Phản hồi API lưu lịch sử:", response.status);
+        if (!response.ok) {
+            return Promise.reject("Lỗi API: " + response.status);
+        }
+        return response.json();
     })
     .then(data => {
-        console.log("Kết quả lưu log:", data);
+        console.log("Đã lưu lịch sử chat thành công:", data);
     })
     .catch(error => {
-        console.error("Lỗi khi lưu log:", error);
+        console.warn("Lỗi khi lưu lịch sử chat (1):", error);
         
-        // Thử các endpoint khác
-        tryAlternativeLogEndpoints(userMessage, botResponse, sessionId, userInfo);
+        // Nếu API chính thất bại, thử endpoint khác
+        fetch('/accounts/api/public/chatbot-log/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify(data),
+            credentials: 'include'
+        })
+        .then(response => {
+            console.log("Phản hồi API dự phòng 1:", response.status);
+            if (!response.ok) {
+                throw new Error('Lỗi khi lưu lịch sử chat: ' + response.status);
+            }
+            return response.json();
+        })
+        .catch(error => {
+            console.warn("Lỗi khi lưu lịch sử chat (2):", error);
+            
+            // Thử endpoint cuối cùng
+            fetch('/api/log-chat/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({
+                    session_id: sessionId,
+                    user_query: userMessage,
+                    assistant_response: botResponse,
+                    metadata: JSON.stringify({
+                        user_agent: navigator.userAgent,
+                        page_url: window.location.href
+                    })
+                }),
+                credentials: 'include'
+            })
+            .catch(e => {
+                console.error("Lỗi khi lưu lịch sử chat (3):", e);
+            });
+        });
     });
 }
 
-// Thử các endpoint khác nếu endpoint chính không hoạt động
-function tryAlternativeLogEndpoints(userMessage, botResponse, sessionId, userInfo) {
-    const endpoints = [
-        '/dashboard/api/chatbot/log/',
-        '/api/chat/history/',
-        '/api/log-chat/'
-    ];
-    
-    // Lặp qua các endpoint thay thế
-    for (let endpoint of endpoints) {
-        fetch(endpoint, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                user_message: userMessage,
-                bot_response: botResponse,
-                session_id: sessionId,
-                metadata: JSON.stringify(userInfo)
-            })
-        }).then(response => {
-            console.log(`Endpoint ${endpoint} phản hồi:`, response.status);
-            if (response.ok) {
-                console.log(`Lưu thành công với endpoint ${endpoint}`);
-            }
-        }).catch(e => {
-            console.warn(`Lỗi với endpoint ${endpoint}:`, e);
-        });
-    }
-}
-
-// Hàm này giữ nguyên
+// Tạo session ID để phân biệt các cuộc trò chuyện
 function getSessionId() {
     let sessionId = localStorage.getItem('tomoi_chat_session_id');
     if (!sessionId) {

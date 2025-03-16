@@ -55,7 +55,7 @@ def chatbot_config(request):
     try:
         # Kiểm tra xem ChatbotConfig có phải là class hay không
         if 'ChatbotConfig' in globals() and isinstance(ChatbotConfig, type):
-            config = ChatbotConfig.objects.filter(active=True).first()
+            config = ChatbotConfig.objects.filter(is_active=True).first()
         else:
             # Nếu không phải class, tạo một đối tượng giả
             config = type('ChatbotConfig', (), {

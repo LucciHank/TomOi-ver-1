@@ -28,7 +28,7 @@ def dashboard(request):
     # Lấy thông tin cấu hình hiện tại
     try:
         config = ChatbotConfig.objects.filter(is_active=True).first()
-        api = APIConfig.objects.filter(active=True).first()
+        api = APIConfig.objects.filter(is_active=True).first()
     except Exception as e:
         print(f"Lỗi khi lấy cấu hình chatbot: {str(e)}")
         config = None
@@ -51,7 +51,7 @@ def dashboard(request):
 @user_passes_test(is_admin)
 def chatbot_api_settings(request):
     """Trang cấu hình API Chatbot"""
-    active_api_config = APIConfig.objects.filter(active=True, api_type='gemini').first()
+    active_api_config = APIConfig.objects.filter(is_active=True, api_type='gemini').first()
     
     context = {
         'active_api_config': active_api_config,
@@ -95,7 +95,7 @@ def chatbot_save_api(request):
                 config.temperature = temperature
                 config.max_tokens = max_tokens
                 config.endpoint = endpoint
-                config.active = True
+                config.is_active = True
                 config.save()
                 print(f"Updated existing API config: {config.id}")
             else:
@@ -106,12 +106,12 @@ def chatbot_save_api(request):
                     temperature=temperature,
                     max_tokens=max_tokens,
                     endpoint=endpoint,
-                    active=True
+                    is_active=True
                 )
                 print(f"Created new API config: {config.id}")
             
             # Vô hiệu hóa các cấu hình khác cùng loại
-            APIConfig.objects.filter(api_type=api_type).exclude(id=config.id).update(active=False)
+            APIConfig.objects.filter(api_type=api_type).exclude(id=config.id).update(is_active=False)
             
             return JsonResponse({
                 'success': True,
@@ -159,7 +159,7 @@ def settings(request):
     # Lấy cấu hình hiện tại nếu có
     try:
         config = ChatbotConfig.objects.filter(is_active=True).first()
-        api_config = APIConfig.objects.filter(active=True).first()
+        api_config = APIConfig.objects.filter(is_active=True).first()
         
         # Log để kiểm tra
         if config:
@@ -517,7 +517,7 @@ def chat_api(request):
         # Lấy một số sản phẩm mẫu để đưa vào prompt
         products = []
         for ac in allowed_categories:
-            category_products = Product.objects.filter(category=ac.category, active=True)[:5]
+            category_products = Product.objects.filter(category=ac.category, is_active=True)[:5]
             for product in category_products:
                 products.append({
                     'name': product.name,
@@ -791,12 +791,12 @@ def save_chatbot_settings(request):
                 'model': model,
                 'temperature': temperature,
                 'endpoint': endpoint,
-                'active': True
+                'is_active': True
             }
         )
         
         # Vô hiệu hóa các cấu hình API khác
-        APIConfig.objects.exclude(id=api_config.id).update(active=False)
+        APIConfig.objects.exclude(id=api_config.id).update(is_active=False)
         
         # Kiểm tra các trường có trong model trước khi cập nhật
         chatbot_config_fields = {
@@ -834,7 +834,7 @@ def get_chatbot_config(request):
     try:
         # Lấy cấu hình chatbot và API đang hoạt động
         config = ChatbotConfig.objects.filter(is_active=True).first()
-        api_config = APIConfig.objects.filter(active=True).first()
+        api_config = APIConfig.objects.filter(is_active=True).first()
         
         if not config or not api_config:
             return JsonResponse({

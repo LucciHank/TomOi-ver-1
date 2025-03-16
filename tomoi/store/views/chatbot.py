@@ -48,7 +48,7 @@ from ..models import Product, Category
 def get_active_api_config():
     """Lấy cấu hình API đang hoạt động từ database"""
     try:
-        return APIConfig.objects.filter(active=True, api_type='gemini').first()
+        return APIConfig.objects.filter(is_active=True, api_type='gemini').first()
     except Exception as e:
         print(f"Lỗi khi lấy cấu hình API: {e}")
         return None
@@ -56,7 +56,7 @@ def get_active_api_config():
 def get_active_chatbot_config():
     """Lấy cấu hình chatbot đang hoạt động từ database"""
     try:
-        return ChatbotConfig.objects.filter(active=True).first()
+        return ChatbotConfig.objects.filter(is_active=True).first()
     except Exception as e:
         print(f"Lỗi khi lấy cấu hình chatbot: {e}")
         return None
@@ -147,7 +147,7 @@ def chatbot_api(request):
             if "sản phẩm" in user_message.lower() or "mua" in user_message.lower():
                 # Tìm kiếm sản phẩm dựa trên tin nhắn
                 search_terms = user_message.lower().split()
-                product_results = Product.objects.filter(active=True)[:5]
+                product_results = Product.objects.filter(is_active=True)[:5]
                 
                 # Chuyển đổi sang định dạng JSON
                 for product in product_results:

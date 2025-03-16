@@ -527,7 +527,7 @@ class ChatbotConfig(models.Model):
     chatbot_name = models.CharField(max_length=100, verbose_name="Tên Chatbot", default="TomOi Assistant")
     theme_color = models.CharField(max_length=20, verbose_name="Màu chủ đề", default="#df2626")
     avatar = models.ImageField(upload_to='chatbot', verbose_name="Avatar chatbot", null=True, blank=True)
-    active = models.BooleanField(default=True, verbose_name="Đang hoạt động")
+    is_active = models.BooleanField(default=True, verbose_name="Đang hoạt động")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -540,8 +540,8 @@ class ChatbotConfig(models.Model):
         
     def save(self, *args, **kwargs):
         # Nếu cấu hình này được kích hoạt, vô hiệu hóa các cấu hình khác
-        if self.active:
-            ChatbotConfig.objects.filter(active=True).exclude(pk=self.pk).update(active=False)
+        if self.is_active:
+            ChatbotConfig.objects.filter(is_active=True).exclude(pk=self.pk).update(is_active=False)
         super().save(*args, **kwargs)
 
 class ChatbotConversation(models.Model):
@@ -585,3 +585,116 @@ class ChatbotConversation(models.Model):
             obj.save()
             
         return obj 
+
+class WarrantyService(models.Model):
+    """Model định nghĩa các dịch vụ bảo hành có sẵn"""
+    name = models.CharField(max_length=100, verbose_name="Tên dịch vụ bảo hành")
+    description = models.TextField(blank=True, null=True, verbose_name="Mô tả")
+    is_active = models.BooleanField(default=True, verbose_name="Đang hoạt động")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Dịch vụ bảo hành"
+        verbose_name_plural = "Dịch vụ bảo hành"
+
+
+class WarrantyReason(models.Model):
+    """Model định nghĩa các lý do bảo hành phổ biến"""
+    name = models.CharField(max_length=255, verbose_name="Lý do bảo hành")
+    description = models.TextField(blank=True, null=True, verbose_name="Mô tả chi tiết")
+    is_active = models.BooleanField(default=True, verbose_name="Đang hoạt động")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Lý do bảo hành"
+        verbose_name_plural = "Lý do bảo hành"
+
+
+class WarrantyRequest(models.Model):
+    """Model lưu trữ yêu cầu bảo hành từ khách hàng"""
+    STATUS_CHOICES = [
+        ('pending', 'Chờ xử lý'),
+        ('processing', 'Đang xử lý'),
+        ('completed', 'Đã xử lý'),
+        ('rejected', 'Từ chối')
+    ]
+    
+    PLATFORM_CHOICES = [
+        ('zalo', 'Zalo'),
+        ('telegram', 'Telegram'),
+        ('fanpage', 'Fanpage'),
+        ('website', 'Website'),
+        ('messenger', 'Messenger'),
+        ('other', 'Khác')
+    ]
+    
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='warranty_requests')
+    order = models.ForeignKey('store.Order', on_delete=models.SET_NULL, null=True, blank=True)
+    
+    account_username = models.CharField(max_length=255, verbose_name="Tên đăng nhập tài khoản lỗi")
+    account_password = models.CharField(max_length=255, verbose_name="Mật khẩu tài khoản lỗi")
+    account_type = models.CharField(max_length=100, verbose_name="Loại tài khoản")
+    
+    reason = models.ForeignKey(WarrantyReason, on_delete=models.SET_NULL, null=True, verbose_name="Lý do lỗi")
+    custom_reason = models.CharField(max_length=255, blank=True, null=True, verbose_name="Lý do khác")
+    
+    error_screenshot = models.ImageField(upload_to='warranty_screenshots/', verbose_name="Ảnh chụp lỗi")
+    notes = models.TextField(blank=True, null=True, verbose_name="Ghi chú")
+    
+    platform = models.CharField(max_length=20, choices=PLATFORM_CHOICES, default='website', verbose_name="Nền tảng yêu cầu")
+    source = models.ForeignKey('dashboard.Source', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Nguồn cung cấp")
+    is_self_registered = models.BooleanField(default=False, verbose_name="Tự đăng ký")
+    
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name="Trạng thái")
+    admin_notes = models.TextField(blank=True, null=True, verbose_name="Ghi chú của admin")
+    
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Cập nhật lần cuối")
+    completed_at = models.DateTimeField(null=True, blank=True, verbose_name="Ngày hoàn thành")
+    admin_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='handled_warranty_requests')
+
+    def __str__(self):
+        return f"Yêu cầu bảo hành #{self.id} - {self.account_username}"
+
+    class Meta:
+        verbose_name = "Yêu cầu bảo hành"
+        verbose_name_plural = "Yêu cầu bảo hành"
+        ordering = ['-created_at']
+
+
+class WarrantyHistory(models.Model):
+    """Model lưu trữ lịch sử bảo hành cho các tài khoản"""
+    WARRANTY_TYPE_CHOICES = [
+        ('new_account', 'Cấp tài khoản mới'),
+        ('fix', 'Sửa chữa'),
+        ('refund', 'Hoàn tiền'),
+        ('extra_days', 'Bù thêm ngày')
+    ]
+    
+    warranty_request = models.ForeignKey(WarrantyRequest, on_delete=models.CASCADE, related_name='warranty_histories')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='warranty_histories')
+    
+    warranty_types = models.JSONField(default=list, verbose_name="Hình thức bảo hành")
+    added_days = models.IntegerField(default=0, verbose_name="Số ngày bù thêm")
+    refund_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Số tiền hoàn trả")
+    new_account_info = models.JSONField(default=dict, blank=True, null=True, verbose_name="Thông tin tài khoản mới")
+    
+    notes = models.TextField(blank=True, null=True, verbose_name="Ghi chú")
+    admin_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='processed_warranty_histories')
+    
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo")
+    
+    def __str__(self):
+        warranty_types_str = ", ".join([dict(self.WARRANTY_TYPE_CHOICES).get(wt, wt) for wt in self.warranty_types])
+        return f"Bảo hành #{self.id} - {self.user.username} - {warranty_types_str}"
+    
+    class Meta:
+        verbose_name = "Lịch sử bảo hành"
+        verbose_name_plural = "Lịch sử bảo hành"
+        ordering = ['-created_at'] 

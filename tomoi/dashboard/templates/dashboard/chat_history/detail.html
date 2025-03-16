@@ -1,0 +1,219 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .chat-container {
+        height: 60vh;
+        overflow-y: auto;
+        background-color: #f8f9fc;
+        border-radius: 0.35rem;
+        border: 1px solid #e3e6f0;
+        padding: 1rem;
+    }
+    
+    .message {
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        max-width: 80%;
+        position: relative;
+    }
+    
+    .message.user {
+        background-color: #4e73df;
+        color: #fff;
+        margin-left: auto;
+    }
+    
+    .message.assistant {
+        background-color: #f0f0f0;
+        color: #333;
+        margin-right: auto;
+    }
+    
+    .message .time {
+        font-size: 0.7rem;
+        color: rgba(255, 255, 255, 0.7);
+        position: absolute;
+        bottom: 0.3rem;
+        right: 0.5rem;
+    }
+    
+    .message.assistant .time {
+        color: rgba(0, 0, 0, 0.5);
+    }
+    
+    .metadata-container {
+        font-size: 0.85rem;
+    }
+    
+    .metadata-label {
+        font-weight: bold;
+        color: #4e73df;
+    }
+    
+    pre {
+        background-color: #2d2d2d;
+        color: #f8f8f2;
+        padding: 0.75rem;
+        border-radius: 0.25rem;
+        overflow-x: auto;
+    }
+    
+    .message.assistant pre {
+        background-color: #333;
+        border: 1px solid #555;
+    }
+    
+    .message.user pre {
+        background-color: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <a href="{% url 'dashboard:chat_history' %}" class="btn btn-sm btn-outline-primary mr-2">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            Chi tiết cuộc trò chuyện #{{ conversation.id }}
+        </h1>
+    </div>
+
+    <div class="row">
+        <!-- Chat messages -->
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Nội dung cuộc trò chuyện</h6>
+                    <div>
+                        <button class="btn btn-sm btn-outline-primary" id="refreshBtn">
+                            <i class="fas fa-sync-alt"></i> Làm mới
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chat-container" id="chatContainer">
+                        {% if conversation_data.messages %}
+                            {% for message in conversation_data.messages %}
+                                <div class="message {% if message.role == 'user' %}user{% else %}assistant{% endif %}">
+                                    {{ message.content|linebreaks }}
+                                    <div class="time">
+                                        {{ message.role|title }}
+                                        {% if message.timestamp %}
+                                            - {{ message.timestamp|date:"H:i:s d/m/Y" }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-comment-slash fa-3x text-gray-400 mb-3"></i>
+                                <p class="text-gray-500">Không có tin nhắn nào trong cuộc trò chuyện này.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Metadata -->
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thông tin</h6>
+                </div>
+                <div class="card-body">
+                    <div class="metadata-container">
+                        <p>
+                            <span class="metadata-label">Session ID:</span> 
+                            <span class="text-gray-800">{{ conversation.session_id }}</span>
+                        </p>
+                        <p>
+                            <span class="metadata-label">Người dùng:</span> 
+                            <span class="text-gray-800">
+                                {% if conversation.user %}
+                                    <a href="{% url 'dashboard:user_detail' conversation.user.id %}">
+                                        {{ conversation.user.username }}
+                                    </a>
+                                    ({{ conversation.user.email }})
+                                {% else %}
+                                    Khách
+                                {% endif %}
+                            </span>
+                        </p>
+                        <p>
+                            <span class="metadata-label">Thời gian bắt đầu:</span>
+                            <span class="text-gray-800">{{ conversation.created_at|date:"H:i:s d/m/Y" }}</span>
+                        </p>
+                        <p>
+                            <span class="metadata-label">Cập nhật lần cuối:</span>
+                            <span class="text-gray-800">{{ conversation.updated_at|date:"H:i:s d/m/Y" }}</span>
+                        </p>
+                        {% if conversation.conversation_data.rating %}
+                            <p>
+                                <span class="metadata-label">Đánh giá:</span>
+                                <span class="badge badge-{% if conversation.conversation_data.rating > 3 %}success{% elif conversation.conversation_data.rating > 1 %}warning{% else %}danger{% endif %}">
+                                    {{ conversation.conversation_data.rating }}/5
+                                </span>
+                            </p>
+                        {% endif %}
+                        
+                        {% if conversation_data.messages %}
+                            <p>
+                                <span class="metadata-label">Số tin nhắn:</span>
+                                <span class="badge badge-primary">{{ conversation_data.messages|length }}</span>
+                            </p>
+                        {% endif %}
+                        
+                        {% if conversation_data.metadata %}
+                            <hr>
+                            <h6 class="font-weight-bold">Metadata</h6>
+                            <p>
+                                <span class="metadata-label">User Agent:</span><br>
+                                <small class="text-gray-800">{{ conversation_data.metadata.user_agent|default:"-" }}</small>
+                            </p>
+                            {% if conversation_data.metadata.page_url %}
+                                <p>
+                                    <span class="metadata-label">Trang:</span><br>
+                                    <small class="text-gray-800">
+                                        <a href="{{ conversation_data.metadata.page_url }}" target="_blank">
+                                            {{ conversation_data.metadata.page_url }}
+                                        </a>
+                                    </small>
+                                </p>
+                            {% endif %}
+                            {% if conversation_data.metadata.ip_address %}
+                                <p>
+                                    <span class="metadata-label">IP:</span>
+                                    <span class="text-gray-800">{{ conversation_data.metadata.ip_address }}</span>
+                                </p>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+$(document).ready(function() {
+    // Auto scroll to bottom of chat container
+    var chatContainer = document.getElementById('chatContainer');
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    
+    // Refresh button
+    $('#refreshBtn').click(function() {
+        location.reload();
+    });
+});
+</script>
+{% endblock %} 

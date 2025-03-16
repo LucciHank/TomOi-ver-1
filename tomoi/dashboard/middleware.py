@@ -12,6 +12,12 @@ import hmac
 import hashlib
 from django.conf import settings
 from .models.base import PageView
+from datetime import timedelta
+from django.urls import resolve
+from django.contrib import messages
+import logging
+
+logger = logging.getLogger(__name__)
 
 class AnalyticsMiddleware(MiddlewareMixin):
     def process_request(self, request):
@@ -244,3 +250,46 @@ class APIAuthMiddleware:
 
         # Tiếp tục xử lý request
         return self.get_response(request) 
+
+class SubscriptionExpiryMiddleware:
+    """
+    Middleware kiểm tra và cập nhật trạng thái các gói đăng ký hết hạn
+    mỗi khi có request đến dashboard
+    """
+    
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # Chỉ xử lý các request đến dashboard và từ admin
+        if request.path.startswith('/dashboard/') and request.user.is_authenticated and request.user.is_staff:
+            try:
+                # Import ở đây để tránh circular import
+                from dashboard.models import UserSubscription
+                
+                # Kiểm tra các gói hết hạn
+                today = timezone.now()
+                grace_period = 7  # Số ngày ân hạn
+                grace_date = today - timedelta(days=grace_period)
+                
+                # Tìm các gói hết hạn cần cập nhật
+                expired_subscriptions = UserSubscription.objects.filter(
+                    end_date__lt=grace_date,
+                    status='active'
+                )
+                
+                # Cập nhật trạng thái
+                count = expired_subscriptions.count()
+                if count > 0:
+                    expired_subscriptions.update(status='expired')
+                    # Lưu thông báo vào session để hiển thị
+                    # (chỉ hiển thị thông báo ở trang đầu tiên được truy cập)
+                    if request.session.get('subscription_updated_shown') != today.strftime('%Y-%m-%d'):
+                        messages.info(request, f'Hệ thống đã tự động cập nhật {count} gói hết hạn.')
+                        request.session['subscription_updated_shown'] = today.strftime('%Y-%m-%d')
+                        
+            except Exception as e:
+                logger.error(f"Lỗi khi kiểm tra gói hết hạn: {str(e)}")
+        
+        response = self.get_response(request)
+        return response 

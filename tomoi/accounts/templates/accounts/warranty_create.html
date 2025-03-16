@@ -1,0 +1,195 @@
+{% extends 'accounts/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        margin-bottom: 20px;
+    }
+    
+    .form-section {
+        margin-bottom: 25px;
+    }
+    
+    .form-section-title {
+        font-size: 18px;
+        font-weight: 600;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .required-field label:after {
+        content: " *";
+        color: #dc3545;
+    }
+    
+    .form-instructions {
+        background-color: #f8f9fa;
+        border-left: 4px solid #0d6efd;
+        padding: 15px;
+        margin-bottom: 25px;
+        border-radius: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">Tạo yêu cầu bảo hành mới</h1>
+                <a href="{% url 'accounts:warranty_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại
+                </a>
+            </div>
+            
+            <div class="form-instructions">
+                <h5><i class="fas fa-info-circle me-2"></i>Hướng dẫn</h5>
+                <p class="mb-0">Vui lòng cung cấp đầy đủ thông tin để chúng tôi có thể hỗ trợ bạn nhanh chóng. Các trường đánh dấu * là bắt buộc.</p>
+            </div>
+            
+            <div class="form-container">
+                <form method="post" action="{% url 'accounts:create_warranty' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Thông tin đơn hàng</h4>
+                        <div class="row mb-3">
+                            <div class="col-md-6 required-field">
+                                <label for="id_order" class="form-label">Mã đơn hàng</label>
+                                <select name="order" id="id_order" class="form-select">
+                                    <option value="">-- Chọn đơn hàng --</option>
+                                    {% for order in orders %}
+                                    <option value="{{ order.id }}">{{ order.code }} - {{ order.created_at|date:"d/m/Y" }}</option>
+                                    {% endfor %}
+                                </select>
+                                <small class="text-muted">Chọn đơn hàng có tài khoản cần bảo hành</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_platform" class="form-label">Nền tảng liên hệ</label>
+                                <select name="platform" id="id_platform" class="form-select">
+                                    {% for value, label in platform_choices %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                                <small class="text-muted">Nền tảng bạn muốn nhận phản hồi</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Thông tin tài khoản lỗi</h4>
+                        <div class="row mb-3">
+                            <div class="col-md-6 required-field">
+                                <label for="id_account_username" class="form-label">Tên đăng nhập</label>
+                                <input type="text" name="account_username" id="id_account_username" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 required-field">
+                                <label for="id_account_password" class="form-label">Mật khẩu</label>
+                                <input type="text" name="account_password" id="id_account_password" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="mb-3 required-field">
+                            <label for="id_account_type" class="form-label">Loại tài khoản</label>
+                            <input type="text" name="account_type" id="id_account_type" class="form-control" required>
+                            <small class="text-muted">Ví dụ: Netflix, Spotify, Office 365...</small>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Mô tả lỗi</h4>
+                        <div class="mb-3">
+                            <label for="id_reason" class="form-label">Lý do lỗi</label>
+                            <select name="reason" id="id_reason" class="form-select">
+                                <option value="">-- Chọn lý do --</option>
+                                {% for reason in reasons %}
+                                <option value="{{ reason.id }}">{{ reason.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3" id="custom_reason_container">
+                            <label for="id_custom_reason" class="form-label">Lý do khác</label>
+                            <textarea name="custom_reason" id="id_custom_reason" rows="3" class="form-control"></textarea>
+                            <small class="text-muted">Mô tả chi tiết vấn đề bạn gặp phải nếu không tìm thấy lý do phù hợp</small>
+                        </div>
+                        <div class="mb-3 required-field">
+                            <label for="id_error_screenshot" class="form-label">Ảnh chụp lỗi</label>
+                            <input type="file" name="error_screenshot" id="id_error_screenshot" class="form-control" required>
+                            <small class="text-muted">Hình ảnh minh họa lỗi giúp chúng tôi xử lý nhanh hơn</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_notes" class="form-label">Ghi chú bổ sung</label>
+                            <textarea name="notes" id="id_notes" rows="3" class="form-control"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Thông tin bổ sung</h4>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_source" class="form-label">Nguồn cung cấp</label>
+                                <select name="source" id="id_source" class="form-select">
+                                    <option value="">-- Chọn nguồn --</option>
+                                    {% for source in sources %}
+                                    <option value="{{ source.id }}">{{ source.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6 d-flex align-items-end">
+                                <div class="form-check">
+                                    <input type="checkbox" name="is_self_registered" id="id_is_self_registered" class="form-check-input">
+                                    <label for="id_is_self_registered" class="form-check-label">Tự đăng ký</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'accounts:warranty_list' %}" class="btn btn-outline-secondary">Hủy bỏ</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-2"></i>Gửi yêu cầu bảo hành
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Xử lý logic hiển thị trường lý do tùy chỉnh
+        const reasonSelect = document.getElementById('id_reason');
+        const customReasonField = document.getElementById('id_custom_reason');
+        const customReasonContainer = document.getElementById('custom_reason_container');
+        
+        if (reasonSelect && customReasonField && customReasonContainer) {
+            function updateCustomReasonRequired() {
+                if (reasonSelect.value === '') {
+                    customReasonContainer.classList.add('required-field');
+                    customReasonField.setAttribute('required', 'required');
+                } else {
+                    customReasonContainer.classList.remove('required-field');
+                    customReasonField.removeAttribute('required');
+                }
+            }
+            
+            // Kiểm tra ban đầu
+            updateCustomReasonRequired();
+            
+            // Cập nhật khi thay đổi
+            reasonSelect.addEventListener('change', updateCustomReasonRequired);
+        }
+    });
+</script>
+{% endblock %} 
