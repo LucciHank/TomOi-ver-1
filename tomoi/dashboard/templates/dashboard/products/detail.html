@@ -70,6 +70,18 @@
                         <a href="{% url 'dashboard:edit_product' product_id=product.id %}" class="btn btn-primary">
                             <i class="fas fa-edit me-1"></i> Edit Product
                         </a>
+                        <a href="{% url 'dashboard:manage_product_images' product.id %}" class="btn btn-info">
+                            <i class="fas fa-images me-1"></i> Quản lý ảnh
+                        </a>
+                        <a href="{% url 'dashboard:product_history' product.id %}" class="btn btn-secondary">
+                            <i class="fas fa-history me-1"></i> Lịch sử thay đổi
+                        </a>
+                        <a href="#" class="btn btn-{% if product.is_active %}danger{% else %}success{% endif %} toggle-status" 
+                           data-product-id="{{ product.id }}" 
+                           data-current-status="{% if product.is_active %}active{% else %}inactive{% endif %}">
+                            <i class="fas fa-{% if product.is_active %}times{% else %}check{% endif %} me-1"></i> 
+                            {% if product.is_active %}Vô hiệu hóa{% else %}Kích hoạt{% endif %}
+                        </a>
                     </div>
                 </div>
             </div>
@@ -187,6 +199,83 @@
                 }
             }
         });
+
+        // Toggle product status
+        const toggleStatusButtons = document.querySelectorAll('.toggle-status');
+        toggleStatusButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const productId = this.getAttribute('data-product-id');
+                const currentStatus = this.getAttribute('data-current-status');
+                const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+                
+                if (confirm('Bạn có chắc muốn ' + (currentStatus === 'active' ? 'vô hiệu hóa' : 'kích hoạt') + ' sản phẩm này?')) {
+                    // Send AJAX request to update product status
+                    fetch(`{% url 'dashboard:update_product_status' 0 %}`.replace('0', productId), {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            status: newStatus
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Update the button
+                            this.setAttribute('data-current-status', newStatus);
+                            this.classList.remove('btn-success', 'btn-danger');
+                            this.classList.add(newStatus === 'active' ? 'btn-danger' : 'btn-success');
+                            
+                            // Update the icon
+                            const icon = this.querySelector('i');
+                            icon.classList.remove('fa-check', 'fa-times');
+                            icon.classList.add(newStatus === 'active' ? 'fa-times' : 'fa-check');
+                            
+                            // Update the text
+                            this.innerHTML = this.innerHTML.replace(
+                                newStatus === 'active' ? 'Kích hoạt' : 'Vô hiệu hóa',
+                                newStatus === 'active' ? 'Vô hiệu hóa' : 'Kích hoạt'
+                            );
+                            
+                            // Update the status badge in the table
+                            const statusBadge = document.querySelector('table tr:nth-child(6) td span.badge');
+                            statusBadge.classList.remove('bg-success', 'bg-secondary');
+                            statusBadge.classList.add(newStatus === 'active' ? 'bg-success' : 'bg-secondary');
+                            statusBadge.textContent = newStatus === 'active' ? 'Active' : 'Inactive';
+                            
+                            // Show success message
+                            alert(data.message);
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Đã xảy ra lỗi khi cập nhật trạng thái sản phẩm. Vui lòng thử lại.');
+                    });
+                }
+            });
+        });
+        
+        // Function to get CSRF token from cookies
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
     });
 </script>
 {% endblock %}

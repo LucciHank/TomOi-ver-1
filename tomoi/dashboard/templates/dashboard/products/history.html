@@ -1,0 +1,170 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Lịch sử thay đổi sản phẩm {{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Lịch sử thay đổi sản phẩm</h1>
+    
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:products' %}">Sản phẩm</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:product_detail' product.id %}">{{ product.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Lịch sử thay đổi</li>
+        </ol>
+    </nav>
+    
+    <!-- Thông tin sản phẩm -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin sản phẩm</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-2">
+                    {% if product.get_main_image_url %}
+                    <img src="{{ product.get_main_image_url }}" alt="{{ product.name }}" class="img-fluid rounded">
+                    {% else %}
+                    <div class="bg-light rounded p-4 text-center">
+                        <i class="fas fa-image fa-3x text-muted"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-10">
+                    <h5>{{ product.name }}</h5>
+                    <p class="text-muted mb-0">Mã: {{ product.product_code|default:"Chưa có" }}</p>
+                    <p class="mb-0">Giá: <strong>{{ product.price|floatformat:0 }}đ</strong></p>
+                    <p class="mb-0">Danh mục: {{ product.category.name|default:"Chưa phân loại" }}</p>
+                    <p class="mb-0">Tồn kho: {{ product.stock }}</p>
+                    <p class="mb-0">Trạng thái: 
+                        <span class="badge {% if product.is_active %}badge-success{% else %}badge-secondary{% endif %}">
+                            {% if product.is_active %}Đang bán{% else %}Tạm dừng{% endif %}
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Lịch sử thay đổi -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Lịch sử thay đổi</h6>
+            <span class="badge badge-primary">Tổng cộng: {{ change_logs.paginator.count }} thay đổi</span>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" width="100%" cellspacing="0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Thời gian</th>
+                            <th>Người thực hiện</th>
+                            <th>Hành động</th>
+                            <th>Chi tiết</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in change_logs %}
+                        <tr class="{% if log.action == 'create' %}table-success{% elif log.action == 'delete' %}table-danger{% endif %}">
+                            <td>{{ log.created_at|date:"d/m/Y H:i:s" }}</td>
+                            <td>{{ log.user.username|default:"Hệ thống" }}</td>
+                            <td>
+                                <span class="badge badge-{% if log.action == 'create' %}success{% elif log.action == 'update' %}info{% elif log.action == 'delete' %}danger{% endif %}">
+                                    {{ log.get_action_display }}
+                                </span>
+                            </td>
+                            <td>{{ log.description }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-5">
+                                <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                                <h5>Chưa có lịch sử thay đổi</h5>
+                                <p class="text-muted">Sản phẩm này chưa có bất kỳ thay đổi nào được ghi lại.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Phân trang -->
+            {% if change_logs.paginator.num_pages > 1 %}
+            <div class="d-flex justify-content-center mt-4">
+                <nav>
+                    <ul class="pagination">
+                        {% if change_logs.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1" aria-label="Đầu tiên">
+                                <span aria-hidden="true">&laquo;&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ change_logs.previous_page_number }}" aria-label="Trước">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" aria-label="Đầu tiên">
+                                <span aria-hidden="true">&laquo;&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" aria-label="Trước">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for i in change_logs.paginator.page_range %}
+                            {% if i == change_logs.number %}
+                            <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+                            {% elif i > change_logs.number|add:"-3" and i < change_logs.number|add:"3" %}
+                            <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if change_logs.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ change_logs.next_page_number }}" aria-label="Tiếp">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ change_logs.paginator.num_pages }}" aria-label="Cuối cùng">
+                                <span aria-hidden="true">&raquo;&raquo;</span>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" aria-label="Tiếp">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" aria-label="Cuối cùng">
+                                <span aria-hidden="true">&raquo;&raquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Nút quay lại -->
+    <div class="mb-4">
+        <a href="{% url 'dashboard:product_detail' product.id %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại chi tiết sản phẩm
+        </a>
+        <a href="{% url 'dashboard:edit_product' product.id %}" class="btn btn-primary">
+            <i class="fas fa-edit"></i> Chỉnh sửa sản phẩm
+        </a>
+    </div>
+</div>
+{% endblock %} 

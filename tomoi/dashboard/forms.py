@@ -681,4 +681,70 @@ class WarrantyProcessForm(forms.Form):
         widget=forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
         required=False,
         label="Ghi chú nội bộ (chỉ admin thấy)"
-    ) 
+    )
+
+class ProductForm(forms.ModelForm):
+    primary_image = forms.ImageField(required=False, label='Ảnh chính')
+    additional_images = forms.ImageField(
+        required=False,
+        label='Hình ảnh bổ sung',
+        help_text='Tải lên từng ảnh riêng lẻ'
+    )
+    
+    class Meta:
+        model = Product
+        fields = [
+            'name', 'description', 'price', 'old_price', 'stock', 
+            'category', 'brand', 'label', 'product_code', 'duration',
+            'features', 'is_featured', 'is_active', 'requires_email',
+            'requires_account_password', 'is_cross_sale', 'cross_sale_products',
+            'cross_sale_discount'
+        ]
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
+            'price': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'old_price': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'stock': forms.NumberInput(attrs={'class': 'form-control'}),
+            'category': forms.Select(attrs={'class': 'form-select'}),
+            'brand': forms.Select(attrs={'class': 'form-select'}),
+            'label': forms.Select(attrs={'class': 'form-select'}),
+            'product_code': forms.TextInput(attrs={'class': 'form-control'}),
+            'duration': forms.Select(attrs={'class': 'form-select'}),
+            'features': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'is_featured': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'requires_email': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'requires_account_password': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'is_cross_sale': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'cross_sale_products': forms.SelectMultiple(attrs={'class': 'form-select', 'size': '5'}),
+            'cross_sale_discount': forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'max': '100'})
+        }
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Thêm các lớp và placeholder
+        self.fields['name'].widget.attrs.update({'placeholder': 'Nhập tên sản phẩm'})
+        self.fields['description'].widget.attrs.update({'placeholder': 'Mô tả chi tiết về sản phẩm'})
+        self.fields['price'].widget.attrs.update({'placeholder': 'Giá hiện tại'})
+        self.fields['old_price'].widget.attrs.update({'placeholder': 'Giá cũ (nếu có)'})
+        self.fields['product_code'].widget.attrs.update({'placeholder': 'Mã sản phẩm/SKU'})
+        self.fields['cross_sale_discount'].widget.attrs.update({'placeholder': 'Phần trăm giảm giá khi mua kèm'})
+        
+        # Tuỳ chỉnh các trường không bắt buộc
+        self.fields['old_price'].required = False
+        self.fields['brand'].required = False
+        self.fields['label'].required = False
+        self.fields['features'].required = False
+        self.fields['product_code'].required = False
+        self.fields['cross_sale_products'].required = False
+        
+    def clean_features(self):
+        """Chuyển đổi features từ dạng text sang dạng list"""
+        features = self.cleaned_data.get('features')
+        
+        # Nếu features là chuỗi, chuyển đổi thành list
+        if isinstance(features, str):
+            return [f.strip() for f in features.split('\n') if f.strip()]
+        
+        return features 

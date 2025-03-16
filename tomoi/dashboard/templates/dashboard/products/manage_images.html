@@ -1,0 +1,259 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Quản lý ảnh sản phẩm {{ product.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .product-image-card {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    
+    .product-image-card .card-img-top {
+        height: 200px;
+        object-fit: contain;
+        background-color: #f8f9fa;
+        padding: 10px;
+    }
+    
+    .product-image-card .primary-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 1;
+    }
+    
+    .product-image-card .image-actions {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: rgba(0, 0, 0, 0.7);
+        padding: 10px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .product-image-card:hover .image-actions {
+        opacity: 1;
+    }
+    
+    .upload-preview {
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: 15px;
+    }
+    
+    .preview-item {
+        width: 100px;
+        height: 100px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        position: relative;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .preview-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+    
+    .preview-item .remove-preview {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Quản lý ảnh sản phẩm</h1>
+    
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:products' %}">Sản phẩm</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:product_detail' product.id %}">{{ product.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Quản lý ảnh</li>
+        </ol>
+    </nav>
+    
+    <!-- Thông tin sản phẩm -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin sản phẩm</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-2">
+                    {% if product.get_main_image_url %}
+                    <img src="{{ product.get_main_image_url }}" alt="{{ product.name }}" class="img-fluid rounded">
+                    {% else %}
+                    <div class="bg-light rounded p-4 text-center">
+                        <i class="fas fa-image fa-3x text-muted"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-10">
+                    <h5>{{ product.name }}</h5>
+                    <p class="text-muted mb-0">Mã: {{ product.product_code|default:"Chưa có" }}</p>
+                    <p class="mb-0">Giá: <strong>{{ product.price|floatformat:0 }}đ</strong></p>
+                    <p class="mb-0">Danh mục: {{ product.category.name|default:"Chưa phân loại" }}</p>
+                    <div class="mt-2">
+                        <a href="{% url 'dashboard:product_detail' product.id %}" class="btn btn-sm btn-info">
+                            <i class="fas fa-eye"></i> Xem chi tiết
+                        </a>
+                        <a href="{% url 'dashboard:edit_product' product.id %}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-edit"></i> Chỉnh sửa
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Thêm ảnh mới -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thêm ảnh mới</h6>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="images">Chọn ảnh (có thể chọn nhiều ảnh)</label>
+                            <input type="file" class="form-control" id="images" name="images" multiple accept="image/*" required>
+                            <small class="form-text text-muted">Định dạng hỗ trợ: JPG, PNG, GIF. Kích thước tối đa: 5MB mỗi ảnh.</small>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" id="is_primary" name="is_primary">
+                            <label class="form-check-label" for="is_primary">Đặt làm ảnh chính</label>
+                            <small class="form-text text-muted">Nếu chọn nhiều ảnh, chỉ ảnh đầu tiên sẽ được đặt làm ảnh chính.</small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-upload"></i> Tải lên
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <div id="imagePreviewContainer" class="upload-preview"></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Danh sách ảnh hiện tại -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách ảnh hiện tại</h6>
+            <span class="badge badge-primary">Tổng: {{ product_images.count }} ảnh</span>
+        </div>
+        <div class="card-body">
+            {% if product_images %}
+            <div class="row">
+                {% for image in product_images %}
+                <div class="col-md-3">
+                    <div class="card product-image-card">
+                        {% if image.is_primary %}
+                        <div class="primary-badge">
+                            <span class="badge badge-success">Ảnh chính</span>
+                        </div>
+                        {% endif %}
+                        <img src="{{ image.image.url }}" class="card-img-top" alt="Ảnh sản phẩm">
+                        <div class="image-actions">
+                            <div class="btn-group d-flex">
+                                {% if not image.is_primary %}
+                                <a href="{% url 'dashboard:set_primary_image' image.id %}" class="btn btn-sm btn-success flex-fill">
+                                    <i class="fas fa-star"></i> Đặt làm ảnh chính
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'dashboard:delete_product_image' image.id %}" class="btn btn-sm btn-danger flex-fill" onclick="return confirm('Bạn có chắc chắn muốn xóa ảnh này?')">
+                                    <i class="fas fa-trash"></i> Xóa
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-footer text-muted small">
+                            Tải lên: {{ image.created_at|date:"d/m/Y H:i" }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-images fa-3x text-muted mb-3"></i>
+                <h5>Chưa có ảnh nào</h5>
+                <p class="text-muted">Sản phẩm này chưa có ảnh nào. Hãy tải lên ảnh mới.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Nút quay lại -->
+    <div class="mb-4">
+        <a href="{% url 'dashboard:product_detail' product.id %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại chi tiết sản phẩm
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Xem trước ảnh trước khi tải lên
+    $(document).ready(function() {
+        $('#images').change(function() {
+            const fileInput = this;
+            const previewContainer = $('#imagePreviewContainer');
+            previewContainer.empty();
+            
+            if (fileInput.files && fileInput.files.length > 0) {
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    const file = fileInput.files[i];
+                    
+                    // Kiểm tra nếu là ảnh
+                    if (!file.type.match('image.*')) {
+                        continue;
+                    }
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const previewItem = $('<div class="preview-item"></div>');
+                        const previewImage = $('<img>').attr('src', e.target.result);
+                        const removeButton = $('<div class="remove-preview"><i class="fas fa-times"></i></div>');
+                        
+                        removeButton.click(function() {
+                            previewItem.remove();
+                            // Không thể thực sự xóa từ FileList, chỉ là giao diện
+                        });
+                        
+                        previewItem.append(previewImage);
+                        previewItem.append(removeButton);
+                        previewContainer.append(previewItem);
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+    });
+</script>
+{% endblock %} 

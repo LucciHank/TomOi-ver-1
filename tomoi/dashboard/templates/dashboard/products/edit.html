@@ -1,0 +1,439 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Chỉnh sửa sản phẩm {{ product.name }}{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container--default .select2-selection--multiple {
+        border: 1px solid #d1d3e2;
+        border-radius: 0.35rem;
+        min-height: 38px;
+    }
+    .img-preview {
+        max-height: 100px;
+        margin-top: 10px;
+    }
+    .current-images {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    .current-image-item {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    .current-image-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .current-image-item .badge {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+    }
+    .current-image-item .remove-image {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+    .section-card {
+        margin-bottom: 20px;
+    }
+    .section-card .card-header {
+        font-weight: bold;
+        padding: 0.75rem 1.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Chỉnh sửa sản phẩm</h1>
+    
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:products' %}">Sản phẩm</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Chỉnh sửa {{ product.name }}</li>
+        </ol>
+    </nav>
+    
+    {% if messages %}
+    <div class="row">
+        <div class="col-12">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="row">
+            <div class="col-md-8">
+                <!-- Thông tin cơ bản -->
+                <div class="card shadow section-card">
+                    <div class="card-header bg-primary text-white">
+                        <i class="fas fa-info-circle me-1"></i> Thông tin cơ bản
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.name.id_for_label }}">Tên sản phẩm <span class="text-danger">*</span></label>
+                                    {{ form.name }}
+                                    {% if form.name.errors %}
+                                    <div class="text-danger">{{ form.name.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.product_code.id_for_label }}">Mã sản phẩm</label>
+                                    {{ form.product_code }}
+                                    <small class="form-text text-muted">Nhập mã nội bộ hoặc SKU.</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.category.id_for_label }}">Danh mục <span class="text-danger">*</span></label>
+                                    {{ form.category }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.brand.id_for_label }}">Thương hiệu</label>
+                                    {{ form.brand }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="{{ form.price.id_for_label }}">Giá <span class="text-danger">*</span></label>
+                                    {{ form.price }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="{{ form.old_price.id_for_label }}">Giá cũ</label>
+                                    {{ form.old_price }}
+                                    <small class="form-text text-muted">Giá gốc trước khi giảm.</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="{{ form.stock.id_for_label }}">Tồn kho <span class="text-danger">*</span></label>
+                                    {{ form.stock }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.duration.id_for_label }}">Thời hạn <span class="text-danger">*</span></label>
+                                    {{ form.duration }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.label.id_for_label }}">Nhãn sản phẩm</label>
+                                    {{ form.label }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.description.id_for_label }}">Mô tả</label>
+                            {{ form.description }}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.features.id_for_label }}">Tính năng</label>
+                            {{ form.features }}
+                            <small class="form-text text-muted">Nhập từng tính năng trên một dòng.</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Yêu cầu thông tin khách hàng -->
+                <div class="card shadow section-card">
+                    <div class="card-header bg-info text-white">
+                        <i class="fas fa-user-check me-1"></i> Yêu cầu thông tin khách hàng
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check mb-3">
+                            {{ form.requires_email }}
+                            <label class="form-check-label" for="{{ form.requires_email.id_for_label }}">
+                                Yêu cầu Email
+                            </label>
+                            <small class="form-text text-muted d-block">Khách hàng cần cung cấp email để nâng cấp.</small>
+                        </div>
+                        
+                        <div class="form-check">
+                            {{ form.requires_account_password }}
+                            <label class="form-check-label" for="{{ form.requires_account_password.id_for_label }}">
+                                Yêu cầu Tài khoản & Mật khẩu
+                            </label>
+                            <small class="form-text text-muted d-block">Khách hàng cần cung cấp tài khoản và mật khẩu để nâng cấp.</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bán kèm sản phẩm -->
+                <div class="card shadow section-card">
+                    <div class="card-header bg-warning text-white">
+                        <i class="fas fa-link me-1"></i> Bán kèm sản phẩm
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check mb-3">
+                            {{ form.is_cross_sale }}
+                            <label class="form-check-label" for="{{ form.is_cross_sale.id_for_label }}">
+                                Cho phép bán kèm
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.cross_sale_discount.id_for_label }}">Giảm giá khi mua kèm (%)</label>
+                            {{ form.cross_sale_discount }}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.cross_sale_products.id_for_label }}">Sản phẩm bán kèm</label>
+                            {{ form.cross_sale_products }}
+                            <small class="form-text text-muted">Chọn các sản phẩm có thể mua kèm với sản phẩm này.</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Ảnh sản phẩm -->
+                <div class="card shadow section-card">
+                    <div class="card-header bg-success text-white">
+                        <i class="fas fa-images me-1"></i> Ảnh sản phẩm
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.primary_image.id_for_label }}">Ảnh chính</label>
+                                    {{ form.primary_image }}
+                                    <small class="form-text text-muted">Ảnh hiển thị chính cho sản phẩm.</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.additional_images.id_for_label }}">Ảnh bổ sung</label>
+                                    {{ form.additional_images }}
+                                    <small class="form-text text-muted">{{ form.additional_images.help_text }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if product_images %}
+                        <div class="form-group">
+                            <label>Ảnh hiện tại</label>
+                            <div class="current-images">
+                                {% for image in product_images %}
+                                <div class="current-image-item">
+                                    <img src="{{ image.image.url }}" alt="Product image">
+                                    {% if image.is_primary %}
+                                    <span class="badge badge-success">Chính</span>
+                                    {% endif %}
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" name="delete_images" value="{{ image.id }}" id="delete_image_{{ image.id }}">
+                                        <label class="form-check-label" for="delete_image_{{ image.id }}">Xóa</label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <small class="form-text text-muted">Đánh dấu vào ô để xóa ảnh.</small>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="form-group mt-3">
+                            <small class="text-muted">Để tải nhiều ảnh bổ sung, hãy sử dụng chức năng "Quản lý ảnh chi tiết" sau khi lưu sản phẩm.</small>
+                            <div class="mt-2">
+                                {% if product.id %}
+                                <a href="{% url 'dashboard:manage_product_images' product.id %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-images"></i> Quản lý ảnh chi tiết
+                                </a>
+                                {% else %}
+                                <span class="text-muted">Lưu sản phẩm trước khi quản lý nhiều ảnh</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <!-- Trạng thái và Tùy chọn -->
+                <div class="card shadow section-card">
+                    <div class="card-header bg-secondary text-white">
+                        <i class="fas fa-cog me-1"></i> Trạng thái và Tùy chọn
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check mb-3">
+                            {{ form.is_active }}
+                            <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                Đang bán
+                            </label>
+                            <small class="form-text text-muted d-block">Sản phẩm sẽ hiển thị trên cửa hàng.</small>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            {{ form.is_featured }}
+                            <label class="form-check-label" for="{{ form.is_featured.id_for_label }}">
+                                Sản phẩm nổi bật
+                            </label>
+                            <small class="form-text text-muted d-block">Hiển thị trên trang chủ.</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Nguồn cung cấp liên kết -->
+                {% if source_products %}
+                <div class="card shadow section-card">
+                    <div class="card-header bg-dark text-white">
+                        <i class="fas fa-database me-1"></i> Nguồn cung cấp
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group">
+                            {% for source_product in source_products %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ source_product.source.name }}</h6>
+                                    <small>{{ source_product.source.platform }}</small>
+                                </div>
+                                <p class="mb-1">{{ source_product.name }}</p>
+                                <small>Giá: {{ source_product.price|floatformat:0 }}đ</small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="mt-3">
+                            <a href="{% url 'dashboard:add_source_product' %}?product_id={{ product.id }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-plus"></i> Thêm nguồn
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Lịch sử thay đổi -->
+                {% if change_logs %}
+                <div class="card shadow section-card">
+                    <div class="card-header bg-info text-white">
+                        <i class="fas fa-history me-1"></i> Lịch sử thay đổi gần đây
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            {% for log in change_logs %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ log.get_action_display }}</h6>
+                                    <small>{{ log.created_at|date:"d/m/Y H:i" }}</small>
+                                </div>
+                                <p class="mb-1">{{ log.description }}</p>
+                                <small>Người thực hiện: {{ log.user.username|default:"Hệ thống" }}</small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="{% url 'dashboard:product_history' product.id %}" class="btn btn-sm btn-link">Xem đầy đủ lịch sử</a>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Nút lưu -->
+                <div class="card shadow section-card">
+                    <div class="card-body">
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <i class="fas fa-save"></i> Lưu thay đổi
+                        </button>
+                        <a href="{% url 'dashboard:products' %}" class="btn btn-secondary btn-block mt-2">
+                            <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Sử dụng Select2 cho các trường dropdown nhiều lựa chọn
+        $('#{{ form.cross_sale_products.id_for_label }}').select2({
+            placeholder: 'Chọn sản phẩm bán kèm',
+            allowClear: true
+        });
+        
+        // Xem trước ảnh khi chọn
+        function readURL(input, previewElement) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    var img = $('<img>').attr('src', e.target.result).addClass('img-preview');
+                    $(previewElement).html(img);
+                }
+                
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        $('#{{ form.primary_image.id_for_label }}').change(function() {
+            var previewContainer = $('<div>').insertAfter($(this));
+            readURL(this, previewContainer);
+        });
+        
+        // Hiện/ẩn các trường liên quan đến bán kèm
+        function toggleCrossSaleFields() {
+            var isCrossSale = $('#{{ form.is_cross_sale.id_for_label }}').is(':checked');
+            if (isCrossSale) {
+                $('#{{ form.cross_sale_discount.id_for_label }}').closest('.form-group').show();
+                $('#{{ form.cross_sale_products.id_for_label }}').closest('.form-group').show();
+            } else {
+                $('#{{ form.cross_sale_discount.id_for_label }}').closest('.form-group').hide();
+                $('#{{ form.cross_sale_products.id_for_label }}').closest('.form-group').hide();
+            }
+        }
+        
+        // Gọi khi trang tải và khi thay đổi checkbox
+        toggleCrossSaleFields();
+        $('#{{ form.is_cross_sale.id_for_label }}').change(toggleCrossSaleFields);
+    });
+</script>
+{% endblock %} 

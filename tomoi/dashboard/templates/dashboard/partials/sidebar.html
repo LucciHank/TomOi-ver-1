@@ -108,9 +108,26 @@
             data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Quản lý sản phẩm:</h6>
-                <a class="collapse-item" href="/dashboard/products/">Danh sách</a>
-                <a class="collapse-item" href="/dashboard/products/categories/">Danh mục</a>
-                <a class="collapse-item" href="/dashboard/products/add/">Thêm mới</a>
+                <a class="collapse-item" href="{% url 'dashboard:products' %}">
+                    <i class="fas fa-list fa-sm fa-fw mr-1"></i> Danh sách
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:add_product' %}">
+                    <i class="fas fa-plus fa-sm fa-fw mr-1"></i> Thêm mới
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:categories' %}">
+                    <i class="fas fa-tags fa-sm fa-fw mr-1"></i> Danh mục
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:add_category' %}">
+                    <i class="fas fa-folder-plus fa-sm fa-fw mr-1"></i> Thêm danh mục
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:import_products' %}">
+                    <i class="fas fa-file-import fa-sm fa-fw mr-1"></i> Nhập sản phẩm
+                </a>
+                <div class="collapse-divider"></div>
+                <h6 class="collapse-header">Công cụ bổ sung:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:add_source_product' %}">
+                    <i class="fas fa-link fa-sm fa-fw mr-1"></i> Liên kết nguồn
+                </a>
             </div>
         </div>
     </li>

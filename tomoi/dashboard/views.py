@@ -127,91 +127,355 @@ def index(request):
 # Products
 @staff_member_required
 def product_list(request):
-    products = Product.objects.all()
-    return render(request, 'dashboard/products/list.html', {'products': products})
+    query = request.GET.get('query', '')
+    category_id = request.GET.get('category_id', '')
+    brand_id = request.GET.get('brand_id', '')
+    
+    products = Product.objects.all().order_by('-created_at')
+    
+    # Tìm kiếm
+    if query:
+        products = products.filter(
+            Q(name__icontains=query) | 
+            Q(description__icontains=query) |
+            Q(product_code__icontains=query)
+        )
+    
+    # Lọc theo danh mục
+    if category_id:
+        products = products.filter(category_id=category_id)
+    
+    # Lọc theo thương hiệu
+    if brand_id:
+        products = products.filter(brand_id=brand_id)
+    
+    # Phân trang
+    paginator = Paginator(products, 10)
+    page_number = request.GET.get('page', 1)
+    products_page = paginator.get_page(page_number)
+    
+    # Lấy danh sách danh mục và thương hiệu để hiển thị bộ lọc
+    categories = Category.objects.all()
+    brands = Brand.objects.all()
+    
+    context = {
+        'products': products_page,
+        'categories': categories,
+        'brands': brands,
+        'query': query,
+        'category_id': category_id,
+        'brand_id': brand_id
+    }
+    
+    return render(request, 'dashboard/products/list.html', context)
 
 @staff_member_required
 def add_product(request):
     if request.method == 'POST':
         # Xử lý thêm sản phẩm
-        name = request.POST.get('name')
-        price = request.POST.get('price')
-        category_id = request.POST.get('category')
-        description = request.POST.get('description')
-        
-        category = get_object_or_404(Category, id=category_id) if category_id else None
-        
-        product = Product.objects.create(
-            name=name,
-            price=price,
-            category=category,
-            description=description
-        )
-        
-        messages.success(request, f'Đã thêm sản phẩm {name}')
-        return redirect('dashboard:products')
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            product = form.save()
+            
+            # Xử lý nhiều ảnh sản phẩm
+            for image in request.FILES.getlist('additional_images'):
+                ProductImage.objects.create(
+                    product=product,
+                    image=image,
+                    is_primary=False
+                )
+                
+            # Xử lý ảnh chính nếu được chọn
+            if 'primary_image' in request.FILES:
+                ProductImage.objects.create(
+                    product=product,
+                    image=request.FILES['primary_image'],
+                    is_primary=True
+                )
+            
+            # Ghi log lịch sử thay đổi
+            ProductChangeLog.objects.create(
+                product=product,
+                user=request.user,
+                action='create',
+                description=f'Tạo mới sản phẩm: {product.name}'
+            )
+            
+            messages.success(request, f'Đã thêm sản phẩm {product.name}')
+            
+            if 'save_continue' in request.POST:
+                return redirect('dashboard:edit_product', product_id=product.id)
+            return redirect('dashboard:products')
+        else:
+            messages.error(request, 'Có lỗi xảy ra. Vui lòng kiểm tra lại form.')
+    else:
+        form = ProductForm()
     
     categories = Category.objects.all()
-    return render(request, 'dashboard/products/add.html', {'categories': categories})
+    brands = Brand.objects.all()
+    labels = ProductLabel.objects.all()
+    sources = Source.objects.all()
+    
+    context = {
+        'form': form,
+        'categories': categories,
+        'brands': brands, 
+        'labels': labels,
+        'sources': sources,
+        'duration_choices': Product.DURATION_CHOICES
+    }
+    
+    return render(request, 'dashboard/products/add.html', context)
 
 @staff_member_required
 def edit_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
+    product_images = ProductImage.objects.filter(product=product)
+    source_products = SourceProduct.objects.filter(linked_product=product)
+    change_logs = ProductChangeLog.objects.filter(product=product).order_by('-created_at')[:5]
     
     if request.method == 'POST':
-        # Xử lý cập nhật sản phẩm
-        product.name = request.POST.get('name')
-        product.price = request.POST.get('price')
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            # Lưu thông tin sản phẩm cơ bản
+            product = form.save(commit=False)
+            
+            # Xử lý các trường đặc biệt như features
+            if form.cleaned_data.get('features'):
+                features_text = form.cleaned_data.get('features')
+                product.features = [f.strip() for f in features_text.split('\n') if f.strip()]
+            
+            # Lưu thông tin cross-sale
+            if not form.cleaned_data.get('is_cross_sale'):
+                product.cross_sale_discount = 0
+                product.cross_sale_products.clear()
+            
+            product.save()
+            
+            # Lưu ManyToMany sau khi đã lưu sản phẩm
+            form.save_m2m()
+            
+            # Xử lý ảnh chính
+            if 'primary_image' in request.FILES:
+                # Đặt tất cả các ảnh hiện tại thành không phải ảnh chính
+                ProductImage.objects.filter(product=product, is_primary=True).update(is_primary=False)
+                
+                # Tạo ảnh chính mới
+                primary_image = ProductImage.objects.create(
+                    product=product,
+                    image=request.FILES['primary_image'],
+                    is_primary=True
+                )
+            
+            # Xử lý các ảnh bổ sung
+            if 'additional_images' in request.FILES:
+                # Vì không có multiple=True, cần xử lý file một cách riêng lẻ
+                additional_image = request.FILES['additional_images']
+                ProductImage.objects.create(
+                    product=product,
+                    image=additional_image,
+                    is_primary=False
+                )
+            
+            # Xử lý xóa ảnh
+            if 'delete_images' in request.POST:
+                image_ids = request.POST.getlist('delete_images')
+                ProductImage.objects.filter(id__in=image_ids).delete()
+            
+            # Ghi log thay đổi
+            ProductChangeLog.objects.create(
+                product=product,
+                user=request.user,
+                action='edit',
+                description=f'Cập nhật thông tin sản phẩm "{product.name}"'
+            )
+            
+            messages.success(request, f'Cập nhật sản phẩm {product.name} thành công!')
+            return redirect('dashboard:products')
+    else:
+        # Chuẩn bị dữ liệu ban đầu cho form
+        initial_data = {}
+        if product.features:
+            initial_data['features'] = '\n'.join(product.features)
         
-        category_id = request.POST.get('category')
-        product.category = get_object_or_404(Category, id=category_id) if category_id else None
-        
-        product.description = request.POST.get('description')
-        product.save()
-        
-        messages.success(request, f'Đã cập nhật sản phẩm {product.name}')
-        return redirect('dashboard:products')
+        form = ProductForm(instance=product, initial=initial_data)
     
-    categories = Category.objects.all()
-    return render(request, 'dashboard/products/edit.html', {
+    context = {
+        'form': form,
         'product': product,
-        'categories': categories
-    })
+        'product_images': product_images,
+        'source_products': source_products,
+        'change_logs': change_logs,
+    }
+    return render(request, 'dashboard/products/edit.html', context)
 
 @staff_member_required
 def delete_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    
     if request.method == 'POST':
-        product = get_object_or_404(Product, id=product_id)
         product_name = product.name
-        product.delete()
         
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            return JsonResponse({'success': True})
+        # Ghi log trước khi xóa
+        ProductChangeLog.objects.create(
+            product=product,
+            user=request.user,
+            action='delete',
+            description=f'Xóa sản phẩm: {product_name}'
+        )
+        
+        # Xóa sản phẩm
+        product.delete()
         
         messages.success(request, f'Đã xóa sản phẩm {product_name}')
         return redirect('dashboard:products')
     
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+    return render(request, 'dashboard/products/delete.html', {'product': product})
 
 @staff_member_required
 def product_detail(request, product_id):
-    """Product detail view"""
+    """Chi tiết sản phẩm"""
     product = get_object_or_404(Product, id=product_id)
-    return render(request, 'dashboard/products/detail.html', {'product': product})
+    
+    # Lấy ảnh sản phẩm
+    product_images = ProductImage.objects.filter(product=product)
+    
+    # Lấy biến thể sản phẩm
+    variants = ProductVariant.objects.filter(product=product)
+    
+    # Lấy nguồn cung cấp liên kết với sản phẩm
+    source_products = SourceProduct.objects.filter(product=product)
+    
+    # Lấy lịch sử thay đổi
+    change_logs = ProductChangeLog.objects.filter(product=product).order_by('-created_at')[:5]
+    
+    # Lấy dữ liệu bán hàng
+    total_sales = OrderItem.objects.filter(product=product).count()
+    total_revenue = OrderItem.objects.filter(product=product).aggregate(
+        revenue=Sum(F('price') * F('quantity'))
+    )['revenue'] or 0
+    
+    context = {
+        'product': product,
+        'product_images': product_images,
+        'variants': variants,
+        'source_products': source_products,
+        'change_logs': change_logs,
+        'total_sales': total_sales,
+        'total_revenue': total_revenue
+    }
+    
+    return render(request, 'dashboard/products/detail.html', context)
+
+@staff_member_required
+def product_history(request, product_id):
+    """Lịch sử thay đổi sản phẩm"""
+    product = get_object_or_404(Product, id=product_id)
+    
+    # Lấy tất cả lịch sử thay đổi
+    change_logs = ProductChangeLog.objects.filter(product=product).order_by('-created_at')
+    
+    # Phân trang
+    paginator = Paginator(change_logs, 20)
+    page_number = request.GET.get('page', 1)
+    logs_page = paginator.get_page(page_number)
+    
+    context = {
+        'product': product,
+        'change_logs': logs_page
+    }
+    
+    return render(request, 'dashboard/products/history.html', context)
 
 @staff_member_required
 def get_product(request, product_id):
     """Lấy thông tin sản phẩm dạng JSON cho AJAX"""
     product = get_object_or_404(Product, id=product_id)
+    
+    # Lấy ảnh chính
+    primary_image = ProductImage.objects.filter(product=product, is_primary=True).first()
+    image_url = primary_image.image.url if primary_image else None
+    
     data = {
         'id': product.id,
         'name': product.name,
         'price': float(product.price),
+        'old_price': float(product.old_price) if product.old_price else None,
         'description': product.description,
         'stock': product.stock,
         'category': product.category.name if product.category else '',
+        'category_id': product.category.id if product.category else None,
+        'brand': product.brand.name if product.brand else '',
+        'brand_id': product.brand.id if product.brand else None,
+        'product_code': product.product_code,
+        'duration': product.duration,
+        'duration_display': product.get_duration_display(),
+        'image_url': image_url,
+        'is_active': product.is_active
     }
+    
     return JsonResponse(data)
+
+@staff_member_required
+def manage_product_images(request, product_id):
+    """Quản lý ảnh sản phẩm"""
+    product = get_object_or_404(Product, id=product_id)
+    
+    if request.method == 'POST':
+        # Xử lý thêm ảnh mới
+        for image in request.FILES.getlist('images'):
+            is_primary = request.POST.get('is_primary') == 'on'
+            
+            # Nếu đây là ảnh chính, đặt tất cả các ảnh khác thành không phải ảnh chính
+            if is_primary:
+                ProductImage.objects.filter(product=product, is_primary=True).update(is_primary=False)
+            
+            ProductImage.objects.create(
+                product=product,
+                image=image,
+                is_primary=is_primary
+            )
+        
+        messages.success(request, 'Đã cập nhật ảnh sản phẩm')
+        return redirect('dashboard:edit_product', product_id=product.id)
+    
+    # Lấy tất cả ảnh hiện tại của sản phẩm
+    product_images = ProductImage.objects.filter(product=product)
+    
+    context = {
+        'product': product,
+        'product_images': product_images
+    }
+    
+    return render(request, 'dashboard/products/manage_images.html', context)
+
+@staff_member_required
+def delete_product_image(request, image_id):
+    """Xóa ảnh sản phẩm"""
+    image = get_object_or_404(ProductImage, id=image_id)
+    product_id = image.product.id
+    
+    # Xóa ảnh
+    image.delete()
+    
+    messages.success(request, 'Đã xóa ảnh sản phẩm')
+    return redirect('dashboard:edit_product', product_id=product_id)
+
+@staff_member_required
+def set_primary_image(request, image_id):
+    """Đặt ảnh chính cho sản phẩm"""
+    image = get_object_or_404(ProductImage, id=image_id)
+    product = image.product
+    
+    # Đặt tất cả ảnh khác thành không phải ảnh chính
+    ProductImage.objects.filter(product=product).update(is_primary=False)
+    
+    # Đặt ảnh được chọn thành ảnh chính
+    image.is_primary = True
+    image.save()
+    
+    messages.success(request, 'Đã cập nhật ảnh chính cho sản phẩm')
+    return redirect('dashboard:edit_product', product_id=product.id)
 
 @staff_member_required
 def import_products(request):
@@ -3430,3 +3694,34 @@ def update_tcoin_balance_after():
 
 # Chạy hàm cập nhật
 # update_tcoin_balance_after()  # Bỏ comment dòng này khi bạn muốn chạy hàm
+
+@staff_member_required
+def update_product_status(request, product_id):
+    """Cập nhật trạng thái sản phẩm (active/inactive)."""
+    if request.method == 'POST':
+        product = get_object_or_404(Product, id=product_id)
+        
+        # Lấy trạng thái hiện tại để ghi log
+        old_status = 'active' if product.is_active else 'inactive'
+        
+        # Cập nhật trạng thái mới
+        product.is_active = not product.is_active
+        product.save()
+        
+        new_status = 'active' if product.is_active else 'inactive'
+        
+        # Ghi log thay đổi
+        ProductChangeLog.objects.create(
+            product=product,
+            user=request.user,
+            action='status_change',
+            description=f'Thay đổi trạng thái sản phẩm từ {old_status} thành {new_status}'
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'is_active': product.is_active,
+            'message': f'Sản phẩm đã được {new_status}'
+        })
+    
+    return JsonResponse({'success': False, 'message': 'Phương thức không được hỗ trợ'}, status=405)
