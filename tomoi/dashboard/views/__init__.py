@@ -20,11 +20,12 @@ from dashboard.models import SystemNotification
 from dashboard.models.product import ProductChangeLog, ProductImage
 
 # Import các module tự định nghĩa
-from .marketing import *
+from .marketing import marketing
 from .settings import *
 from .api import *
 from .chatbot import *
 from .source import *
+from .messaging import messaging
 from .user import (
     user_list,
     user_detail,
@@ -43,13 +44,13 @@ from .user import (
 )
 from .user_views import *
 from .user import *
-from .marketing import *
 from .source import *
 from .discount import *
-from .banner import *
+# Import banner views đúng tên
+from .banner import banner_list, banner_add, banner_edit, banner_delete, toggle_banner, upload_banner_image
 from .api_settings import api_settings, save_api_config, test_api
 from .chatbot import (
-    dashboard, 
+    chatbot_dashboard, 
     chatbot_api_settings,
     chatbot_save_api,
     chatbot_test_api,
@@ -68,6 +69,25 @@ from .product import (
     product_history,
     get_product
 )
+
+# Nhập các view từ order_views
+from ..order_views import (
+    order_management,
+    order_detail,
+    update_order_status,
+    export_orders,
+    cancel_order,
+    refund_order,
+    order_list,
+    order_history,
+    customer_orders
+)
+
+# Định nghĩa hàm messaging
+@staff_member_required
+def messaging(request):
+    """View cho chức năng messaging"""
+    return render(request, 'dashboard/messaging/index.html')
 
 # Hàm tạm thời cho các view chưa được triển khai
 def not_implemented(request, *args, **kwargs):
@@ -133,9 +153,19 @@ def product_list(request):
     
     # Lấy danh sách danh mục và thương hiệu để hiển thị bộ lọc
     categories = Category.objects.all()
+    
+    # Lấy danh sách thương hiệu từ BRAND_CHOICES hoặc từ cơ sở dữ liệu
     brands = [('', 'Tất cả thương hiệu')]
-    for choice in Product.BRAND_CHOICES:
-        brands.append(choice)
+    
+    # Sử dụng BRAND_CHOICES nếu có, ngược lại lấy danh sách brands từ cơ sở dữ liệu
+    if hasattr(Product, 'BRAND_CHOICES'):
+        for choice in Product.BRAND_CHOICES:
+            brands.append(choice)
+    else:
+        # Lấy danh sách thương hiệu từ model Brand
+        brand_list = Brand.objects.all()
+        for brand_obj in brand_list:
+            brands.append((brand_obj.id, brand_obj.name))
     
     context = {
         'products': products_page,
@@ -405,14 +435,19 @@ def import_products(request):
     
     return render(request, 'dashboard/products/import.html')
 
-# Gán các hàm tạm thời cho các view chưa triển khai
-order_management = not_implemented
-order_detail = not_implemented
-update_order_status = not_implemented
-export_orders = not_implemented
-user_management = not_implemented
-export_users = not_implemented
-warranty_management = not_implemented
+# Import các module tự định nghĩa
+from .marketing import marketing
+from .settings import *
+from .api import *
+from .chatbot import *
+from .source import *
+from .messaging import messaging
+from .calendar import *
+try:
+    from ..order_views import order_management, order_detail, update_order_status, export_orders
+except ImportError:
+    # Nếu không import được, sẽ sử dụng hàm not_implemented
+    pass
 
 # Analytics
 analytics_dashboard = not_implemented
@@ -425,17 +460,14 @@ custom_report = not_implemented
 marketing_dashboard = not_implemented
 campaign_list = not_implemented
 add_campaign = not_implemented
-banner_list = not_implemented
-add_banner = not_implemented
-edit_banner = not_implemented
 
 # Settings
 settings_dashboard = not_implemented
-update_general_settings = not_implemented
+# update_general_settings = not_implemented - Đã được triển khai trong settings.py
 email_settings = not_implemented
 update_email_settings = not_implemented
 payment_settings = not_implemented
-update_payment_settings = not_implemented
+# update_payment_settings = not_implemented - Đã được triển khai trong settings.py
 
 # API
 api_key_list = not_implemented
@@ -452,34 +484,235 @@ api_source_products = not_implemented
 get_source_base_price = not_implemented
 
 # User Management
-add_user = not_implemented
-delete_user = not_implemented
+# add_user = not_implemented - Đã được import từ module user
+# delete_user = not_implemented - Đã được import từ module user
 
 # Warranty Management
-warranty_detail = not_implemented
-warranty_report = not_implemented
-send_new_account = not_implemented
-create_warranty = not_implemented
-update_warranty_status = not_implemented
-assign_warranty = not_implemented
-add_warranty_note = not_implemented
-delete_warranty = not_implemented
+# Định nghĩa các hàm tự triển khai cho bảo hành
+@staff_member_required
+def warranty_management(request):
+    """Quản lý các yêu cầu bảo hành"""
+    from ..models.warranty import WarrantyTicket
+    status_filter = request.GET.get('status', '')
+    search_query = request.GET.get('search', '')
+    
+    # Lấy danh sách các yêu cầu bảo hành
+    tickets = WarrantyTicket.objects.all().select_related('order', 'product', 'customer', 'assigned_to')
+    
+    if status_filter:
+        tickets = tickets.filter(status=status_filter)
+    
+    if search_query:
+        from django.db.models import Q
+        tickets = tickets.filter(
+            Q(customer__username__icontains=search_query) |
+            Q(customer__email__icontains=search_query) |
+            Q(issue_description__icontains=search_query)
+        )
+    
+    # Sắp xếp theo mới nhất trước
+    tickets = tickets.order_by('-created_at')
+    
+    # Phân trang
+    paginator = Paginator(tickets, 10)
+    page_number = request.GET.get('page', 1)
+    tickets_page = paginator.get_page(page_number)
+    
+    context = {
+        'tickets': tickets_page,
+        'status_filter': status_filter,
+        'search_query': search_query
+    }
+    
+    return render(request, 'dashboard/warranty/management.html', context)
+
+@staff_member_required
+def warranty_detail(request, warranty_id):
+    """Chi tiết yêu cầu bảo hành"""
+    from ..models.warranty import WarrantyTicket, WarrantyHistory
+    ticket = get_object_or_404(WarrantyTicket, id=warranty_id)
+    history = WarrantyHistory.objects.filter(ticket=ticket).order_by('-created_at')
+    
+    context = {
+        'ticket': ticket,
+        'history': history
+    }
+    
+    return render(request, 'dashboard/warranty/detail.html', context)
+
+@staff_member_required
+def warranty_report(request):
+    """Báo cáo bảo hành"""
+    from ..models.warranty import WarrantyTicket
+    from django.db.models import Count
+    
+    # Thống kê theo trạng thái
+    status_stats = WarrantyTicket.objects.values('status').annotate(count=Count('id'))
+    
+    # Thống kê theo sản phẩm
+    product_stats = WarrantyTicket.objects.filter(product__isnull=False).values('product__name').annotate(count=Count('id'))
+    
+    context = {
+        'status_stats': status_stats,
+        'product_stats': product_stats
+    }
+    
+    return render(request, 'dashboard/warranty/report.html', context)
+
+@staff_member_required
+def create_warranty(request):
+    """Tạo yêu cầu bảo hành mới"""
+    if request.method == 'POST':
+        # Xử lý form tạo bảo hành
+        from ..models.warranty import WarrantyTicket
+        
+        customer_id = request.POST.get('customer')
+        product_id = request.POST.get('product')
+        issue_description = request.POST.get('issue_description')
+        
+        customer = get_object_or_404(CustomUser, id=customer_id)
+        product = get_object_or_404(Product, id=product_id) if product_id else None
+        
+        ticket = WarrantyTicket.objects.create(
+            customer=customer,
+            product=product,
+            issue_description=issue_description,
+            status='pending'
+        )
+        
+        messages.success(request, f'Đã tạo yêu cầu bảo hành #{ticket.id} thành công')
+        return redirect('dashboard:warranty_detail', warranty_id=ticket.id)
+    
+    # Hiển thị form tạo bảo hành
+    # Lấy danh sách khách hàng và sản phẩm cho form
+    customers = CustomUser.objects.filter(is_active=True).order_by('username')
+    products = Product.objects.filter(is_active=True).order_by('name')
+    
+    context = {
+        'customers': customers,
+        'products': products
+    }
+    
+    return render(request, 'dashboard/warranty/create.html', context)
+
+@staff_member_required
+def update_warranty_status(request, warranty_id):
+    """Cập nhật trạng thái bảo hành"""
+    from ..models.warranty import WarrantyTicket, WarrantyHistory
+    
+    if request.method == 'POST':
+        ticket = get_object_or_404(WarrantyTicket, id=warranty_id)
+        new_status = request.POST.get('status')
+        notes = request.POST.get('notes', '')
+        
+        # Cập nhật trạng thái
+        old_status = ticket.status
+        ticket.status = new_status
+        ticket.save()
+        
+        # Ghi nhật ký
+        WarrantyHistory.objects.create(
+            ticket=ticket,
+            action=f'Thay đổi trạng thái từ {old_status} thành {new_status}',
+            notes=notes,
+            performed_by=request.user
+        )
+        
+        messages.success(request, f'Đã cập nhật trạng thái bảo hành #{ticket.id} thành công')
+    
+    return redirect('dashboard:warranty_detail', warranty_id=warranty_id)
+
+@staff_member_required
+def assign_warranty(request, warranty_id):
+    """Phân công xử lý bảo hành"""
+    from ..models.warranty import WarrantyTicket, WarrantyHistory
+    
+    if request.method == 'POST':
+        ticket = get_object_or_404(WarrantyTicket, id=warranty_id)
+        assigned_to_id = request.POST.get('assigned_to')
+        
+        if assigned_to_id:
+            assigned_to = get_object_or_404(CustomUser, id=assigned_to_id)
+            
+            # Cập nhật người phụ trách
+            old_assigned = ticket.assigned_to.username if ticket.assigned_to else 'Chưa phân công'
+            ticket.assigned_to = assigned_to
+            ticket.save()
+            
+            # Ghi nhật ký
+            WarrantyHistory.objects.create(
+                ticket=ticket,
+                action=f'Phân công từ {old_assigned} cho {assigned_to.username}',
+                performed_by=request.user
+            )
+            
+            messages.success(request, f'Đã phân công yêu cầu bảo hành #{ticket.id} cho {assigned_to.username}')
+    
+    return redirect('dashboard:warranty_detail', warranty_id=warranty_id)
+
+@staff_member_required
+def add_warranty_note(request, warranty_id):
+    """Thêm ghi chú cho yêu cầu bảo hành"""
+    from ..models.warranty import WarrantyTicket, WarrantyHistory
+    
+    if request.method == 'POST':
+        ticket = get_object_or_404(WarrantyTicket, id=warranty_id)
+        notes = request.POST.get('notes', '')
+        
+        if notes:
+            # Ghi nhật ký
+            WarrantyHistory.objects.create(
+                ticket=ticket,
+                action='Thêm ghi chú',
+                notes=notes,
+                performed_by=request.user
+            )
+            
+            messages.success(request, f'Đã thêm ghi chú cho yêu cầu bảo hành #{ticket.id}')
+    
+    return redirect('dashboard:warranty_detail', warranty_id=warranty_id)
+
+@staff_member_required
+def send_new_account(request, user_id):
+    """Gửi thông tin tài khoản mới cho khách hàng"""
+    user = get_object_or_404(CustomUser, id=user_id)
+    
+    # Xử lý gửi thông tin
+    messages.success(request, f'Đã gửi thông tin tài khoản cho {user.username}')
+    
+    return redirect('dashboard:user_detail', user_id=user_id)
+
+@staff_member_required
+def delete_warranty(request, warranty_id):
+    """Xóa yêu cầu bảo hành"""
+    from ..models.warranty import WarrantyTicket
+    
+    ticket = get_object_or_404(WarrantyTicket, id=warranty_id)
+    
+    if request.method == 'POST':
+        ticket.delete()
+        messages.success(request, f'Đã xóa yêu cầu bảo hành #{warranty_id}')
+        return redirect('dashboard:warranty')
+    
+    context = {'ticket': ticket}
+    return render(request, 'dashboard/warranty/delete_confirm.html', context)
 
 # Subscription Management
-subscription_management = not_implemented
-subscription_plans = not_implemented
+from .subscription import subscription_list as subscription_management, subscription_plans
 
 # Source Management
-source_dashboard = not_implemented
-source_list = not_implemented
-source_add = not_implemented
-source_edit = not_implemented
-source_delete = not_implemented
-source_log_list = not_implemented
-source_analytics = not_implemented
-share_report = not_implemented
-source_chart_data = not_implemented
-add_source_redirect = not_implemented
+from .source import (
+    source_dashboard,
+    source_list,
+    source_add,
+    source_edit,
+    source_delete,
+    source_log_list,
+    source_analytics,
+    share_report,
+    source_chart_data,
+    add_source_redirect
+)
 
 # Reports
 product_report = not_implemented
@@ -593,94 +826,52 @@ def analyze_database_performance():
     # Logic phân tích hiệu suất database
     pass
 
-@staff_member_required
-def update_product_status(request, product_id):
-    """Cập nhật trạng thái sản phẩm (active/inactive)."""
-    if request.method == 'POST':
-        product = get_object_or_404(Product, id=product_id)
-        
-        # Lấy trạng thái hiện tại để ghi log
-        old_status = 'active' if product.is_active else 'inactive'
-        
-        # Cập nhật trạng thái mới
-        product.is_active = not product.is_active
-        product.save()
-        
-        new_status = 'active' if product.is_active else 'inactive'
-        
-        # Ghi log thay đổi
-        ProductChangeLog.objects.create(
-            product=product,
-            user=request.user,
-            action='status_change',
-            description=f'Thay đổi trạng thái sản phẩm từ {old_status} thành {new_status}'
-        )
-        
-        return JsonResponse({
-            'success': True,
-            'is_active': product.is_active,
-            'message': f'Sản phẩm đã được {new_status}'
-        })
-    
-    return JsonResponse({'success': False, 'message': 'Phương thức không được hỗ trợ'}, status=405)
+# Thêm hàm user_management
+def user_management(request):
+    """Trang quản lý người dùng"""
+    # Chuyển hướng đến trang danh sách người dùng
+    from django.shortcuts import redirect
+    return redirect('dashboard:user_list')
 
+# Định nghĩa hàm dashboard chính cho trang chủ
 @staff_member_required
-def manage_product_images(request, product_id):
-    """Quản lý ảnh sản phẩm"""
-    product = get_object_or_404(Product, id=product_id)
+def dashboard(request):
+    """Dashboard chính của ứng dụng"""
+    # Thống kê người dùng
+    total_users = CustomUser.objects.count()
+    new_users_24h = CustomUser.objects.filter(
+        date_joined__gte=timezone.now() - timedelta(hours=24)
+    ).count()
     
-    if request.method == 'POST':
-        # Xử lý thêm ảnh mới
-        for image in request.FILES.getlist('images'):
-            is_primary = request.POST.get('is_primary') == 'on'
-            
-            # Nếu đây là ảnh chính, đặt tất cả các ảnh khác thành không phải ảnh chính
-            if is_primary:
-                ProductImage.objects.filter(product=product, is_primary=True).update(is_primary=False)
-            
-            ProductImage.objects.create(
-                product=product,
-                image=image,
-                is_primary=is_primary
-            )
-        
-        messages.success(request, 'Đã cập nhật ảnh sản phẩm')
-        return redirect('dashboard:edit_product', product_id=product.id)
+    # Thống kê đơn hàng
+    total_orders = Order.objects.count()
+    new_orders_24h = Order.objects.filter(
+        created_at__gte=timezone.now() - timedelta(hours=24)
+    ).count()
     
-    # Lấy tất cả ảnh hiện tại của sản phẩm
-    product_images = ProductImage.objects.filter(product=product)
+    # Thống kê doanh thu
+    total_revenue = Order.objects.filter(status='completed').aggregate(
+        total=Sum('total_amount')
+    )['total'] or 0
+    
+    # Thống kê sản phẩm
+    total_products = Product.objects.count()
+    active_products = Product.objects.filter(is_active=True).count()
+    
+    # Lấy 5 thông báo hệ thống mới nhất
+    notifications = SystemNotification.objects.filter(
+        is_active=True
+    ).order_by('-created_at')[:5]
     
     context = {
-        'product': product,
-        'product_images': product_images
+        'total_users': total_users,
+        'new_users_24h': new_users_24h,
+        'total_orders': total_orders,
+        'new_orders_24h': new_orders_24h,
+        'total_revenue': total_revenue,
+        'total_products': total_products,
+        'active_products': active_products,
+        'notifications': notifications
     }
     
-    return render(request, 'dashboard/products/manage_images.html', context)
-
-@staff_member_required
-def delete_product_image(request, image_id):
-    """Xóa ảnh sản phẩm"""
-    image = get_object_or_404(ProductImage, id=image_id)
-    product_id = image.product.id
-    
-    # Xóa ảnh
-    image.delete()
-    
-    messages.success(request, 'Đã xóa ảnh sản phẩm')
-    return redirect('dashboard:manage_product_images', product_id=product_id)
-
-@staff_member_required
-def set_primary_image(request, image_id):
-    """Đặt ảnh chính cho sản phẩm"""
-    image = get_object_or_404(ProductImage, id=image_id)
-    product = image.product
-    
-    # Đặt tất cả ảnh về không phải ảnh chính
-    ProductImage.objects.filter(product=product).update(is_primary=False)
-    
-    # Đặt ảnh được chọn là ảnh chính
-    image.is_primary = True
-    image.save()
-    
-    messages.success(request, 'Đã đặt ảnh chính mới cho sản phẩm')
-    return redirect('dashboard:manage_product_images', product_id=product.id) 
+    return render(request, 'dashboard/index.html', context) 

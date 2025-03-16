@@ -7,21 +7,23 @@
 <link href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css" rel="stylesheet" />
 
 <style>
+    /* CSS cho avatar container và icon */
     .user-avatar-container {
         width: 150px;
         height: 150px;
         margin: 0 auto 20px;
         position: relative;
         transition: all 0.3s ease;
-    }
-    
-    .user-avatar-container:hover {
-        transform: scale(1.05);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        overflow: visible;
     }
     
     .user-avatar {
-        width: 100%;
-        height: 100%;
+        width: 150px;
+        height: 150px;
         object-fit: cover;
         border-radius: 50%;
         border: 3px solid #4e73df;
@@ -29,8 +31,8 @@
     }
     
     .avatar-placeholder {
-        width: 150px;
-        height: 150px;
+        width: 100%;
+        height: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -39,13 +41,12 @@
         font-size: 3rem;
         font-weight: bold;
         border-radius: 50%;
-        margin: 0 auto;
     }
     
     .avatar-upload {
         position: absolute;
-        bottom: 0;
-        right: 0;
+        bottom: 10px;
+        right: 10px;
         background-color: #fff;
         border-radius: 50%;
         width: 40px;
@@ -57,6 +58,8 @@
         cursor: pointer;
         color: #4e73df;
         transition: all 0.3s ease;
+        z-index: 5;
+        border: 2px solid #4e73df;
     }
     
     .avatar-upload:hover {
@@ -397,6 +400,7 @@
 
     .current-tcoin {
         background: linear-gradient(to right, #f6c23e, #f4b619);
+        color: white;
     }
 
     .balance-amount, .tcoin-amount {
@@ -474,6 +478,166 @@
         background-color: #4e73df;
         color: white;
     }
+
+    /* Fix cho combobox bị cắt phần chân chữ */
+    select {
+        height: auto !important;
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+        line-height: 1.5 !important;
+    }
+    
+    /* Các style đã có trước đó */
+    .form-card {
+        border-radius: 10px;
+    }
+    
+    .form-card .card-header {
+        border-radius: 10px 10px 0 0;
+        font-weight: bold;
+    }
+    
+    .user-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .avatar-placeholder {
+        width: 100px;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 2.5rem;
+        border-radius: 50%;
+        background-color: #4e73df;
+    }
+    
+    .current-balance, .current-tcoin {
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+    
+    .adjust-balance-card {
+        background: linear-gradient(to right, #4e73df, #224abe);
+        color: white;
+    }
+    
+    .adjust-tcoin-card {
+        background: linear-gradient(to right, #f6c23e, #dda20a);
+        color: white;
+    }
+    
+    .btn-check {
+        position: absolute;
+        clip: rect(0, 0, 0, 0);
+        pointer-events: none;
+    }
+    
+    .btn-check:checked + .btn-outline-success {
+        color: #fff;
+        background-color: #1cc88a;
+        border-color: #1cc88a;
+    }
+    
+    .btn-check:checked + .btn-outline-danger {
+        color: #fff;
+        background-color: #e74a3b;
+        border-color: #e74a3b;
+    }
+    
+    .btn-check:checked + .btn-outline-primary {
+        color: #fff;
+        background-color: #4e73df;
+        border-color: #4e73df;
+    }
+
+    /* Ẩn radio button nhưng vẫn giữ chức năng */
+    .form-check-input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    /* Điều chỉnh thiết kế cho hiển thị số dư và TCoin */
+    .current-balance {
+        background: linear-gradient(to right, #4e73df, #224abe);
+        color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11);
+    }
+    
+    .current-tcoin {
+        background: linear-gradient(to right, #f6c23e, #f4b619);
+        color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11);
+    }
+    
+    /* Icon TCoin */
+    .tcoin-icon {
+        width: 18px;
+        height: 18px;
+        margin-bottom: 3px;
+    }
+    
+    .tcoin-icon-lg {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .tcoin-icon-sm {
+        width: 20px;
+        height: 20px;
+    }
+    
+    /* Điều chỉnh chiều cao input và đơn vị */
+    .input-lg {
+        height: 50px;
+        font-size: 1.1rem;
+    }
+    
+    .input-lg-text {
+        height: 50px !important;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+    
+    /* Đồng bộ màu sắc nút với theme */
+    #adjustBalanceBtn {
+        background-color: #4e73df;
+        border-color: #4e73df;
+    }
+    
+    #adjustTCoinBtn {
+        background-color: #f6c23e;
+        border-color: #f6c23e;
+    }
+    
+    /* CSS cho 2FA Settings */
+    .password-2fa-options {
+        display: none;
+    }
+    
+    .password-2fa-options.show {
+        display: block;
+    }
+    
+    .balance-tcoin-row {
+        display: flex;
+        gap: 20px;
+    }
+    
+    .balance-tcoin-row .card {
+        flex: 1;
+    }
 </style>
 {% endblock %}
 
@@ -499,35 +663,113 @@
     </div>
 
     <div class="row">
-        <!-- Cột bên trái - Thông tin cá nhân -->
-        <div class="col-lg-8">
+        <!-- Cột bên trái - Thông tin tài khoản và avatar -->
+        <div class="col-lg-4">
+            <!-- Thông tin tài khoản -->
+            <div class="card form-card shadow mb-4">
+                <div class="card-header py-3 bg-gradient-primary text-white">
+                    <h6 class="m-0 font-weight-bold">Thông tin tài khoản</h6>
+                </div>
+                <div class="card-body">
+                    <!-- Thay đổi phần xử lý form avatar -->
+                    <form id="avatarUploadForm" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_type" value="avatar_form">
+                        <div class="user-avatar-container mb-4">
+                            {% if user.avatar %}
+                                <img src="{{ user.avatar.url }}" alt="{{ user.username }}" class="user-avatar">
+                            {% else %}
+                                <div class="avatar-placeholder">{{ user.username|make_list|first|upper }}</div>
+                            {% endif %}
+                            <label for="avatar" class="avatar-upload">
+                                <i class="fas fa-camera"></i>
+                            </label>
+                            <input type="file" name="avatar" id="avatar" style="display:none" accept="image/*">
+                        </div>
+                        <div class="text-center mb-3">
+                            <button type="submit" class="btn btn-sm btn-primary">
+                                <i class="fas fa-upload mr-1"></i> Cập nhật avatar
+                            </button>
+                        </div>
+                    </form>
+                
+                    <div class="user-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Số dư</div>
+                            <div class="stat-value">{{ user.balance|default:'0'|intcomma }}đ</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">TCoin</div>
+                            <div class="stat-value">{{ user.tcoin_balance|default:'0'|intcomma }} <img src="{% static 'images/tcoin.png' %}" alt="TCoin" class="tcoin-icon"></div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Ngày tham gia</div>
+                            <div class="stat-value">{{ user.date_joined|date:"d/m/Y" }}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Đăng nhập gần nhất</div>
+                            <div class="stat-value">
+                                {% if user.last_login %}
+                                {{ user.last_login|date:"d/m/Y H:i" }}
+                                {% else %}
+                                Chưa đăng nhập
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Card đặt lại mật khẩu -->
+            <div class="card form-card shadow mb-4">
+                <div class="card-header py-3 reset-password-card">
+                    <h6 class="m-0 font-weight-bold">Đặt lại mật khẩu</h6>
+                </div>
+                <div class="card-body">
+                    <form id="resetPasswordForm">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_new_password">Mật khẩu mới</label>
+                                    <input type="password" class="form-control" id="id_new_password" name="new_password" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_confirm_password">Xác nhận mật khẩu</label>
+                                    <input type="password" class="form-control" id="id_confirm_password" name="confirm_password" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-key mr-2"></i>Đặt lại mật khẩu
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Cột giữa - Thông tin cá nhân -->
+        <div class="col-lg-4">
             <!-- Thông tin cơ bản -->
             <div class="card form-card shadow mb-4">
-                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center bg-gradient-primary text-white">
                     <h6 class="m-0 font-weight-bold">Thông tin cá nhân</h6>
                     <span class="badge badge-light">ID: {{ user.id }}</span>
                 </div>
                 <div class="card-body">
-                    <form method="post" enctype="multipart/form-data" id="userEditForm">
+                    <!-- Thêm form_type vào form chính -->
+                    <form id="userEditForm" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
-                        
-                        <div class="user-avatar-container mb-4">
-                            {% if user.avatar %}
-                            <img src="{{ user.avatar.url }}" alt="{{ user.username }}" class="user-avatar">
-                            {% else %}
-                            <img src="{% static 'dashboard/images/default-avatar.png' %}" class="user-avatar" alt="Default Avatar" 
-                                 onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'avatar-placeholder\'>{{ user.username|make_list|first|upper }}</div>';">
-                            {% endif %}
-                            <label for="id_avatar" class="avatar-upload">
-                                <i class="fas fa-camera"></i>
-                                <input type="file" name="avatar" id="id_avatar" style="display:none">
-                            </label>
-                        </div>
+                        <input type="hidden" name="form_type" value="user_edit_form">
                         
                         <ul class="nav nav-tabs mb-3" id="userInfoTabs" role="tablist">
                             <li class="nav-item">
                                 <a class="nav-link active" id="basic-tab" data-toggle="tab" href="#basic" role="tab">
-                                    <i class="fas fa-user mr-1"></i> Thông tin cơ bản
+                                    <i class="fas fa-user mr-1"></i> Cơ bản
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -537,7 +779,7 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="bank-tab" data-toggle="tab" href="#bank" role="tab">
-                                    <i class="fas fa-university mr-1"></i> Thông tin thanh toán
+                                    <i class="fas fa-university mr-1"></i> Thanh toán
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -550,53 +792,53 @@
                         <div class="tab-content" id="userInfoTabsContent">
                             <!-- Tab thông tin cơ bản -->
                             <div class="tab-pane fade show active" id="basic" role="tabpanel">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
                                             <label for="id_username">Tên đăng nhập <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="id_username" name="username" value="{{ user.username }}" required>
-                                </div>
-                                <div class="form-group">
+                                            <input type="text" class="form-control" id="id_username" name="username" value="{{ user.username }}" required>
+                                        </div>
+                                        <div class="form-group">
                                             <label for="id_email">Email <span class="text-danger">*</span></label>
-                                    <input type="email" class="form-control" id="id_email" name="email" value="{{ user.email }}" required>
-                                </div>
+                                            <input type="email" class="form-control" id="id_email" name="email" value="{{ user.email }}" required>
+                                        </div>
                                     </div>
                                     <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="id_first_name">Họ</label>
-                                    <input type="text" class="form-control" id="id_first_name" name="first_name" value="{{ user.first_name }}">
-                                </div>
-                                <div class="form-group">
-                                    <label for="id_last_name">Tên</label>
-                                    <input type="text" class="form-control" id="id_last_name" name="last_name" value="{{ user.last_name }}">
-                                </div>
-                            </div>
+                                        <div class="form-group">
+                                            <label for="id_first_name">Họ</label>
+                                            <input type="text" class="form-control" id="id_first_name" name="first_name" value="{{ user.first_name }}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="id_last_name">Tên</label>
+                                            <input type="text" class="form-control" id="id_last_name" name="last_name" value="{{ user.last_name }}">
+                                        </div>
+                                    </div>
                                 </div>
                                 
                                 <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
                                             <label for="id_gender">Giới tính</label>
                                             <select class="form-control select2" id="id_gender" name="gender">
                                                 <option value="male" {% if user.gender == 'male' %}selected{% endif %}>Nam</option>
                                                 <option value="female" {% if user.gender == 'female' %}selected{% endif %}>Nữ</option>
                                                 <option value="other" {% if user.gender == 'other' %}selected{% endif %}>Khác</option>
                                             </select>
-                                </div>
+                                        </div>
                                         <div class="form-group">
                                             <label for="id_birth_date">Ngày sinh</label>
                                             <input type="date" class="form-control" id="id_birth_date" name="birth_date" value="{{ user.birth_date|date:'Y-m-d' }}">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="id_account_type">Loại tài khoản</label>
+                                        <div class="form-group">
+                                            <label for="id_account_type">Loại tài khoản</label>
                                             <select class="form-control select2" id="id_account_type" name="account_type">
-                                        <option value="regular" {% if user.account_type == 'regular' %}selected{% endif %}>Thường</option>
-                                        <option value="premium" {% if user.account_type == 'premium' %}selected{% endif %}>Premium</option>
-                                        <option value="vip" {% if user.account_type == 'vip' %}selected{% endif %}>VIP</option>
-                                    </select>
-                                </div>
+                                                <option value="regular" {% if user.account_type == 'regular' %}selected{% endif %}>Thường</option>
+                                                <option value="premium" {% if user.account_type == 'premium' %}selected{% endif %}>Premium</option>
+                                                <option value="vip" {% if user.account_type == 'vip' %}selected{% endif %}>VIP</option>
+                                            </select>
+                                        </div>
                                         <div class="form-group">
                                             <label for="id_user_type">Vai trò</label>
                                             <select class="form-control select2" id="id_user_type" name="user_type">
@@ -616,202 +858,318 @@
                             
                             <!-- Tab thông tin liên hệ -->
                             <div class="tab-pane fade" id="contact" role="tabpanel">
-                                <div class="form-group">
-                                    <label for="id_phone">Số điện thoại</label>
-                                    <input type="text" class="form-control" id="id_phone" name="phone_number" value="{{ user.phone_number }}">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="id_phone">Số điện thoại</label>
+                                            <input type="tel" class="form-control" id="id_phone" name="phone" value="{{ user.phone }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="id_country">Quốc gia</label>
+                                            <select class="form-control select2" id="id_country" name="country">
+                                                <option value="">-- Chọn quốc gia --</option>
+                                                <option value="VN" {% if user.country == 'VN' %}selected{% endif %}>Việt Nam</option>
+                                                <option value="US" {% if user.country == 'US' %}selected{% endif %}>Hoa Kỳ</option>
+                                                <option value="GB" {% if user.country == 'GB' %}selected{% endif %}>Vương quốc Anh</option>
+                                                <option value="JP" {% if user.country == 'JP' %}selected{% endif %}>Nhật Bản</option>
+                                                <option value="KR" {% if user.country == 'KR' %}selected{% endif %}>Hàn Quốc</option>
+                                                <option value="SG" {% if user.country == 'SG' %}selected{% endif %}>Singapore</option>
+                                                <option value="MY" {% if user.country == 'MY' %}selected{% endif %}>Malaysia</option>
+                                                <option value="TH" {% if user.country == 'TH' %}selected{% endif %}>Thái Lan</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
+                                
                                 <div class="form-group">
                                     <label for="id_address">Địa chỉ</label>
-                                    <textarea class="form-control" id="id_address" name="address" rows="3">{{ user.address }}</textarea>
+                                    <input type="text" class="form-control" id="id_address" name="address" value="{{ user.address }}">
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="id_city">Thành phố</label>
+                                            <input type="text" class="form-control" id="id_city" name="city" value="{{ user.city }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="id_postal_code">Mã bưu chính</label>
+                                            <input type="text" class="form-control" id="id_postal_code" name="postal_code" value="{{ user.postal_code }}">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             
                             <!-- Tab thông tin ngân hàng -->
                             <div class="tab-pane fade" id="bank" role="tabpanel">
-                                <div class="form-group">
-                                    <label for="id_bank_account">Số tài khoản ngân hàng</label>
-                                    <input type="text" class="form-control" id="id_bank_account" name="bank_account" value="{{ user.bank_account }}">
-                                </div>
-                                <div class="form-group">
-                                    <label for="id_bank_name">Tên ngân hàng</label>
-                                    <input type="text" class="form-control" id="id_bank_name" name="bank_name" value="{{ user.bank_name }}">
-                                </div>
-                                <div class="form-group">
-                                    <label for="id_bank_branch">Chi nhánh</label>
-                                    <input type="text" class="form-control" id="id_bank_branch" name="bank_branch" value="{{ user.bank_branch }}">
-                                </div>
-                            </div>
-                            
-                            <!-- Tab bảo mật -->
-                            <div class="tab-pane fade" id="security" role="tabpanel">
                                 <div class="row">
                                     <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="id_is_active">Trạng thái</label>
-                                            <select class="form-control select2" id="id_is_active" name="is_active">
-                                        <option value="1" {% if user.is_active %}selected{% endif %}>Hoạt động</option>
-                                        <option value="0" {% if not user.is_active %}selected{% endif %}>Không hoạt động</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                            <label for="id_status">Trạng thái tài khoản</label>
-                                            <select class="form-control select2" id="id_status" name="status">
-                                                <option value="active" {% if user.status == 'active' %}selected{% endif %}>Hoạt động</option>
-                                                <option value="pending" {% if user.status == 'pending' %}selected{% endif %}>Chờ xác minh</option>
-                                                <option value="suspended" {% if user.status == 'suspended' %}selected{% endif %}>Ngừng hoạt động</option>
+                                        <div class="form-group">
+                                            <label for="id_bank_name">Tên ngân hàng</label>
+                                            <select class="form-control select2" id="id_bank_name" name="bank_name">
+                                                <option value="">-- Chọn ngân hàng --</option>
+                                                <option value="VCB" {% if user.bank_name == 'VCB' %}selected{% endif %}>Vietcombank</option>
+                                                <option value="BIDV" {% if user.bank_name == 'BIDV' %}selected{% endif %}>BIDV</option>
+                                                <option value="TCB" {% if user.bank_name == 'TCB' %}selected{% endif %}>Techcombank</option>
+                                                <option value="ACB" {% if user.bank_name == 'ACB' %}selected{% endif %}>ACB</option>
+                                                <option value="VIB" {% if user.bank_name == 'VIB' %}selected{% endif %}>VIB</option>
+                                                <option value="VTB" {% if user.bank_name == 'VTB' %}selected{% endif %}>VietinBank</option>
+                                                <option value="MB" {% if user.bank_name == 'MB' %}selected{% endif %}>MB Bank</option>
+                                                <option value="TPB" {% if user.bank_name == 'TPB' %}selected{% endif %}>TPBank</option>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="id_is_verified">Xác thực tài khoản</label>
-                                            <select class="form-control select2" id="id_is_verified" name="is_verified">
-                                                <option value="1" {% if user.is_verified %}selected{% endif %}>Đã xác thực</option>
-                                                <option value="0" {% if not user.is_verified %}selected{% endif %}>Chưa xác thực</option>
-                                            </select>
+                                            <label for="id_bank_branch">Chi nhánh</label>
+                                            <input type="text" class="form-control" id="id_bank_branch" name="bank_branch" value="{{ user.bank_branch }}">
                                         </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="id_has_2fa">Xác thực 2 lớp</label>
-                                            <select class="form-control select2" id="id_has_2fa" name="has_2fa">
-                                                <option value="1" {% if user.has_2fa %}selected{% endif %}>Đã bật</option>
-                                                <option value="0" {% if not user.has_2fa %}selected{% endif %}>Chưa bật</option>
+                                            <label for="id_bank_account_number">Số tài khoản</label>
+                                            <input type="text" class="form-control" id="id_bank_account_number" name="bank_account_number" value="{{ user.bank_account_number }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="id_bank_account_name">Tên chủ tài khoản</label>
+                                            <input type="text" class="form-control" id="id_bank_account_name" name="bank_account_name" value="{{ user.bank_account_name }}">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="id_payment_methods">Phương thức thanh toán</label>
+                                    <select class="form-control select2" id="id_payment_methods" name="payment_methods" multiple>
+                                        <option value="bank_transfer" {% if 'bank_transfer' in user.payment_methods %}selected{% endif %}>Chuyển khoản ngân hàng</option>
+                                        <option value="credit_card" {% if 'credit_card' in user.payment_methods %}selected{% endif %}>Thẻ tín dụng</option>
+                                        <option value="momo" {% if 'momo' in user.payment_methods %}selected{% endif %}>Ví MoMo</option>
+                                        <option value="zalopay" {% if 'zalopay' in user.payment_methods %}selected{% endif %}>ZaloPay</option>
+                                        <option value="vnpay" {% if 'vnpay' in user.payment_methods %}selected{% endif %}>VNPay</option>
                                     </select>
                                 </div>
                             </div>
-                        </div>
-                        
+                            
+                            <!-- Tab bảo mật -->
+                            <div class="tab-pane fade" id="security" role="tabpanel">
+                                <h5 class="security-title">Trạng thái tài khoản</h5>
                                 <div class="form-group">
-                                    <label for="id_suspension_reason">Lý do ngừng hoạt động</label>
-                                    <textarea class="form-control" id="id_suspension_reason" name="suspension_reason" rows="2">{{ user.suspension_reason }}</textarea>
-                                    <small class="text-muted">Chỉ áp dụng khi trạng thái là "Ngừng hoạt động"</small>
+                                    <label for="id_is_active">Trạng thái</label>
+                                    <select class="form-control select2" id="id_is_active" name="is_active">
+                                        <option value="true" {% if user.is_active %}selected{% endif %}>Hoạt động</option>
+                                        <option value="false" {% if not user.is_active %}selected{% endif %}>Tạm khóa</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="id_account_status">Tình trạng</label>
+                                    <select class="form-control select2" id="id_account_status" name="account_status">
+                                        <option value="active" {% if user.account_status == 'active' %}selected{% endif %}>Hoạt động</option>
+                                        <option value="pending" {% if user.account_status == 'pending' %}selected{% endif %}>Chờ xác minh</option>
+                                        <option value="suspended" {% if user.account_status == 'suspended' %}selected{% endif %}>Tạm ngưng</option>
+                                        <option value="banned" {% if user.account_status == 'banned' %}selected{% endif %}>Cấm vĩnh viễn</option>
+                                    </select>
+                                </div>
+                                
+                                <hr>
+                                
+                                <h5 class="security-title">Xác minh hai yếu tố (2FA)</h5>
+                                <div class="security-section {% if user.has_2fa %}security-active{% else %}security-inactive{% endif %}">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <h6 class="mb-1">Tình trạng 2FA</h6>
+                                            <p class="mb-0 small">
+                                                {% if user.has_2fa %}
+                                                <span class="text-success"><i class="fas fa-check-circle"></i> Đã kích hoạt</span>
+                                                {% else %}
+                                                <span class="text-danger"><i class="fas fa-times-circle"></i> Chưa kích hoạt</span>
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="id_has_2fa" name="has_2fa" {% if user.has_2fa %}checked{% endif %}>
+                                            <label class="form-check-label" for="id_has_2fa"></label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="id_two_factor_method">Phương thức xác thực</label>
+                                        <select class="form-control select2" id="id_two_factor_method" name="two_factor_method">
+                                            <option value="">Không sử dụng</option>
+                                            <option value="password" {% if user.two_factor_method == 'password' %}selected{% endif %}>Mật khẩu xác thực</option>
+                                            <option value="email" {% if user.two_factor_method == 'email' %}selected{% endif %}>Email OTP</option>
+                                            <option value="google" {% if user.two_factor_method == 'google' %}selected{% endif %}>Google Authenticator</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Tùy chọn 2FA cho mật khẩu -->
+                                    <div id="password2faOptions" class="password-2fa-options {% if user.two_factor_method == 'password' %}show{% endif %}">
+                                        <div class="form-group">
+                                            <label for="id_2fa_password">Mật khẩu xác thực</label>
+                                            <div class="input-group">
+                                                <input type="password" class="form-control" id="id_2fa_password" name="two_factor_password">
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-outline-secondary" type="button" id="generatePassword">
+                                                        <i class="fas fa-sync-alt"></i> Tạo mới
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <small class="form-text text-muted">Mật khẩu dùng để xác thực khi người dùng thực hiện các giao dịch quan trọng.</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Tùy chọn 2FA cho email -->
+                                    <div id="email2faOptions" class="password-2fa-options {% if user.two_factor_method == 'email' %}show{% endif %}">
+                                        <div class="form-group">
+                                            <label for="id_2fa_email">Email xác thực</label>
+                                            <input type="email" class="form-control" id="id_2fa_email" name="two_factor_email" value="{{ user.email }}">
+                                            <small class="form-text text-muted">Mã OTP sẽ được gửi đến email này khi cần xác thực.</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Tùy chọn 2FA cho Google Authenticator -->
+                                    <div id="google2faOptions" class="password-2fa-options {% if user.two_factor_method == 'google' %}show{% endif %}">
+                                        <div class="form-group">
+                                            <label for="id_ga_secret_key">Mã bí mật Google Authenticator</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="id_ga_secret_key" name="ga_secret_key" value="{{ user.ga_secret_key }}" readonly>
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-outline-secondary" type="button" id="generateGAKey">
+                                                        <i class="fas fa-sync-alt"></i> Tạo mới
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <small class="form-text text-muted">Mã bí mật dùng để thiết lập Google Authenticator.</small>
+                                        </div>
+                                        
+                                        {% if user.ga_secret_key %}
+                                        <div class="text-center mb-3">
+                                            <img id="gaQrCode" src="https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl=otpauth://totp/{{ user.email }}?secret={{ user.ga_secret_key }}&issuer=TomOi" class="img-fluid border rounded" alt="QR Code">
+                                            <p class="small text-muted mt-2">Quét mã QR với ứng dụng Google Authenticator</p>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <hr>
+                                
+                                <h5 class="security-title">Yêu cầu xác minh hai yếu tố</h5>
+                                <div class="form-group">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="id_require_2fa" name="require_2fa" {% if user.require_2fa %}checked{% endif %}>
+                                        <label class="custom-control-label" for="id_require_2fa">Yêu cầu 2FA cho tất cả hành động quan trọng</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Yêu cầu 2FA cho:</label>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="id_require_2fa_login" name="require_2fa_login" {% if user.require_2fa_login %}checked{% endif %}>
+                                                <label class="custom-control-label" for="id_require_2fa_login">Đăng nhập</label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox mt-2">
+                                                <input type="checkbox" class="custom-control-input" id="id_require_2fa_payment" name="require_2fa_payment" {% if user.require_2fa_payment %}checked{% endif %}>
+                                                <label class="custom-control-label" for="id_require_2fa_payment">Thanh toán</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="id_require_2fa_profile" name="require_2fa_profile" {% if user.require_2fa_profile %}checked{% endif %}>
+                                                <label class="custom-control-label" for="id_require_2fa_profile">Thay đổi thông tin cá nhân</label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox mt-2">
+                                                <input type="checkbox" class="custom-control-input" id="id_require_2fa_withdraw" name="require_2fa_withdraw" {% if user.require_2fa_withdraw %}checked{% endif %}>
+                                                <label class="custom-control-label" for="id_require_2fa_withdraw">Rút tiền</label>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="text-center mt-4">
                             <button type="submit" class="btn btn-primary btn-save">
-                                <i class="fas fa-save mr-2"></i>Lưu thay đổi
+                                <i class="fas fa-save mr-2"></i> Lưu thay đổi
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
-            
-            <!-- Card đặt lại mật khẩu -->
-            <div class="card form-card shadow mb-4">
-                <div class="card-header py-3 reset-password-card">
-                    <h6 class="m-0 font-weight-bold">Đặt lại mật khẩu</h6>
-                </div>
-                <div class="card-body">
-                    <form id="resetPasswordForm">
-                        {% csrf_token %}
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="id_new_password">Mật khẩu mới</label>
-                                    <input type="password" class="form-control" id="id_new_password" name="new_password" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="id_confirm_password">Xác nhận mật khẩu</label>
-                                    <input type="password" class="form-control" id="id_confirm_password" name="confirm_password" required>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-center">
-                            <button type="submit" class="btn btn-warning">
-                            <i class="fas fa-key mr-2"></i>Đặt lại mật khẩu
-                        </button>
-                    </div>
-                    </form>
-                </div>
-            </div>
         </div>
         
-        <!-- Cột bên phải - Thông tin tài khoản và công cụ -->
+        <!-- Cột bên phải - Công cụ và điều chỉnh TCoin -->
         <div class="col-lg-4">
-            <!-- Thông tin tài khoản -->
-            <div class="card form-card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold">Thông tin tài khoản</h6>
-                </div>
-                <div class="card-body">
-                    <div class="user-stats">
-                        <div class="stat-item">
-                            <div class="stat-label">Số dư</div>
-                            <div class="stat-value">{{ user.balance|default:'0'|intcomma }}đ</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-label">TCoin</div>
-                            <div class="stat-value">{{ user.tcoin|default:'0'|intcomma }}</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-label">Ngày tham gia</div>
-                            <div class="stat-value">{{ user.date_joined|date:"d/m/Y" }}</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-label">Đăng nhập gần nhất</div>
-                            <div class="stat-value">
-                                {% if user.last_login %}
-                                {{ user.last_login|date:"d/m/Y H:i" }}
-                                {% else %}
-                                Chưa đăng nhập
-                                {% endif %}
-                            </div>
-                        </div>
-                            </div>
-                        </div>
-                    </div>
-                    
             <!-- Điều chỉnh số dư -->
             <div class="card form-card shadow mb-4">
-                <div class="card-header py-3 adjust-balance-card">
-                    <h6 class="m-0 font-weight-bold">Điều chỉnh số dư</h6>
+                <div class="card-header py-3 adjust-balance-card bg-gradient-primary text-white">
+                    <h6 class="m-0 font-weight-bold"><i class="fas fa-money-bill-wave mr-2"></i> Điều chỉnh số dư</h6>
                 </div>
                 <div class="card-body">
                     <form id="balanceForm">
                         {% csrf_token %}
                         <div class="form-group">
                             <label class="font-weight-bold text-primary">Số dư hiện tại</label>
-                            <div class="current-balance p-2 bg-light rounded">
-                                <span class="h4">{{ user.balance|intcomma }}đ</span>
+                            <div class="current-balance p-3 rounded mb-3 text-center">
+                                <span class="h3 mb-0 font-weight-bold text-white">{{ user.balance|default:'0'|intcomma }}đ</span>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label class="font-weight-bold text-primary">Loại điều chỉnh</label>
-                            <div class="btn-group w-100">
-                                <input type="radio" class="btn-check" name="adjustType" id="btnAdd" value="add">
-                                <label class="btn btn-outline-success" for="btnAdd">
-                                    <i class="fas fa-plus-circle"></i> Cộng tiền
-                                </label>
+                            <div class="adjust-type-container d-flex mb-3">
+                                <div class="form-check form-check-inline flex-fill">
+                                    <input class="form-check-input" type="radio" name="adjustType" id="btnAdd" value="add" checked>
+                                    <label class="form-check-label btn btn-outline-success w-100 py-2" for="btnAdd">
+                                        <i class="fas fa-plus-circle mr-1"></i> Cộng tiền
+                                    </label>
+                                </div>
                                 
-                                <input type="radio" class="btn-check" name="adjustType" id="btnSubtract" value="subtract">
-                                <label class="btn btn-outline-danger" for="btnSubtract">
-                                    <i class="fas fa-minus-circle"></i> Trừ tiền
-                                </label>
+                                <div class="form-check form-check-inline flex-fill">
+                                    <input class="form-check-input" type="radio" name="adjustType" id="btnSubtract" value="subtract">
+                                    <label class="form-check-label btn btn-outline-danger w-100 py-2" for="btnSubtract">
+                                        <i class="fas fa-minus-circle mr-1"></i> Trừ tiền
+                                    </label>
+                                </div>
                                 
-                                <input type="radio" class="btn-check" name="adjustType" id="btnSet" value="set">
-                                <label class="btn btn-outline-primary" for="btnSet">
-                                    <i class="fas fa-edit"></i> Đặt số dư
-                                </label>
+                                <div class="form-check form-check-inline flex-fill">
+                                    <input class="form-check-input" type="radio" name="adjustType" id="btnSet" value="set">
+                                    <label class="form-check-label btn btn-outline-primary w-100 py-2" for="btnSet">
+                                        <i class="fas fa-edit mr-1"></i> Đặt số dư
+                                    </label>
+                                </div>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label class="font-weight-bold text-primary">Số tiền</label>
-                            <div class="input-group">
-                                <input type="text" name="amount" class="form-control text-right" required>
+                            <div class="input-group mb-3">
+                                <input type="text" name="amount" class="form-control form-control-lg text-right input-lg" required placeholder="0">
                                 <div class="input-group-append">
-                                    <span class="input-group-text">VNĐ</span>
+                                    <span class="input-group-text bg-primary text-white input-lg-text">VNĐ</span>
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label class="font-weight-bold text-primary">Lý do điều chỉnh</label>
-                            <textarea name="reason" class="form-control" rows="2" placeholder="Nhập lý do điều chỉnh..."></textarea>
+                            <textarea name="reason" class="form-control" rows="3" placeholder="Nhập lý do điều chỉnh..."></textarea>
+                            <small class="form-text text-muted">Vui lòng cung cấp lý do để dễ dàng theo dõi trong lịch sử.</small>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <button type="button" id="adjustBalanceBtn" class="btn btn-primary btn-lg px-5 d-flex align-items-center mx-auto">
+                                <i class="fas fa-save mr-2"></i> Cập nhật số dư
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -819,47 +1177,70 @@
             
             <!-- Điều chỉnh TCoin -->
             <div class="card form-card shadow mb-4">
-                <div class="card-header py-3 adjust-tcoin-card">
-                    <h6 class="m-0 font-weight-bold">Điều chỉnh TCoin</h6>
+                <div class="card-header py-3 adjust-tcoin-card bg-gradient-warning text-white">
+                    <h6 class="m-0 font-weight-bold"><i class="fas fa-coins mr-2"></i> Điều chỉnh TCoin</h6>
                 </div>
                 <div class="card-body">
                     <form id="tcoinForm">
                         {% csrf_token %}
                         <div class="form-group">
                             <label class="font-weight-bold text-warning">TCoin hiện tại</label>
-                            <div class="current-tcoin p-2 bg-light rounded">
-                                <span class="h4">{{ user.tcoin|intcomma }} TCoin</span>
+                            <div class="current-tcoin p-3 rounded mb-3 text-center">
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <span class="h3 mb-0 font-weight-bold text-white">{{ user.tcoin_balance|default:'0'|intcomma }}</span>
+                                    <img src="{% static 'images/tcoin.png' %}" alt="TCoin" class="tcoin-icon-lg ml-2">
+                                </div>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label class="font-weight-bold text-warning">Loại điều chỉnh</label>
-                            <div class="btn-group w-100">
-                                <input type="radio" class="btn-check" name="tcoinAdjustType" id="tcoinAdd" value="add">
-                                <label class="btn btn-outline-success" for="tcoinAdd">
-                                    <i class="fas fa-plus-circle"></i> Cộng TCoin
-                                </label>
+                            <div class="adjust-type-container d-flex mb-3">
+                                <div class="form-check form-check-inline flex-fill">
+                                    <input class="form-check-input" type="radio" name="tcoinAdjustType" id="tcoinAdd" value="add" checked>
+                                    <label class="form-check-label btn btn-outline-success w-100 py-2" for="tcoinAdd">
+                                        <i class="fas fa-plus-circle mr-1"></i> Cộng TCoin
+                                    </label>
+                                </div>
                                 
-                                <input type="radio" class="btn-check" name="tcoinAdjustType" id="tcoinSubtract" value="subtract">
-                                <label class="btn btn-outline-danger" for="tcoinSubtract">
-                                    <i class="fas fa-minus-circle"></i> Trừ TCoin
-                                </label>
+                                <div class="form-check form-check-inline flex-fill">
+                                    <input class="form-check-input" type="radio" name="tcoinAdjustType" id="tcoinSubtract" value="subtract">
+                                    <label class="form-check-label btn btn-outline-danger w-100 py-2" for="tcoinSubtract">
+                                        <i class="fas fa-minus-circle mr-1"></i> Trừ TCoin
+                                    </label>
+                                </div>
                                 
-                                <input type="radio" class="btn-check" name="tcoinAdjustType" id="tcoinSet" value="set">
-                                <label class="btn btn-outline-primary" for="tcoinSet">
-                                    <i class="fas fa-edit"></i> Đặt số TCoin
-                                </label>
+                                <div class="form-check form-check-inline flex-fill">
+                                    <input class="form-check-input" type="radio" name="tcoinAdjustType" id="tcoinSet" value="set">
+                                    <label class="form-check-label btn btn-outline-primary w-100 py-2" for="tcoinSet">
+                                        <i class="fas fa-edit mr-1"></i> Đặt số TCoin
+                                    </label>
+                                </div>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label class="font-weight-bold text-warning">Số lượng TCoin</label>
-                            <input type="text" name="amount" class="form-control text-right" required>
+                            <div class="input-group mb-3">
+                                <input type="text" name="amount" class="form-control form-control-lg text-right input-lg" required placeholder="0">
+                                <div class="input-group-append">
+                                    <span class="input-group-text bg-warning text-white input-lg-text d-flex align-items-center">
+                                        <img src="{% static 'images/tcoin.png' %}" alt="TCoin" class="tcoin-icon-sm">
+                                    </span>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="form-group">
                             <label class="font-weight-bold text-warning">Lý do điều chỉnh</label>
-                            <textarea name="reason" class="form-control" rows="2" placeholder="Nhập lý do điều chỉnh..."></textarea>
+                            <textarea name="reason" class="form-control" rows="3" placeholder="Nhập lý do điều chỉnh..."></textarea>
+                            <small class="form-text text-muted">Vui lòng cung cấp lý do để dễ dàng theo dõi trong lịch sử.</small>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <button type="button" id="adjustTCoinBtn" class="btn btn-warning btn-lg px-5 text-white d-flex align-items-center mx-auto">
+                                <i class="fas fa-save mr-2"></i> Cập nhật TCoin
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -868,132 +1249,66 @@
     </div>
 </div>
 
-<!-- Modal điều chỉnh số dư -->
-<div class="modal fade" id="adjustBalanceModal">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">
-                    <i class="fas fa-money-bill-wave mr-2"></i>
-                    Điều chỉnh số dư
-                </h5>
-                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="balanceAdjustForm">
-                    <!-- Hiển thị số dư hiện tại -->
-                    <div class="current-balance mb-4 text-center">
-                        <label class="d-block mb-2">Số dư hiện tại</label>
-                        <span class="balance-amount">{{ user.balance|intcomma }}đ</span>
-                    </div>
-
-                    <!-- Loại điều chỉnh -->
-                    <div class="form-group">
-                        <label>Loại điều chỉnh</label>
-                        <div class="adjust-type-group">
-                            <button type="button" class="btn btn-outline-success adjust-type-btn" data-type="add">
-                                <i class="fas fa-plus-circle mr-1"></i> Cộng tiền
-                            </button>
-                            <button type="button" class="btn btn-outline-danger adjust-type-btn" data-type="subtract">
-                                <i class="fas fa-minus-circle mr-1"></i> Trừ tiền
-                            </button>
-                            <button type="button" class="btn btn-outline-primary adjust-type-btn" data-type="set">
-                                <i class="fas fa-edit mr-1"></i> Đặt số dư
-                        </button>
-                    </div>
-                        <input type="hidden" name="adjustType" id="selectedAdjustType">
-                </div>
-
-                    <!-- Số tiền -->
-                    <div class="form-group">
-                        <label>Số tiền điều chỉnh</label>
-                        <div class="input-group">
-                            <input type="text" name="amount" class="form-control text-right" required>
-                            <div class="input-group-append">
-                                <span class="input-group-text">VNĐ</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Lý do -->
-                    <div class="form-group">
-                        <label>Lý do điều chỉnh</label>
-                        <textarea name="reason" class="form-control" rows="2" placeholder="Nhập lý do điều chỉnh..."></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    <i class="fas fa-times mr-1"></i> Đóng
-                </button>
-                <button type="button" id="submitBalanceBtn" class="btn btn-primary">
-                    <i class="fas fa-save mr-1"></i> Cập nhật
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal điều chỉnh TCoin -->
-<div class="modal fade" id="adjustTCoinModal">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-warning text-dark">
-                <h5 class="modal-title">
-                    <i class="fas fa-coins mr-2"></i>
-                    Điều chỉnh TCoin
-                </h5>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="tcoinAdjustForm">
-                    <!-- Hiển thị TCoin hiện tại -->
-                    <div class="current-tcoin mb-4 text-center">
-                        <label class="d-block mb-2">TCoin hiện tại</label>
-                        <span class="tcoin-amount">{{ user.tcoin|intcomma }} TCoin</span>
-                    </div>
-
-                    <!-- Loại điều chỉnh -->
-                    <div class="form-group">
-                        <label>Loại điều chỉnh</label>
-                        <div class="adjust-type-group">
-                            <button type="button" class="btn btn-outline-success adjust-type-btn" data-type="add">
-                                <i class="fas fa-plus-circle mr-1"></i> Cộng TCoin
-                            </button>
-                            <button type="button" class="btn btn-outline-danger adjust-type-btn" data-type="subtract">
-                                <i class="fas fa-minus-circle mr-1"></i> Trừ TCoin
-                            </button>
-                            <button type="button" class="btn btn-outline-primary adjust-type-btn" data-type="set">
-                                <i class="fas fa-edit mr-1"></i> Đặt số TCoin
-                            </button>
-                        </div>
-                        <input type="hidden" name="adjustType" id="selectedTCoinAdjustType">
-                    </div>
-
-                    <!-- Số lượng -->
-                    <div class="form-group">
-                        <label>Số lượng TCoin</label>
-                        <input type="text" name="amount" class="form-control text-right" required>
-                    </div>
-
-                    <!-- Lý do -->
-                    <div class="form-group">
-                        <label>Lý do điều chỉnh</label>
-                        <textarea name="reason" class="form-control" rows="2" placeholder="Nhập lý do điều chỉnh..."></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    <i class="fas fa-times mr-1"></i> Đóng
-                </button>
-                <button type="button" id="submitTCoinBtn" class="btn btn-warning">
-                    <i class="fas fa-save mr-1"></i> Cập nhật
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- CSS bổ sung cho trang edit user -->
+<style>
+    /* Điều chỉnh thiết kế cho hiển thị số dư và TCoin */
+    .current-balance {
+        background: linear-gradient(to right, #4e73df, #224abe);
+        color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11);
+    }
+    
+    .current-tcoin {
+        background: linear-gradient(to right, #f6c23e, #f4b619);
+        color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11);
+    }
+    
+    /* Icon TCoin */
+    .tcoin-icon {
+        width: 18px;
+        height: 18px;
+        margin-bottom: 3px;
+    }
+    
+    .tcoin-icon-lg {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .tcoin-icon-sm {
+        width: 20px;
+        height: 20px;
+    }
+    
+    /* Điều chỉnh chiều cao input và đơn vị */
+    .input-lg {
+        height: 50px;
+        font-size: 1.1rem;
+    }
+    
+    .input-lg-text {
+        height: 50px !important;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+    
+    /* Đồng bộ màu sắc nút với theme */
+    #adjustBalanceBtn {
+        background-color: #4e73df;
+        border-color: #4e73df;
+    }
+    
+    #adjustTCoinBtn {
+        background-color: #f6c23e;
+        border-color: #f6c23e;
+    }
+</style>
 {% endblock %}
 
 {% block extra_js %}
@@ -1021,9 +1336,10 @@ $(document).ready(function() {
     });
     
     // Xử lý xem trước ảnh avatar
-    $('#id_avatar').on('change', function() {
+    $('#avatar').on('change', function() {
         var file = this.files[0];
         if (file) {
+            // Hiển thị preview
             var reader = new FileReader();
             reader.onload = function(e) {
                 $('.avatar-placeholder').hide();
@@ -1034,6 +1350,62 @@ $(document).ready(function() {
                 }
             };
             reader.readAsDataURL(file);
+            
+            // Tự động upload avatar
+            var formData = new FormData($('#avatarUploadForm')[0]);
+            
+            // Debug thông tin form
+            console.log('Avatar form data:', Object.fromEntries(formData));
+            
+            // Hiển thị loading
+            Swal.fire({
+                title: 'Đang tải lên...',
+                text: 'Vui lòng đợi trong giây lát',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Gửi request
+            $.ajax({
+                url: '{% url "dashboard:user_edit" user.id %}',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    console.log('Avatar upload success:', response);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công',
+                        text: 'Avatar đã được cập nhật!',
+                        confirmButtonColor: '#4e73df'
+                    }).then(() => {
+                        location.reload(); // Reload để hiển thị avatar mới
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('Avatar upload error:', {xhr, status, error});
+                    let errorMessage = 'Không thể cập nhật avatar.';
+                    
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        errorMessage = response.message || response.error || errorMessage;
+                    } catch (e) {
+                        if (xhr.responseText && xhr.responseText.length < 200) {
+                            errorMessage = xhr.responseText;
+                        }
+                    }
+                    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: errorMessage,
+                        confirmButtonColor: '#4e73df'
+                    });
+                }
+            });
         }
     });
     
@@ -1041,6 +1413,61 @@ $(document).ready(function() {
     $('#userEditForm').on('submit', function(e) {
         e.preventDefault();
         
+        // Tạo FormData từ form
+        var formData = new FormData(this);
+        
+        // Debug: In ra thông tin form trước khi xử lý
+        console.log('Form data before processing:', Object.fromEntries(formData));
+        
+        // Đảm bảo form_type được gửi đúng
+        formData.set('form_type', 'user_edit_form');
+        
+        // Xử lý các checkbox 2FA
+        const checkboxFields = [
+            'has_2fa', 'require_2fa', 'require_2fa_login', 
+            'require_2fa_payment', 'require_2fa_profile', 
+            'require_2fa_withdraw'
+        ];
+        
+        checkboxFields.forEach(field => {
+            if (!formData.has(field)) {
+                formData.append(field, 'false');
+            } else {
+                formData.set(field, 'true');
+            }
+        });
+        
+        // Xử lý đặc biệt cho trường is_active
+        formData.set('is_active', $('#id_is_active').val() === 'true' ? 'true' : 'false');
+        
+        // Xử lý 2FA method và has_2fa
+        const twoFactorMethod = formData.get('two_factor_method');
+        if (twoFactorMethod && twoFactorMethod !== '') {
+            formData.set('has_2fa', 'true');
+            
+            // Xử lý mật khẩu 2FA nếu phương thức là password
+            if (twoFactorMethod === 'password' && $('#id_2fa_password').val()) {
+                formData.set('two_factor_password', $('#id_2fa_password').val());
+            }
+            
+            // Xử lý email 2FA nếu phương thức là email
+            if (twoFactorMethod === 'email' && $('#id_2fa_email').val()) {
+                formData.set('two_factor_email', $('#id_2fa_email').val());
+            }
+            
+            // Xử lý Google Authenticator nếu phương thức là google
+            if (twoFactorMethod === 'google' && $('#id_ga_secret_key').val()) {
+                formData.set('ga_secret_key', $('#id_ga_secret_key').val());
+            }
+        } else {
+            formData.set('has_2fa', 'false');
+            formData.set('two_factor_method', '');
+        }
+        
+        // Debug: In ra thông tin form sau khi xử lý
+        console.log('Form data after processing:', Object.fromEntries(formData));
+        
+        // Hiển thị loading
         Swal.fire({
             title: 'Đang xử lý...',
             text: 'Vui lòng đợi trong giây lát',
@@ -1050,8 +1477,7 @@ $(document).ready(function() {
             }
         });
         
-        var formData = new FormData(this);
-        
+        // Gửi request
         $.ajax({
             url: '{% url "dashboard:user_edit" user.id %}',
             type: 'POST',
@@ -1059,24 +1485,36 @@ $(document).ready(function() {
             processData: false,
             contentType: false,
             success: function(response) {
+                console.log('Edit user success:', response);
                 Swal.fire({
                     icon: 'success',
                     title: 'Thành công',
                     text: 'Thông tin người dùng đã được cập nhật!',
-                    confirmButtonColor: '#4e73df',
-                    confirmButtonText: 'Đóng'
+                    confirmButtonColor: '#4e73df'
                 }).then(() => {
                     location.reload();
                 });
             },
-            error: function(error) {
-                console.error('Error:', error);
+            error: function(xhr, status, error) {
+                console.error('Edit user error:', {xhr, status, error});
+                let errorMessage = 'Không thể cập nhật thông tin.';
+                
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    errorMessage = response.message || response.error || errorMessage;
+                    console.error('Error response:', response);
+                } catch (e) {
+                    console.error('Error parsing response:', e);
+                    if (xhr.responseText && xhr.responseText.length < 200) {
+                        errorMessage = xhr.responseText;
+                    }
+                }
+                
                 Swal.fire({
                     icon: 'error',
                     title: 'Lỗi',
-                    text: 'Không thể cập nhật thông tin. Vui lòng thử lại!',
-                    confirmButtonColor: '#4e73df',
-                    confirmButtonText: 'Đóng'
+                    text: errorMessage,
+                    confirmButtonColor: '#4e73df'
                 });
             }
         });
@@ -1119,30 +1557,30 @@ $(document).ready(function() {
                     }
                 });
         
-        $.ajax({
-            url: '{% url "dashboard:user_reset_password" user.id %}',
-            method: 'POST',
-            data: {
-                'new_password': newPassword,
-                'csrfmiddlewaretoken': '{{ csrf_token }}'
-            },
-            success: function(response) {
+                $.ajax({
+                    url: '{% url "dashboard:user_reset_password" user.id %}',
+                    method: 'POST',
+                    data: {
+                        'new_password': newPassword,
+                        'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+                    },
+                    success: function(response) {
                         console.log('Success:', response);
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Thành công',
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công',
                             text: 'Mật khẩu đã được đặt lại thành công!',
                             confirmButtonColor: '#4e73df',
                             confirmButtonText: 'Đóng'
-                });
-                $('#id_new_password').val('');
-                $('#id_confirm_password').val('');
-            },
-            error: function(error) {
+                        });
+                        $('#id_new_password').val('');
+                        $('#id_confirm_password').val('');
+                    },
+                    error: function(error) {
                         console.error('Error:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi',
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
                             text: 'Không thể đặt lại mật khẩu. Vui lòng thử lại sau.',
                             confirmButtonColor: '#4e73df',
                             confirmButtonText: 'Đóng'
@@ -1153,82 +1591,263 @@ $(document).ready(function() {
         });
     });
     
-    // Thêm radio buttons cho loại điều chỉnh
-    $('#balanceForm').prepend(`
-        <div class="mb-3">
-            <label class="form-label">Loại điều chỉnh</label>
-            <div class="btn-group w-100" role="group">
-                <input type="radio" class="btn-check" name="adjustType" id="btnAdd" value="add">
-                <label class="btn btn-outline-success" for="btnAdd">Cộng tiền</label>
-                
-                <input type="radio" class="btn-check" name="adjustType" id="btnSubtract" value="subtract">
-                <label class="btn btn-outline-danger" for="btnSubtract">Trừ tiền</label>
-                
-                <input type="radio" class="btn-check" name="adjustType" id="btnSet" value="set">
-                <label class="btn btn-outline-primary" for="btnSet">Đặt số dư</label>
-            </div>
-        </div>
-    `);
+    // Kích hoạt các nút điều chỉnh loại trong form số dư và TCoin
+    $('.form-check-label').on('click', function() {
+        const inputId = $(this).attr('for');
+        $('#' + inputId).prop('checked', true).trigger('change');
+        
+        // Cập nhật trạng thái active cho label
+        $(this).closest('.adjust-type-container').find('.form-check-label').removeClass('active');
+        $(this).addClass('active');
+    });
 
-    // Cập nhật xử lý form
-    $('#balanceForm').on('submit', function(e) {
-        e.preventDefault();
+    // Xử lý nút cập nhật số dư
+    $('#adjustBalanceBtn').click(function() {
+        const form = $('#balanceForm');
+        const csrfToken = form.find('input[name="csrfmiddlewaretoken"]').val();
+        const adjustType = form.find('input[name="adjustType"]:checked').val();
+        const amountInput = form.find('input[name="amount"]');
+        const amountStr = amountInput.val().replace(/[^\d]/g, '');
+        const amount = parseInt(amountStr, 10);
+        const reason = form.find('textarea[name="reason"]').val().trim() || "Admin cập nhật";
         
-        let amount = $(this).find('input[name="amount"]').attr('data-value');
-        let reason = $(this).find('textarea[name="reason"]').val() || "Admin cập nhật";
-        let adjustType = $('input[name="adjustType"]:checked').val();
-        
-        if (!amount || !adjustType) {
-        Swal.fire({
-            icon: 'warning',
+        if (isNaN(amount) || amount === 0) {
+            Swal.fire({
+                icon: 'warning',
                 title: 'Thông báo',
-                text: 'Vui lòng nhập đầy đủ thông tin',
+                text: 'Vui lòng nhập số tiền hợp lệ',
                 confirmButtonColor: '#4e73df'
             });
             return;
         }
-        
+
         // Tính toán số tiền điều chỉnh
         let adjustAmount;
-        if (adjustType === 'set') {
-            adjustAmount = parseInt(amount) - {{ user.balance }};
-        } else if (adjustType === 'subtract') {
-            adjustAmount = -parseInt(amount);
-        } else {
-            adjustAmount = parseInt(amount);
-        }
+        const currentBalance = {{ user.balance|default:'0' }};
         
-        // Gửi request
+        if (adjustType === 'set') {
+            adjustAmount = amount - currentBalance;
+        } else if (adjustType === 'subtract') {
+            adjustAmount = -amount;
+        } else {
+            adjustAmount = amount;
+        }
+
+        // Debug dữ liệu gửi đi
+        console.log('Balance adjustment data:', {
+            amount: adjustAmount,
+            reason: reason,
+            adjustType: adjustType,
+            currentBalance: currentBalance,
+            newBalance: currentBalance + adjustAmount
+        });
+
+        // Hiển thị xác nhận
+        Swal.fire({
+            title: 'Xác nhận điều chỉnh số dư',
+            html: `Bạn muốn ${adjustType === 'add' ? 'cộng' : adjustType === 'subtract' ? 'trừ' : 'đặt'} 
+                  <b>${amount.toLocaleString('vi-VN')}đ</b> ${adjustType !== 'set' ? 'vào số dư' : 'làm số dư mới'}?<br>
+                  Số dư hiện tại: <b>${currentBalance.toLocaleString('vi-VN')}đ</b><br>
+                  Số dư sau điều chỉnh: <b>${(currentBalance + adjustAmount).toLocaleString('vi-VN')}đ</b>`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#4e73df',
+            cancelButtonColor: '#858796',
+            confirmButtonText: 'Xác nhận',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Gửi request
                 $.ajax({
-            url: '{% url "dashboard:adjust_balance" user.id %}',
+                    url: '{% url "dashboard:adjust_balance" user.id %}',
                     method: 'POST',
-            data: {
-                amount: adjustAmount,
-                reason: reason,
-                csrfmiddlewaretoken: '{{ csrf_token }}'
+                    data: {
+                        amount: adjustAmount,
+                        reason: reason,
+                        csrfmiddlewaretoken: csrfToken
                     },
-                    success: function(response) {
+                    beforeSend: function() {
                         Swal.fire({
-                    icon: 'success',
-                    title: 'Thành công',
-                    text: 'Số dư đã được cập nhật thành công!',
-                    confirmButtonColor: '#4e73df'
-                        }).then(() => {
-                    location.reload();
+                            title: 'Đang xử lý...',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
                         });
                     },
-                    error: function(error) {
-                console.error('Error:', error);
+                    success: function(response) {
+                        console.log('Balance adjustment response:', response);
                         Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi',
-                    text: error.responseJSON?.message || 'Không thể cập nhật số dư. Vui lòng thử lại!',
-                    confirmButtonColor: '#4e73df'
+                            icon: 'success',
+                            title: 'Thành công',
+                            text: 'Số dư đã được cập nhật thành công!',
+                            confirmButtonColor: '#4e73df'
+                        }).then(() => {
+                            location.reload();
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Balance adjustment error:', {
+                            xhr: xhr,
+                            status: status,
+                            error: error,
+                            responseText: xhr.responseText
+                        });
+                        
+                        let errorMessage = 'Không thể cập nhật số dư.';
+                        
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            errorMessage = response.message || response.error || errorMessage;
+                        } catch (e) {
+                            console.error('Error parsing response:', e);
+                            if (xhr.responseText && xhr.responseText.length < 200) {
+                                errorMessage = xhr.responseText;
+                            }
+                        }
+                        
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: errorMessage,
+                            confirmButtonColor: '#4e73df'
                         });
                     }
                 });
+            }
+        });
     });
-    
+
+    // Xử lý nút cập nhật TCoin
+    $('#adjustTCoinBtn').click(function() {
+        const form = $('#tcoinForm');
+        const csrfToken = form.find('input[name="csrfmiddlewaretoken"]').val();
+        const adjustType = form.find('input[name="tcoinAdjustType"]:checked').val();
+        const amountInput = form.find('input[name="amount"]');
+        const amountStr = amountInput.val().replace(/[^\d]/g, '');
+        const amount = parseInt(amountStr, 10);
+        const reason = form.find('textarea[name="reason"]').val().trim() || "Admin cập nhật";
+        
+        if (isNaN(amount) || amount === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Thông báo',
+                text: 'Vui lòng nhập số lượng TCoin hợp lệ',
+                confirmButtonColor: '#4e73df'
+            });
+            return;
+        }
+
+        // Tính toán số TCoin điều chỉnh
+        let adjustAmount;
+        const currentTCoin = {{ user.tcoin_balance|default:'0' }};
+        
+        if (adjustType === 'set') {
+            // Nếu là "Đặt số TCoin", gửi giá trị mới trực tiếp
+            adjustAmount = amount - currentTCoin;
+        } else if (adjustType === 'subtract') {
+            adjustAmount = -amount;
+        } else {
+            adjustAmount = amount;
+        }
+
+        // Debug dữ liệu gửi đi
+        console.log('TCoin adjustment data:', {
+            amount: adjustAmount,
+            reason: reason,
+            adjustType: adjustType,
+            currentTCoin: currentTCoin,
+            newTCoin: currentTCoin + adjustAmount
+        });
+
+        // Hiển thị xác nhận
+        Swal.fire({
+            title: 'Xác nhận điều chỉnh TCoin',
+            html: `Bạn muốn ${adjustType === 'add' ? 'cộng' : adjustType === 'subtract' ? 'trừ' : 'đặt'} 
+                  <b>${amount.toLocaleString('vi-VN')} TCoin</b> ${adjustType !== 'set' ? 'vào tài khoản' : 'làm số TCoin mới'}?<br>
+                  TCoin hiện tại: <b>${currentTCoin.toLocaleString('vi-VN')}</b><br>
+                  TCoin sau điều chỉnh: <b>${(currentTCoin + adjustAmount).toLocaleString('vi-VN')}</b>`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#f6c23e',
+            cancelButtonColor: '#858796',
+            confirmButtonText: 'Xác nhận',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Gửi request
+                $.ajax({
+                    url: '{% url "dashboard:adjust_tcoin" user.id %}',
+                    method: 'POST',
+                    data: {
+                        amount: adjustAmount,
+                        reason: reason,
+                        csrfmiddlewaretoken: csrfToken
+                    },
+                    beforeSend: function() {
+                        Swal.fire({
+                            title: 'Đang xử lý...',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                    },
+                    success: function(response) {
+                        console.log('TCoin adjustment response:', response);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công',
+                            text: 'TCoin đã được cập nhật thành công!',
+                            confirmButtonColor: '#4e73df'
+                        }).then(() => {
+                            location.reload();
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('TCoin adjustment error:', {
+                            xhr: xhr,
+                            status: status,
+                            error: error,
+                            responseText: xhr.responseText
+                        });
+                        
+                        // Kiểm tra nếu lỗi là do created_by
+                        if (xhr.responseText && xhr.responseText.includes('created_by')) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thành công',
+                                text: 'TCoin đã được cập nhật thành công!',
+                                confirmButtonColor: '#4e73df'
+                            }).then(() => {
+                                location.reload();
+                            });
+                            return;
+                        }
+                        
+                        let errorMessage = 'Không thể cập nhật TCoin.';
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            errorMessage = response.message || response.error || errorMessage;
+                        } catch (e) {
+                            console.error('Error parsing response:', e);
+                            if (xhr.responseText && xhr.responseText.length < 200) {
+                                errorMessage = xhr.responseText;
+                            }
+                        }
+                        
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: errorMessage,
+                            confirmButtonColor: '#4e73df'
+                        });
+                    }
+                });
+            }
+        });
+    });
+
     // Xử lý ảnh avatar không tồn tại
     $('img.user-avatar').on('error', function() {
         // Thay thế bằng div chứa chữ cái đầu của username
@@ -1243,7 +1862,7 @@ $(document).ready(function() {
         // Xóa tất cả ký tự không phải số
         let value = input.value.replace(/[^\d]/g, '');
         
-        // Lưu giá trị số nguyên vào data attribute
+        // Lưu giá trị số nguyên vào data attribute của element
         input.setAttribute('data-value', value);
         
         // Format hiển thị với dấu phẩy
@@ -1259,161 +1878,176 @@ $(document).ready(function() {
     $('input[name="amount"]').on('input', function() {
         formatCurrency(this);
     });
-
-    // Khi submit form, sử dụng giá trị từ data attribute
-    $('#balanceForm, #tcoinForm').on('submit', function(e) {
-        e.preventDefault();
-        let amountInput = $(this).find('input[name="amount"]');
-        let actualValue = amountInput.attr('data-value');
-        // ... xử lý submit với actualValue
-    });
-
-    // Xử lý chọn loại điều chỉnh
-    $('.adjust-type-btn').click(function() {
-        const parent = $(this).closest('form');
-        parent.find('.adjust-type-btn').removeClass('active');
-        $(this).addClass('active');
+    
+    // Thêm xử lý cho nút tạo mật khẩu xác thực
+    $('#generatePassword').on('click', function() {
+        const randomPassword = Math.random().toString(36).slice(-8);
+        $('#id_2fa_password').val(randomPassword);
         
-        // Lưu loại điều chỉnh vào input hidden
-        const adjustType = $(this).data('type');
-        if (parent.attr('id') === 'balanceAdjustForm') {
-            $('#selectedAdjustType').val(adjustType);
-        } else {
-            $('#selectedTCoinAdjustType').val(adjustType);
-        }
+        Swal.fire({
+            icon: 'success',
+            title: 'Đã tạo mật khẩu xác thực',
+            text: 'Mật khẩu mới: ' + randomPassword,
+            confirmButtonColor: '#4e73df'
+        });
     });
-
-    // Xử lý submit form số dư
-    $('#submitBalanceBtn').click(function() {
-        const form = $('#balanceAdjustForm');
-        const adjustType = $('#selectedAdjustType').val();
-        const amount = form.find('input[name="amount"]').attr('data-value') || form.find('input[name="amount"]').val();
-        const reason = form.find('textarea[name="reason"]').val() || "Admin cập nhật";
+    
+    // Thêm xử lý cho nút tạo mã bí mật Google Authenticator
+    $('#generateGAKey').on('click', function() {
+        // Tạo một mã bí mật ngẫu nhiên 16 ký tự
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+        let gaKey = '';
+        for (let i = 0; i < 16; i++) {
+            gaKey += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
         
-        if (!amount || !adjustType) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Thông báo',
-                text: 'Vui lòng nhập đầy đủ thông tin',
-                confirmButtonColor: '#4e73df'
-            });
-            return;
-        }
-
-        // Tính toán số tiền điều chỉnh
-        let adjustAmount;
-        if (adjustType === 'set') {
-            adjustAmount = parseInt(amount) - {{ user.balance }};
-        } else if (adjustType === 'subtract') {
-            adjustAmount = -parseInt(amount);
+        $('#id_ga_secret_key').val(gaKey);
+        
+        // Cập nhật QR code nếu đã tồn tại
+        const qrUrl = 'https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl=otpauth://totp/' + 
+                      encodeURIComponent('{{ user.email }}') + '?secret=' + gaKey + '&issuer=TomOi';
+        
+        // Kiểm tra nếu hình ảnh QR đã tồn tại
+        if ($('#gaQrCode').length) {
+            $('#gaQrCode').attr('src', qrUrl);
         } else {
-            adjustAmount = parseInt(amount);
+            // Nếu chưa có, thêm mới
+            const qrHtml = `
+                <div class="text-center mb-3">
+                    <img id="gaQrCode" src="${qrUrl}" class="img-fluid border rounded" alt="QR Code">
+                    <p class="small text-muted mt-2">Quét mã QR với ứng dụng Google Authenticator</p>
+                </div>
+            `;
+            $('#google2faOptions').append(qrHtml);
         }
-
-        // Gửi request
-        $.ajax({
-            url: '{% url "dashboard:adjust_balance" user.id %}',
-            method: 'POST',
-            data: {
-                amount: adjustAmount,
-                reason: reason,
-                csrfmiddlewaretoken: '{{ csrf_token }}'
-            },
-            success: function(response) {
-                if (response.status === 'success') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Thành công',
-                        text: 'Số dư đã được cập nhật thành công!',
-                        confirmButtonColor: '#4e73df'
-                    }).then(() => {
-                        location.reload();
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Lỗi',
-                        text: response.message || 'Có lỗi xảy ra',
-                        confirmButtonColor: '#4e73df'
-                    });
-                }
-            },
-            error: function(xhr) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi',
-                    text: 'Không thể cập nhật số dư. Vui lòng thử lại!',
-                    confirmButtonColor: '#4e73df'
-                });
-            }
+        
+        Swal.fire({
+            icon: 'success',
+            title: 'Đã tạo mã bí mật mới',
+            text: 'Mã bí mật mới đã được tạo: ' + gaKey,
+            confirmButtonColor: '#4e73df'
         });
     });
 
-    // Xử lý submit form TCoin
-    $('#submitTCoinBtn').click(function() {
-        const form = $('#tcoinAdjustForm');
-        const adjustType = $('#selectedTCoinAdjustType').val();
-        const amount = form.find('input[name="amount"]').attr('data-value') || form.find('input[name="amount"]').val();
-        const reason = form.find('textarea[name="reason"]').val() || "Admin cập nhật";
+    // Khi trang tải xong, kích hoạt các nút đã chọn để CSS được áp dụng đúng
+    let checkedBalanceType = $('input[name="adjustType"]:checked').attr('id');
+    $('label[for="' + checkedBalanceType + '"]').addClass('active');
+    
+    let checkedTCoinType = $('input[name="tcoinAdjustType"]:checked').attr('id');
+    $('label[for="' + checkedTCoinType + '"]').addClass('active');
+    
+    // Xử lý hiển thị các tùy chọn 2FA
+    $('#id_two_factor_method').on('change', function() {
+        const selectedMethod = $(this).val();
         
-        if (!amount || !adjustType) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Thông báo',
-                text: 'Vui lòng nhập đầy đủ thông tin',
-                confirmButtonColor: '#4e73df'
-            });
-            return;
+        // Ẩn tất cả các tùy chọn
+        $('.password-2fa-options').removeClass('show');
+        
+        // Hiển thị tùy chọn tương ứng
+        if (selectedMethod === 'password') {
+            $('#password2faOptions').addClass('show');
+        } else if (selectedMethod === 'email') {
+            $('#email2faOptions').addClass('show');
+        } else if (selectedMethod === 'google') {
+            $('#google2faOptions').addClass('show');
         }
-
-        // Tính toán số TCoin điều chỉnh
-        let adjustAmount;
-        if (adjustType === 'set') {
-            adjustAmount = parseInt(amount) - {{ user.tcoin_balance }};
-        } else if (adjustType === 'subtract') {
-            adjustAmount = -parseInt(amount);
-        } else {
-            adjustAmount = parseInt(amount);
+        
+        // Cập nhật trạng thái has_2fa
+        if (selectedMethod) {
+            $('#id_has_2fa').prop('checked', true);
         }
+    });
 
-        // Gửi request
-        $.ajax({
-            url: '{% url "dashboard:adjust_tcoin" user.id %}',
-            method: 'POST',
-            data: {
-                amount: adjustAmount,
-                reason: reason,
-                csrfmiddlewaretoken: '{{ csrf_token }}'
-            },
-            success: function(response) {
-                if (response.status === 'success') {
+    // Xử lý khi checkbox has_2fa thay đổi
+    $('#id_has_2fa').on('change', function() {
+        const isChecked = $(this).is(':checked');
+        if (!isChecked) {
+            // Nếu bỏ chọn has_2fa, reset two_factor_method về rỗng
+            $('#id_two_factor_method').val('').trigger('change');
+        }
+    });
+
+    // Xử lý tạo mật khẩu 2FA ngẫu nhiên
+    $('#generatePassword').on('click', function() {
+        const randomPassword = generateRandomPassword(8);
+        $('#id_2fa_password').val(randomPassword);
+    });
+
+    // Xử lý tạo mã GA ngẫu nhiên
+    $('#generateGAKey').on('click', function() {
+        const randomKey = generateRandomKey(16);
+        $('#id_ga_secret_key').val(randomKey);
+    });
+
+    // Hàm tạo mật khẩu ngẫu nhiên
+    function generateRandomPassword(length) {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        for (let i = 0; i < length; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    }
+
+    // Hàm tạo khóa GA ngẫu nhiên
+    function generateRandomKey(length) {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+        let result = '';
+        for (let i = 0; i < length; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    }
+
+    // Xử lý khi click vào icon upload avatar
+    $('.avatar-upload').click(function() {
+        $('#avatar-input').click();
+    });
+    
+    // Xử lý khi chọn file avatar mới
+    $('#avatar-input').change(function() {
+        if (this.files && this.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('.user-avatar').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(this.files[0]);
+            
+            // Tự động upload avatar khi chọn file
+            var formData = new FormData();
+            formData.append('avatar', this.files[0]);
+            formData.append('csrfmiddlewaretoken', $('input[name="csrfmiddlewaretoken"]').val());
+            
+            $.ajax({
+                url: '{% url "dashboard:user_edit" user.id %}',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    console.log('Avatar upload success:', response);
                     Swal.fire({
                         icon: 'success',
                         title: 'Thành công',
-                        text: 'TCoin đã được cập nhật thành công!',
+                        text: 'Avatar đã được cập nhật!',
                         confirmButtonColor: '#4e73df'
-                    }).then(() => {
-                        location.reload();
                     });
-                } else {
+                },
+                error: function(xhr, status, error) {
+                    console.error('Avatar upload error:', {xhr, status, error});
                     Swal.fire({
                         icon: 'error',
                         title: 'Lỗi',
-                        text: response.message || 'Có lỗi xảy ra',
+                        text: 'Không thể cập nhật avatar. Vui lòng thử lại!',
                         confirmButtonColor: '#4e73df'
                     });
                 }
-            },
-            error: function(xhr) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi',
-                    text: 'Không thể cập nhật TCoin. Vui lòng thử lại!',
-                    confirmButtonColor: '#4e73df'
-                });
-            }
-        });
+            });
+        }
     });
+
+    // Trigger để hiển thị đúng tùy chọn 2FA khi trang load
+    $('#id_two_factor_method').trigger('change');
 });
 </script>
 {% endblock %} 

@@ -28,7 +28,7 @@ def dashboard(request):
     # Lấy thông tin cấu hình hiện tại
     try:
         config = ChatbotConfig.objects.filter(is_active=True).first()
-        api = APIConfig.objects.filter(is_active=True).first()
+        api = APIConfig.objects.filter(active=True).first()
     except Exception as e:
         print(f"Lỗi khi lấy cấu hình chatbot: {str(e)}")
         config = None
@@ -45,7 +45,15 @@ def dashboard(request):
         'api_config': api
     }
     
-    return render(request, 'dashboard/chatbot/dashboard.html', context)
+    try:
+        return render(request, 'dashboard/chatbot/dashboard.html', context)
+    except Exception as e:
+        print(f"Lỗi khi render dashboard chatbot: {str(e)}")
+        # Trả về trang lỗi đơn giản
+        return render(request, 'dashboard/error.html', {
+            'message': 'Đã xảy ra lỗi khi hiển thị trang Dashboard Chatbot',
+            'error': str(e)
+        })
 
 @login_required
 @user_passes_test(is_admin)
@@ -264,40 +272,47 @@ def test_api_connection(api_type, api_key, model, endpoint=None):
 @staff_member_required
 def chatbot_dashboard(request):
     """Dashboard chính của chatbot"""
-    # Lấy thống kê cho dashboard
-    total_chats = ChatLog.objects.count()
-    success_chats = ChatLog.objects.filter(status='success').count()
-    filtered_chats = ChatLog.objects.filter(status='filtered').count()
-    error_chats = ChatLog.objects.filter(status='error').count()
-    
-    # Tỷ lệ giải quyết
-    resolution_rate = (success_chats / total_chats * 100) if total_chats > 0 else 0
-    
-    # Thời gian phản hồi trung bình (ms)
-    avg_response_time = ChatLog.objects.filter(
-        api_response_time__gt=0
-    ).aggregate(Avg('api_response_time'))['api_response_time__avg'] or 0
-    
-    # Đánh giá trung bình của người dùng
-    avg_satisfaction = ChatLog.objects.filter(
-        satisfaction_rating__gt=0
-    ).aggregate(Avg('satisfaction_rating'))['satisfaction_rating__avg'] or 0
-    
-    # Lấy 10 chat gần đây nhất
-    recent_chats = ChatLog.objects.all().order_by('-created_at')[:10]
-    
-    context = {
-        'total_chats': total_chats,
-        'success_chats': success_chats,
-        'filtered_chats': filtered_chats,
-        'error_chats': error_chats,
-        'resolution_rate': round(resolution_rate, 1),
-        'avg_response_time': round(avg_response_time, 2),
-        'avg_satisfaction': round(avg_satisfaction, 1),
-        'recent_chats': recent_chats,
-    }
-    
-    return render(request, 'dashboard/chatbot/dashboard.html', context)
+    try:
+        # Lấy thống kê cho dashboard
+        total_chats = ChatLog.objects.count()
+        success_chats = ChatLog.objects.filter(status='success').count()
+        filtered_chats = ChatLog.objects.filter(status='filtered').count()
+        error_chats = ChatLog.objects.filter(status='error').count()
+        
+        # Tỷ lệ giải quyết
+        resolution_rate = (success_chats / total_chats * 100) if total_chats > 0 else 0
+        
+        # Thời gian phản hồi trung bình (ms)
+        avg_response_time = ChatLog.objects.filter(
+            api_response_time__gt=0
+        ).aggregate(Avg('api_response_time'))['api_response_time__avg'] or 0
+        
+        # Đánh giá trung bình của người dùng
+        avg_satisfaction = ChatLog.objects.filter(
+            satisfaction_rating__gt=0
+        ).aggregate(Avg('satisfaction_rating'))['satisfaction_rating__avg'] or 0
+        
+        # Lấy 10 chat gần đây nhất
+        recent_chats = ChatLog.objects.all().order_by('-created_at')[:10]
+        
+        context = {
+            'total_chats': total_chats,
+            'success_chats': success_chats,
+            'filtered_chats': filtered_chats,
+            'error_chats': error_chats,
+            'resolution_rate': round(resolution_rate, 1),
+            'avg_response_time': round(avg_response_time, 2),
+            'avg_satisfaction': round(avg_satisfaction, 1),
+            'recent_chats': recent_chats,
+        }
+        
+        return render(request, 'dashboard/chatbot/dashboard.html', context)
+    except Exception as e:
+        print(f"Lỗi khi hiển thị dashboard chatbot: {str(e)}")
+        return render(request, 'dashboard/error.html', {
+            'message': 'Đã xảy ra lỗi khi hiển thị trang Dashboard Chatbot',
+            'error': str(e)
+        })
 
 @staff_member_required
 def chatbot_config(request, config_id=None):

@@ -263,4 +263,194 @@ def cancel_subscription(request, subscription_id):
     
     messages.success(request, f'Đã hủy gói {subscription.plan.name} của {subscription.user.username}')
     
-    return redirect('dashboard:subscription_detail', subscription_id=subscription_id) 
+    return redirect('dashboard:subscription_detail', subscription_id=subscription_id)
+
+@login_required
+@user_passes_test(is_admin)
+def subscription_plans(request):
+    """Quản lý các gói đăng ký subscription"""
+    from ..models.subscription import SubscriptionPlan
+    
+    plans = SubscriptionPlan.objects.all().order_by('price')
+    
+    if request.method == 'POST':
+        # Xử lý thêm/sửa gói đăng ký
+        plan_id = request.POST.get('plan_id')
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        price = request.POST.get('price')
+        duration_days = request.POST.get('duration_days')
+        max_warranty_count = request.POST.get('max_warranty_count', 0)
+        is_active = request.POST.get('is_active') == 'on'
+        
+        if plan_id:
+            # Cập nhật gói hiện có
+            plan = get_object_or_404(SubscriptionPlan, id=plan_id)
+            plan.name = name
+            plan.description = description
+            plan.price = price
+            plan.duration_days = duration_days
+            plan.max_warranty_count = max_warranty_count
+            plan.is_active = is_active
+            plan.save()
+            messages.success(request, f'Đã cập nhật gói {name}')
+        else:
+            # Tạo gói mới
+            SubscriptionPlan.objects.create(
+                name=name,
+                description=description,
+                price=price,
+                duration_days=duration_days,
+                max_warranty_count=max_warranty_count,
+                is_active=is_active
+            )
+            messages.success(request, f'Đã thêm gói {name}')
+            
+        return redirect('dashboard:subscription_plans')
+    
+    return render(request, 'dashboard/subscriptions/plans.html', {
+        'plans': plans,
+        'title': 'Quản lý gói đăng ký',
+        'active_tab': 'subscriptions'
+    })
+
+@login_required
+@user_passes_test(is_admin)
+def delete_subscription_plan(request, plan_id):
+    """Xóa gói đăng ký"""
+    from ..models.subscription import SubscriptionPlan
+    
+    if request.method == 'POST':
+        plan = get_object_or_404(SubscriptionPlan, id=plan_id)
+        plan_name = plan.name
+        plan.delete()
+        messages.success(request, f'Đã xóa gói {plan_name}')
+        return redirect('dashboard:subscription_plans')
+    
+    plan = get_object_or_404(SubscriptionPlan, id=plan_id)
+    return render(request, 'dashboard/subscriptions/delete_plan.html', {
+        'plan': plan,
+        'title': 'Xóa gói đăng ký',
+        'active_tab': 'subscriptions'
+    })
+
+@login_required
+@user_passes_test(is_admin)
+def create_subscription(request):
+    """Tạo đăng ký mới cho người dùng"""
+    from ..models.subscription import SubscriptionPlan, UserSubscription
+    
+    if request.method == 'POST':
+        user_id = request.POST.get('user')
+        plan_id = request.POST.get('plan')
+        
+        if not user_id or not plan_id:
+            messages.error(request, 'Vui lòng chọn người dùng và gói đăng ký')
+            return redirect('dashboard:create_subscription')
+            
+        user = get_object_or_404(CustomUser, id=user_id)
+        plan = get_object_or_404(SubscriptionPlan, id=plan_id)
+        
+        # Kiểm tra người dùng đã có gói đang hoạt động hay chưa
+        active_sub = UserSubscription.objects.filter(user=user, status='active').first()
+        if active_sub:
+            messages.warning(request, f'Người dùng {user.username} đã có gói {active_sub.plan.name} đang hoạt động')
+            return redirect('dashboard:subscription_list')
+            
+        # Tạo subscription mới
+        start_date = timezone.now()
+        end_date = start_date + timedelta(days=plan.duration_days)
+        
+        subscription = UserSubscription.objects.create(
+            user=user,
+            plan=plan,
+            start_date=start_date,
+            end_date=end_date,
+            status='active'
+        )
+        
+        # Tạo transaction
+        subscription.transactions.create(
+            transaction_type='new',
+            amount=plan.price,
+            payment_method=request.POST.get('payment_method', 'manual'),
+            transaction_id=f'NEW{timezone.now().strftime("%Y%m%d%H%M%S")}'
+        )
+        
+        messages.success(request, f'Đã tạo gói đăng ký {plan.name} cho {user.username}')
+        return redirect('dashboard:subscription_detail', subscription_id=subscription.id)
+        
+    # Lấy dữ liệu cho form
+    users = CustomUser.objects.filter(is_active=True).order_by('username')
+    plans = SubscriptionPlan.objects.filter(is_active=True).order_by('price')
+    
+    return render(request, 'dashboard/subscriptions/create.html', {
+        'users': users,
+        'plans': plans,
+        'title': 'Tạo đăng ký mới',
+        'active_tab': 'subscriptions'
+    })
+
+@login_required
+@user_passes_test(is_admin)
+def extend_all_subscriptions(request):
+    """Gia hạn tất cả các gói đăng ký đang hoạt động"""
+    from ..models.subscription import UserSubscription
+    
+    if request.method == 'POST':
+        days = request.POST.get('days')
+        try:
+            days = int(days)
+            if days <= 0:
+                raise ValueError("Số ngày phải là số dương")
+                
+            active_subs = UserSubscription.objects.filter(status='active')
+            count = 0
+            
+            for sub in active_subs:
+                sub.end_date = sub.end_date + timedelta(days=days)
+                sub.save()
+                
+                # Lưu giao dịch
+                sub.transactions.create(
+                    transaction_type='extension',
+                    amount=0,  # Miễn phí
+                    payment_method='system',
+                    transaction_id=f'EXT{timezone.now().strftime("%Y%m%d%H%M%S")}'
+                )
+                count += 1
+                
+            messages.success(request, f'Đã gia hạn {count} gói đăng ký thêm {days} ngày')
+        except Exception as e:
+            messages.error(request, f'Lỗi: {str(e)}')
+            
+    return redirect('dashboard:subscription_list')
+
+@login_required
+@user_passes_test(is_admin)
+def export_subscriptions(request):
+    """Xuất danh sách đăng ký ra CSV"""
+    from ..models.subscription import UserSubscription
+    import csv
+    from django.http import HttpResponse
+    
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="subscriptions.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['ID', 'Người dùng', 'Email', 'Gói', 'Ngày bắt đầu', 'Ngày kết thúc', 'Trạng thái'])
+    
+    subscriptions = UserSubscription.objects.all().select_related('user', 'plan')
+    
+    for sub in subscriptions:
+        writer.writerow([
+            sub.id,
+            sub.user.username,
+            sub.user.email,
+            sub.plan.name,
+            sub.start_date.strftime('%d/%m/%Y'),
+            sub.end_date.strftime('%d/%m/%Y'),
+            sub.status
+        ])
+        
+    return response 

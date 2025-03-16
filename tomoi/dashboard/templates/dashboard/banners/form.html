@@ -1,0 +1,154 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if banner.id %}Chỉnh sửa banner{% else %}Thêm banner mới{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">
+        {% if banner.id %}Chỉnh sửa banner{% else %}Thêm banner mới{% endif %}
+    </h1>
+    <p class="mb-4">Nhập thông tin chi tiết cho banner.</p>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin banner</h6>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" id="bannerForm">
+                {% csrf_token %}
+                
+                <div class="form-group row">
+                    <label for="title" class="col-sm-2 col-form-label">Tiêu đề</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="title" name="title" value="{{ banner.title|default:'' }}" required>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="description" class="col-sm-2 col-form-label">Mô tả</label>
+                    <div class="col-sm-10">
+                        <textarea class="form-control" id="description" name="description" rows="3">{{ banner.description|default:'' }}</textarea>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="image" class="col-sm-2 col-form-label">Hình ảnh</label>
+                    <div class="col-sm-10">
+                        {% if banner.image %}
+                        <div class="mb-2">
+                            <img src="{{ banner.image.url }}" alt="{{ banner.title }}" class="img-thumbnail" style="max-height: 200px;">
+                        </div>
+                        {% endif %}
+                        <input type="file" class="form-control-file" id="image" name="image" accept="image/*" {% if not banner.id %}required{% endif %}>
+                        <small class="form-text text-muted">Kích thước khuyến nghị: 1200x400 pixels.</small>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="url" class="col-sm-2 col-form-label">Đường dẫn</label>
+                    <div class="col-sm-10">
+                        <input type="url" class="form-control" id="url" name="url" value="{{ banner.url|default:'' }}">
+                        <small class="form-text text-muted">Đường dẫn khi người dùng nhấp vào banner.</small>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="position" class="col-sm-2 col-form-label">Vị trí hiển thị</label>
+                    <div class="col-sm-10">
+                        <select class="form-control" id="position" name="position" required>
+                            <option value="">-- Chọn vị trí --</option>
+                            <option value="home_top" {% if banner.position == 'home_top' %}selected{% endif %}>Trang chủ - Trên cùng</option>
+                            <option value="home_middle" {% if banner.position == 'home_middle' %}selected{% endif %}>Trang chủ - Giữa trang</option>
+                            <option value="home_bottom" {% if banner.position == 'home_bottom' %}selected{% endif %}>Trang chủ - Dưới cùng</option>
+                            <option value="sidebar" {% if banner.position == 'sidebar' %}selected{% endif %}>Sidebar</option>
+                            <option value="category" {% if banner.position == 'category' %}selected{% endif %}>Trang danh mục</option>
+                            <option value="product" {% if banner.position == 'product' %}selected{% endif %}>Trang sản phẩm</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="order" class="col-sm-2 col-form-label">Thứ tự hiển thị</label>
+                    <div class="col-sm-10">
+                        <input type="number" class="form-control" id="order" name="order" value="{{ banner.order|default:'0' }}" min="0">
+                        <small class="form-text text-muted">Số nhỏ hơn sẽ hiển thị trước.</small>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="is_active" class="col-sm-2 col-form-label">Trạng thái</label>
+                    <div class="col-sm-10">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="is_active" name="is_active" {% if banner.is_active %}checked{% endif %}>
+                            <label class="form-check-label" for="is_active">Kích hoạt banner</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <div class="col-sm-10 offset-sm-2">
+                        <button type="submit" class="btn btn-primary">
+                            {% if banner.id %}Cập nhật{% else %}Thêm mới{% endif %}
+                        </button>
+                        <a href="{% url 'dashboard:banners' %}" class="btn btn-secondary">Hủy</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Xem trước ảnh khi chọn file
+        $('#image').change(function() {
+            if (this.files && this.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var preview = $('<img>').attr({
+                        'src': e.target.result,
+                        'class': 'img-thumbnail',
+                        'style': 'max-height: 200px; margin-bottom: 10px;'
+                    });
+                    $('#image').prev('.img-thumbnail').remove();
+                    preview.insertBefore('#image');
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+        
+        // Kiểm tra form trước khi submit
+        $('#bannerForm').submit(function(e) {
+            var title = $('#title').val().trim();
+            if (!title) {
+                alert('Vui lòng nhập tiêu đề cho banner');
+                e.preventDefault();
+                return false;
+            }
+            
+            var position = $('#position').val();
+            if (!position) {
+                alert('Vui lòng chọn vị trí hiển thị');
+                e.preventDefault();
+                return false;
+            }
+            
+            {% if not banner.id %}
+            var image = $('#image').val();
+            if (!image) {
+                alert('Vui lòng chọn hình ảnh cho banner');
+                e.preventDefault();
+                return false;
+            }
+            {% endif %}
+            
+            return true;
+        });
+    });
+</script>
+{% endblock %} 

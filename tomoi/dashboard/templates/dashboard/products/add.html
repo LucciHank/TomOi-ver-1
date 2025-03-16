@@ -3,6 +3,40 @@
 
 {% block title %}Thêm sản phẩm mới{% endblock %}
 
+{% block extra_css %}
+<link href="{% static 'vendor/select2/css/select2.min.css' %}" rel="stylesheet">
+<link href="{% static 'vendor/summernote/summernote-bs4.min.css' %}" rel="stylesheet">
+<style>
+    .preview-image {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+    }
+    .image-preview-container {
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+    .nav-tabs .nav-link {
+        border: 1px solid #e3e6f0;
+        margin-right: 5px;
+        color: #6e707e;
+    }
+    .nav-tabs .nav-link.active {
+        background-color: #4e73df;
+        color: white;
+        border-color: #4e73df;
+    }
+    .select2-container--default .select2-selection--multiple {
+        border: 1px solid #d1d3e2;
+        border-radius: 0.35rem;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
     <h1 class="h3 mb-2 text-gray-800">Thêm sản phẩm mới</h1>
@@ -10,84 +44,475 @@
 
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Thông tin sản phẩm</h6>
+            <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="info-tab" data-toggle="tab" href="#info" role="tab">Thông tin cơ bản</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="pricing-tab" data-toggle="tab" href="#pricing" role="tab">Giá & Tồn kho</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="images-tab" data-toggle="tab" href="#images" role="tab">Hình ảnh</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="attributes-tab" data-toggle="tab" href="#attributes" role="tab">Thuộc tính</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="related-tab" data-toggle="tab" href="#related" role="tab">Sản phẩm liên quan</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="seo-tab" data-toggle="tab" href="#seo" role="tab">SEO</a>
+                </li>
+            </ul>
         </div>
         <div class="card-body">
-            <form method="post" enctype="multipart/form-data">
+            <form method="post" enctype="multipart/form-data" id="product-form">
                 {% csrf_token %}
                 
-                <div class="form-group row">
-                    <label for="name" class="col-sm-2 col-form-label">Tên sản phẩm</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="name" name="name" required>
+                <div class="tab-content">
+                    <!-- Thông tin cơ bản -->
+                    <div class="tab-pane fade show active" id="info" role="tabpanel">
+                        <div class="form-group row">
+                            <label for="name" class="col-sm-2 col-form-label">Tên sản phẩm <span class="text-danger">*</span></label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label for="sku" class="col-sm-2 col-form-label">Mã SKU</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" id="sku" name="sku" placeholder="VD: SP-001">
+                                <small class="text-muted">Mã sản phẩm duy nhất trong hệ thống</small>
+                            </div>
+                            <label for="barcode" class="col-sm-2 col-form-label">Mã vạch</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" id="barcode" name="barcode">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label for="category" class="col-sm-2 col-form-label">Danh mục</label>
+                            <div class="col-sm-10">
+                                <select class="form-control select2" id="category" name="category">
+                                    <option value="">-- Chọn danh mục --</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label for="brand" class="col-sm-2 col-form-label">Thương hiệu</label>
+                            <div class="col-sm-10">
+                                <select class="form-control select2" id="brand" name="brand">
+                                    <option value="">-- Chọn thương hiệu --</option>
+                                    {% for brand in brands %}
+                                    <option value="{{ brand.id }}">{{ brand.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label for="short_description" class="col-sm-2 col-form-label">Mô tả ngắn</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" id="short_description" name="short_description" rows="3"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label for="description" class="col-sm-2 col-form-label">Mô tả chi tiết</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control summernote" id="description" name="description"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Trạng thái</label>
+                            <div class="col-sm-10">
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="is_active" name="is_active" checked>
+                                    <label class="custom-control-label" for="is_active">Kích hoạt</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Giá & Tồn kho -->
+                    <div class="tab-pane fade" id="pricing" role="tabpanel">
+                        <div class="form-group row">
+                            <label for="price" class="col-sm-2 col-form-label">Giá bán <span class="text-danger">*</span></label>
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="price" name="price" step="0.01" required>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">₫</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <label for="original_price" class="col-sm-2 col-form-label">Giá gốc</label>
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="original_price" name="original_price" step="0.01">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">₫</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label for="cost_price" class="col-sm-2 col-form-label">Giá nhập</label>
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="cost_price" name="cost_price" step="0.01">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">₫</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <label for="wholesale_price" class="col-sm-2 col-form-label">Giá sỉ</label>
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="wholesale_price" name="wholesale_price" step="0.01">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">₫</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label for="stock" class="col-sm-2 col-form-label">Tồn kho</label>
+                            <div class="col-sm-4">
+                                <input type="number" class="form-control" id="stock" name="stock" value="0">
+                            </div>
+                            <label for="min_stock" class="col-sm-2 col-form-label">Tồn kho tối thiểu</label>
+                            <div class="col-sm-4">
+                                <input type="number" class="form-control" id="min_stock" name="min_stock" value="0">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label for="weight" class="col-sm-2 col-form-label">Khối lượng</label>
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="weight" name="weight" step="0.01">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">gram</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <label for="unit" class="col-sm-2 col-form-label">Đơn vị</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" id="unit" name="unit" placeholder="VD: Cái, Chiếc, Hộp">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Quản lý tồn kho</label>
+                            <div class="col-sm-10">
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="manage_stock" name="manage_stock" checked>
+                                    <label class="custom-control-label" for="manage_stock">Theo dõi tồn kho</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Hình ảnh -->
+                    <div class="tab-pane fade" id="images" role="tabpanel">
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Hình ảnh sản phẩm</label>
+                            <div class="col-sm-10">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="images" name="images" multiple onchange="previewImages(this)">
+                                    <label class="custom-file-label" for="images">Chọn ảnh...</label>
+                                </div>
+                                <small class="form-text text-muted">Bạn có thể chọn nhiều ảnh cùng lúc (tối đa 5 ảnh)</small>
+                                
+                                <div class="image-preview-container mt-3" id="image-preview">
+                                    <!-- Ảnh sẽ được hiển thị ở đây -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Ảnh chính</label>
+                            <div class="col-sm-10">
+                                <select name="main_image" id="main_image" class="form-control">
+                                    <option value="">Chọn ảnh chính sau khi tải lên</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Thuộc tính -->
+                    <div class="tab-pane fade" id="attributes" role="tabpanel">
+                        <div class="form-group row">
+                            <label for="tags" class="col-sm-2 col-form-label">Tags</label>
+                            <div class="col-sm-10">
+                                <select class="form-control select2-tags" id="tags" name="tags[]" multiple>
+                                    {% for tag in tags %}
+                                    <option value="{{ tag.id }}">{{ tag.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <small class="form-text text-muted">Nhập và nhấn Enter để thêm tag mới</small>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label for="features" class="col-sm-2 col-form-label">Tính năng nổi bật</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" id="features" name="features" rows="3" placeholder="Mỗi tính năng nhập trên một dòng"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label for="specifications" class="col-sm-2 col-form-label">Thông số kỹ thuật</label>
+                            <div class="col-sm-10">
+                                <div id="specs-container">
+                                    <div class="row spec-row mb-2">
+                                        <div class="col-5">
+                                            <input type="text" class="form-control" name="spec_names[]" placeholder="Tên thông số">
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="text" class="form-control" name="spec_values[]" placeholder="Giá trị">
+                                        </div>
+                                        <div class="col-1">
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="removeSpec(this)"><i class="fas fa-times"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-info mt-2" onclick="addSpec()">
+                                    <i class="fas fa-plus"></i> Thêm thông số
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sản phẩm liên quan -->
+                    <div class="tab-pane fade" id="related" role="tabpanel">
+                        <div class="form-group row">
+                            <label for="related_products" class="col-sm-2 col-form-label">Cross-sell</label>
+                            <div class="col-sm-10">
+                                <select class="form-control select2" id="related_products" name="related_products[]" multiple>
+                                    {% for product in products %}
+                                    <option value="{{ product.id }}">{{ product.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <small class="form-text text-muted">Sản phẩm sẽ hiển thị ở mục "Có thể bạn cũng thích"</small>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label for="upsell_products" class="col-sm-2 col-form-label">Up-sell</label>
+                            <div class="col-sm-10">
+                                <select class="form-control select2" id="upsell_products" name="upsell_products[]" multiple>
+                                    {% for product in products %}
+                                    <option value="{{ product.id }}">{{ product.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <small class="form-text text-muted">Sản phẩm sẽ hiển thị ở mục "Sản phẩm nâng cấp"</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- SEO -->
+                    <div class="tab-pane fade" id="seo" role="tabpanel">
+                        <div class="form-group row">
+                            <label for="meta_title" class="col-sm-2 col-form-label">Meta Title</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="meta_title" name="meta_title">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label for="meta_description" class="col-sm-2 col-form-label">Meta Description</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" id="meta_description" name="meta_description" rows="3"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label for="meta_keywords" class="col-sm-2 col-form-label">Meta Keywords</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="meta_keywords" name="meta_keywords">
+                                <small class="form-text text-muted">Các từ khóa cách nhau bởi dấu phẩy</small>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label for="slug" class="col-sm-2 col-form-label">Slug URL</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="slug" name="slug">
+                                <small class="form-text text-muted">URL thân thiện, để trống sẽ tự động tạo từ tên sản phẩm</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="form-group row">
-                    <label for="category" class="col-sm-2 col-form-label">Danh mục</label>
-                    <div class="col-sm-10">
-                        <select class="form-control" id="category" name="category">
-                            <option value="">-- Chọn danh mục --</option>
-                            {% for category in categories %}
-                            <option value="{{ category.id }}">{{ category.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="form-group row">
-                    <label for="description" class="col-sm-2 col-form-label">Mô tả</label>
-                    <div class="col-sm-10">
-                        <textarea class="form-control" id="description" name="description" rows="5"></textarea>
-                    </div>
-                </div>
-                
-                <div class="form-group row">
-                    <label for="price" class="col-sm-2 col-form-label">Giá bán</label>
-                    <div class="col-sm-10">
-                        <input type="number" class="form-control" id="price" name="price" step="0.01" required>
-                    </div>
-                </div>
-                
-                <div class="form-group row">
-                    <label for="original_price" class="col-sm-2 col-form-label">Giá gốc</label>
-                    <div class="col-sm-10">
-                        <input type="number" class="form-control" id="original_price" name="original_price" step="0.01">
-                    </div>
-                </div>
-                
-                <div class="form-group row">
-                    <label for="stock" class="col-sm-2 col-form-label">Số lượng</label>
-                    <div class="col-sm-10">
-                        <input type="number" class="form-control" id="stock" name="stock" value="0">
-                    </div>
-                </div>
-                
-                <div class="form-group row">
-                    <label class="col-sm-2 col-form-label">Hình ảnh</label>
-                    <div class="col-sm-10">
-                        <input type="file" class="form-control-file" id="images" name="images" multiple>
-                        <small class="form-text text-muted">Bạn có thể chọn nhiều ảnh cùng lúc</small>
-                    </div>
-                </div>
-                
-                <div class="form-group row">
-                    <label class="col-sm-2 col-form-label">Ảnh chính</label>
-                    <div class="col-sm-10">
-                        <select name="main_image" id="main_image" class="form-control">
-                            <option value="">Chọn ảnh chính sau khi tải lên</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="form-group row">
+                <div class="form-group row mt-4">
                     <div class="col-sm-10 offset-sm-2">
-                        <button type="submit" class="btn btn-primary">Lưu sản phẩm</button>
-                        <a href="{% url 'dashboard:product_list' %}" class="btn btn-secondary">Hủy</a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save mr-2"></i>Lưu sản phẩm
+                        </button>
+                        <a href="{% url 'dashboard:products' %}" class="btn btn-secondary btn-lg">Hủy</a>
                     </div>
                 </div>
             </form>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'vendor/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'vendor/summernote/summernote-bs4.min.js' %}"></script>
+<script>
+$(document).ready(function() {
+    // Khởi tạo Select2
+    $('.select2').select2({
+        placeholder: "Chọn...",
+        allowClear: true
+    });
+    
+    $('.select2-tags').select2({
+        tags: true,
+        tokenSeparators: [','],
+        placeholder: "Nhập tags..."
+    });
+    
+    // Khởi tạo Summernote
+    $('.summernote').summernote({
+        height: 300,
+        toolbar: [
+            ['style', ['style']],
+            ['font', ['bold', 'italic', 'underline', 'clear']],
+            ['fontname', ['fontname']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture']],
+            ['view', ['fullscreen', 'codeview', 'help']]
+        ],
+        callbacks: {
+            onImageUpload: function(files) {
+                // Xử lý upload ảnh vào editor
+                for(let i = 0; i < files.length; i++) {
+                    uploadImage(files[i], this);
+                }
+            }
+        }
+    });
+    
+    // Tự động sinh slug
+    $('#name').on('keyup', function() {
+        if ($('#slug').val() === '') {
+            let slug = $(this).val()
+                .toLowerCase()
+                .replace(/\s+/g, '-')
+                .replace(/[^\w\-]+/g, '')
+                .replace(/\-\-+/g, '-')
+                .replace(/^-+/, '')
+                .replace(/-+$/, '');
+            $('#slug').val(slug);
+        }
+    });
+    
+    // Kiểm tra trùng SKU
+    $('#sku').on('blur', function() {
+        let sku = $(this).val();
+        if (sku !== '') {
+            $.get('{% url "dashboard:check_sku" %}', {sku: sku})
+            .done(function(data) {
+                if (data.exists) {
+                    alert('Mã SKU này đã tồn tại. Vui lòng chọn mã khác.');
+                    $('#sku').val('');
+                }
+            });
+        }
+    });
+    
+    // Sự kiện submit form
+    $('#product-form').on('submit', function() {
+        // Thêm logic kiểm tra nếu cần
+        return true;
+    });
+});
+
+// Xử lý preview hình ảnh
+function previewImages(input) {
+    if (input.files) {
+        $('#image-preview').empty();
+        $('#main_image').empty().append('<option value="">Chọn ảnh chính</option>');
+        
+        for (var i = 0; i < Math.min(input.files.length, 5); i++) {
+            var reader = new FileReader();
+            
+            reader.onload = function(e) {
+                var imageId = 'img_' + Date.now() + Math.floor(Math.random() * 1000);
+                var imgElement = $('<img class="preview-image" src="' + e.target.result + '" data-id="' + imageId + '">');
+                $('#image-preview').append(imgElement);
+                
+                $('#main_image').append('<option value="' + imageId + '">Ảnh ' + ($('#main_image option').length) + '</option>');
+                
+                if ($('#main_image option').length === 2) {
+                    $('#main_image option:last').prop('selected', true);
+                }
+            }
+            
+            reader.readAsDataURL(input.files[i]);
+        }
+    }
+}
+
+// Xử lý thông số kỹ thuật
+function addSpec() {
+    var newRow = `
+        <div class="row spec-row mb-2">
+            <div class="col-5">
+                <input type="text" class="form-control" name="spec_names[]" placeholder="Tên thông số">
+            </div>
+            <div class="col-6">
+                <input type="text" class="form-control" name="spec_values[]" placeholder="Giá trị">
+            </div>
+            <div class="col-1">
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeSpec(this)"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+    `;
+    $('#specs-container').append(newRow);
+}
+
+function removeSpec(btn) {
+    $(btn).closest('.spec-row').remove();
+}
+
+// Xử lý upload ảnh vào editor
+function uploadImage(file, editor) {
+    var data = new FormData();
+    data.append("image", file);
+    data.append("csrfmiddlewaretoken", '{{ csrf_token }}');
+    
+    $.ajax({
+        url: '{% url "dashboard:upload_editor_image" %}',
+        data: data,
+        type: "POST",
+        cache: false,
+        contentType: false,
+        processData: false,
+        success: function(data) {
+            if (data.location) {
+                $(editor).summernote('insertImage', data.location);
+            }
+        },
+        error: function(error) {
+            console.error("Lỗi upload ảnh:", error);
+        }
+    });
+}
+</script>
 {% endblock %} 

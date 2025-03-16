@@ -170,7 +170,7 @@
                         <a href="{% url 'dashboard:chatbot_settings' %}" class="btn btn-primary m-2">
                             <i class="fas fa-cog mr-1"></i> Cấu hình Chatbot
                         </a>
-                        <a href="{% url 'dashboard:chat_logs' %}" class="btn btn-success m-2">
+                        <a href="{% url 'dashboard:chatbot_logs' %}" class="btn btn-success m-2">
                             <i class="fas fa-history mr-1"></i> Lịch sử hội thoại
                         </a>
                     </div>
@@ -215,7 +215,7 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <a href="{% url 'dashboard:chat_logs' %}?id={{ log.id }}" class="btn btn-sm btn-info">
+                                        <a href="{% url 'dashboard:chatbot_logs' %}?id={{ log.id }}" class="btn btn-sm btn-info">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                     </td>

@@ -1,0 +1,137 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Chia sẻ báo cáo nguồn cung cấp{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Chia sẻ báo cáo nguồn cung cấp</h1>
+        <div>
+            <a href="{% url 'dashboard:source_analytics' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left fa-sm"></i> Quay lại phân tích
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin chia sẻ</h6>
+        </div>
+        <div class="card-body">
+            <form id="shareReportForm" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="report_type" value="{{ report_type|default:'source' }}">
+                <input type="hidden" name="report_params" value="{{ report_params|default:'{}' }}">
+
+                <div class="form-group">
+                    <label for="email">Email người nhận <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                    <small class="form-text text-muted">Nhập địa chỉ email của người nhận báo cáo.</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="subject">Tiêu đề</label>
+                    <input type="text" class="form-control" id="subject" name="subject" value="Báo cáo nguồn cung cấp từ TomOi">
+                </div>
+                
+                <div class="form-group">
+                    <label for="note">Ghi chú</label>
+                    <textarea class="form-control" id="note" name="note" rows="3" placeholder="Nhập ghi chú cho người nhận"></textarea>
+                </div>
+                
+                <div class="form-check mb-3">
+                    <input type="checkbox" class="form-check-input" id="passwordProtected" name="password_protected">
+                    <label class="form-check-label" for="passwordProtected">Bảo vệ báo cáo bằng mật khẩu</label>
+                </div>
+                
+                <div id="passwordField" class="form-group d-none">
+                    <label for="password">Mật khẩu</label>
+                    <input type="password" class="form-control" id="password" name="password">
+                    <small class="form-text text-muted">Người nhận sẽ cần mật khẩu này để xem báo cáo.</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>Định dạng báo cáo</label>
+                    <div class="custom-control custom-radio">
+                        <input type="radio" id="formatPDF" name="format" value="pdf" class="custom-control-input" checked>
+                        <label class="custom-control-label" for="formatPDF">PDF</label>
+                    </div>
+                    <div class="custom-control custom-radio">
+                        <input type="radio" id="formatExcel" name="format" value="excel" class="custom-control-input">
+                        <label class="custom-control-label" for="formatExcel">Excel</label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-share-alt"></i> Chia sẻ báo cáo
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Hiển thị/ẩn trường mật khẩu khi checkbox được chọn/bỏ chọn
+    $('#passwordProtected').change(function() {
+        if($(this).is(':checked')) {
+            $('#passwordField').removeClass('d-none');
+        } else {
+            $('#passwordField').addClass('d-none');
+        }
+    });
+    
+    // Xử lý form submission
+    $('#shareReportForm').submit(function(e) {
+        e.preventDefault();
+        
+        // Kiểm tra mật khẩu nếu bảo vệ bằng mật khẩu được chọn
+        if($('#passwordProtected').is(':checked') && !$('#password').val()) {
+            alert('Vui lòng nhập mật khẩu để bảo vệ báo cáo.');
+            return false;
+        }
+        
+        // Gửi form bằng AJAX
+        $.ajax({
+            url: "{% url 'dashboard:share_report' %}",
+            type: "POST",
+            data: $(this).serialize(),
+            success: function(response) {
+                if(response.success) {
+                    // Hiển thị thông báo thành công
+                    Swal.fire({
+                        title: 'Thành công!',
+                        text: response.message,
+                        icon: 'success',
+                        confirmButtonText: 'Đóng'
+                    }).then((result) => {
+                        // Chuyển hướng về trang phân tích
+                        window.location.href = "{% url 'dashboard:source_analytics' %}";
+                    });
+                } else {
+                    // Hiển thị thông báo lỗi
+                    Swal.fire({
+                        title: 'Lỗi!',
+                        text: response.error || 'Có lỗi xảy ra khi chia sẻ báo cáo.',
+                        icon: 'error',
+                        confirmButtonText: 'Đóng'
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                // Hiển thị thông báo lỗi
+                Swal.fire({
+                    title: 'Lỗi!',
+                    text: 'Có lỗi xảy ra khi chia sẻ báo cáo.',
+                    icon: 'error',
+                    confirmButtonText: 'Đóng'
+                });
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

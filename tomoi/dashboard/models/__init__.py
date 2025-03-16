@@ -11,6 +11,7 @@ from .warranty import WarrantyHistory, WarrantyRequest, WarrantyReason, Warranty
 from .event import Event
 from .conversation import ChatbotConversation
 from .source_history import SourceHistory
+from .banner import Banner
 # Import từ module cha cho các model chỉ được định nghĩa trong file models.py
 from .. import models as dashboard_models
 # Import các model khác nếu cần

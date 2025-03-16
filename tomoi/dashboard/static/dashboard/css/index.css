@@ -1573,4 +1573,50 @@ input[type="date"]:focus::-webkit-datetime-edit {
 .fc-event *,
 .fc-daygrid-event * {
     color: white !important;
+}
+
+/* Styling cho nút Đồng bộ với Google Calendar */
+.btn-sync-google {
+    background-color: #df2626;
+    color: white;
+    border: none;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.25rem;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-right: 0.5rem;
+}
+
+.btn-sync-google i {
+    margin-right: 5px;
+}
+
+.btn-sync-google:hover, .btn-sync-google:focus {
+    background-color: #c51f1f;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+}
+
+.btn-sync-google:active {
+    background-color: #a71a1a;
+    transform: translateY(0);
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Nút đã kết nối thành công với Google */
+.btn-success.btn-sync-google {
+    background-color: #1cc88a;
+}
+
+.btn-success.btn-sync-google:hover, .btn-success.btn-sync-google:focus {
+    background-color: #17a673;
+}
+
+.btn-success.btn-sync-google:active {
+    background-color: #13865c;
 } 

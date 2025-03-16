@@ -1,0 +1,135 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Quản lý banner{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Quản lý Banner</h1>
+    <p class="mb-4">Quản lý tất cả banner hiển thị trên trang web.</p>
+    
+    <!-- Thông báo -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <!-- Card danh sách banner -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách Banner</h6>
+            <a href="{% url 'dashboard:add_banner' %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus fa-sm"></i> Thêm Banner mới
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="bannerTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Hình ảnh</th>
+                            <th>Tiêu đề</th>
+                            <th>Vị trí</th>
+                            <th>Trạng thái</th>
+                            <th>Thứ tự</th>
+                            <th>Ngày tạo</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for banner in banners %}
+                        <tr>
+                            <td>
+                                <img src="{{ banner.image.url }}" alt="{{ banner.title }}" style="max-width: 100px; max-height: 60px;">
+                            </td>
+                            <td>{{ banner.title }}</td>
+                            <td>{{ banner.get_position_display }}</td>
+                            <td>
+                                {% if banner.is_active %}
+                                <span class="badge badge-success">Hoạt động</span>
+                                {% else %}
+                                <span class="badge badge-secondary">Tạm ngưng</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ banner.order }}</td>
+                            <td>{{ banner.created_at|date:"d/m/Y" }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'dashboard:edit_banner' banner.id %}" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'dashboard:toggle_banner' banner.id %}" class="btn btn-info btn-sm">
+                                        {% if banner.is_active %}
+                                        <i class="fas fa-toggle-off"></i>
+                                        {% else %}
+                                        <i class="fas fa-toggle-on"></i>
+                                        {% endif %}
+                                    </a>
+                                    <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteBannerModal{{ banner.id }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                
+                                <!-- Modal xác nhận xóa -->
+                                <div class="modal fade" id="deleteBannerModal{{ banner.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteBannerModalLabel{{ banner.id }}" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="deleteBannerModalLabel{{ banner.id }}">Xác nhận xóa</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Bạn có chắc chắn muốn xóa banner "{{ banner.title }}" không?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                                                <a href="{% url 'dashboard:delete_banner' banner.id %}" class="btn btn-danger">Xóa</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">Chưa có banner nào được tạo.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    $('#bannerTable').DataTable({
+        "language": {
+            "search": "Tìm kiếm:",
+            "lengthMenu": "Hiển thị _MENU_ mục",
+            "info": "Hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
+            "infoEmpty": "Hiển thị 0 đến 0 trong tổng số 0 mục",
+            "infoFiltered": "(lọc từ _MAX_ mục)",
+            "paginate": {
+                "first": "Đầu",
+                "last": "Cuối",
+                "next": "Tiếp",
+                "previous": "Trước"
+            }
+        },
+        "order": [[4, "asc"]]
+    });
+});
+</script>
+{% endblock %} 

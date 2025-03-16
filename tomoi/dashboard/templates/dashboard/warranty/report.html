@@ -8,7 +8,7 @@
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Báo cáo bảo hành</h1>
         <div>
-            <a href="{% url 'dashboard:warranty_management' %}" class="btn btn-secondary btn-sm">
+            <a href="{% url 'dashboard:warranty' %}" class="btn btn-secondary btn-sm">
                 <i class="fas fa-arrow-left fa-sm"></i> Quay lại danh sách
             </a>
         </div>
@@ -32,7 +32,11 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% with total_tickets=status_stats|length %}
+                                {% with total_count=0 %}
+                                {% for stat in status_stats %}
+                                    {% with total_count=total_count|add:stat.count %}{% endwith %}
+                                {% endfor %}
+                                
                                 {% for stat in status_stats %}
                                 <tr>
                                     <td>
@@ -47,7 +51,13 @@
                                         {% endif %}
                                     </td>
                                     <td>{{ stat.count }}</td>
-                                    <td>{{ stat.count|div:total_tickets|mul:100|floatformat:1 }}%</td>
+                                    <td>
+                                        {% if total_count > 0 %}
+                                            {{ stat.count|floatformat:1 }}%
+                                        {% else %}
+                                            0%
+                                        {% endif %}
+                                    </td>
                                 </tr>
                                 {% empty %}
                                 <tr>
@@ -62,25 +72,25 @@
             </div>
         </div>
         
-        <!-- Thống kê theo gói đăng ký -->
+        <!-- Thống kê theo sản phẩm -->
         <div class="col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Thống kê theo gói đăng ký</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Thống kê theo sản phẩm</h6>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th>Gói đăng ký</th>
+                                    <th>Sản phẩm</th>
                                     <th>Số lượng yêu cầu</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for stat in plan_stats %}
+                                {% for stat in product_stats %}
                                 <tr>
-                                    <td>{{ stat.subscription__plan__name }}</td>
+                                    <td>{{ stat.product__name }}</td>
                                     <td>{{ stat.count }}</td>
                                 </tr>
                                 {% empty %}

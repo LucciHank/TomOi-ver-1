@@ -66,7 +66,7 @@ def user_detail(request, user_id):
     
     context = {
         'user': user,
-        'activities': UserActivity.objects.filter(user=user).order_by('-timestamp')[:20],
+        'user_activities': UserActivity.objects.filter(user=user).order_by('-timestamp')[:20],
         'notes': UserNote.objects.filter(user=user).order_by('-created_at'),
         'permissions': user.get_all_permissions()
     }
@@ -80,30 +80,121 @@ def user_edit(request, user_id):
     
     if request.method == 'POST':
         action = request.POST.get('action')
+        form_type = request.POST.get('form_type')
         
-        if not action:  # Xử lý form thông thường
-            form = UserForm(request.POST, request.FILES, instance=user)
-            # Thêm admin user vào form để log
-            form.admin_user = request.user
-            
-            if form.is_valid():
-                try:
-                    updated_user = form.save()
+        # Debug thông tin request
+        print(f"POST request received: action={action}, form_type={form_type}")
+        print(f"POST data: {request.POST}")
+        print(f"FILES data: {request.FILES}")
+        
+        # Xử lý upload avatar
+        if form_type == 'avatar_form' and request.FILES.get('avatar'):
+            try:
+                user.avatar = request.FILES['avatar']
+                user.save(update_fields=['avatar'])
+                
+                # Log hoạt động
+                UserActivityLog.objects.create(
+                    user=user,
+                    admin=request.user,
+                    action_type='update',
+                    description=f'Cập nhật avatar'
+                )
+                
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Avatar đã được cập nhật thành công'
+                })
+            except Exception as e:
+                print(f"Error updating avatar: {str(e)}")
+                return JsonResponse({
+                    'status': 'error',
+                    'message': f'Lỗi khi cập nhật avatar: {str(e)}'
+                }, status=400)
+        
+        # Xử lý form thông thường
+        elif not action:  # Không cần kiểm tra form_type, chỉ cần không phải action đặc biệt
+            try:
+                # Xử lý các trường boolean từ chuỗi 'true'/'false'
+                boolean_fields = ['has_2fa', 'require_2fa', 'require_2fa_login', 
+                                 'require_2fa_payment', 'require_2fa_profile', 
+                                 'require_2fa_withdraw', 'is_active']
+                
+                post_data = request.POST.copy()
+                
+                for field in boolean_fields:
+                    if field in post_data:
+                        value = post_data[field].lower()
+                        post_data[field] = value == 'true'
+                    else:
+                        post_data[field] = False
+                
+                # Xử lý 2FA
+                two_factor_method = post_data.get('two_factor_method')
+                if two_factor_method:
+                    post_data['has_2fa'] = True
+                    
+                    # Xử lý mật khẩu cấp 2 (2FA password)
+                    if two_factor_method == 'password' and post_data.get('two_factor_password'):
+                        user.two_factor_password = post_data.get('two_factor_password')
+                else:
+                    post_data['has_2fa'] = False
+                    post_data['two_factor_method'] = ''
+                
+                # Tạo form với dữ liệu đã xử lý
+                form = UserForm(post_data, request.FILES, instance=user)
+                form.admin_user = request.user
+                
+                if form.is_valid():
+                    updated_user = form.save(commit=False)
+                    
+                    # Cập nhật các trường 2FA - đặt trực tiếp thay vì thông qua form
+                    updated_user.has_2fa = post_data.get('has_2fa') == True
+                    updated_user.two_factor_method = post_data.get('two_factor_method', '')
+                    
+                    # Xử lý mật khẩu 2FA
+                    if two_factor_method == 'password' and post_data.get('two_factor_password'):
+                        updated_user.two_factor_password = post_data.get('two_factor_password')
+                    
+                    # Xử lý Google Authenticator
+                    if two_factor_method == 'google' and post_data.get('ga_secret_key'):
+                        updated_user.ga_secret_key = post_data.get('ga_secret_key')
+                    
+                    # Cập nhật các trường require_2fa
+                    updated_user.require_2fa = post_data.get('require_2fa') == True
+                    updated_user.require_2fa_login = post_data.get('require_2fa_login') == True
+                    updated_user.require_2fa_payment = post_data.get('require_2fa_payment') == True
+                    updated_user.require_2fa_profile = post_data.get('require_2fa_profile') == True
+                    updated_user.require_2fa_withdraw = post_data.get('require_2fa_withdraw') == True
+                    
+                    # Lưu lại các thay đổi
+                    updated_user.save()
+                    
+                    # Log hoạt động
+                    UserActivityLog.objects.create(
+                        user=user,
+                        admin=request.user,
+                        action_type='update',
+                        description=f'Cập nhật thông tin người dùng'
+                    )
+                    
                     return JsonResponse({
                         'status': 'success',
                         'message': 'Cập nhật thông tin thành công',
                         'redirect': reverse('dashboard:user_detail', args=[user.id])
                     })
-                except Exception as e:
+                else:
+                    print(f"Form errors: {form.errors}")
                     return JsonResponse({
                         'status': 'error',
-                        'message': str(e)
+                        'message': 'Dữ liệu không hợp lệ',
+                        'errors': dict(form.errors)
                     }, status=400)
-            else:
+            except Exception as e:
+                print(f"Error in user_edit: {str(e)}")
                 return JsonResponse({
                     'status': 'error',
-                    'message': 'Dữ liệu không hợp lệ',
-                    'errors': dict(form.errors)
+                    'message': str(e)
                 }, status=400)
         elif action == 'adjust_balance':
             amount = request.POST.get('amount')
@@ -144,18 +235,15 @@ def user_edit(request, user_id):
             
             try:
                 amount = int(amount)
-                # Lấy giá trị TCoin hiện tại
-                current_tcoin = user.tcoin  # Sửa lại tên field cho đúng
-                # Cập nhật giá trị mới
-                new_tcoin = current_tcoin + amount
-                user.tcoin = new_tcoin  # Sửa lại tên field cho đúng
+                old_tcoin = user.tcoin_balance
+                user.tcoin_balance += amount
                 user.save()
                 
                 # Tạo log điều chỉnh TCoin
                 TCoinHistory.objects.create(
                     user=user,
                     amount=amount,
-                    balance_after=new_tcoin,
+                    balance_after=user.tcoin_balance,
                     description=f"{adjustment_type} {abs(amount)} TCoin. Lý do: {reason}",
                     created_by=request.user
                 )
@@ -171,43 +259,78 @@ def user_edit(request, user_id):
                 return JsonResponse({'status': 'success'})
             except Exception as e:
                 return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-    else:
-        form = UserForm(instance=user)
     
-    return render(request, 'dashboard/users/edit.html', {'form': form, 'user': user})
-
-@staff_member_required
-def user_permissions(request, user_id):
-    """Quản lý phân quyền người dùng"""
-    user = get_object_or_404(CustomUser, id=user_id)
-    
-    if request.method == 'POST':
-        # Xử lý nhóm người dùng
-        selected_groups = request.POST.getlist('groups')
-        user.groups.clear()
-        for group_id in selected_groups:
-            group = Group.objects.get(id=group_id)
-            user.groups.add(group)
-        
-        # Xử lý quyền hạn cụ thể
-        selected_permissions = request.POST.getlist('permissions')
-        user.user_permissions.clear()
-        for perm_codename in selected_permissions:
-            app_label, codename = perm_codename.split('.')
-            perm = Permission.objects.get(content_type__app_label=app_label, codename=codename)
-            user.user_permissions.add(perm)
-            
-        messages.success(request, 'Phân quyền cho người dùng đã được cập nhật.')
-        return redirect('dashboard:user_detail', user_id=user.id)
-    
-    # Chuẩn bị dữ liệu cho template
-    groups = Group.objects.all()
-    user_permissions = set([f"{perm.content_type.app_label}.{perm.codename}" 
-                           for perm in user.user_permissions.all()])
+    # GET request - hiển thị form
+    form = UserForm(instance=user)
     
     context = {
         'user': user,
+        'form': form,
+    }
+    
+    return render(request, 'dashboard/users/edit.html', context)
+
+@staff_member_required
+def user_permissions(request, user_id):
+    user = get_object_or_404(CustomUser, pk=user_id)
+    if request.method == 'POST':
+        try:
+            # Get the selected groups and permissions from the form data
+            selected_groups = request.POST.getlist('groups')
+            selected_permissions = request.POST.getlist('permissions')
+
+            # Clear existing groups and add selected groups
+            user.groups.clear()
+            for group_id in selected_groups:
+                try:
+                    group = Group.objects.get(pk=group_id)
+                    user.groups.add(group)
+                except Group.DoesNotExist:
+                    messages.error(request, f'Không tìm thấy nhóm người dùng với ID {group_id}')
+            
+            # Clear existing permissions and add selected permissions
+            user.user_permissions.clear()
+            for perm_id in selected_permissions:
+                try:
+                    # Handle permissions with or without dots
+                    if '.' in perm_id:
+                        app_label, codename = perm_id.split('.')
+                        perm = Permission.objects.get(content_type__app_label=app_label, codename=codename)
+                    else:
+                        perm = Permission.objects.get(pk=perm_id)
+                    
+                    user.user_permissions.add(perm)
+                except Permission.DoesNotExist:
+                    messages.error(request, f'Không tìm thấy quyền với ID {perm_id}')
+            
+            # Save the user object to update the permissions in the database
+            user.save()
+            
+            # Log the activity
+            UserActivityLog.objects.create(
+                user=request.user,
+                action_type='permission',
+                description=f'Đã cập nhật quyền cho người dùng {user.email}'
+            )
+            
+            messages.success(request, f'Cập nhật quyền thành công cho người dùng {user.email}')
+            return redirect('dashboard:user_detail', user_id=user.id)
+        
+        except json.JSONDecodeError:
+            messages.error(request, 'Dữ liệu quyền không hợp lệ')
+        except Exception as e:
+            messages.error(request, f'Lỗi khi cập nhật quyền: {str(e)}')
+    
+    # Prepare data for displaying the permissions page
+    groups = Group.objects.all()
+    user_groups = user.groups.all()
+    user_permissions = user.user_permissions.all()
+    
+    # Prepare the context for rendering the template
+    context = {
+        'user': user,
         'groups': groups,
+        'user_groups': user_groups,
         'user_permissions': user_permissions
     }
     
@@ -259,8 +382,19 @@ def user_add_note(request, user_id):
                 content=content,
                 created_by=request.user
             )
+            
+            # AJAX request
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'success',
+                    'id': note.id,
+                    'content': note.content,
+                    'created_by': note.created_by.username,
+                    'created_at': note.created_at.strftime('%d/%m/%Y %H:%M')
+                })
+            
             messages.success(request, 'Đã thêm ghi chú thành công')
-    
+            
     return redirect('dashboard:user_notes', user_id=user.id)
 
 @staff_member_required
@@ -275,6 +409,17 @@ def user_edit_note(request, user_id, note_id):
             note.updated_by = request.user
             note.updated_at = timezone.now()
             note.save()
+            
+            # AJAX request
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'success',
+                    'id': note.id,
+                    'content': note.content,
+                    'updated_by': note.updated_by.username,
+                    'updated_at': note.updated_at.strftime('%d/%m/%Y %H:%M')
+                })
+            
             messages.success(request, 'Đã cập nhật ghi chú thành công')
     
     return redirect('dashboard:user_notes', user_id=user_id)
@@ -284,8 +429,15 @@ def user_delete_note(request, user_id, note_id):
     """Xóa ghi chú người dùng"""
     note = get_object_or_404(UserNote, id=note_id, user_id=user_id)
     note.delete()
-    messages.success(request, 'Đã xóa ghi chú thành công')
     
+    # AJAX request
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Đã xóa ghi chú thành công'
+        })
+    
+    messages.success(request, 'Đã xóa ghi chú thành công')
     return redirect('dashboard:user_notes', user_id=user_id)
 
 @staff_member_required
@@ -456,33 +608,61 @@ def adjust_balance(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     
     if request.method == 'POST':
-        amount = request.POST.get('amount')
-        description = request.POST.get('description')
-        
         try:
+            amount = request.POST.get('amount')
+            reason = request.POST.get('reason', 'Admin cập nhật')
+            
+            print(f"Adjusting balance for user {user.id}: amount={amount}, reason={reason}")
+            
             amount = int(amount)
-            if description:
-                # Cập nhật số dư và tạo lịch sử
-                old_balance = user.balance
-                user.balance += amount
-                user.save()
-                
-                # Tạo log điều chỉnh số dư
-                BalanceHistory.objects.create(
-                    user=user,
-                    amount=amount,
-                    balance_after=user.balance,
-                    description=description,
-                    created_by=request.user
-                )
-                
-                messages.success(request, f'Đã điều chỉnh số dư thành công. Thay đổi: {amount:+,}đ')
-            else:
-                messages.error(request, 'Vui lòng nhập mô tả cho việc điều chỉnh số dư')
-        except ValueError:
-            messages.error(request, 'Số tiền không hợp lệ')
+            old_balance = user.balance
+            user.balance = old_balance + amount
+            user.save(update_fields=['balance'])
+            
+            print(f"Balance updated: old={old_balance}, new={user.balance}")
+            
+            # Tạo log điều chỉnh số dư
+            adjustment_type = 'tăng' if amount > 0 else 'giảm'
+            BalanceHistory.objects.create(
+                user=user,
+                amount=amount,
+                balance_after=user.balance,
+                description=f"{adjustment_type} {abs(amount)}đ. Lý do: {reason}",
+                created_by=request.user
+            )
+            
+            # Log hoạt động
+            UserActivityLog.objects.create(
+                user=user,
+                admin=request.user,
+                action_type='update',
+                description=f'{adjustment_type} số dư: {abs(amount):,}đ. Lý do: {reason}'
+            )
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Số dư đã được cập nhật thành công',
+                'old_balance': old_balance,
+                'new_balance': user.balance,
+                'amount': amount
+            })
+        except ValueError as e:
+            print(f"ValueError in adjust_balance: {str(e)}")
+            return JsonResponse({
+                'status': 'error', 
+                'message': 'Số tiền không hợp lệ'
+            }, status=400)
+        except Exception as e:
+            print(f"Exception in adjust_balance: {str(e)}")
+            return JsonResponse({
+                'status': 'error', 
+                'message': str(e)
+            }, status=400)
     
-    return redirect('dashboard:user_detail', user_id=user.id)
+    return JsonResponse({
+        'status': 'error', 
+        'message': 'Phương thức không được hỗ trợ'
+    }, status=405)
 
 @staff_member_required
 def adjust_tcoin(request, user_id):
@@ -594,21 +774,35 @@ def user_reset_password(request, user_id):
         # Nếu có mật khẩu mới được gửi lên
         if 'new_password' in request.POST and request.POST['new_password']:
             new_password = request.POST['new_password']
+            generated_password = None
         else:
             # Tạo mật khẩu ngẫu nhiên
             new_password = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+            generated_password = new_password
         
         # Đặt lại mật khẩu
         user.set_password(new_password)
         user.save()
         
-        # Trả về mật khẩu mới nếu tự động tạo
-        if 'new_password' not in request.POST or not request.POST['new_password']:
-            return JsonResponse({'success': True, 'message': 'Mật khẩu đã được đặt lại thành công', 'password': new_password})
-        else:
-            return JsonResponse({'success': True, 'message': 'Mật khẩu đã được đặt lại thành công'})
+        # Log hoạt động
+        UserActivityLog.objects.create(
+            user=user,
+            admin=request.user,
+            action_type='password_reset',
+            description='Mật khẩu người dùng đã được đặt lại'
+        )
+        
+        # Trả về kết quả dạng JSON
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Mật khẩu đã được đặt lại thành công',
+            'generated_password': generated_password
+        })
     except Exception as e:
-        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=400)
 
 @staff_member_required
 @require_POST

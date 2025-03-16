@@ -58,7 +58,7 @@
                 </div>
                 
                 <!-- Thông tin đăng nhập khi Up chính chủ -->
-                <div id="account_info" style="display: none;">
+                <div id="account_info">
                     <div class="form-group row">
                         <label for="account_username" class="col-sm-2 col-form-label">Tài khoản chính chủ</label>
                         <div class="col-sm-10">
@@ -121,7 +121,7 @@
                 <div class="form-group row">
                     <div class="col-sm-10 offset-sm-2">
                         <button type="submit" class="btn btn-primary">Lưu nhật ký</button>
-                        <a href="{% url 'dashboard:source_log_list' %}" class="btn btn-secondary">Hủy</a>
+                        <a href="{% url 'dashboard:source_logs' %}" class="btn btn-secondary">Hủy</a>
                     </div>
                 </div>
             </form>
@@ -131,8 +131,10 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'vendor/select2/js/select2.min.js' %}"></script>
-<link rel="stylesheet" href="{% static 'vendor/select2/css/select2.min.css' %}">
+<!-- Thêm trực tiếp CDN của Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <style>
     .selected-product-tag {
         display: inline-block;
@@ -150,18 +152,11 @@
 </style>
 <script>
     $(document).ready(function() {
-        // Kiểm tra có thư viện Select2 không
-        if ($.fn.select2) {
-            // Khởi tạo Select2 để chọn nhiều sản phẩm
-            $('#product_select').select2({
-                placeholder: "Chọn một hoặc nhiều sản phẩm",
-                allowClear: true
-            });
-        } else {
-            console.error("Thư viện Select2 không được tải. Vui lòng kiểm tra cài đặt.");
-            // Thêm thông báo cho người dùng
-            $('#product_select').after('<div class="alert alert-warning mt-2">Thư viện Select2 chưa được tải. Chức năng chọn nhiều sản phẩm có thể không hoạt động đúng.</div>');
-        }
+        // Khởi tạo Select2 để chọn nhiều sản phẩm
+        $('#product_select').select2({
+            placeholder: "Chọn một hoặc nhiều sản phẩm",
+            allowClear: true
+        });
         
         // Mảng lưu các sản phẩm đã chọn
         var selectedProducts = [];
@@ -229,15 +224,20 @@
             updateSelectedProductsDisplay();
         });
         
-        // Hiển thị ẩn form thông tin tài khoản dựa vào loại tài khoản
+        // Hiển thị/ẩn form thông tin tài khoản dựa vào loại tài khoản
         function toggleAccountInfo() {
+            // Debug: Hiển thị giá trị đã chọn
             console.log("Loại tài khoản đã chọn:", $('#account_type').val());
+            
             if ($('#account_type').val() === 'upgrade') {
                 $('#account_info').show();
             } else {
                 $('#account_info').hide();
             }
         }
+        
+        // Mặc định ẩn thông tin tài khoản khi tải trang
+        $('#account_info').hide();
         
         // Kiểm tra ngay khi trang load
         toggleAccountInfo();

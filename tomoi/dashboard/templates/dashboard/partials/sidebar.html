@@ -56,18 +56,69 @@
     
     <!-- Nav Item - Warranty -->
     <li class="nav-item">
-        <a class="nav-link" href="{% url 'dashboard:warranty' %}">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseWarranty"
+            aria-expanded="false" aria-controls="collapseWarranty">
             <i class="fas fa-fw fa-shield-alt"></i>
             <span>Bảo hành</span>
         </a>
+        <div id="collapseWarranty" class="collapse" aria-labelledby="headingWarranty"
+            data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản lý bảo hành:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:warranty' %}">
+                    <i class="fas fa-clipboard-list fa-sm fa-fw mr-1"></i> Tổng quan
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:create_warranty' %}">
+                    <i class="fas fa-plus fa-sm fa-fw mr-1"></i> Tạo yêu cầu mới
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:warranty' %}?status=pending">
+                    <i class="fas fa-clock fa-sm fa-fw mr-1"></i> Chờ xử lý
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:warranty' %}?status=in_progress">
+                    <i class="fas fa-spinner fa-sm fa-fw mr-1"></i> Đang xử lý
+                </a>
+                <div class="collapse-divider"></div>
+                <h6 class="collapse-header">Công cụ:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:warranty_report' %}">
+                    <i class="fas fa-chart-pie fa-sm fa-fw mr-1"></i> Báo cáo bảo hành
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:warranty' %}?status=resolved">
+                    <i class="fas fa-check-circle fa-sm fa-fw mr-1"></i> Đã giải quyết
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:warranty' %}?status=closed">
+                    <i class="fas fa-archive fa-sm fa-fw mr-1"></i> Đã đóng
+                </a>
+            </div>
+        </div>
     </li>
 
     <!-- Nav Item - Subscription Management -->
     <li class="nav-item">
-        <a class="nav-link" href="{% url 'dashboard:subscription_list' %}">
-            <i class="fas fa-fw fa-sync-alt"></i>
-            <span>Quản lý Gia hạn</span>
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSubscriptions"
+            aria-expanded="false" aria-controls="collapseSubscriptions">
+            <i class="fas fa-fw fa-credit-card"></i>
+            <span>Gia hạn</span>
         </a>
+        <div id="collapseSubscriptions" class="collapse" aria-labelledby="headingSubscriptions"
+            data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản lý gia hạn:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:subscription_list' %}">
+                    <i class="fas fa-list fa-sm fa-fw mr-1"></i> Danh sách gia hạn
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:subscription_plans' %}">
+                    <i class="fas fa-layer-group fa-sm fa-fw mr-1"></i> Gói đăng ký
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:create_subscription' %}">
+                    <i class="fas fa-plus fa-sm fa-fw mr-1"></i> Tạo gia hạn mới
+                </a>
+                <div class="collapse-divider"></div>
+                <h6 class="collapse-header">Công cụ bổ sung:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:export_subscriptions' %}">
+                    <i class="fas fa-file-export fa-sm fa-fw mr-1"></i> Xuất dữ liệu
+                </a>
+            </div>
+        </div>
     </li>
     
     <!-- Nav Item - Source Management -->
@@ -84,7 +135,7 @@
                 <a class="collapse-item" href="{% url 'dashboard:source_list' %}">Danh sách</a>
                 <a class="collapse-item" href="{% url 'dashboard:compare_sources' %}">So sánh nguồn</a>
                 <a class="collapse-item" href="{% url 'dashboard:source_add' %}">Thêm mới</a>
-                <a class="collapse-item" href="{% url 'dashboard:source_log_list' %}">Nhật ký</a>
+                <a class="collapse-item" href="{% url 'dashboard:source_logs' %}">Nhật ký</a>
             </div>
         </div>
     </li>
@@ -143,9 +194,32 @@
             data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Quản lý đơn hàng:</h6>
-                <a class="collapse-item" href="{% url 'dashboard:order_management' %}">Tất cả đơn hàng</a>
-                <a class="collapse-item" href="{% url 'dashboard:order_management' %}?status=pending">Chờ xử lý</a>
-                <a class="collapse-item" href="{% url 'dashboard:export_orders' %}">Xuất báo cáo</a>
+                <a class="collapse-item" href="{% url 'dashboard:order_management' %}">
+                    <i class="fas fa-clipboard-list fa-sm fa-fw mr-1"></i> Tổng quan
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:order_list' %}">
+                    <i class="fas fa-list fa-sm fa-fw mr-1"></i> Danh sách đơn hàng
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:order_management' %}?status=pending">
+                    <i class="fas fa-clock fa-sm fa-fw mr-1"></i> Chờ xử lý
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:order_management' %}?status=processing">
+                    <i class="fas fa-spinner fa-sm fa-fw mr-1"></i> Đang xử lý
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:order_history' %}">
+                    <i class="fas fa-history fa-sm fa-fw mr-1"></i> Lịch sử đơn hàng
+                </a>
+                <div class="collapse-divider"></div>
+                <h6 class="collapse-header">Công cụ:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:export_orders' %}">
+                    <i class="fas fa-file-export fa-sm fa-fw mr-1"></i> Xuất báo cáo
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:order_management' %}?status=cancelled">
+                    <i class="fas fa-ban fa-sm fa-fw mr-1"></i> Đơn đã hủy
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:order_management' %}?status=completed">
+                    <i class="fas fa-check-circle fa-sm fa-fw mr-1"></i> Đơn hoàn thành
+                </a>
             </div>
         </div>
     </li>
@@ -188,7 +262,7 @@
                 <h6 class="collapse-header">Quản lý Chatbot:</h6>
                 <a class="collapse-item" href="{% url 'dashboard:chatbot_dashboard' %}">Tổng quan</a>
                 <a class="collapse-item" href="{% url 'dashboard:chatbot_settings' %}">Cấu hình</a>
-                <a class="collapse-item" href="{% url 'dashboard:chat_history' %}">
+                <a class="collapse-item" href="{% url 'dashboard:chatbot_logs' %}">
                     <i class="fas fa-history fa-sm fa-fw mr-1"></i>
                     Lịch sử trò chuyện
                 </a>

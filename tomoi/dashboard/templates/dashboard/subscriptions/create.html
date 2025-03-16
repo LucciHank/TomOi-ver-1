@@ -1,0 +1,73 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Tạo gia hạn mới{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Tạo gia hạn mới</h1>
+        <div>
+            <a href="{% url 'dashboard:subscription_list' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left fa-sm"></i> Quay lại danh sách
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin gia hạn</h6>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="user">Người dùng <span class="text-danger">*</span></label>
+                    <select class="form-control select2" id="user" name="user" required>
+                        <option value="">Chọn người dùng</option>
+                        {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.username }} ({{ user.email }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="plan">Gói đăng ký <span class="text-danger">*</span></label>
+                    <select class="form-control select2" id="plan" name="plan" required>
+                        <option value="">Chọn gói đăng ký</option>
+                        {% for plan in plans %}
+                        <option value="{{ plan.id }}">{{ plan.name }} ({{ plan.price }} VNĐ / {{ plan.duration_days }} ngày)</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="payment_method">Phương thức thanh toán</label>
+                    <select class="form-control" id="payment_method" name="payment_method">
+                        <option value="manual">Thủ công</option>
+                        <option value="bank_transfer">Chuyển khoản</option>
+                        <option value="credit_card">Thẻ tín dụng</option>
+                        <option value="momo">Ví MoMo</option>
+                        <option value="vnpay">VNPay</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Tạo gia hạn</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Kích hoạt select2 cho dropdown
+        $('.select2').select2({
+            placeholder: "Tìm kiếm...",
+            allowClear: true
+        });
+    });
+</script>
+{% endblock %} 

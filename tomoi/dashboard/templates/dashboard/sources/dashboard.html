@@ -95,10 +95,19 @@
 
 {% block content %}
 <div class="container-fluid">
-    <h1 class="h3 mb-2 text-gray-800">Tổng quan nguồn cung cấp</h1>
-    <p class="mb-4">Quản lý và theo dõi các nguồn cung cấp sản phẩm.</p>
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Tổng quan nguồn cung cấp</h1>
+        <div>
+            <a href="{% url 'dashboard:source_add' %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus fa-sm"></i> Thêm nguồn mới
+            </a>
+            <a href="{% url 'dashboard:add_source_log' %}" class="btn btn-info btn-sm">
+                <i class="fas fa-clipboard-list fa-sm"></i> Thêm nhật ký
+            </a>
+        </div>
+    </div>
 
-    <!-- Thống kê tổng quan -->
+    <!-- Thống kê -->
     <div class="row">
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-primary shadow h-100 py-2">
@@ -106,7 +115,8 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Tổng số nguồn</div>
+                                Tổng số nguồn
+                            </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_sources }}</div>
                         </div>
                         <div class="col-auto">
@@ -123,8 +133,9 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Tổng chi phí nhập</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_spend|intcomma }} đ</div>
+                                Tổng chi phí
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_spend|floatformat:0 }} VNĐ</div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
@@ -140,15 +151,18 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Tỷ lệ có hàng trung bình</div>
+                                Tỷ lệ có hàng
+                            </div>
                             <div class="row no-gutters align-items-center">
                                 <div class="col-auto">
                                     <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ avg_availability }}%</div>
                                 </div>
                                 <div class="col">
                                     <div class="progress progress-sm mr-2">
-                                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ avg_availability }}%"
-                                            aria-valuenow="{{ avg_availability }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar bg-info" role="progressbar" 
+                                            style="width: {{ avg_availability }}%" 
+                                            aria-valuenow="{{ avg_availability }}" aria-valuemin="0" aria-valuemax="100">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -167,8 +181,9 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Thời gian nhập trung bình</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ avg_processing_time|floatformat:0 }} phút</div>
+                                Thời gian xử lý TB
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ avg_processing_time|floatformat:1 }} ngày</div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-clock fa-2x text-gray-300"></i>
@@ -179,223 +194,115 @@
         </div>
     </div>
 
-    <!-- Tìm kiếm sản phẩm -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Tìm kiếm sản phẩm để lấy nguồn</h6>
-        </div>
-        <div class="card-body">
-            <div class="search-container">
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" id="search-product" placeholder="Nhập tên sản phẩm (ví dụ: Netflix, Spotify, Disney+...)">
-                    <div class="input-group-append">
-                        <button class="btn btn-primary" type="button" id="search-button">
-                            <i class="fas fa-search"></i> Tìm kiếm
-                        </button>
+    <div class="row">
+        <!-- Sản phẩm phổ biến -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Sản phẩm phổ biến</h6>
+                    <a href="{% url 'dashboard:source_list' %}" class="btn btn-sm btn-primary">
+                        Xem tất cả
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th>Nguồn</th>
+                                    <th>Giá</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in products %}
+                                <tr>
+                                    <td>{{ product.product.name }}</td>
+                                    <td>{{ product.source.name }}</td>
+                                    <td>{{ product.price|floatformat:0 }} VNĐ</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">Không có dữ liệu</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <div class="search-results" id="search-results">
-                    <!-- Kết quả tìm kiếm sẽ hiển thị ở đây -->
+            </div>
+        </div>
+
+        <!-- Nhật ký gần đây -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Nhật ký gần đây</h6>
+                    <a href="{% url 'dashboard:source_logs' %}" class="btn btn-sm btn-primary">
+                        Xem tất cả
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Nguồn</th>
+                                    <th>Ghi chú</th>
+                                    <th>Ngày</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in logs %}
+                                <tr>
+                                    <td>{{ log.source.name }}</td>
+                                    <td>{{ log.notes|truncatechars:30 }}</td>
+                                    <td>{{ log.created_at|date:"d/m/Y" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">Không có dữ liệu</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <div class="row" id="product-cards">
-                <!-- Các card sản phẩm sẽ hiển thị ở đây -->
-                {% for product in products %}
-                <div class="col-lg-4 col-md-6">
-                    <div class="product-card">
-                        <div class="product-header">
-                            <h5 class="mb-0">{{ product.product.name }}</h5>
+    <!-- Các nút chức năng -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Công cụ quản lý</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'dashboard:source_list' %}" class="btn btn-block btn-primary">
+                                <i class="fas fa-list"></i> Danh sách nguồn
+                            </a>
                         </div>
-                        <div class="product-body">
-                            <div class="stat-item">
-                                <strong>Giá nhập chuẩn:</strong> <span class="float-right text-primary">{{ product.price|intcomma }} đ</span>
-                            </div>
-                            <div class="stat-item">
-                                <strong>Nguồn cung cấp:</strong> <span class="float-right">{{ product.source.name }}</span>
-                            </div>
-                            <div class="stat-item">
-                                <strong>Tỷ lệ có hàng:</strong>
-                                <div class="progress mt-1" style="height: 8px;">
-                                    {% if product.source.availability_rate >= 80 %}
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ product.source.availability_rate }}%"></div>
-                                    {% elif product.source.availability_rate >= 50 %}
-                                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{ product.source.availability_rate }}%"></div>
-                                    {% else %}
-                                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ product.source.availability_rate }}%"></div>
-                                    {% endif %}
-                                </div>
-                                <div class="text-right">{{ product.source.availability_rate }}%</div>
-                            </div>
-                            
-                            <div class="stat-item">
-                                <strong>Thời gian chờ trung bình:</strong> <span class="float-right">{{ product.source.avg_processing_time|floatformat:0 }} phút</span>
-                            </div>
-                            <div class="stat-item">
-                                <strong>Tỷ lệ lỗi:</strong> <span class="float-right">{{ product.error_rate|floatformat:1 }}%</span>
-                            </div>
-                            <div class="stat-item">
-                                <strong>Mức độ ưu tiên:</strong>
-                                <span class="float-right">
-                                    {% if product.source.priority == 1 %}
-                                    <span class="badge badge-high">Cao</span>
-                                    {% elif product.source.priority == 2 %}
-                                    <span class="badge badge-medium">Trung bình</span>
-                                    {% else %}
-                                    <span class="badge badge-low">Thấp</span>
-                                    {% endif %}
-                                </span>
-                            </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'dashboard:source_logs' %}" class="btn btn-block btn-info">
+                                <i class="fas fa-history"></i> Nhật ký nguồn
+                            </a>
                         </div>
-                        <div class="product-footer text-right">
-                            <button class="btn btn-sm btn-primary order-button" data-product-id="{{ product.id }}" data-source-id="{{ product.source.id }}">
-                                <i class="fas fa-shopping-cart"></i> Lấy hàng
-                            </button>
-                            <a href="{% url 'dashboard:source_detail' product.source.id %}" class="btn btn-sm btn-info">
-                                <i class="fas fa-info-circle"></i> Chi tiết
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'dashboard:compare_sources' %}" class="btn btn-block btn-warning">
+                                <i class="fas fa-balance-scale"></i> So sánh nguồn
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'dashboard:source_analytics' %}" class="btn btn-block btn-success">
+                                <i class="fas fa-chart-line"></i> Phân tích
                             </a>
                         </div>
                     </div>
                 </div>
-                {% empty %}
-                <div class="col-12 text-center py-5">
-                    <div class="text-gray-500 mb-3">
-                        <i class="fas fa-search fa-3x"></i>
-                    </div>
-                    <h4>Chưa có kết quả tìm kiếm</h4>
-                    <p>Vui lòng nhập tên sản phẩm để tìm kiếm nguồn phù hợp</p>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal lấy hàng -->
-    <div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="orderModalLabel">Đặt hàng từ nguồn</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="order-form">
-                        <input type="hidden" id="product-id" name="product_id">
-                        <input type="hidden" id="source-id" name="source_id">
-                        
-                        <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Sản phẩm:</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-plaintext" id="product-name"></p>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Nguồn cung cấp:</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-plaintext" id="source-name"></p>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Giá nhập:</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-plaintext" id="product-price"></p>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group row">
-                            <label for="quantity" class="col-sm-3 col-form-label">Số lượng:</label>
-                            <div class="col-sm-9">
-                                <input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1">
-                            </div>
-                        </div>
-                        
-                        <div class="form-group row">
-                            <label for="has-stock" class="col-sm-3 col-form-label">Có hàng:</label>
-                            <div class="col-sm-9">
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input" id="has-stock" name="has_stock" checked>
-                                    <label class="custom-control-label" for="has-stock">Nguồn có sẵn hàng</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group row">
-                            <label for="processing-time" class="col-sm-3 col-form-label">Thời gian chờ (phút):</label>
-                            <div class="col-sm-9">
-                                <input type="number" class="form-control" id="processing-time" name="processing_time" min="0">
-                            </div>
-                        </div>
-                        
-                        <div class="form-group row">
-                            <label for="notes" class="col-sm-3 col-form-label">Ghi chú:</label>
-                            <div class="col-sm-9">
-                                <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-primary" id="save-order">Xác nhận đặt hàng</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Lịch sử lấy hàng -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">Lịch sử lấy hàng gần đây</h6>
-            <a href="{% url 'dashboard:source_log_list' %}" class="btn btn-sm btn-primary">
-                <i class="fas fa-history"></i> Xem tất cả
-            </a>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                    <thead>
-                        <tr>
-                            <th>Thời gian</th>
-                            <th>Nguồn</th>
-                            <th>Sản phẩm</th>
-                            <th>Trạng thái</th>
-                            <th>Thời gian xử lý</th>
-                            <th>Người tạo</th>
-                            <th>Chi tiết</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for log in logs %}
-                        <tr>
-                            <td>{{ log.created_at|date:"d/m/Y H:i" }}</td>
-                            <td>{{ log.source.name }}</td>
-                            <td>{{ log.source_product.name|default:"--" }}</td>
-                            <td>
-                                {% if log.has_stock %}
-                                <span class="badge badge-success">Có hàng</span>
-                                {% else %}
-                                <span class="badge badge-danger">Hết hàng</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ log.processing_time|default:"--" }} phút</td>
-                            <td>{{ log.created_by.username|default:"Hệ thống" }}</td>
-                            <td>
-                                <button class="btn btn-sm btn-info view-log" data-log-id="{{ log.id }}">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="7" class="text-center">Chưa có nhật ký nào</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
             </div>
         </div>
     </div>
@@ -405,256 +312,7 @@
 {% block extra_js %}
 <script>
     $(document).ready(function() {
-        // Khởi tạo DataTable
-        $('#dataTable').DataTable({
-            "order": [[0, "desc"]],
-            "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json"
-            }
-        });
-        
-        // Tìm kiếm sản phẩm
-        $("#search-button").click(function() {
-            let query = $("#search-product").val();
-            
-            if (query.length > 2) {
-                // Gửi AJAX request để tìm kiếm
-                $.ajax({
-                    url: "{% url 'dashboard:api_search_products' %}",
-                    data: {
-                        'query': query
-                    },
-                    dataType: 'json',
-                    success: function(data) {
-                        // Hiển thị kết quả
-                        displaySearchResults(data.products);
-                    }
-                });
-            }
-        });
-        
-        // Hiển thị kết quả tìm kiếm
-        function displaySearchResults(products) {
-            let resultsDiv = $("#search-results");
-            resultsDiv.empty();
-            
-            if (products.length === 0) {
-                resultsDiv.append('<div class="search-item">Không tìm thấy sản phẩm nào</div>');
-            } else {
-                products.forEach(function(product) {
-                    resultsDiv.append(`
-                        <div class="search-item" data-product-id="${product.id}">
-                            <strong>${product.name}</strong> - ${product.category}
-                        </div>
-                    `);
-                });
-            }
-            
-            resultsDiv.show();
-        }
-        
-        // Ẩn kết quả tìm kiếm khi click ra ngoài
-        $(document).click(function(event) {
-            if (!$(event.target).closest('.search-container').length) {
-                $("#search-results").hide();
-            }
-        });
-        
-        // Khi click vào kết quả tìm kiếm
-        $(document).on('click', '.search-item', function() {
-            let productId = $(this).data('product-id');
-            
-            // Load thông tin sản phẩm và các nguồn của nó
-            $.ajax({
-                url: "{% url 'dashboard:api_product_sources' %}",
-                data: {
-                    'product_id': productId
-                },
-                dataType: 'json',
-                success: function(data) {
-                    // Hiển thị các nguồn cung cấp cho sản phẩm
-                    displayProductSources(data.product, data.sources);
-                    $("#search-results").hide();
-                }
-            });
-        });
-        
-        // Hiển thị các nguồn cung cấp cho sản phẩm
-        function displayProductSources(product, sources) {
-            let cardsDiv = $("#product-cards");
-            cardsDiv.empty();
-            
-            if (sources.length === 0) {
-                cardsDiv.append(`
-                    <div class="col-12 text-center py-5">
-                        <div class="text-gray-500 mb-3">
-                            <i class="fas fa-exclamation-circle fa-3x"></i>
-                        </div>
-                        <h4>Không có nguồn cung cấp</h4>
-                        <p>Sản phẩm "${product.name}" chưa có nguồn cung cấp nào</p>
-                        <a href="{% url 'dashboard:add_source_product' %}" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Thêm nguồn cho sản phẩm này
-                        </a>
-                    </div>
-                `);
-            } else {
-                sources.forEach(function(source) {
-                    let badgeClass = "badge-high";
-                    if (source.priority === 2) {
-                        badgeClass = "badge-medium";
-                    } else if (source.priority === 3) {
-                        badgeClass = "badge-low";
-                    }
-                    
-                    let progressClass = "bg-success";
-                    if (source.availability_rate < 80 && source.availability_rate >= 50) {
-                        progressClass = "bg-warning";
-                    } else if (source.availability_rate < 50) {
-                        progressClass = "bg-danger";
-                    }
-                    
-                    cardsDiv.append(`
-                        <div class="col-lg-4 col-md-6">
-                            <div class="product-card">
-                                <div class="product-header">
-                                    <h5 class="mb-0">${product.name}</h5>
-                                </div>
-                                <div class="product-body">
-                                    <div class="stat-item">
-                                        <strong>Giá nhập chuẩn:</strong> <span class="float-right text-primary">${source.formatted_price} đ</span>
-                                    </div>
-                                    <div class="stat-item">
-                                        <strong>Nguồn cung cấp:</strong> <span class="float-right">${source.name}</span>
-                                    </div>
-                                    <div class="stat-item">
-                                        <strong>Tỷ lệ có hàng:</strong>
-                                        <div class="progress mt-1" style="height: 8px;">
-                                            <div class="progress-bar ${progressClass}" role="progressbar" style="width: ${source.availability_rate}%"></div>
-                                        </div>
-                                        <div class="text-right">${source.availability_rate}%</div>
-                                    </div>
-                                    <div class="stat-item">
-                                        <strong>Thời gian chờ trung bình:</strong> <span class="float-right">${source.avg_processing_time} phút</span>
-                                    </div>
-                                    <div class="stat-item">
-                                        <strong>Tỷ lệ lỗi:</strong> <span class="float-right">${source.error_rate}%</span>
-                                    </div>
-                                    <div class="stat-item">
-                                        <strong>Mức độ ưu tiên:</strong>
-                                        <span class="float-right">
-                                            <span class="badge ${badgeClass}">${source.priority_display}</span>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="product-footer text-right">
-                                    <button class="btn btn-sm btn-primary order-button" 
-                                            data-product-id="${product.id}" 
-                                            data-source-id="${source.id}"
-                                            data-product-name="${product.name}"
-                                            data-source-name="${source.name}"
-                                            data-product-price="${source.formatted_price}">
-                                        <i class="fas fa-shopping-cart"></i> Lấy hàng
-                                    </button>
-                                    <a href="{% url 'dashboard:source_detail' source.id %}" class="btn btn-sm btn-info">
-                                        <i class="fas fa-info-circle"></i> Chi tiết
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    `);
-                });
-            }
-        }
-        
-        // Khi click nút lấy hàng
-        $(document).on('click', '.order-button', function() {
-            let productId = $(this).data('product-id');
-            let sourceId = $(this).data('source-id');
-            let productName = $(this).data('product-name');
-            let sourceName = $(this).data('source-name');
-            let productPrice = $(this).data('product-price');
-            
-            // Điền thông tin vào modal
-            $("#product-id").val(productId);
-            $("#source-id").val(sourceId);
-            $("#product-name").text(productName);
-            $("#source-name").text(sourceName);
-            $("#product-price").text(productPrice + ' đ');
-            
-            // Hiển thị modal
-            $("#orderModal").modal('show');
-        });
-        
-        // Lưu đơn hàng
-        $("#save-order").click(function() {
-            let formData = $("#order-form").serialize();
-            
-            // Gửi AJAX request để lưu đơn hàng
-            $.ajax({
-                url: "{% url 'dashboard:add_source_log' %}",
-                type: "POST",
-                data: formData,
-                dataType: 'json',
-                success: function(data) {
-                    // Đóng modal
-                    $("#orderModal").modal('hide');
-                    
-                    // Hiển thị thông báo thành công
-                    Swal.fire({
-                        title: 'Thành công!',
-                        text: 'Đã lưu thông tin đặt hàng thành công',
-                        icon: 'success',
-                        confirmButtonText: 'OK'
-                    }).then((result) => {
-                        // Tải lại trang để cập nhật dữ liệu
-                        location.reload();
-                    });
-                },
-                error: function(xhr, status, error) {
-                    // Hiển thị thông báo lỗi
-                    Swal.fire({
-                        title: 'Lỗi!',
-                        text: 'Có lỗi xảy ra: ' + xhr.responseJSON.error,
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    });
-                }
-            });
-        });
-        
-        // Xem chi tiết log
-        $(document).on('click', '.view-log', function() {
-            let logId = $(this).data('log-id');
-            
-            // Gửi AJAX request để lấy chi tiết log
-            $.ajax({
-                url: "{% url 'dashboard:api_source_log_detail' %}",
-                data: {
-                    'log_id': logId
-                },
-                dataType: 'json',
-                success: function(data) {
-                    // Hiển thị modal chi tiết log
-                    Swal.fire({
-                        title: 'Chi tiết nhật ký',
-                        html: `
-                            <div class="text-left">
-                                <p><strong>Nguồn:</strong> ${data.log.source_name}</p>
-                                <p><strong>Sản phẩm:</strong> ${data.log.product_name || '--'}</p>
-                                <p><strong>Loại log:</strong> ${data.log.log_type_display}</p>
-                                <p><strong>Trạng thái:</strong> ${data.log.has_stock ? 'Có hàng' : 'Hết hàng'}</p>
-                                <p><strong>Thời gian xử lý:</strong> ${data.log.processing_time || '--'} phút</p>
-                                <p><strong>Người tạo:</strong> ${data.log.created_by || 'Hệ thống'}</p>
-                                <p><strong>Thời gian:</strong> ${data.log.created_at}</p>
-                                <p><strong>Ghi chú:</strong> ${data.log.notes || '--'}</p>
-                            </div>
-                        `,
-                        width: '600px',
-                        confirmButtonText: 'Đóng'
-                    });
-                }
-            });
-        });
+        // Thêm các tương tác JavaScript nếu cần
     });
 </script>
 {% endblock %} 

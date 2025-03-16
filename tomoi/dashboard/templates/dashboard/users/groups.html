@@ -110,7 +110,7 @@ function confirmDeleteGroup(groupId) {
     }).then((result) => {
         if (result.isConfirmed) {
             // Thực hiện xóa
-            window.location.href = `/dashboard/user-groups/${groupId}/delete/`;
+            window.location.href = "{% url 'dashboard:delete_group' 0 %}".replace('0', groupId);
         }
     });
 }

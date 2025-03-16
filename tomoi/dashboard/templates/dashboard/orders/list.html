@@ -65,9 +65,9 @@
                         {% for order in orders %}
                         <tr>
                             <td><a href="{% url 'dashboard:order_detail' order.id %}">#{{ order.id }}</a></td>
-                            <td>{{ order.user.full_name|default:"Khách vãng lai" }}</td>
+                            <td>{{ order.user.full_name|default:order.customer_name|default:"Khách vãng lai" }}</td>
                             <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
-                            <td>{{ order.total_price|floatformat:0 }}đ</td>
+                            <td>{{ order.total_amount|default:order.total_price|floatformat:0 }}đ</td>
                             <td>
                                 <span class="badge {% if order.status == 'pending' %}bg-warning
                                 {% elif order.status == 'processing' %}bg-primary
@@ -75,7 +75,7 @@
                                 {% elif order.status == 'delivered' %}bg-success
                                 {% elif order.status == 'cancelled' %}bg-danger
                                 {% else %}bg-secondary{% endif %}">
-                                    {{ order.get_status_display }}
+                                    {{ order.get_status_display|default:order.status }}
                                 </span>
                             </td>
                             <td>
@@ -168,7 +168,7 @@ $(document).ready(function() {
         const form = $('#updateStatusForm');
         
         $.ajax({
-            url: `/dashboard/orders/${orderId}/update-status/`,
+            url: '{% url "dashboard:update_order_status" %}',
             type: 'POST',
             data: form.serialize(),
             success: function(response) {

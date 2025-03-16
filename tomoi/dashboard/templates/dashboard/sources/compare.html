@@ -1,118 +1,553 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
 
-{% block title %}So sánh nguồn nhập{% endblock %}
+{% block title %}So sánh nguồn cung cấp{% endblock %}
+
+{% block extra_css %}
+<style>
+    .comparison-chart {
+        height: 300px;
+        margin-bottom: 20px;
+    }
+    
+    .source-selector {
+        margin-bottom: 30px;
+    }
+    
+    .comparison-table th,
+    .comparison-table td {
+        text-align: center;
+    }
+    
+    .comparison-table th:first-child,
+    .comparison-table td:first-child {
+        text-align: left;
+    }
+    
+    .badge-diff-positive {
+        background-color: #1cc88a;
+        color: white;
+    }
+    
+    .badge-diff-negative {
+        background-color: #e74a3b;
+        color: white;
+    }
+    
+    .badge-diff-neutral {
+        background-color: #f6c23e;
+        color: white;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
-    <h1 class="h3 mb-2 text-gray-800">So sánh nguồn nhập</h1>
-    <p class="mb-4">So sánh các thông số giữa các nguồn nhập khác nhau.</p>
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">So sánh nguồn cung cấp</h1>
+        <div>
+            <a href="{% url 'dashboard:source_dashboard' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left fa-sm"></i> Quay lại tổng quan
+            </a>
+        </div>
+    </div>
 
-    <!-- Form chọn nguồn -->
+    <!-- Source selector -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">Chọn nguồn để so sánh</h6>
         </div>
         <div class="card-body">
-            <form method="post">
-                {% csrf_token %}
-                <div class="form-group">
-                    <select name="sources" class="form-control select2" multiple="multiple" style="width: 100%;">
-                        {% for source in sources %}
-                        <option value="{{ source.id }}" {% if source in selected_sources %}selected{% endif %}>{{ source.name }}</option>
-                        {% endfor %}
-                    </select>
+            <form id="compareForm">
+                <div class="row source-selector">
+                    <div class="col-md-5">
+                        <label for="source1">Nguồn thứ nhất</label>
+                        <select class="form-control select2" id="source1" name="source1">
+                            <option value="">Chọn nguồn...</option>
+                            {% for source in sources %}
+                            <option value="{{ source.id }}">{{ source.name }} ({{ source.platform }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2 text-center align-self-end">
+                        <div class="mt-4">
+                            <span class="font-weight-bold">VS</span>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <label for="source2">Nguồn thứ hai</label>
+                        <select class="form-control select2" id="source2" name="source2">
+                            <option value="">Chọn nguồn...</option>
+                            {% for source in sources %}
+                            <option value="{{ source.id }}">{{ source.name }} ({{ source.platform }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary">So sánh</button>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="productType">Loại sản phẩm (không bắt buộc)</label>
+                            <select class="form-control" id="productType" name="product_type">
+                                <option value="">Tất cả loại sản phẩm</option>
+                                {% for type in product_types %}
+                                <option value="{{ type }}">{{ type }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="timeRange">Khoảng thời gian</label>
+                            <select class="form-control" id="timeRange" name="time_range">
+                                <option value="30">30 ngày qua</option>
+                                <option value="90">3 tháng qua</option>
+                                <option value="180">6 tháng qua</option>
+                                <option value="365">1 năm qua</option>
+                                <option value="all">Tất cả thời gian</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4 align-self-end">
+                        <button type="button" id="compareButton" class="btn btn-primary btn-block">
+                            <i class="fas fa-balance-scale"></i> So sánh
+                        </button>
+                    </div>
+                </div>
             </form>
         </div>
     </div>
 
-    {% if selected_sources %}
-    <!-- Bảng so sánh -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Kết quả so sánh</h6>
+    <div id="comparisonResults" class="d-none">
+        <!-- Thống kê so sánh -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Kết quả so sánh</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Chỉ số</th>
+                                <th id="source1Name">Nguồn 1</th>
+                                <th id="source2Name">Nguồn 2</th>
+                                <th>So sánh</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Tỷ lệ có hàng</td>
+                                <td id="availability1">-</td>
+                                <td id="availability2">-</td>
+                                <td id="availabilityDiff">-</td>
+                            </tr>
+                            <tr>
+                                <td>Thời gian xử lý trung bình</td>
+                                <td id="processingTime1">-</td>
+                                <td id="processingTime2">-</td>
+                                <td id="processingTimeDiff">-</td>
+                            </tr>
+                            <tr>
+                                <td>Giá trung bình</td>
+                                <td id="price1">-</td>
+                                <td id="price2">-</td>
+                                <td id="priceDiff">-</td>
+                            </tr>
+                            <tr>
+                                <td>Tỷ lệ lỗi</td>
+                                <td id="errorRate1">-</td>
+                                <td id="errorRate2">-</td>
+                                <td id="errorRateDiff">-</td>
+                            </tr>
+                            <tr>
+                                <td>Số lượng đơn hàng</td>
+                                <td id="orders1">-</td>
+                                <td id="orders2">-</td>
+                                <td id="ordersDiff">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered" width="100%" cellspacing="0">
-                    <thead>
-                        <tr>
-                            <th>Tiêu chí</th>
-                            {% for source in selected_sources %}
-                            <th>{{ source.name }}</th>
-                            {% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Nền tảng</td>
-                            {% for source in selected_sources %}
-                            <td>{{ source.get_platform_display }}</td>
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td>Loại sản phẩm</td>
-                            {% for source in selected_sources %}
-                            <td>{{ source.get_product_type_display }}</td>
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td>Giá cơ bản</td>
-                            {% for source in selected_sources %}
-                            <td>{{ source.base_price|floatformat:0 }} đ</td>
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td>Tỷ lệ có hàng</td>
-                            {% for source in selected_sources %}
-                            <td>
-                                <div class="progress mb-2">
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ source.availability_rate }}%"
-                                        aria-valuenow="{{ source.availability_rate }}" aria-valuemin="0" aria-valuemax="100">
-                                        {{ source.availability_rate|floatformat:1 }}%
-                                    </div>
-                                </div>
-                            </td>
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td>Độ ưu tiên</td>
-                            {% for source in selected_sources %}
-                            <td>
-                                {% if source.priority == 'high' %}
-                                <span class="badge badge-success">Cao</span>
-                                {% elif source.priority == 'medium' %}
-                                <span class="badge badge-warning">Trung bình</span>
-                                {% else %}
-                                <span class="badge badge-secondary">Thấp</span>
-                                {% endif %}
-                            </td>
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td>Ghi chú</td>
-                            {% for source in selected_sources %}
-                            <td>{{ source.notes|default:"--" }}</td>
-                            {% endfor %}
-                        </tr>
-                    </tbody>
-                </table>
+
+        <!-- Biểu đồ so sánh -->
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">So sánh tỷ lệ có hàng theo thời gian</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="comparison-chart">
+                            <canvas id="availabilityChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">So sánh thời gian xử lý theo thời gian</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="comparison-chart">
+                            <canvas id="processingTimeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">So sánh giá theo thời gian</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="comparison-chart">
+                            <canvas id="priceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">So sánh tỷ lệ lỗi theo thời gian</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="comparison-chart">
+                            <canvas id="errorRateChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kết luận và đề xuất -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Kết luận và đề xuất</h6>
+            </div>
+            <div class="card-body">
+                <div id="conclusion"></div>
             </div>
         </div>
     </div>
-    {% endif %}
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
 <script>
     $(document).ready(function() {
+        // Khởi tạo select2
         $('.select2').select2({
-            placeholder: "Chọn các nguồn để so sánh",
+            placeholder: "Chọn nguồn...",
             allowClear: true
         });
+        
+        // Nút so sánh
+        $('#compareButton').click(function() {
+            const source1 = $('#source1').val();
+            const source2 = $('#source2').val();
+            
+            if (!source1 || !source2) {
+                alert('Vui lòng chọn đủ 2 nguồn để so sánh');
+                return;
+            }
+            
+            if (source1 === source2) {
+                alert('Vui lòng chọn 2 nguồn khác nhau để so sánh');
+                return;
+            }
+            
+            // Lấy tên nguồn
+            const source1Name = $('#source1 option:selected').text();
+            const source2Name = $('#source2 option:selected').text();
+            
+            // Hiển thị tên nguồn trong bảng so sánh
+            $('#source1Name').text(source1Name);
+            $('#source2Name').text(source2Name);
+            
+            // Giả lập dữ liệu so sánh (trong thực tế sẽ lấy từ API)
+            const compareData = simulateCompareData();
+            
+            // Hiển thị dữ liệu
+            displayComparisonData(compareData);
+            
+            // Hiển thị kết quả
+            $('#comparisonResults').removeClass('d-none');
+        });
+        
+        // Giả lập dữ liệu so sánh (trong thực tế sẽ lấy từ API)
+        function simulateCompareData() {
+            return {
+                source1: {
+                    name: $('#source1 option:selected').text(),
+                    availability: Math.floor(Math.random() * 30) + 70, // 70-100%
+                    processingTime: Math.floor(Math.random() * 5) + 1, // 1-5 ngày
+                    price: Math.floor(Math.random() * 500000) + 500000, // 500k-1M VNĐ
+                    errorRate: Math.floor(Math.random() * 10) + 1, // 1-10%
+                    orders: Math.floor(Math.random() * 100) + 50, // 50-150 đơn
+                    timeData: {
+                        labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'],
+                        availability: [85, 87, 82, 88, 90, 91],
+                        processingTime: [2.5, 2.3, 2.8, 2.1, 2.0, 1.9],
+                        price: [750000, 760000, 755000, 770000, 780000, 785000],
+                        errorRate: [5, 4, 6, 4, 3, 2]
+                    }
+                },
+                source2: {
+                    name: $('#source2 option:selected').text(),
+                    availability: Math.floor(Math.random() * 30) + 70, // 70-100%
+                    processingTime: Math.floor(Math.random() * 5) + 1, // 1-5 ngày
+                    price: Math.floor(Math.random() * 500000) + 500000, // 500k-1M VNĐ
+                    errorRate: Math.floor(Math.random() * 10) + 1, // 1-10%
+                    orders: Math.floor(Math.random() * 100) + 50, // 50-150 đơn
+                    timeData: {
+                        labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'],
+                        availability: [80, 82, 85, 83, 87, 86],
+                        processingTime: [3.0, 2.8, 2.5, 2.7, 2.3, 2.4],
+                        price: [700000, 710000, 715000, 720000, 725000, 730000],
+                        errorRate: [6, 5, 4, 5, 4, 4]
+                    }
+                }
+            };
+        }
+        
+        // Hiển thị dữ liệu so sánh
+        function displayComparisonData(data) {
+            // Hiển thị dữ liệu trong bảng
+            $('#availability1').text(data.source1.availability + '%');
+            $('#availability2').text(data.source2.availability + '%');
+            
+            const availabilityDiff = data.source1.availability - data.source2.availability;
+            const availabilityDiffClass = availabilityDiff > 0 ? 'badge-diff-positive' : (availabilityDiff < 0 ? 'badge-diff-negative' : 'badge-diff-neutral');
+            $('#availabilityDiff').html(`<span class="badge ${availabilityDiffClass}">${availabilityDiff > 0 ? '+' : ''}${availabilityDiff}%</span>`);
+            
+            $('#processingTime1').text(data.source1.processingTime + ' ngày');
+            $('#processingTime2').text(data.source2.processingTime + ' ngày');
+            
+            const processingTimeDiff = data.source2.processingTime - data.source1.processingTime;
+            const processingTimeDiffClass = processingTimeDiff > 0 ? 'badge-diff-positive' : (processingTimeDiff < 0 ? 'badge-diff-negative' : 'badge-diff-neutral');
+            $('#processingTimeDiff').html(`<span class="badge ${processingTimeDiffClass}">${processingTimeDiff > 0 ? '+' : ''}${processingTimeDiff} ngày</span>`);
+            
+            $('#price1').text(data.source1.price.toLocaleString() + ' VNĐ');
+            $('#price2').text(data.source2.price.toLocaleString() + ' VNĐ');
+            
+            const priceDiff = data.source2.price - data.source1.price;
+            const priceDiffClass = priceDiff < 0 ? 'badge-diff-positive' : (priceDiff > 0 ? 'badge-diff-negative' : 'badge-diff-neutral');
+            $('#priceDiff').html(`<span class="badge ${priceDiffClass}">${priceDiff > 0 ? '+' : ''}${priceDiff.toLocaleString()} VNĐ</span>`);
+            
+            $('#errorRate1').text(data.source1.errorRate + '%');
+            $('#errorRate2').text(data.source2.errorRate + '%');
+            
+            const errorRateDiff = data.source2.errorRate - data.source1.errorRate;
+            const errorRateDiffClass = errorRateDiff < 0 ? 'badge-diff-positive' : (errorRateDiff > 0 ? 'badge-diff-negative' : 'badge-diff-neutral');
+            $('#errorRateDiff').html(`<span class="badge ${errorRateDiffClass}">${errorRateDiff > 0 ? '+' : ''}${errorRateDiff}%</span>`);
+            
+            $('#orders1').text(data.source1.orders);
+            $('#orders2').text(data.source2.orders);
+            
+            const ordersDiff = data.source1.orders - data.source2.orders;
+            const ordersDiffClass = ordersDiff > 0 ? 'badge-diff-positive' : (ordersDiff < 0 ? 'badge-diff-negative' : 'badge-diff-neutral');
+            $('#ordersDiff').html(`<span class="badge ${ordersDiffClass}">${ordersDiff > 0 ? '+' : ''}${ordersDiff}</span>`);
+            
+            // Kết luận
+            let conclusion = '';
+            const source1Better = [];
+            const source2Better = [];
+            
+            if (data.source1.availability > data.source2.availability) {
+                source1Better.push('tỷ lệ có hàng cao hơn');
+            } else if (data.source1.availability < data.source2.availability) {
+                source2Better.push('tỷ lệ có hàng cao hơn');
+            }
+            
+            if (data.source1.processingTime < data.source2.processingTime) {
+                source1Better.push('thời gian xử lý nhanh hơn');
+            } else if (data.source1.processingTime > data.source2.processingTime) {
+                source2Better.push('thời gian xử lý nhanh hơn');
+            }
+            
+            if (data.source1.price < data.source2.price) {
+                source1Better.push('giá thấp hơn');
+            } else if (data.source1.price > data.source2.price) {
+                source2Better.push('giá thấp hơn');
+            }
+            
+            if (data.source1.errorRate < data.source2.errorRate) {
+                source1Better.push('tỷ lệ lỗi thấp hơn');
+            } else if (data.source1.errorRate > data.source2.errorRate) {
+                source2Better.push('tỷ lệ lỗi thấp hơn');
+            }
+            
+            conclusion += `<p><strong>${data.source1.name}</strong> có ưu điểm về: ${source1Better.join(', ') || 'không có ưu điểm nổi bật'}.</p>`;
+            conclusion += `<p><strong>${data.source2.name}</strong> có ưu điểm về: ${source2Better.join(', ') || 'không có ưu điểm nổi bật'}.</p>`;
+            
+            if (source1Better.length > source2Better.length) {
+                conclusion += `<p class="alert alert-success"><strong>Đề xuất:</strong> Nên ưu tiên sử dụng <strong>${data.source1.name}</strong> vì có nhiều ưu điểm hơn.</p>`;
+            } else if (source1Better.length < source2Better.length) {
+                conclusion += `<p class="alert alert-success"><strong>Đề xuất:</strong> Nên ưu tiên sử dụng <strong>${data.source2.name}</strong> vì có nhiều ưu điểm hơn.</p>`;
+            } else {
+                conclusion += `<p class="alert alert-warning"><strong>Đề xuất:</strong> Cả hai nguồn có ưu nhược điểm tương đương nhau. Nên cân nhắc theo từng trường hợp cụ thể.</p>`;
+            }
+            
+            $('#conclusion').html(conclusion);
+            
+            // Vẽ biểu đồ
+            drawComparisonCharts(data);
+        }
+        
+        // Vẽ biểu đồ so sánh
+        function drawComparisonCharts(data) {
+            // Biểu đồ tỷ lệ có hàng
+            const availabilityChart = new Chart(document.getElementById('availabilityChart'), {
+                type: 'line',
+                data: {
+                    labels: data.source1.timeData.labels,
+                    datasets: [
+                        {
+                            label: data.source1.name,
+                            data: data.source1.timeData.availability,
+                            borderColor: 'rgba(78, 115, 223, 1)',
+                            backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                            pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                            tension: 0.3
+                        },
+                        {
+                            label: data.source2.name,
+                            data: data.source2.timeData.availability,
+                            borderColor: 'rgba(28, 200, 138, 1)',
+                            backgroundColor: 'rgba(28, 200, 138, 0.1)',
+                            pointBackgroundColor: 'rgba(28, 200, 138, 1)',
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 70,
+                            max: 100
+                        }
+                    }
+                }
+            });
+            
+            // Biểu đồ thời gian xử lý
+            const processingTimeChart = new Chart(document.getElementById('processingTimeChart'), {
+                type: 'line',
+                data: {
+                    labels: data.source1.timeData.labels,
+                    datasets: [
+                        {
+                            label: data.source1.name,
+                            data: data.source1.timeData.processingTime,
+                            borderColor: 'rgba(78, 115, 223, 1)',
+                            backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                            pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                            tension: 0.3
+                        },
+                        {
+                            label: data.source2.name,
+                            data: data.source2.timeData.processingTime,
+                            borderColor: 'rgba(28, 200, 138, 1)',
+                            backgroundColor: 'rgba(28, 200, 138, 0.1)',
+                            pointBackgroundColor: 'rgba(28, 200, 138, 1)',
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+            
+            // Biểu đồ giá
+            const priceChart = new Chart(document.getElementById('priceChart'), {
+                type: 'line',
+                data: {
+                    labels: data.source1.timeData.labels,
+                    datasets: [
+                        {
+                            label: data.source1.name,
+                            data: data.source1.timeData.price,
+                            borderColor: 'rgba(78, 115, 223, 1)',
+                            backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                            pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                            tension: 0.3
+                        },
+                        {
+                            label: data.source2.name,
+                            data: data.source2.timeData.price,
+                            borderColor: 'rgba(28, 200, 138, 1)',
+                            backgroundColor: 'rgba(28, 200, 138, 0.1)',
+                            pointBackgroundColor: 'rgba(28, 200, 138, 1)',
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+            
+            // Biểu đồ tỷ lệ lỗi
+            const errorRateChart = new Chart(document.getElementById('errorRateChart'), {
+                type: 'line',
+                data: {
+                    labels: data.source1.timeData.labels,
+                    datasets: [
+                        {
+                            label: data.source1.name,
+                            data: data.source1.timeData.errorRate,
+                            borderColor: 'rgba(78, 115, 223, 1)',
+                            backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                            pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                            tension: 0.3
+                        },
+                        {
+                            label: data.source2.name,
+                            data: data.source2.timeData.errorRate,
+                            borderColor: 'rgba(28, 200, 138, 1)',
+                            backgroundColor: 'rgba(28, 200, 138, 0.1)',
+                            pointBackgroundColor: 'rgba(28, 200, 138, 1)',
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
     });
 </script>
 {% endblock %} 

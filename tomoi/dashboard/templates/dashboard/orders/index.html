@@ -158,28 +158,35 @@
                             <tr>
                                 <td>
                                     <a href="{% url 'dashboard:order_detail' order.id %}" class="fw-bold">
-                                        #{{ order.order_number }}
+                                        #{{ order.id }}
                                     </a>
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center">
+                                        {% if order.user and order.user.get_avatar_url %}
                                         <img src="{{ order.user.get_avatar_url }}" class="avatar rounded-circle me-3">
                                         <div>
-                                            <h6 class="mb-0">{{ order.user.get_full_name }}</h6>
+                                            <h6 class="mb-0">{{ order.user.get_full_name|default:order.user.username }}</h6>
                                             <small class="text-muted">{{ order.user.email }}</small>
                                         </div>
+                                        {% else %}
+                                        <div>
+                                            <h6 class="mb-0">Khách vãng lai</h6>
+                                            <small class="text-muted">{{ order.email|default:"-" }}</small>
+                                        </div>
+                                        {% endif %}
                                     </div>
                                 </td>
                                 <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
-                                <td>{{ order.total_amount|floatformat:0 }}đ</td>
+                                <td>{{ order.total_amount|default:order.total_price|floatformat:0 }}đ</td>
                                 <td>
-                                    <span class="badge bg-{{ order.get_status_color }}">
-                                        {{ order.get_status_display }}
+                                    <span class="badge bg-{{ order.get_status_color|default:'secondary' }}">
+                                        {{ order.get_status_display|default:order.status }}
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="badge bg-{{ order.get_payment_status_color }}">
-                                        {{ order.get_payment_status_display }}
+                                    <span class="badge bg-{{ order.get_payment_status_color|default:'secondary' }}">
+                                        {{ order.get_payment_status_display|default:order.payment_status }}
                                     </span>
                                 </td>
                                 <td>

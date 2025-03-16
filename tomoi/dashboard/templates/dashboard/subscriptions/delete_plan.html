@@ -1,0 +1,53 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Xóa gói đăng ký{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Xóa gói đăng ký</h1>
+        <div>
+            <a href="{% url 'dashboard:subscription_plans' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left fa-sm"></i> Quay lại danh sách
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Xác nhận xóa</h6>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i> Bạn có chắc chắn muốn xóa gói đăng ký <strong>{{ plan.name }}</strong>?
+                <br>Hành động này không thể hoàn tác và có thể ảnh hưởng đến người dùng hiện tại.
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold">Thông tin gói</h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>Tên gói:</strong> {{ plan.name }}</p>
+                    <p><strong>Mô tả:</strong> {{ plan.description }}</p>
+                    <p><strong>Giá:</strong> {{ plan.price }} VNĐ</p>
+                    <p><strong>Thời hạn:</strong> {{ plan.duration_days }} ngày</p>
+                    <p><strong>Số lượt bảo hành tối đa:</strong> {{ plan.max_warranty_count }}</p>
+                    <p><strong>Trạng thái:</strong> {% if plan.is_active %}<span class="text-success">Đang hoạt động</span>{% else %}<span class="text-danger">Không hoạt động</span>{% endif %}</p>
+                </div>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Xác nhận xóa
+                </button>
+                <a href="{% url 'dashboard:subscription_plans' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Hủy
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

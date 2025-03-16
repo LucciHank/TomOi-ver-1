@@ -7,7 +7,7 @@
 <div class="container-fluid px-4">
     <h1 class="mt-4">{{ product.name }}</h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Dashboard</a></li>
         <li class="breadcrumb-item"><a href="{% url 'dashboard:products' %}">Products</a></li>
         <li class="breadcrumb-item active">{{ product.name }}</li>
     </ol>

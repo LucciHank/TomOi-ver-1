@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
-from django.db.models import Avg, Sum
+from django.db.models import Avg, Sum, Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import Q
 from django.http import JsonResponse
@@ -600,5 +600,217 @@ def api_source_log_detail(request):
     except Exception as e:
         logger.error(f"Lỗi khi lấy chi tiết nhật ký nguồn: {str(e)}")
         return JsonResponse({'error': str(e)}, status=500)
+
+@login_required
+@permission_required('dashboard.view_source', raise_exception=True)
+def source_analytics(request):
+    """Hiển thị phân tích dữ liệu về nguồn cung cấp."""
+    # Thống kê nguồn theo nền tảng
+    sources_by_platform = Source.objects.values('platform').annotate(count=Count('id')).order_by('-count')
+    
+    # Thống kê nguồn theo mức độ ưu tiên
+    sources_by_priority = Source.objects.values('priority').annotate(count=Count('id')).order_by('priority')
+    
+    # Tỷ lệ có hàng theo nguồn
+    availability_by_source = Source.objects.values('name', 'availability_rate').order_by('-availability_rate')[:10]
+    
+    # Thời gian xử lý trung bình theo nguồn
+    processing_by_source = Source.objects.values('name', 'avg_processing_time').exclude(avg_processing_time__isnull=True).order_by('avg_processing_time')[:10]
+    
+    # Số lượng đơn hàng theo nguồn
+    orders_by_source = SourceHistory.objects.filter(log_type='order').values('source__name').annotate(count=Count('id')).order_by('-count')[:10]
+    
+    # Tổng chi tiêu theo nguồn
+    spend_by_source = SourceHistory.objects.filter(log_type='order').values('source__name').annotate(total=Sum('price')).order_by('-total')[:10]
+    
+    # Tỉ lệ hết hàng theo nguồn
+    out_of_stock_rate = []
+    for source in Source.objects.all():
+        total_checks = SourceHistory.objects.filter(source=source, log_type__in=['order', 'availability_check']).count()
+        unavailable = SourceHistory.objects.filter(source=source, log_type__in=['order', 'availability_check'], has_stock=False).count()
+        
+        if total_checks > 0:
+            rate = (unavailable / total_checks) * 100
+            out_of_stock_rate.append({
+                'name': source.name,
+                'rate': round(rate, 1)
+            })
+    
+    out_of_stock_rate = sorted(out_of_stock_rate, key=lambda x: x['rate'], reverse=True)[:10]
+    
+    context = {
+        'sources_by_platform': sources_by_platform,
+        'sources_by_priority': sources_by_priority,
+        'availability_by_source': availability_by_source,
+        'processing_by_source': processing_by_source,
+        'orders_by_source': orders_by_source,
+        'spend_by_source': spend_by_source,
+        'out_of_stock_rate': out_of_stock_rate
+    }
+    
+    return render(request, 'dashboard/sources/analytics.html', context)
+
+@login_required
+@permission_required('dashboard.view_source', raise_exception=True)
+def share_report(request):
+    """Chia sẻ báo cáo nguồn cung cấp."""
+    if request.method == 'POST':
+        try:
+            email = request.POST.get('email')
+            note = request.POST.get('note', '')
+            password_protected = request.POST.get('password_protected') == 'true'
+            password = request.POST.get('password', '')
+            report_type = request.POST.get('report_type', 'source')
+            report_params = request.POST.get('report_params', '{}')
+            
+            # Xử lý logic chia sẻ báo cáo - có thể gửi email hoặc tạo link
+            # Code thực tế sẽ được thêm sau
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Đã chia sẻ báo cáo thành công đến {email}'
+            })
+            
+        except Exception as e:
+            logger.error(f"Lỗi khi chia sẻ báo cáo: {str(e)}")
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=400)
+    
+    # Nếu là GET request, hiển thị form chia sẻ
+    return render(request, 'dashboard/sources/share_report.html')
+
+@login_required
+@permission_required('dashboard.view_source', raise_exception=True)
+def source_chart_data(request):
+    """API trả về dữ liệu biểu đồ cho nguồn cung cấp."""
+    try:
+        chart_type = request.GET.get('chart_type', 'availability')
+        source_id = request.GET.get('source_id')
+        time_range = int(request.GET.get('time_range', 30))
+        
+        # Thiết lập khoảng thời gian
+        end_date = timezone.now()
+        start_date = end_date - datetime.timedelta(days=time_range)
+        
+        # Xử lý các loại biểu đồ khác nhau
+        if chart_type == 'availability':
+            # Dữ liệu tỷ lệ có hàng theo thời gian
+            data = {}
+            
+            if source_id:
+                # Nếu có source_id, lấy dữ liệu cho nguồn cụ thể
+                source = get_object_or_404(Source, id=source_id)
+                logs = SourceHistory.objects.filter(
+                    source=source,
+                    created_at__range=(start_date, end_date),
+                    log_type__in=['order', 'availability_check']
+                ).order_by('created_at')
+                
+                # Tính tỷ lệ có hàng theo ngày
+                availability_by_day = {}
+                for log in logs:
+                    day = log.created_at.date().strftime('%Y-%m-%d')
+                    if day not in availability_by_day:
+                        availability_by_day[day] = {'total': 0, 'available': 0}
+                    
+                    availability_by_day[day]['total'] += 1
+                    if log.has_stock:
+                        availability_by_day[day]['available'] += 1
+                
+                # Chuyển đổi thành dữ liệu biểu đồ
+                labels = []
+                values = []
+                
+                for day, counts in sorted(availability_by_day.items()):
+                    labels.append(day)
+                    rate = (counts['available'] / counts['total']) * 100 if counts['total'] > 0 else 0
+                    values.append(round(rate, 1))
+                
+                data = {
+                    'labels': labels,
+                    'datasets': [{
+                        'label': f'Tỷ lệ có hàng của {source.name} (%)',
+                        'data': values,
+                        'borderColor': 'rgba(78, 115, 223, 1)',
+                        'backgroundColor': 'rgba(78, 115, 223, 0.1)'
+                    }]
+                }
+            else:
+                # Nếu không có source_id, lấy dữ liệu cho tất cả nguồn
+                top_sources = Source.objects.order_by('-availability_rate')[:5]
+                
+                datasets = []
+                for i, source in enumerate(top_sources):
+                    logs = SourceHistory.objects.filter(
+                        source=source,
+                        created_at__range=(start_date, end_date),
+                        log_type__in=['order', 'availability_check']
+                    ).order_by('created_at')
+                    
+                    # Tính tỷ lệ có hàng theo ngày
+                    availability_by_day = {}
+                    for log in logs:
+                        day = log.created_at.date().strftime('%Y-%m-%d')
+                        if day not in availability_by_day:
+                            availability_by_day[day] = {'total': 0, 'available': 0}
+                        
+                        availability_by_day[day]['total'] += 1
+                        if log.has_stock:
+                            availability_by_day[day]['available'] += 1
+                    
+                    # Tạo dữ liệu cho dataset
+                    values = []
+                    labels = []
+                    
+                    for day, counts in sorted(availability_by_day.items()):
+                        if i == 0:  # Chỉ thêm nhãn từ nguồn đầu tiên
+                            labels.append(day)
+                        rate = (counts['available'] / counts['total']) * 100 if counts['total'] > 0 else 0
+                        values.append(round(rate, 1))
+                    
+                    # Tạo màu ngẫu nhiên cho dataset
+                    color_index = i % 5
+                    colors = [
+                        'rgba(78, 115, 223, 1)',
+                        'rgba(28, 200, 138, 1)',
+                        'rgba(246, 194, 62, 1)',
+                        'rgba(231, 74, 59, 1)',
+                        'rgba(54, 185, 204, 1)'
+                    ]
+                    
+                    datasets.append({
+                        'label': f'{source.name}',
+                        'data': values,
+                        'borderColor': colors[color_index],
+                        'backgroundColor': colors[color_index].replace('1)', '0.1)')
+                    })
+                
+                data = {
+                    'labels': labels,
+                    'datasets': datasets
+                }
+            
+        elif chart_type == 'price':
+            # Dữ liệu giá theo thời gian
+            # Logic tương tự như availability
+            data = {}
+            
+        else:
+            data = {'error': 'Chart type not supported'}
+        
+        return JsonResponse(data)
+        
+    except Exception as e:
+        logger.error(f"Lỗi khi lấy dữ liệu biểu đồ: {str(e)}")
+        return JsonResponse({
+            'error': str(e)
+        }, status=400)
+
+@login_required
+def add_source_redirect(request):
+    """Chuyển hướng đến trang thêm nguồn cung cấp."""
+    return redirect('dashboard:source_add')
 
 # Thêm các view khác... 

@@ -1,5 +1,5 @@
 from django import forms
-from store.models import Banner
+from store.models import Banner, Category
 from .models import Campaign, APIKey, Webhook, Source, Product, Discount, WarrantyRequest, WarrantyReason
 from .models.source import SourceLog, SourceProduct
 from accounts.models import CustomUser
@@ -748,3 +748,24 @@ class ProductForm(forms.ModelForm):
             return [f.strip() for f in features.split('\n') if f.strip()]
         
         return features 
+
+class CategoryForm(forms.ModelForm):
+    """Form quản lý danh mục sản phẩm"""
+    
+    class Meta:
+        model = Category
+        fields = ['name', 'description', 'image', 'parent', 'slug']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Tên danh mục'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Mô tả danh mục'}),
+            'parent': forms.Select(attrs={'class': 'form-select'}),
+            'slug': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Đường dẫn tĩnh'})
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Loại bỏ danh mục hiện tại khỏi các lựa chọn parent (để tránh chọn chính nó làm parent)
+        if self.instance and self.instance.pk:
+            self.fields['parent'].queryset = Category.objects.exclude(pk=self.instance.pk)
+            # Đánh dấu trường parent là không bắt buộc
+            self.fields['parent'].required = False

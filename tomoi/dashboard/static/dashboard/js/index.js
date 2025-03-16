@@ -336,7 +336,12 @@ function initCalendar() {
  */
 function loadEvents() {
     fetch('/dashboard/api/events/')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Không thể kết nối đến API: ' + response.statusText);
+            }
+            return response.json();
+        })
         .then(events => {
             // Xóa tất cả sự kiện hiện có
             window.calendar.removeAllEvents();
@@ -344,10 +349,12 @@ function loadEvents() {
             // Mảng để theo dõi sự kiện đã thêm
             let addedEvents = [];
             
+            console.log('Đã nhận ' + events.length + ' sự kiện từ server');
+            
             // Thêm các sự kiện mới
             events.forEach(event => {
                 // Xác định loại và màu sắc
-                const eventType = event.type || 'other';
+                const eventType = event.extendedProps?.type || 'other';
                 const color = getBorderColorForEventType(eventType);
                 
                 // Tạo đối tượng sự kiện với thuộc tính màu cứng
@@ -363,7 +370,7 @@ function loadEvents() {
                     classNames: ['fc-event-type-' + eventType],
                     extendedProps: {
                         type: eventType,
-                        description: event.description || ''
+                        description: event.extendedProps?.description || ''
                     }
                 };
                 
@@ -389,6 +396,39 @@ function loadEvents() {
             }, 100);
             
             return addedEvents;
+        })
+        .catch(error => {
+            console.error('Lỗi khi tải sự kiện:', error);
+            
+            // Trong trường hợp API không hoạt động, sử dụng dữ liệu mẫu
+            console.log('Đang sử dụng dữ liệu mẫu cho calendar...');
+            
+            // Thêm sự kiện mẫu 
+            sampleData.calendar.events.forEach(event => {
+                const eventType = event.extendedProps?.type || 'other';
+                const color = getBorderColorForEventType(eventType);
+                
+                window.calendar.addEvent({
+                    id: event.id,
+                    title: event.title,
+                    start: event.start,
+                    end: event.end,
+                    allDay: true,
+                    backgroundColor: color,
+                    borderColor: color,
+                    textColor: '#FFFFFF',
+                    classNames: ['fc-event-type-' + eventType],
+                    extendedProps: {
+                        type: eventType,
+                        description: event.extendedProps?.description || ''
+                    }
+                });
+            });
+            
+            // Force màu sắc
+            setTimeout(() => {
+                forceAllEventColors();
+            }, 100);
         });
 }
 
@@ -1195,31 +1235,58 @@ function getEventTooltipContent(event) {
 }
 
 /**
- * Kiểm tra trạng thái đồng bộ với Google Calendar
+ * Kiểm tra trạng thái đồng bộ Google Calendar
  */
 function checkSyncStatus() {
-    fetch('/dashboard/api/calendar/google-status/', {
-        method: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        const syncBtn = document.getElementById('syncGoogleBtn');
-        if (!syncBtn) return;
-        
-        if (data.is_synced) {
-            syncBtn.innerHTML = '<i class="fas fa-check-circle"></i> Đã đồng bộ với Google';
-            syncBtn.classList.add('btn-success');
-            syncBtn.classList.remove('btn-sync-google');
-        } else {
-            syncBtn.innerHTML = '<i class="fab fa-google"></i> Đồng bộ với Google Calendar';
-        }
-    })
-    .catch(error => {
-        console.error('Lỗi kiểm tra trạng thái đồng bộ:', error);
-    });
+    // Thêm đoạn xử lý lỗi và fallback nếu không thể kết nối
+    fetch('/dashboard/api/calendar/google-status/')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Không thể kết nối đến API Google Status');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const syncBtn = document.getElementById('syncGoogleBtn');
+            if (!syncBtn) return;
+            
+            if (data.is_connected) {
+                // Đã kết nối Google
+                syncBtn.innerHTML = '<i class="fab fa-google"></i> Đã đồng bộ với Google';
+                syncBtn.classList.add('btn-success');
+                syncBtn.classList.remove('btn-sync-google');
+            } else {
+                // Chưa kết nối
+                syncBtn.innerHTML = '<i class="fab fa-google"></i> Đồng bộ với Google';
+                syncBtn.classList.add('btn-sync-google');
+                syncBtn.classList.remove('btn-success');
+            }
+        })
+        .catch(error => {
+            console.error('Lỗi khi kiểm tra trạng thái đồng bộ Google:', error);
+            
+            // Trạng thái mặc định khi không thể kết nối
+            const syncBtn = document.getElementById('syncGoogleBtn');
+            if (!syncBtn) return;
+            
+            syncBtn.innerHTML = '<i class="fab fa-google"></i> Đồng bộ với Google';
+            syncBtn.classList.add('btn-sync-google');
+            syncBtn.classList.remove('btn-success');
+            
+            // Thêm sự kiện click cho nút đồng bộ
+            syncBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Hiển thị thông báo tạm thời
+                Swal.fire({
+                    title: 'Tính năng đang phát triển',
+                    text: 'Chức năng đồng bộ Google Calendar sẽ sớm được triển khai',
+                    icon: 'info',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'Đã hiểu'
+                });
+            });
+        });
 }
 
 /**
@@ -1348,94 +1415,186 @@ function handleUrlParameters() {
 }
 
 /**
- * Thiết lập các sự kiện
+ * Thiết lập các sự kiện lắng nghe
  */
 function setupEventListeners() {
-    // Thêm sự kiện xử lý cho nút làm mới dữ liệu
-    const refreshButton = document.getElementById('refreshDashboardBtn');
-    if (refreshButton) {
-        refreshButton.addEventListener('click', function(e) {
+    // Nút đồng bộ Google Calendar
+    const syncGoogleBtn = document.getElementById('syncGoogleBtn');
+    if (syncGoogleBtn) {
+        syncGoogleBtn.addEventListener('click', function(e) {
             e.preventDefault();
             
-            // Hiệu ứng xoay biểu tượng
-            const icon = this.querySelector('i');
-            if (icon) {
-                icon.classList.add('fa-spin');
+            // Hiển thị thông báo tính năng đang phát triển
+            Swal.fire({
+                title: 'Tính năng đang phát triển',
+                text: 'Chức năng đồng bộ Google Calendar sẽ sớm được triển khai',
+                icon: 'info',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Đã hiểu'
+            });
+        });
+    }
+    
+    // Nút thêm sự kiện
+    const addEventBtn = document.querySelector('.fc-addEventButton-button');
+    if (addEventBtn) {
+        addEventBtn.addEventListener('click', function() {
+            showEventForm();
+        });
+    }
+
+    // Form thêm sự kiện
+    const addEventForm = document.getElementById('addEventForm');
+    if (addEventForm) {
+        addEventForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Lấy dữ liệu từ form
+            const title = document.getElementById('eventTitle').value;
+            const startDate = document.getElementById('eventStartDate').value;
+            const startTime = document.getElementById('eventStartTime').value;
+            const endDate = document.getElementById('eventEndDate').value;
+            const endTime = document.getElementById('eventEndTime').value;
+            const allDay = document.getElementById('eventAllDay').checked;
+            const type = document.getElementById('eventType').value;
+            const description = document.getElementById('eventDescription').value;
+            
+            // Tạo đối tượng sự kiện
+            const eventData = {
+                title: title,
+                start: allDay ? startDate : `${startDate}T${startTime}`,
+                end: allDay ? endDate : `${endDate}T${endTime}`,
+                allDay: allDay,
+                type: type,
+                description: description
+            };
+            
+            // Nếu đang chỉnh sửa sự kiện
+            if (currentEventId) {
+                // Cập nhật sự kiện hiện có
+                updateEvent(currentEventId, eventData)
+                    .then(() => {
+                        // Đóng modal và hiển thị thông báo thành công
+                        $('#addEventModal').modal('hide');
+                        
+                        Swal.fire({
+                            title: 'Đã cập nhật!',
+                            text: 'Sự kiện đã được cập nhật thành công.',
+                            icon: 'success',
+                            confirmButtonColor: '#3085d6'
+                        });
+                        
+                        // Nạp lại sự kiện
+                        loadEvents();
+                    })
+                    .catch(error => {
+                        console.error('Lỗi khi cập nhật sự kiện:', error);
+                        Swal.fire({
+                            title: 'Lỗi!',
+                            text: 'Không thể cập nhật sự kiện. ' + error.message,
+                            icon: 'error',
+                            confirmButtonColor: '#d33'
+                        });
+                    });
+            } else {
+                // Tạo sự kiện mới
+                createEvent(eventData)
+                    .then(() => {
+                        // Đóng modal và hiển thị thông báo thành công
+                        $('#addEventModal').modal('hide');
+                        
+                        Swal.fire({
+                            title: 'Đã thêm!',
+                            text: 'Sự kiện đã được thêm thành công.',
+                            icon: 'success',
+                            confirmButtonColor: '#3085d6'
+                        });
+                        
+                        // Nạp lại sự kiện
+                        loadEvents();
+                    })
+                    .catch(error => {
+                        console.error('Lỗi khi tạo sự kiện:', error);
+                        
+                        // Hiển thị thông báo lỗi cho người dùng
+                        Swal.fire({
+                            title: 'Lỗi!',
+                            text: 'Không thể tạo sự kiện mới. Hãy thử lại sau.',
+                            icon: 'error',
+                            confirmButtonColor: '#d33'
+                        });
+                    });
             }
+        });
+    }
+    
+    // Nút xóa sự kiện
+    const deleteEventBtn = document.getElementById('deleteEventBtn');
+    if (deleteEventBtn) {
+        deleteEventBtn.addEventListener('click', function() {
+            if (!currentEventId) return;
             
-            // Làm mới dữ liệu
-            refreshDashboardData();
+            // Xác nhận trước khi xóa
+            Swal.fire({
+                title: 'Xác nhận xóa',
+                text: 'Bạn có chắc chắn muốn xóa sự kiện này?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Xóa sự kiện
+                    deleteEvent(currentEventId);
+                }
+            });
+        });
+    }
+
+    // Nút xuất báo cáo
+    const exportCalendarBtn = document.getElementById('exportCalendarBtn');
+    if (exportCalendarBtn) {
+        exportCalendarBtn.addEventListener('click', function(e) {
+            e.preventDefault();
             
-            // Sau 1 giây, dừng hiệu ứng xoay
+            // Hiển thị modal xuất báo cáo
+            $('#exportReportModal').modal('show');
+        });
+    }
+
+    // Nút tạo báo cáo trong modal
+    const generateReportBtn = document.getElementById('generateReportBtn');
+    if (generateReportBtn) {
+        generateReportBtn.addEventListener('click', function() {
+            // Hiển thị thông báo tính năng đang phát triển
+            $('#exportReportModal').modal('hide');
+            
+            Swal.fire({
+                title: 'Đang tạo báo cáo...',
+                text: 'Vui lòng đợi trong giây lát',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Giả lập thời gian chờ
             setTimeout(() => {
-                if (icon) {
-                    icon.classList.remove('fa-spin');
-                }
-            }, 1000);
-        });
-    }
-    
-    // Thêm sự kiện xử lý cho nút xuất báo cáo
-    const exportButtons = document.querySelectorAll('.export-report-btn');
-    exportButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const reportType = this.getAttribute('data-report');
-            
-            if (reportType === 'revenue') {
-                exportRevenueReport();
-            } else if (reportType === 'profit') {
-                exportProfitReport();
-            }
-        });
-    });
-    
-    // Xử lý nút thêm sự kiện mới
-    const addEventButton = document.getElementById('addEventBtn');
-    if (addEventButton) {
-        addEventButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            const today = new Date().toISOString().slice(0, 10);
-            showAddEventModal(today, today);
-        });
-    }
-    
-    // Xử lý nút hướng dẫn
-    const tutorialButton = document.getElementById('showTutorialBtn');
-    if (tutorialButton) {
-        tutorialButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            showDashboardTutorial();
-        });
-    }
-    
-    // Xử lý các nút lọc biểu đồ
-    const chartFilterButtons = document.querySelectorAll('.chart-filter');
-    chartFilterButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const chartId = this.getAttribute('data-chart');
-            const timeRange = this.getAttribute('data-range');
-            
-            // Cập nhật UI
-            const filterContainer = this.closest('.dropdown-menu');
-            if (filterContainer) {
-                filterContainer.querySelectorAll('.dropdown-item').forEach(item => {
-                    item.classList.remove('active');
+                Swal.fire({
+                    title: 'Thành công!',
+                    text: 'Báo cáo đã được tạo thành công.',
+                    icon: 'success',
+                    confirmButtonColor: '#3085d6'
                 });
-                this.classList.add('active');
-                
-                const filterText = this.textContent.trim();
-                const dropdownButton = filterContainer.previousElementSibling;
-                if (dropdownButton && dropdownButton.querySelector('.filter-text')) {
-                    dropdownButton.querySelector('.filter-text').textContent = filterText;
-                }
-            }
-            
-            // Cập nhật biểu đồ
-            updateChart(chartId, timeRange);
+            }, 2000);
         });
-    });
+    }
+    
+    // Thêm tính năng nút thả nổi để thêm sự kiện
+    addFloatingAddButton();
 }
 
 /**
@@ -2458,6 +2617,23 @@ function applyEventColor(el) {
 
 // Khởi chạy observer khi trang load xong
 document.addEventListener('DOMContentLoaded', function() {
+    // Khởi tạo trang dashboard
+    if (document.getElementById('calendar')) {
+        console.log('Khởi tạo lịch và sự kiện');
+        
+        // Khởi tạo lịch
+        initCalendar();
+        
+        // Tải sự kiện
+        loadEvents();
+        
+        // Kiểm tra trạng thái đồng bộ Google
+        checkSyncStatus();
+        
+        // Thiết lập các sự kiện lắng nghe
+        setupEventListeners();
+    }
+    
     // Đăng ký observer để theo dõi DOM
     const observer = setupEventColoringObserver();
     

@@ -1,0 +1,171 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Lịch sử Đơn hàng{% endblock %}
+
+{% block page_title %}Lịch sử Đơn hàng{% endblock %}
+{% block page_subtitle %}Xem lịch sử thay đổi và hoạt động liên quan đến đơn hàng{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-history me-1"></i>
+                Dòng thời gian hoạt động
+            </div>
+            <div>
+                <a href="{% url 'dashboard:order_management' %}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Quay lại
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="timeline">
+                {% for activity in activities %}
+                <div class="timeline-item">
+                    <div class="timeline-badge {% if activity.type == 'order_created' %}bg-success{% elif activity.type == 'status_changed' %}bg-primary{% elif activity.type == 'note_added' %}bg-info{% else %}bg-secondary{% endif %}">
+                        {% if activity.type == 'order_created' %}
+                        <i class="fas fa-plus"></i>
+                        {% elif activity.type == 'status_changed' %}
+                        <i class="fas fa-sync-alt"></i>
+                        {% elif activity.type == 'note_added' %}
+                        <i class="fas fa-comment"></i>
+                        {% else %}
+                        <i class="fas fa-bell"></i>
+                        {% endif %}
+                    </div>
+                    <div class="timeline-panel">
+                        <div class="timeline-heading">
+                            <h4 class="timeline-title">
+                                <a href="{% url 'dashboard:order_detail' activity.order.id %}">
+                                    {% if activity.type == 'order_created' %}
+                                    Đơn hàng mới #{{ activity.order.id }}
+                                    {% elif activity.type == 'status_changed' %}
+                                    Thay đổi trạng thái #{{ activity.order.id }}
+                                    {% elif activity.type == 'note_added' %}
+                                    Ghi chú mới #{{ activity.order.id }}
+                                    {% else %}
+                                    Hoạt động #{{ activity.order.id }}
+                                    {% endif %}
+                                </a>
+                            </h4>
+                            <p>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock"></i> {{ activity.timestamp|date:"d/m/Y H:i" }}
+                                    {% if activity.user %}
+                                    bởi <strong>{{ activity.user.username }}</strong>
+                                    {% endif %}
+                                </small>
+                            </p>
+                        </div>
+                        <div class="timeline-body">
+                            <p>{{ activity.description }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center my-5">
+                    <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                    <p class="lead">Chưa có hoạt động nào được ghi lại</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .timeline {
+        position: relative;
+        padding: 20px 0;
+        list-style: none;
+    }
+    
+    .timeline:before {
+        content: " ";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50px;
+        width: 3px;
+        background-color: #e9ecef;
+    }
+    
+    .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    
+    .timeline-badge {
+        position: absolute;
+        top: 16px;
+        left: 50px;
+        width: 50px;
+        height: 50px;
+        margin-left: -25px;
+        color: #fff;
+        border-radius: 50%;
+        text-align: center;
+        font-size: 1.4em;
+        line-height: 50px;
+        z-index: 100;
+    }
+    
+    .timeline-panel {
+        position: relative;
+        width: calc(100% - 90px);
+        float: right;
+        border: 1px solid #d6d5d5;
+        border-radius: 0.35rem;
+        padding: 20px;
+        box-shadow: 0 .15rem 1.75rem 0 rgba(58,59,69,.15);
+        background-color: #fff;
+    }
+    
+    .timeline-panel:before {
+        position: absolute;
+        top: 26px;
+        left: -15px;
+        display: inline-block;
+        border-top: 15px solid transparent;
+        border-right: 15px solid #ccc;
+        border-bottom: 15px solid transparent;
+        content: " ";
+    }
+    
+    .timeline-panel:after {
+        position: absolute;
+        top: 27px;
+        left: -14px;
+        display: inline-block;
+        border-top: 14px solid transparent;
+        border-right: 14px solid #fff;
+        border-bottom: 14px solid transparent;
+        content: " ";
+    }
+    
+    .timeline-title {
+        margin-top: 0;
+        color: inherit;
+    }
+    
+    .bg-success {
+        background-color: #1cc88a!important;
+    }
+    
+    .bg-primary {
+        background-color: #4e73df!important;
+    }
+    
+    .bg-info {
+        background-color: #36b9cc!important;
+    }
+    
+    .bg-secondary {
+        background-color: #858796!important;
+    }
+</style>
+{% endblock %} 

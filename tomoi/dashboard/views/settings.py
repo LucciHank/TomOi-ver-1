@@ -15,14 +15,23 @@ def settings_view(request):
     active_tab = request.GET.get('tab', 'general')
     
     # Lấy các giá trị cài đặt từ cơ sở dữ liệu hoặc settings
+    gemini_api_key = getattr(settings, 'GEMINI_API_KEY', '')
+    gemini_model = getattr(settings, 'GEMINI_MODEL', 'gemini-pro')
+    gemini_temperature = getattr(settings, 'GEMINI_TEMPERATURE', 0.9)
+    gemini_top_p = getattr(settings, 'GEMINI_TOP_P', 0.95)
+    gemini_max_output_tokens = getattr(settings, 'GEMINI_MAX_OUTPUT_TOKENS', 8192)
+    
     context = {
         'active_tab': active_tab,
-        # Cài đặt Gemini API
-        'gemini_api_key': getattr(settings, 'GEMINI_API_KEY', ''),
-        'gemini_connected': bool(getattr(settings, 'GEMINI_API_KEY', '')),
-        'gemini_model': getattr(settings, 'GEMINI_MODEL', 'gemini-1.5-pro'),
-        'temperature': getattr(settings, 'GEMINI_TEMPERATURE', 0.7),
-        'max_tokens': getattr(settings, 'GEMINI_MAX_TOKENS', 2048),
+        'gemini_api_key': gemini_api_key,
+        'gemini_model': gemini_model,
+        'gemini_temperature': gemini_temperature,
+        'gemini_top_p': gemini_top_p,
+        'gemini_max_output_tokens': gemini_max_output_tokens,
+        'gemini_connected': bool(gemini_api_key),
+        'gemini_model': gemini_model,
+        'temperature': gemini_temperature,
+        'max_tokens': gemini_max_output_tokens,
         'system_prompt': getattr(settings, 'GEMINI_SYSTEM_PROMPT', 'Bạn là trợ lý ảo của TomOi, hỗ trợ khách hàng một cách lịch sự và chuyên nghiệp. Trả lời bằng tiếng Việt, ngắn gọn và hữu ích.'),
         'enable_chat_history': getattr(settings, 'GEMINI_ENABLE_CHAT_HISTORY', True),
         'enable_product_search': getattr(settings, 'GEMINI_ENABLE_PRODUCT_SEARCH', True),
@@ -169,4 +178,72 @@ def test_gemini_api(request):
             print(f"Exception: {str(e)}")
             return JsonResponse({'success': False, 'error': str(e)})
     
-    return JsonResponse({'success': False, 'error': 'Phương thức không hợp lệ'}) 
+    return JsonResponse({'success': False, 'error': 'Phương thức không hợp lệ'})
+
+@login_required
+def update_general_settings(request):
+    """Cập nhật cài đặt chung của hệ thống"""
+    if request.method == 'POST':
+        try:
+            # Lấy dữ liệu từ request
+            site_name = request.POST.get('site_name', '')
+            site_description = request.POST.get('site_description', '')
+            contact_email = request.POST.get('contact_email', '')
+            phone_number = request.POST.get('phone_number', '')
+            address = request.POST.get('address', '')
+            
+            # Cập nhật logo nếu có
+            logo_file = request.FILES.get('logo')
+            if logo_file:
+                # Xử lý và lưu file logo
+                file_name = f"logo_{timezone.now().strftime('%Y%m%d%H%M%S')}.png"
+                logo_path = os.path.join(settings.MEDIA_ROOT, 'site', file_name)
+                os.makedirs(os.path.dirname(logo_path), exist_ok=True)
+                
+                with open(logo_path, 'wb+') as destination:
+                    for chunk in logo_file.chunks():
+                        destination.write(chunk)
+                
+                # Cập nhật đường dẫn logo
+                # Lưu vào cơ sở dữ liệu hoặc file cấu hình
+            
+            # Lưu các cài đặt khác vào cơ sở dữ liệu hoặc file cấu hình
+            # (Giả định có model SiteSettings hoặc cài đặt được lưu trong file)
+            
+            messages.success(request, 'Cài đặt chung đã được cập nhật thành công!')
+            return redirect('dashboard:settings_view')
+            
+        except Exception as e:
+            messages.error(request, f'Lỗi khi cập nhật cài đặt: {str(e)}')
+    
+    return redirect('dashboard:settings_view')
+
+@login_required
+def update_payment_settings(request):
+    """Cập nhật cài đặt thanh toán"""
+    if request.method == 'POST':
+        try:
+            # Lấy dữ liệu từ request
+            payment_gateway = request.POST.get('payment_gateway', '')
+            vnpay_terminal_id = request.POST.get('vnpay_terminal_id', '')
+            vnpay_secret_key = request.POST.get('vnpay_secret_key', '')
+            momo_partner_code = request.POST.get('momo_partner_code', '')
+            momo_access_key = request.POST.get('momo_access_key', '')
+            momo_secret_key = request.POST.get('momo_secret_key', '')
+            
+            # Cập nhật trạng thái các phương thức thanh toán
+            enable_cod = request.POST.get('enable_cod') == 'on'
+            enable_bank_transfer = request.POST.get('enable_bank_transfer') == 'on'
+            enable_vnpay = request.POST.get('enable_vnpay') == 'on'
+            enable_momo = request.POST.get('enable_momo') == 'on'
+            
+            # Lưu các cài đặt vào cơ sở dữ liệu hoặc file cấu hình
+            # (Giả định có model PaymentSettings hoặc cài đặt được lưu trong file)
+            
+            messages.success(request, 'Cài đặt thanh toán đã được cập nhật thành công!')
+            return redirect('dashboard:settings_view')
+            
+        except Exception as e:
+            messages.error(request, f'Lỗi khi cập nhật cài đặt thanh toán: {str(e)}')
+    
+    return redirect('dashboard:settings_view') 

@@ -1,91 +1,81 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
 
-{% block title %}Thêm sản phẩm từ nguồn{% endblock %}
+{% block title %}Liên kết sản phẩm với nguồn cung cấp{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
-    <h1 class="h3 mb-2 text-gray-800">Thêm sản phẩm từ nguồn</h1>
-    <p class="mb-4">Thêm một sản phẩm mới từ nguồn cung cấp vào hệ thống.</p>
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Liên kết sản phẩm với nguồn cung cấp</h1>
+        <div>
+            <a href="{% url 'dashboard:source_list' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left fa-sm"></i> Quay lại danh sách nguồn
+            </a>
+        </div>
+    </div>
 
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Thông tin sản phẩm</h6>
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin liên kết</h6>
         </div>
         <div class="card-body">
-            <form method="post" action="{% url 'dashboard:add_source_product' %}">
+            <form method="post">
                 {% csrf_token %}
                 
-                {% if messages %}
-                <div class="mb-4">
-                    {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}">
-                        {{ message }}
-                    </div>
-                    {% endfor %}
+                <div class="form-group">
+                    <label for="source">Nguồn cung cấp <span class="text-danger">*</span></label>
+                    <select class="form-control select2" id="source" name="source" required>
+                        <option value="">Chọn nguồn cung cấp</option>
+                        {% for source in sources %}
+                        <option value="{{ source.id }}">{{ source.name }} ({{ source.platform }})</option>
+                        {% endfor %}
+                    </select>
                 </div>
-                {% endif %}
                 
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="source">Nguồn <span class="text-danger">*</span></label>
-                            <select class="form-control" id="source" name="source" required>
-                                <option value="">Chọn nguồn...</option>
-                                {% for source in sources %}
-                                <option value="{{ source.id }}">{{ source.name }} ({{ source.platform }})</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="product">Sản phẩm <span class="text-danger">*</span></label>
-                            <select class="form-control" id="product" name="product" required>
-                                <option value="">Chọn sản phẩm...</option>
-                                {% for product in products %}
-                                <option value="{{ product.id }}">{{ product.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="name">Tên hiển thị <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="name" name="name" required>
-                            <small class="text-muted">Tên hiển thị của sản phẩm từ nguồn này</small>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="price">Giá nhập <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">₫</span>
-                                </div>
-                                <input type="number" class="form-control" id="price" name="price" min="0" step="1000" required>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="product_url">Link sản phẩm</label>
-                            <input type="url" class="form-control" id="product_url" name="product_url">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="error_rate">Tỉ lệ lỗi (%)</label>
-                            <input type="number" class="form-control" id="error_rate" name="error_rate" min="0" max="100" value="0">
-                            <small class="text-muted">Tỉ lệ sản phẩm bị lỗi từ nguồn này</small>
-                        </div>
+                <div class="form-group">
+                    <label for="product">Sản phẩm <span class="text-danger">*</span></label>
+                    <select class="form-control select2" id="product" name="product" required>
+                        <option value="">Chọn sản phẩm</option>
+                        {% for product in products %}
+                        <option value="{{ product.id }}">{{ product.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="source_url">URL sản phẩm tại nguồn</label>
+                    <input type="url" class="form-control" id="source_url" name="source_url" 
+                           placeholder="https://example.com/product">
+                </div>
+                
+                <div class="form-group">
+                    <label for="price">Giá tại nguồn</label>
+                    <input type="number" class="form-control" id="price" name="price" 
+                           min="0" step="0.01" placeholder="Giá tại nguồn cung cấp">
+                </div>
+                
+                <div class="form-group">
+                    <label for="note">Ghi chú</label>
+                    <textarea class="form-control" id="note" name="note" rows="3" 
+                              placeholder="Ghi chú hoặc thông tin thêm về sản phẩm tại nguồn"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="is_available" name="is_available" checked>
+                        <label class="custom-control-label" for="is_available">Có sẵn hàng</label>
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label for="description">Mô tả</label>
-                    <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    <label for="shipping_time">Thời gian vận chuyển (ngày)</label>
+                    <input type="number" class="form-control" id="shipping_time" name="shipping_time" 
+                           min="0" value="3" placeholder="Thời gian vận chuyển (ngày)">
                 </div>
                 
-                <button type="submit" class="btn btn-primary">Thêm sản phẩm</button>
-                <a href="{% url 'dashboard:source_list' %}" class="btn btn-secondary">Hủy</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-link"></i> Liên kết sản phẩm
+                </button>
             </form>
         </div>
     </div>
@@ -94,33 +84,11 @@
 
 {% block extra_js %}
 <script>
-$(document).ready(function() {
-    // Thêm select2 để tìm kiếm dễ dàng
-    $('#source, #product').select2({
-        theme: 'bootstrap4',
+    $(document).ready(function() {
+        $('.select2').select2({
+            placeholder: "Tìm kiếm...",
+            allowClear: true
+        });
     });
-    
-    // Tự động điền tên khi chọn sản phẩm
-    $('#product').change(function() {
-        const productId = $(this).val();
-        if (productId) {
-            const productName = $(this).find('option:selected').text();
-            $('#name').val(productName);
-        }
-    });
-    
-    // Tự động điền giá khi chọn nguồn và sản phẩm
-    $('#source').change(function() {
-        const sourceId = $(this).val();
-        if (sourceId) {
-            $.ajax({
-                url: '/dashboard/api/sources/' + sourceId + '/base-price/',
-                success: function(data) {
-                    $('#price').val(data.base_price);
-                }
-            });
-        }
-    });
-});
 </script>
 {% endblock %} 

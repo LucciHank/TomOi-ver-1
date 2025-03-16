@@ -69,7 +69,7 @@
                 <a class="collapse-item" href="{% url 'dashboard:source_list' %}">Danh sách nguồn</a>
                 <a class="collapse-item" href="{% url 'dashboard:source_add' %}">Thêm nguồn mới</a>
                 <a class="collapse-item" href="{% url 'dashboard:add_source_product' %}">Thêm sản phẩm</a>
-                <a class="collapse-item" href="{% url 'dashboard:source_log_list' %}">Nhật ký nguồn</a>
+                <a class="collapse-item" href="{% url 'dashboard:source_logs' %}">Nhật ký nguồn</a>
                 <a class="collapse-item" href="{% url 'dashboard:add_source_log' %}">Thêm nhật ký</a>
             </div>
         </div>
@@ -110,9 +110,25 @@
         <div id="collapseOrders" class="collapse" aria-labelledby="headingOrders" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Quản lý đơn hàng:</h6>
-                <a class="collapse-item" href="#">Danh sách đơn hàng</a>
+                <a class="collapse-item" href="{% url 'dashboard:orders' %}">Danh sách đơn hàng</a>
                 <a class="collapse-item" href="{% url 'dashboard:account_transactions' %}">Giao dịch</a>
                 <a class="collapse-item" href="#">Báo cáo bán hàng</a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Banner -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseBanners"
+            aria-expanded="false" aria-controls="collapseBanners">
+            <i class="fas fa-fw fa-image"></i>
+            <span>Banners</span>
+        </a>
+        <div id="collapseBanners" class="collapse" aria-labelledby="headingBanners" data-bs-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản lý banner:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:banners' %}">Danh sách banner</a>
+                <a class="collapse-item" href="{% url 'dashboard:add_banner' %}">Thêm banner mới</a>
             </div>
         </div>
     </li>
@@ -127,9 +143,13 @@
         <div id="collapseUsers" class="collapse" aria-labelledby="headingUsers" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Quản lý người dùng:</h6>
-                <a class="collapse-item" href="#">Danh sách người dùng</a>
+                <a class="collapse-item" href="{% url 'dashboard:user_list' %}">Danh sách người dùng</a>
+                <a class="collapse-item" href="{% url 'dashboard:add_user' %}">Thêm người dùng</a>
+                <a class="collapse-item" href="{% url 'dashboard:import_users' %}">Nhập người dùng</a>
+                <a class="collapse-item" href="{% url 'dashboard:user_groups' %}">Nhóm người dùng</a>
+                <a class="collapse-item" href="{% url 'dashboard:user_stats' %}">Thống kê</a>
+                <a class="collapse-item" href="{% url 'dashboard:user_report' %}">Báo cáo</a>
                 <a class="collapse-item" href="{% url 'dashboard:tcoin_accounts' %}">TCoin</a>
-                <a class="collapse-item" href="#">Phân quyền</a>
             </div>
         </div>
     </li>

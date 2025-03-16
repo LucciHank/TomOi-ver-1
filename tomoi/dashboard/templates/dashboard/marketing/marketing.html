@@ -1,0 +1,228 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Marketing Dashboard{% endblock %}
+
+{% block content %}
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Marketing Dashboard</h1>
+    <div>
+        <a href="{% url 'dashboard:discounts' %}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm mr-2">
+            <i class="fas fa-tag fa-sm text-white-50"></i> Mã giảm giá
+        </a>
+        <a href="{% url 'dashboard:banners' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+            <i class="fas fa-image fa-sm text-white-50"></i> Quản lý Banner
+        </a>
+    </div>
+</div>
+
+<!-- Content Row -->
+<div class="row">
+    <!-- Card - Campaigns -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Chiến dịch Marketing</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">5</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card - Active Banners -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Banner đang hiển thị</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">8</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-image fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card - Active Coupons -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Mã giảm giá hiệu lực</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">12</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-tag fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card - Coupon Usage -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Lượt sử dụng mã giảm giá</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">450</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Content Row -->
+<div class="row">
+    <!-- Marketing Options -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Công cụ Marketing</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-6 mb-4">
+                        <a href="{% url 'dashboard:discounts' %}" class="card bg-light text-black shadow text-decoration-none">
+                            <div class="card-body">
+                                <i class="fas fa-tag fa-3x mb-2 text-primary"></i>
+                                <div class="text-black-50">Mã giảm giá</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-lg-6 mb-4">
+                        <a href="{% url 'dashboard:banners' %}" class="card bg-light text-black shadow text-decoration-none">
+                            <div class="card-body">
+                                <i class="fas fa-image fa-3x mb-2 text-success"></i>
+                                <div class="text-black-50">Quản lý Banner</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-lg-6 mb-4">
+                        <a href="#" class="card bg-light text-black shadow text-decoration-none">
+                            <div class="card-body">
+                                <i class="fas fa-envelope fa-3x mb-2 text-info"></i>
+                                <div class="text-black-50">Email Marketing</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-lg-6 mb-4">
+                        <a href="#" class="card bg-light text-black shadow text-decoration-none">
+                            <div class="card-body">
+                                <i class="fas fa-bullhorn fa-3x mb-2 text-warning"></i>
+                                <div class="text-black-50">Chiến dịch</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Hoạt động gần đây</h6>
+            </div>
+            <div class="card-body">
+                <div class="timeline-activity">
+                    <div class="activity-item">
+                        <div class="activity-date">Hôm nay, 10:45</div>
+                        <div class="activity-content">
+                            <i class="fas fa-image mr-2 text-success"></i>
+                            Banner "Khuyến mãi mùa hè" được thêm mới
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-date">Hôm nay, 09:20</div>
+                        <div class="activity-content">
+                            <i class="fas fa-tag mr-2 text-primary"></i>
+                            Mã giảm giá "SUMMER20" được kích hoạt
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-date">Hôm qua, 15:30</div>
+                        <div class="activity-content">
+                            <i class="fas fa-bullhorn mr-2 text-info"></i>
+                            Chiến dịch "Back to School" được cập nhật
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-date">Hôm qua, 11:15</div>
+                        <div class="activity-content">
+                            <i class="fas fa-tag mr-2 text-primary"></i>
+                            Mã giảm giá "SPRING15" hết hạn
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block custom_js %}
+<style>
+    .timeline-activity {
+        position: relative;
+        padding-left: 25px;
+    }
+    
+    .timeline-activity:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 8px;
+        width: 2px;
+        background-color: #e3e6f0;
+    }
+    
+    .activity-item {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    
+    .activity-item:before {
+        content: '';
+        position: absolute;
+        left: -25px;
+        top: 6px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #4e73df;
+    }
+    
+    .activity-date {
+        font-size: 0.8rem;
+        color: #858796;
+        margin-bottom: 5px;
+    }
+    
+    .activity-content {
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %} 
