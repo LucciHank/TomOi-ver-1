@@ -330,4 +330,167 @@ def warranty_detail_user(request, request_id):
         'title': f'Chi tiết yêu cầu bảo hành #{warranty_request.id}',
     }
     
-    return render(request, 'accounts/warranty/detail.html', context) 
+    return render(request, 'accounts/warranty/detail.html', context)
+
+# Alias for warranty_list but with better name for dashboard
+@login_required
+@user_passes_test(is_admin)
+def warranty_management(request):
+    return warranty_list(request)
+
+@login_required
+@user_passes_test(is_admin)
+def warranty_dashboard(request):
+    """Trang tổng quan bảo hành hiển thị thông tin tổng hợp và biểu đồ"""
+    # Tổng số yêu cầu bảo hành
+    total_requests = WarrantyRequest.objects.count()
+    
+    # Số lượng theo trạng thái
+    pending_count = WarrantyRequest.objects.filter(status='pending').count()
+    in_progress_count = WarrantyRequest.objects.filter(status='in_progress').count()
+    resolved_count = WarrantyRequest.objects.filter(status='resolved').count()
+    closed_count = WarrantyRequest.objects.filter(status='closed').count()
+    
+    # Thống kê theo nguồn
+    source_stats = WarrantyRequest.objects.values('source__name').annotate(count=Count('id')).order_by('-count')[:5]
+    
+    # Thống kê theo lý do
+    reason_stats = WarrantyRequest.objects.values('reason__name').annotate(count=Count('id')).order_by('-count')[:5]
+    
+    # Các yêu cầu mới nhất
+    recent_requests = WarrantyRequest.objects.select_related('user', 'source', 'reason').order_by('-created_at')[:10]
+    
+    # Thời gian xử lý trung bình (tính từ các yêu cầu đã giải quyết)
+    resolved_requests = WarrantyRequest.objects.filter(
+        status__in=['resolved', 'closed'], 
+        resolved_at__isnull=False
+    )
+    
+    avg_resolution_time = None
+    if resolved_requests.exists():
+        total_time = timedelta()
+        count = 0
+        for req in resolved_requests:
+            if req.resolved_at and req.created_at:
+                total_time += req.resolved_at - req.created_at
+                count += 1
+        
+        if count > 0:
+            avg_seconds = total_time.total_seconds() / count
+            avg_hours = avg_seconds / 3600
+            avg_resolution_time = round(avg_hours, 1)  # Làm tròn 1 chữ số thập phân
+    
+    context = {
+        'total_requests': total_requests,
+        'pending_count': pending_count,
+        'in_progress_count': in_progress_count,
+        'resolved_count': resolved_count,
+        'closed_count': closed_count,
+        'source_stats': source_stats,
+        'reason_stats': reason_stats,
+        'recent_requests': recent_requests,
+        'avg_resolution_time': avg_resolution_time,
+    }
+    
+    return render(request, 'dashboard/warranty/dashboard.html', context)
+
+@login_required
+@user_passes_test(is_admin)
+def warranty_by_status(request, status=None):
+    """Hiển thị danh sách các yêu cầu bảo hành theo trạng thái"""
+    # Ánh xạ tên URL thân thiện sang giá trị thực trong DB
+    status_map = {
+        'pending': 'pending',
+        'in_progress': 'in_progress',
+        'resolved': 'resolved',
+        'closed': 'closed',
+    }
+    
+    # Nếu status là None (từ URL warranty/status/), hiển thị tất cả yêu cầu
+    if status is None:
+        warranty_requests = WarrantyRequest.objects.all().select_related(
+            'user', 'source', 'reason'
+        ).order_by('-created_at')
+        title = 'Tất cả yêu cầu bảo hành'
+    else:
+        # Lấy giá trị trạng thái thực tế
+        db_status = status_map.get(status, 'pending')
+        
+        # Lấy các yêu cầu bảo hành theo trạng thái
+        warranty_requests = WarrantyRequest.objects.filter(status=db_status).select_related(
+            'user', 'source', 'reason'
+        ).order_by('-created_at')
+        
+        # Tiêu đề hiển thị dựa trên trạng thái
+        status_titles = {
+            'pending': 'Yêu cầu bảo hành chờ xử lý',
+            'in_progress': 'Yêu cầu bảo hành đang xử lý',
+            'resolved': 'Yêu cầu bảo hành đã giải quyết',
+            'closed': 'Yêu cầu bảo hành đã đóng',
+        }
+        
+        title = status_titles.get(status, 'Yêu cầu bảo hành')
+    
+    # Phân trang
+    paginator = Paginator(warranty_requests, 15)  # 15 items mỗi trang
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'warranty_requests': page_obj,
+        'title': title,
+        'status': status,
+        'total_count': warranty_requests.count(),
+    }
+    
+    return render(request, 'dashboard/warranty/status_list.html', context)
+
+@login_required
+@user_passes_test(is_admin)
+def warranty_settings(request):
+    """Trang thiết lập cho module bảo hành"""
+    # Lấy tất cả lý do bảo hành
+    warranty_reasons = WarrantyReason.objects.all().order_by('name')
+    
+    # Lấy tất cả dịch vụ bảo hành
+    warranty_services = WarrantyService.objects.all().order_by('name')
+    
+    # Xử lý form thêm lý do mới
+    if request.method == 'POST':
+        if 'add_reason' in request.POST:
+            reason_name = request.POST.get('reason_name')
+            if reason_name:
+                WarrantyReason.objects.create(name=reason_name)
+                messages.success(request, f'Đã thêm lý do bảo hành: {reason_name}')
+                return redirect('dashboard:warranty_settings')
+        
+        elif 'add_service' in request.POST:
+            service_name = request.POST.get('service_name')
+            service_price = request.POST.get('service_price', 0)
+            if service_name:
+                WarrantyService.objects.create(name=service_name, price=service_price)
+                messages.success(request, f'Đã thêm dịch vụ bảo hành: {service_name}')
+                return redirect('dashboard:warranty_settings')
+        
+        elif 'delete_reason' in request.POST:
+            reason_id = request.POST.get('reason_id')
+            if reason_id:
+                reason = get_object_or_404(WarrantyReason, id=reason_id)
+                reason.delete()
+                messages.success(request, f'Đã xóa lý do bảo hành: {reason.name}')
+                return redirect('dashboard:warranty_settings')
+        
+        elif 'delete_service' in request.POST:
+            service_id = request.POST.get('service_id')
+            if service_id:
+                service = get_object_or_404(WarrantyService, id=service_id)
+                service.delete()
+                messages.success(request, f'Đã xóa dịch vụ bảo hành: {service.name}')
+                return redirect('dashboard:warranty_settings')
+    
+    context = {
+        'warranty_reasons': warranty_reasons,
+        'warranty_services': warranty_services,
+    }
+    
+    return render(request, 'dashboard/warranty/settings.html', context) 

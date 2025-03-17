@@ -1,0 +1,220 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Khôi phục mã giảm giá{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Khôi phục mã giảm giá</h1>
+        <a href="{% url 'dashboard:backup_discounts' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Khôi phục từ bản sao lưu</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        {% if messages %}
+                        <div class="alert alert-info">
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="form-group">
+                            <label>{{ form.restore_type.label }}</label>
+                            <div>
+                                {% for radio in form.restore_type %}
+                                    <div class="custom-control custom-radio">
+                                        {{ radio.tag }}
+                                        <label class="custom-control-label" for="{{ radio.id_for_label }}">
+                                            {{ radio.choice_label }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div id="existingBackupSection" class="form-group">
+                            <label for="{{ form.backup_id.id_for_label }}">{{ form.backup_id.label }}</label>
+                            <select name="{{ form.backup_id.name }}" id="{{ form.backup_id.id_for_label }}" class="form-control select2">
+                                <option value="">{{ form.backup_id.empty_label }}</option>
+                                {% for backup in backups %}
+                                    <option value="{{ backup.id }}" {% if form.backup_id.value == backup.id %}selected{% endif %}>
+                                        {{ backup.name }} ({{ backup.created_at|date:"d/m/Y H:i" }}) - {{ backup.get_discount_count }} mã
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.backup_id.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.backup_id.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div id="uploadBackupSection" class="form-group" style="display: none;">
+                            <label for="{{ form.backup_file.id_for_label }}">{{ form.backup_file.label }}</label>
+                            {{ form.backup_file }}
+                            {% if form.backup_file.help_text %}
+                                <small class="form-text text-muted">{{ form.backup_file.help_text }}</small>
+                            {% endif %}
+                            {% if form.backup_file.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.backup_file.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="form-group">
+                            <label>{{ form.restore_option.label }}</label>
+                            <div>
+                                {% for radio in form.restore_option %}
+                                    <div class="custom-control custom-radio">
+                                        {{ radio.tag }}
+                                        <label class="custom-control-label" for="{{ radio.id_for_label }}">
+                                            {{ radio.choice_label }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="custom-control custom-checkbox">
+                                {{ form.include_usage }}
+                                <label class="custom-control-label" for="{{ form.include_usage.id_for_label }}">
+                                    {{ form.include_usage.label }}
+                                </label>
+                            </div>
+                            {% if form.include_usage.help_text %}
+                                <small class="form-text text-muted">{{ form.include_usage.help_text }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" id="restoreButton">
+                            <i class="fas fa-undo"></i> Khôi phục dữ liệu
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card border-left-warning mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title text-warning">Lưu ý quan trọng</h5>
+                            <p class="small text-gray-800">Khôi phục sẽ ảnh hưởng đến dữ liệu mã giảm giá hiện tại của bạn. Vui lòng tạo một bản sao lưu trước khi thực hiện khôi phục.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card border-left-info">
+                        <div class="card-body">
+                            <h5 class="card-title">Thông tin khôi phục</h5>
+                            <p class="small">Chọn một bản sao lưu có sẵn hoặc tải lên file sao lưu từ thiết bị của bạn.</p>
+                            <p class="small">Khi chọn "Thay thế toàn bộ danh sách hiện tại", tất cả mã giảm giá hiện tại sẽ bị xóa và thay thế bằng dữ liệu từ bản sao lưu.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Form validation
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+    
+    // Handle restore type change
+    document.addEventListener('DOMContentLoaded', function() {
+        var restoreTypeRadios = document.querySelectorAll('input[name="restore_type"]');
+        var existingBackupSection = document.getElementById('existingBackupSection');
+        var uploadBackupSection = document.getElementById('uploadBackupSection');
+        
+        function handleRestoreTypeChange() {
+            var selectedValue = document.querySelector('input[name="restore_type"]:checked').value;
+            
+            if (selectedValue === 'existing') {
+                existingBackupSection.style.display = 'block';
+                uploadBackupSection.style.display = 'none';
+                document.getElementById('{{ form.backup_id.id_for_label }}').required = true;
+                document.getElementById('{{ form.backup_file.id_for_label }}').required = false;
+            } else {
+                existingBackupSection.style.display = 'none';
+                uploadBackupSection.style.display = 'block';
+                document.getElementById('{{ form.backup_id.id_for_label }}').required = false;
+                document.getElementById('{{ form.backup_file.id_for_label }}').required = true;
+            }
+        }
+        
+        // Initialize on page load
+        handleRestoreTypeChange();
+        
+        // Add event listeners
+        restoreTypeRadios.forEach(function(radio) {
+            radio.addEventListener('change', handleRestoreTypeChange);
+        });
+        
+        // Initialize Select2
+        if (typeof $.fn.select2 !== 'undefined') {
+            $('.select2').select2({
+                theme: 'bootstrap4',
+                width: '100%'
+            });
+        }
+        
+        // Add styling to input fields
+        document.querySelectorAll('input[type="file"]').forEach(function(el) {
+            el.classList.add('form-control');
+        });
+    });
+    
+    // Confirmation before restore
+    document.getElementById('restoreButton').addEventListener('click', function(e) {
+        var restoreOption = document.querySelector('input[name="restore_option"]:checked').value;
+        
+        if (restoreOption === 'replace') {
+            if (!confirm('CẢNH BÁO: Tất cả mã giảm giá hiện tại sẽ bị xóa và thay thế bằng dữ liệu từ bản sao lưu. Bạn có chắc chắn muốn tiếp tục?')) {
+                e.preventDefault();
+                return false;
+            }
+        }
+    });
+</script>
+{% endblock %} 

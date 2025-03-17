@@ -1,9 +1,12 @@
 from django.shortcuts import redirect
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 
+@login_required
 def blog_redirect(request):
     return redirect('dashboard:blogs')
 
+@login_required
 def banner_redirect(request):
     return redirect('dashboard:banners')
 

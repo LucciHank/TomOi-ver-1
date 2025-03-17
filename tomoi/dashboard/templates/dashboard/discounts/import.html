@@ -1,0 +1,148 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Nhập mã giảm giá{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Nhập mã giảm giá</h1>
+        <a href="{% url 'dashboard:discounts' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Nhập mã giảm giá từ file</h6>
+            <a href="{% url 'dashboard:export_discounts' %}" class="btn btn-sm btn-info">
+                <i class="fas fa-file-export"></i> Xuất mã giảm giá
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        {% if messages %}
+                        <div class="alert alert-info">
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="form-group">
+                            <label for="{{ form.file.id_for_label }}">{{ form.file.label }}</label>
+                            {{ form.file }}
+                            {% if form.file.help_text %}
+                                <small class="form-text text-muted">{{ form.file.help_text }}</small>
+                            {% endif %}
+                            {% if form.file.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.file.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>{{ form.import_type.label }}</label>
+                            <div>
+                                {% for radio in form.import_type %}
+                                    <div class="custom-control custom-radio custom-control-inline">
+                                        {{ radio.tag }}
+                                        <label class="custom-control-label" for="{{ radio.id_for_label }}">
+                                            {{ radio.choice_label }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            {% if form.import_type.help_text %}
+                                <small class="form-text text-muted">{{ form.import_type.help_text }}</small>
+                            {% endif %}
+                            {% if form.import_type.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.import_type.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="custom-control custom-checkbox">
+                                {{ form.skip_first_row }}
+                                <label class="custom-control-label" for="{{ form.skip_first_row.id_for_label }}">
+                                    {{ form.skip_first_row.label }}
+                                </label>
+                            </div>
+                            {% if form.skip_first_row.help_text %}
+                                <small class="form-text text-muted">{{ form.skip_first_row.help_text }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-file-import"></i> Nhập dữ liệu
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card border-left-info">
+                        <div class="card-body">
+                            <h5 class="card-title">Hướng dẫn nhập file</h5>
+                            <p>Tệp cần có các cột sau:</p>
+                            <ul class="small">
+                                <li><strong>code</strong>: Mã giảm giá (bắt buộc)</li>
+                                <li><strong>description</strong>: Mô tả</li>
+                                <li><strong>discount_type</strong>: Loại giảm giá (percentage/fixed)</li>
+                                <li><strong>discount_value</strong>: Giá trị giảm giá</li>
+                                <li><strong>start_date</strong>: Ngày bắt đầu (YYYY-MM-DD)</li>
+                                <li><strong>end_date</strong>: Ngày kết thúc (YYYY-MM-DD)</li>
+                                <li><strong>usage_limit</strong>: Giới hạn sử dụng</li>
+                                <li><strong>min_purchase</strong>: Giá trị đơn hàng tối thiểu</li>
+                                <li><strong>active</strong>: Trạng thái hoạt động (1/0)</li>
+                            </ul>
+                            <a href="{% url 'dashboard:discounts' %}" class="btn btn-sm btn-outline-info w-100 mt-3">
+                                <i class="fas fa-download"></i> Tải mẫu file nhập
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Form validation
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+</script>
+{% endblock %} 

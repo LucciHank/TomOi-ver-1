@@ -20,12 +20,13 @@ from dashboard.models import SystemNotification
 from dashboard.models.product import ProductChangeLog, ProductImage
 
 # Import các module tự định nghĩa
-from .marketing import marketing
+from .marketing import marketing, social_marketing, sms_push, affiliate, remarketing, automation, remarketing_campaign
 from .settings import *
 from .api import *
 from .chatbot import *
 from .source import *
 from .messaging import messaging
+from .warranty import *
 from .user import (
     user_list,
     user_detail,
@@ -436,7 +437,7 @@ def import_products(request):
     return render(request, 'dashboard/products/import.html')
 
 # Import các module tự định nghĩa
-from .marketing import marketing
+from .marketing import marketing, social_marketing, sms_push, affiliate, remarketing, automation, remarketing_campaign
 from .settings import *
 from .api import *
 from .chatbot import *

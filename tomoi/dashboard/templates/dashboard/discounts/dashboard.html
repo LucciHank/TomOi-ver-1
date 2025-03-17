@@ -1,0 +1,369 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Tổng quan Mã Giảm Giá{% endblock %}
+
+{% block page_title %}Tổng quan Mã Giảm Giá{% endblock %}
+{% block page_subtitle %}Quản lý và phân tích các mã giảm giá{% endblock %}
+
+{% block extra_css %}
+<style>
+    .discount-card {
+        transition: all 0.3s ease;
+    }
+    
+    .discount-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    .stat-card {
+        border-radius: 0.35rem;
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    .chart-container {
+        height: 300px;
+    }
+    
+    .badge-active {
+        background-color: #1cc88a;
+        color: white;
+    }
+    
+    .badge-expired {
+        background-color: #e74a3b;
+        color: white;
+    }
+    
+    .badge-upcoming {
+        background-color: #4e73df;
+        color: white;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+    
+    .filter-section {
+        background-color: #f8f9fc;
+        border-radius: 0.35rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .top-discounts {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Tổng quan mã giảm giá</h1>
+        <a href="{% url 'dashboard:add_discount' %}" class="d-none d-sm-inline-block btn btn-primary shadow-sm">
+            <i class="fas fa-plus fa-sm text-white-50"></i> Thêm mã mới
+        </a>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Tổng số mã giảm giá -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Tổng số mã giảm giá</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_discounts }}</div>
+                            <p class="mt-2 mb-0 text-xs text-success">
+                                <i class="fas fa-arrow-up"></i> {{ total_discounts_increase }}% so với tháng trước
+                            </p>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-ticket-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mã đang hoạt động -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Mã đang hoạt động</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ active_discounts }}</div>
+                            <p class="mt-2 mb-0 text-xs text-success">
+                                <i class="fas fa-arrow-up"></i> {{ active_discounts_increase }}% so với tháng trước
+                            </p>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tổng giá trị giảm giá -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Tổng giá trị giảm giá</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_discount_value|floatformat:0 }}đ</div>
+                            <p class="mt-2 mb-0 text-xs text-success">
+                                <i class="fas fa-arrow-up"></i> {{ total_discount_value_increase }}% so với tháng trước
+                            </p>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tỷ lệ sử dụng -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Tỷ lệ sử dụng</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ usage_rate }}%</div>
+                            <p class="mt-2 mb-0 text-xs text-success">
+                                <i class="fas fa-arrow-up"></i> {{ usage_rate_increase }}% so với tháng trước
+                            </p>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-pie fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Biểu đồ sử dụng mã giảm giá -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thống kê sử dụng mã giảm giá</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="discountUsageChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biểu đồ phân bố loại mã -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Phân bố loại mã</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie pt-4">
+                        <canvas id="discountTypeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Top mã giảm giá được sử dụng nhiều nhất -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Top mã giảm giá được sử dụng nhiều nhất</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Mã giảm giá</th>
+                                    <th>Loại</th>
+                                    <th>Giá trị</th>
+                                    <th>Số lần sử dụng</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for discount in top_discounts %}
+                                <tr>
+                                    <td>{{ discount.code }}</td>
+                                    <td>{{ discount.get_discount_type_display }}</td>
+                                    <td>{{ discount.value }}{% if discount.discount_type == 'percentage' %}%{% else %}đ{% endif %}</td>
+                                    <td>{{ discount.usage_count }}</td>
+                                    <td>
+                                        {% if discount.is_active %}
+                                        <span class="badge badge-success">Đang hoạt động</span>
+                                        {% else %}
+                                        <span class="badge badge-danger">Đã hết hạn</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lịch sử sử dụng mã giảm giá -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Lịch sử sử dụng mã giảm giá</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Thời gian</th>
+                                    <th>Người dùng</th>
+                                    <th>Mã giảm giá</th>
+                                    <th>Giá trị giảm</th>
+                                    <th>Đơn hàng</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for usage in recent_usage %}
+                                <tr>
+                                    <td>{{ usage.created_at|date:"d/m/Y H:i" }}</td>
+                                    <td>{{ usage.user.get_full_name|default:usage.user.username }}</td>
+                                    <td>{{ usage.discount.code }}</td>
+                                    <td>{{ usage.discount_value|floatformat:0 }}đ</td>
+                                    <td>
+                                        <a href="{% url 'dashboard:order_detail' usage.order.id %}">
+                                            #{{ usage.order.order_number }}
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Thống kê theo loại mã -->
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thống kê theo loại mã</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Loại mã</th>
+                                    <th>Số lượng</th>
+                                    <th>Tổng giá trị giảm</th>
+                                    <th>Số lần sử dụng</th>
+                                    <th>Tỷ lệ sử dụng</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for type in discount_types %}
+                                <tr>
+                                    <td>{{ type.name }}</td>
+                                    <td>{{ type.count }}</td>
+                                    <td>{{ type.total_value|floatformat:0 }}đ</td>
+                                    <td>{{ type.usage_count }}</td>
+                                    <td>{{ type.usage_rate }}%</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Biểu đồ sử dụng mã giảm giá
+    var ctx = document.getElementById('discountUsageChart').getContext('2d');
+    var discountUsageChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ usage_chart_labels|safe }},
+            datasets: [{
+                label: 'Số lần sử dụng',
+                data: {{ usage_chart_data|safe }},
+                fill: false,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Biểu đồ phân bố loại mã
+    var ctx2 = document.getElementById('discountTypeChart').getContext('2d');
+    var discountTypeChart = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+            labels: {{ type_chart_labels|safe }},
+            datasets: [{
+                data: {{ type_chart_data|safe }},
+                backgroundColor: ['#4e73df', '#1cc88a']
+            }]
+        },
+        options: {
+            maintainAspectRatio: false
+        }
+    });
+</script>
+{% endblock %} 

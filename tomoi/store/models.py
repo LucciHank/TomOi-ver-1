@@ -477,11 +477,14 @@ class Discount(models.Model):
     discount_type = models.CharField(max_length=10, choices=DISCOUNT_TYPE_CHOICES, default='percentage')
     value = models.DecimalField(max_digits=10, decimal_places=2)
     max_uses = models.IntegerField(default=0)  # 0 = không giới hạn
+    uses_per_customer = models.IntegerField(default=1)  # Số lần mỗi khách hàng có thể sử dụng
+    min_purchase = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # Giá trị đơn hàng tối thiểu
     used_count = models.IntegerField(default=0)
     valid_from = models.DateTimeField()
     valid_to = models.DateTimeField()
     products = models.ManyToManyField(Product, blank=True)
     categories = models.ManyToManyField(Category, blank=True, related_name='discount_codes')
+    allowed_users = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='available_discounts')
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -503,7 +506,44 @@ class Discount(models.Model):
             return False
         return True
     
+    def is_valid_for_user(self, user, amount=0):
+        """Kiểm tra xem mã giảm giá có hợp lệ cho người dùng và giá trị đơn hàng không"""
+        # Kiểm tra tính hợp lệ cơ bản
+        if not self.is_valid():
+            return False
+            
+        # Kiểm tra giá trị đơn hàng tối thiểu
+        if self.min_purchase > 0 and amount < self.min_purchase:
+            return False
+            
+        # Kiểm tra người dùng được phép
+        if self.allowed_users.exists() and (user is None or not self.allowed_users.filter(id=user.id).exists()):
+            return False
+            
+        # Nếu người dùng đã đăng nhập, kiểm tra số lần đã sử dụng
+        if user and self.uses_per_customer > 0:
+            usage_count = user.discount_usages.filter(discount=self).count()
+            if usage_count >= self.uses_per_customer:
+                return False
+                
+        return True
+    
     def get_discount_amount(self, amount):
         if self.discount_type == 'percentage':
             return (amount * self.value) / 100
         return self.value if amount > self.value else amount
+
+class DiscountUsage(models.Model):
+    """Lưu lịch sử sử dụng mã giảm giá"""
+    discount = models.ForeignKey(Discount, on_delete=models.CASCADE, related_name='usages')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='discount_usages')
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='discount_usages', null=True, blank=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)  # Số tiền được giảm
+    used_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = 'Lịch sử sử dụng mã giảm giá'
+        verbose_name_plural = 'Lịch sử sử dụng mã giảm giá'
+        
+    def __str__(self):
+        return f"{self.user.username} - {self.discount.code} - {self.amount}"

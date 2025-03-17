@@ -197,4 +197,73 @@ def get_product(request, product_id):
         'is_active': product.is_active
     }
     
-    return JsonResponse(data) 
+    return JsonResponse(data)
+
+@staff_member_required
+def product_attributes(request):
+    """
+    Quản lý thuộc tính sản phẩm
+    """
+    context = {
+        'title': 'Thuộc tính sản phẩm',
+        'active_tab': 'products'
+    }
+    return render(request, 'dashboard/products/attributes.html', context)
+
+@staff_member_required
+def product_reviews(request):
+    """
+    Quản lý đánh giá sản phẩm
+    """
+    # Truy vấn tất cả đánh giá sản phẩm
+    # Đây là phiên bản đơn giản, cần điều chỉnh theo model thực tế
+    reviews = []  # Thay bằng truy vấn thật từ model ProductReview
+    
+    context = {
+        'title': 'Đánh giá sản phẩm',
+        'reviews': reviews,
+        'active_tab': 'products'
+    }
+    return render(request, 'dashboard/products/reviews.html', context)
+
+@staff_member_required
+def export_products(request):
+    """
+    Xuất danh sách sản phẩm ra file Excel/CSV
+    """
+    import csv
+    from django.http import HttpResponse
+    from datetime import datetime
+    
+    # Lấy tất cả sản phẩm
+    products = Product.objects.all().order_by('id')
+    
+    # Tạo response với content type là text/csv
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="products_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv"'
+    
+    # Tạo writer CSV
+    writer = csv.writer(response)
+    
+    # Viết header
+    writer.writerow([
+        'ID', 'Mã sản phẩm', 'Tên sản phẩm', 'Danh mục', 'Thương hiệu', 
+        'Giá bán', 'Giá cũ', 'Tồn kho', 'Trạng thái', 'Ngày tạo'
+    ])
+    
+    # Viết dữ liệu sản phẩm
+    for product in products:
+        writer.writerow([
+            product.id, 
+            product.product_code,
+            product.name,
+            product.category.name if product.category else '',
+            product.brand.name if product.brand else '',
+            product.price,
+            product.old_price or '',
+            product.stock,
+            'Đang bán' if product.is_active else 'Ngừng bán',
+            product.created_at.strftime('%d/%m/%Y') if hasattr(product, 'created_at') else ''
+        ])
+    
+    return response 

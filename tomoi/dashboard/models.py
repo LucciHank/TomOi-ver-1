@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from accounts.models import CustomUser
-from store.models import Product, Order
+from store.models import Product, Order, Discount
 from blog.models import Post
 from django.contrib.auth import get_user_model
 from datetime import timedelta
@@ -697,4 +697,60 @@ class WarrantyHistory(models.Model):
     class Meta:
         verbose_name = "Lịch sử bảo hành"
         verbose_name_plural = "Lịch sử bảo hành"
-        ordering = ['-created_at'] 
+        ordering = ['-created_at']
+
+class DiscountHistory(models.Model):
+    """
+    Lưu trữ lịch sử thay đổi mã giảm giá
+    """
+    discount = models.ForeignKey(Discount, on_delete=models.CASCADE, related_name='history', null=True, blank=True)
+    discount_code = models.CharField(max_length=50)  # Lưu trữ mã trong trường hợp discount bị xóa
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    action_type = models.CharField(max_length=20, choices=(
+        ('create', 'Tạo mới'),
+        ('update', 'Cập nhật'),
+        ('delete', 'Xóa'),
+        ('activate', 'Kích hoạt'),
+        ('deactivate', 'Hủy kích hoạt'),
+    ))
+    changes_json = models.TextField(null=True, blank=True)  # Lưu trữ các thay đổi dưới dạng JSON
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Lịch sử mã giảm giá'
+        verbose_name_plural = 'Lịch sử mã giảm giá'
+    
+    def __str__(self):
+        return f"{self.get_action_type_display()} - {self.discount_code} - {self.created_at.strftime('%d/%m/%Y %H:%M')}"
+
+
+class DiscountBackup(models.Model):
+    """
+    Lưu trữ bản sao lưu mã giảm giá
+    """
+    name = models.CharField(max_length=100)
+    backup_data = models.TextField()  # Lưu trữ dữ liệu dưới dạng JSON
+    include_usage = models.BooleanField(default=False)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    file_path = models.CharField(max_length=255, null=True, blank=True)  # Đường dẫn tới file backup (nếu có)
+    
+    class Meta:
+        verbose_name = "Bản sao lưu mã giảm giá"
+        verbose_name_plural = "Bản sao lưu mã giảm giá"
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.name} - {self.created_at.strftime('%d/%m/%Y %H:%M')}"
+        
+    def get_discount_count(self):
+        """
+        Trả về số lượng mã giảm giá trong bản sao lưu
+        """
+        try:
+            import json
+            data = json.loads(self.backup_data)
+            return len(data.get('discounts', []))
+        except:
+            return 0 

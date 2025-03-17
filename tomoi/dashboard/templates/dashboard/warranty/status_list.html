@@ -1,0 +1,236 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load dashboard_extras %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">{{ title }}</h1>
+        <div>
+            <a href="{% url 'dashboard:warranty_dashboard' %}" class="d-none d-sm-inline-block btn btn-secondary shadow-sm mr-2">
+                <i class="fas fa-chart-line fa-sm text-white-50"></i> Tổng quan
+            </a>
+            <a href="{% url 'dashboard:warranty_request_add' %}" class="d-none d-sm-inline-block btn btn-primary shadow-sm">
+                <i class="fas fa-plus fa-sm text-white-50"></i> Tạo yêu cầu mới
+            </a>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link {% if status == 'pending' %}active{% endif %}" href="{% url 'dashboard:warranty_pending' %}">
+                        <i class="fas fa-clock"></i> Chờ xử lý 
+                        <span class="badge badge-warning">{{ total_count }}</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if status == 'in_progress' %}active{% endif %}" href="{% url 'dashboard:warranty_processing' %}">
+                        <i class="fas fa-spinner"></i> Đang xử lý
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if status == 'resolved' %}active{% endif %}" href="{% url 'dashboard:warranty_resolved' %}">
+                        <i class="fas fa-check-circle"></i> Đã giải quyết
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if status == 'closed' %}active{% endif %}" href="{% url 'dashboard:warranty_closed' %}">
+                        <i class="fas fa-times-circle"></i> Đã đóng
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Filter and Search -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Tìm kiếm & Lọc</h6>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="form-inline">
+                        <div class="form-group mb-2 mr-2">
+                            <input type="text" name="search" class="form-control" placeholder="Tìm kiếm..." value="{{ request.GET.search|default:'' }}">
+                        </div>
+                        <div class="form-group mb-2 mr-2">
+                            <select name="platform" class="form-control">
+                                <option value="">-- Tất cả nền tảng --</option>
+                                <option value="web" {% if request.GET.platform == 'web' %}selected{% endif %}>Web</option>
+                                <option value="mobile" {% if request.GET.platform == 'mobile' %}selected{% endif %}>Mobile</option>
+                                <option value="desktop" {% if request.GET.platform == 'desktop' %}selected{% endif %}>Desktop</option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-2 mr-2">
+                            <input type="date" name="date_from" class="form-control" placeholder="Từ ngày" value="{{ request.GET.date_from|default:'' }}">
+                        </div>
+                        <div class="form-group mb-2 mr-2">
+                            <input type="date" name="date_to" class="form-control" placeholder="Đến ngày" value="{{ request.GET.date_to|default:'' }}">
+                        </div>
+                        <button type="submit" class="btn btn-primary mb-2">
+                            <i class="fas fa-search"></i> Tìm kiếm
+                        </button>
+                        <a href="?status={{ status }}" class="btn btn-secondary mb-2 ml-2">
+                            <i class="fas fa-sync"></i> Đặt lại
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warranty Requests List -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">{{ title }} ({{ warranty_requests.paginator.count }})</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="warrantyTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Khách hàng</th>
+                            <th>Nguồn</th>
+                            <th>Nền tảng</th>
+                            <th>Lý do</th>
+                            <th>Ngày tạo</th>
+                            <th>Tuổi</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in warranty_requests %}
+                        <tr>
+                            <td>{{ request.id }}</td>
+                            <td>{{ request.user.get_full_name|default:request.user.username }}</td>
+                            <td>{{ request.source.name|default:"Không xác định" }}</td>
+                            <td>{{ request.platform|default:"Không xác định" }}</td>
+                            <td>{{ request.reason.name|default:request.custom_reason|default:"Không xác định" }}</td>
+                            <td>{{ request.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if request.created_at %}
+                                    {{ request.created_at|timesince }}
+                                {% else %}
+                                    Không rõ
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'dashboard:warranty_detail' request.id %}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if status == 'pending' %}
+                                <a href="#" class="btn btn-sm btn-info process-warranty" data-id="{{ request.id }}">
+                                    <i class="fas fa-cogs"></i>
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center">Không có yêu cầu bảo hành nào</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if warranty_requests.paginator.num_pages > 1 %}
+            <div class="row">
+                <div class="col-md-12">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            {% if warranty_requests.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.platform %}&platform={{ request.GET.platform }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}" aria-label="First">
+                                    <span aria-hidden="true">&laquo;&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ warranty_requests.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.platform %}&platform={{ request.GET.platform }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" aria-label="First">
+                                    <span aria-hidden="true">&laquo;&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for i in warranty_requests.paginator.page_range %}
+                                {% if warranty_requests.number == i %}
+                                <li class="page-item active">
+                                    <a class="page-link" href="#">{{ i }}</a>
+                                </li>
+                                {% elif i > warranty_requests.number|add:'-3' and i < warranty_requests.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ i }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.platform %}&platform={{ request.GET.platform }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">{{ i }}</a>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if warranty_requests.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ warranty_requests.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.platform %}&platform={{ request.GET.platform }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ warranty_requests.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.platform %}&platform={{ request.GET.platform }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}" aria-label="Last">
+                                    <span aria-hidden="true">&raquo;&raquo;</span>
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" aria-label="Last">
+                                    <span aria-hidden="true">&raquo;&raquo;</span>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('#warrantyTable').DataTable({
+            "paging": false,
+            "searching": false
+        });
+        
+        // Process Warranty Button
+        $('.process-warranty').on('click', function(e) {
+            e.preventDefault();
+            var requestId = $(this).data('id');
+            window.location.href = "{% url 'dashboard:warranty_detail' 0 %}".replace('0', requestId);
+        });
+    });
+</script>
+{% endblock %} 

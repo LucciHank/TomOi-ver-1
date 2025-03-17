@@ -1,0 +1,316 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Mẫu Email Marketing{% endblock %}
+
+{% block extra_css %}
+{% include 'dashboard/marketing/styles.html' %}
+<link rel="stylesheet" href="{% static 'css/email-templates.css' %}">
+<style>
+    .template-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+        margin-bottom: 20px;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+    
+    .template-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .template-preview {
+        height: 200px;
+        overflow: hidden;
+        position: relative;
+        background-color: #f8f9fc;
+    }
+    
+    .template-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top;
+    }
+    
+    .template-preview .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.3);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+    
+    .template-card:hover .overlay {
+        opacity: 1;
+    }
+    
+    .template-info {
+        padding: 15px;
+        background-color: white;
+    }
+    
+    .template-info h5 {
+        margin-bottom: 5px;
+        font-weight: 600;
+    }
+    
+    .template-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+    }
+    
+    .template-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 2;
+    }
+    
+    .category-tabs {
+        margin-bottom: 20px;
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 10px;
+    }
+    
+    .category-tabs .nav-link {
+        border-radius: 20px;
+        padding: 8px 20px;
+        margin-right: 10px;
+        font-weight: 500;
+        color: #6c757d;
+        border: 1px solid #e3e6f0;
+    }
+    
+    .category-tabs .nav-link.active {
+        background-color: #4e73df;
+        color: white;
+        border-color: #4e73df;
+    }
+    
+    .search-container {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    
+    .search-container i {
+        position: absolute;
+        top: 12px;
+        left: 15px;
+        color: #6c757d;
+    }
+    
+    .search-input {
+        padding-left: 40px;
+        border-radius: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Mẫu Email Marketing</h1>
+        <div>
+            <a href="{% url 'dashboard:email_editor' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+                <i class="fas fa-plus fa-sm text-white-50"></i> Tạo mẫu mới
+            </a>
+            <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+                <i class="fas fa-file-import fa-sm text-white-50"></i> Import mẫu
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters & Search -->
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <ul class="nav category-tabs">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#">Tất cả</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Thông báo</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Khuyến mãi</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Chào mừng</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Sự kiện</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Nhắc nhở</a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-4">
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" class="form-control search-input" placeholder="Tìm kiếm mẫu email...">
+            </div>
+        </div>
+    </div>
+
+    <!-- Templates Grid -->
+    <div class="row">
+        {% for template in templates %}
+        <div class="col-lg-3 col-md-4 col-sm-6">
+            <div class="template-card">
+                <span class="badge bg-success template-badge">Mới</span>
+                <div class="template-preview">
+                    <img src="{% static 'img/email-template-placeholder.jpg' %}" alt="{{ template.name }}">
+                    <div class="overlay">
+                        <div class="btn-group">
+                            <a href="#" class="btn btn-sm btn-primary">
+                                <i class="fas fa-eye"></i> Xem
+                            </a>
+                            <a href="{% url 'dashboard:email_editor' %}?template_id={{ template.id }}" class="btn btn-sm btn-success">
+                                <i class="fas fa-edit"></i> Sửa
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="template-info">
+                    <h5>{{ template.name }}</h5>
+                    <small class="text-muted">Tạo ngày: {{ template.created_at|date:"d/m/Y" }}</small>
+                    <div class="template-actions">
+                        <div>
+                            <span class="badge bg-light text-dark">Thông báo</span>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-copy me-2"></i> Sao chép</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-paper-plane me-2"></i> Gửi thử</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-download me-2"></i> Xuất</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash-alt me-2"></i> Xóa</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <p class="mb-0 text-center">Không tìm thấy mẫu email nào. Hãy tạo mẫu mới để bắt đầu!</p>
+            </div>
+        </div>
+        {% endfor %}
+        
+        <!-- Template Examples for demonstration -->
+        <div class="col-lg-3 col-md-4 col-sm-6">
+            <div class="template-card">
+                <div class="template-preview">
+                    <img src="{% static 'img/email-template-placeholder.jpg' %}" alt="Mẫu khuyến mãi">
+                    <div class="overlay">
+                        <div class="btn-group">
+                            <a href="#" class="btn btn-sm btn-primary">
+                                <i class="fas fa-eye"></i> Xem
+                            </a>
+                            <a href="#" class="btn btn-sm btn-success">
+                                <i class="fas fa-edit"></i> Sửa
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="template-info">
+                    <h5>Mẫu khuyến mãi</h5>
+                    <small class="text-muted">Tạo ngày: 01/06/2023</small>
+                    <div class="template-actions">
+                        <div>
+                            <span class="badge bg-warning text-dark">Khuyến mãi</span>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-copy me-2"></i> Sao chép</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-paper-plane me-2"></i> Gửi thử</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-download me-2"></i> Xuất</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash-alt me-2"></i> Xóa</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-4 col-sm-6">
+            <div class="template-card">
+                <div class="template-preview">
+                    <img src="{% static 'img/email-template-placeholder.jpg' %}" alt="Mẫu chào mừng">
+                    <div class="overlay">
+                        <div class="btn-group">
+                            <a href="#" class="btn btn-sm btn-primary">
+                                <i class="fas fa-eye"></i> Xem
+                            </a>
+                            <a href="#" class="btn btn-sm btn-success">
+                                <i class="fas fa-edit"></i> Sửa
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="template-info">
+                    <h5>Mẫu chào mừng</h5>
+                    <small class="text-muted">Tạo ngày: 15/05/2023</small>
+                    <div class="template-actions">
+                        <div>
+                            <span class="badge bg-primary text-white">Chào mừng</span>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-copy me-2"></i> Sao chép</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-paper-plane me-2"></i> Gửi thử</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-download me-2"></i> Xuất</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash-alt me-2"></i> Xóa</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Trước</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Sau</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %} 

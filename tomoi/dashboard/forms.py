@@ -1,6 +1,6 @@
 from django import forms
-from store.models import Banner, Category
-from .models import Campaign, APIKey, Webhook, Source, Product, Discount, WarrantyRequest, WarrantyReason
+from store.models import Banner, Category, Discount, Product
+from .models import Campaign, APIKey, Webhook, Source, WarrantyRequest, WarrantyReason
 from .models.source import SourceLog, SourceProduct
 from accounts.models import CustomUser
 from django.contrib.auth.models import Group, Permission
@@ -11,15 +11,21 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.conf import settings
 from datetime import date, datetime, timedelta
 import pytz
-from store.models import Order, OrderItem, Product
+from store.models import Order, OrderItem
 from .models import (
     UserSubscription,
-    Source, WarrantyRequest,
-    WarrantyReason, WarrantyRequestHistory, WarrantyHistory
+    Source, WarrantyRequestHistory, WarrantyHistory
 )
 from .models.conversation import ChatbotConversation
 from django.shortcuts import get_object_or_404
 import json
+import os
+from django.apps import apps
+from django.utils import timezone
+from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 class CampaignForm(forms.ModelForm):
     class Meta:
@@ -769,3 +775,162 @@ class CategoryForm(forms.ModelForm):
             self.fields['parent'].queryset = Category.objects.exclude(pk=self.instance.pk)
             # Đánh dấu trường parent là không bắt buộc
             self.fields['parent'].required = False
+
+class DiscountForm(forms.ModelForm):
+    class Meta:
+        model = Discount
+        fields = ['code', 'discount_type', 'value', 'min_purchase', 'valid_from', 'valid_to', 
+                 'max_uses', 'uses_per_customer', 'description', 'products', 'categories', 
+                 'allowed_users', 'is_active']
+        widgets = {
+            'valid_from': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'valid_to': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'products': forms.SelectMultiple(attrs={'class': 'select2'}),
+            'categories': forms.SelectMultiple(attrs={'class': 'select2'}),
+            'allowed_users': forms.SelectMultiple(attrs={'class': 'select2'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['products'].queryset = Product.objects.all()
+        self.fields['categories'].queryset = Category.objects.all()
+        self.fields['allowed_users'].queryset = CustomUser.objects.all()
+
+class DiscountImportForm(forms.Form):
+    file = forms.FileField(
+        label='Chọn file', 
+        help_text='Chọn file Excel (.xlsx) hoặc CSV (.csv)',
+        widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.xlsx,.csv'})
+    )
+    import_type = forms.ChoiceField(
+        label='Phương thức nhập',
+        choices=[
+            ('append', 'Thêm vào (bỏ qua nếu trùng)'),
+            ('replace', 'Thay thế hoàn toàn')
+        ],
+        widget=forms.RadioSelect(attrs={'class': 'form-check-input'})
+    )
+    skip_first_row = forms.BooleanField(
+        label='Bỏ qua dòng đầu tiên (tiêu đề)',
+        required=False,
+        initial=True,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+
+    def clean_file(self):
+        file = self.cleaned_data['file']
+        ext = os.path.splitext(file.name)[1]
+        if ext.lower() not in ['.xlsx', '.csv']:
+            raise forms.ValidationError("Chỉ hỗ trợ file Excel (.xlsx) hoặc CSV (.csv)")
+        return file
+
+class DiscountExportForm(forms.Form):
+    export_type = forms.ChoiceField(
+        label='Định dạng xuất',
+        choices=[
+            ('xlsx', 'Excel (.xlsx)'),
+            ('csv', 'CSV (.csv)')
+        ],
+        widget=forms.RadioSelect(attrs={'class': 'form-check-input'})
+    )
+    date_from = forms.DateField(
+        label='Từ ngày',
+        required=False,
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'})
+    )
+    date_to = forms.DateField(
+        label='Đến ngày',
+        required=False,
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'})
+    )
+    status = forms.ChoiceField(
+        label='Trạng thái',
+        choices=[
+            ('all', 'Tất cả'),
+            ('active', 'Đang hoạt động'),
+            ('inactive', 'Không hoạt động')
+        ],
+        initial='all',
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    include_history = forms.BooleanField(
+        label='Bao gồm lịch sử sử dụng',
+        required=False,
+        initial=True,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+
+class DiscountBackupForm(forms.Form):
+    backup_name = forms.CharField(
+        label='Tên bản sao lưu',
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    include_usage = forms.BooleanField(
+        label='Bao gồm lịch sử sử dụng',
+        required=False,
+        initial=True,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+    download_backup = forms.BooleanField(
+        label='Tải xuống bản sao lưu',
+        required=False,
+        initial=True,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+
+class DiscountRestoreForm(forms.Form):
+    restore_type = forms.ChoiceField(
+        label='Phương thức khôi phục',
+        choices=[
+            ('existing', 'Từ bản sao lưu có sẵn'),
+            ('upload', 'Tải lên file sao lưu')
+        ],
+        widget=forms.RadioSelect(attrs={'class': 'form-check-input'})
+    )
+    backup_id = forms.ModelChoiceField(
+        label='Chọn bản sao lưu',
+        queryset=None,  # Sẽ được thiết lập trong __init__
+        required=False,
+        empty_label="-- Chọn bản sao lưu --",
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    backup_file = forms.FileField(
+        label='File sao lưu',
+        required=False,
+        help_text='Chọn file JSON sao lưu',
+        widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.json'})
+    )
+    restore_option = forms.ChoiceField(
+        label='Tùy chọn khôi phục',
+        choices=[
+            ('append', 'Thêm vào (bỏ qua nếu trùng)'),
+            ('replace', 'Thay thế toàn bộ'),
+            ('overwrite', 'Ghi đè mã đã tồn tại')
+        ],
+        widget=forms.RadioSelect(attrs={'class': 'form-check-input'})
+    )
+    include_usage = forms.BooleanField(
+        label='Khôi phục cả lịch sử sử dụng',
+        required=False,
+        initial=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from dashboard.models.discount import DiscountBackup
+        self.fields['backup_id'].queryset = DiscountBackup.objects.all().order_by('-created_at')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        restore_type = cleaned_data.get('restore_type')
+        backup_id = cleaned_data.get('backup_id')
+        backup_file = cleaned_data.get('backup_file')
+
+        if restore_type == 'existing' and not backup_id:
+            self.add_error('backup_id', 'Vui lòng chọn bản sao lưu để khôi phục.')
+        elif restore_type == 'upload' and not backup_file:
+            self.add_error('backup_file', 'Vui lòng chọn file sao lưu để tải lên.')
+
+        return cleaned_data

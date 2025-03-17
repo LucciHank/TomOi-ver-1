@@ -20,14 +20,23 @@ from .views import chat_messages, chat_sessions
 from .views import email_logs, email_templates, email_editor, email_save_template
 from .views import discount_list, discount_add, discount_edit, discount_delete, toggle_discount, discount_report
 from .views.product import update_product_status, manage_product_images, delete_product_image, set_primary_image
-from .views.product import product_detail, product_history
+from .views.product import product_detail, product_history, product_attributes, product_reviews, export_products
 from .views.banner import upload_banner_image, banner_list, banner_add, banner_edit, banner_delete, toggle_banner
 from .views import api_settings, save_api_config, test_api
 from .views import chatbot_api_settings, chatbot_save_api, chatbot_test_api
 from .views import settings as app_settings, logs, responses
 from .views.user import user_dashboard
 from .views.chatbot import dashboard as chatbot_dashboard  # Import chatbot_dashboard view
-from .views.marketing import marketing, dashboard as marketing_dashboard, delete_campaign, marketing_analytics  # Import marketing, dashboard và delete_campaign từ marketing.py
+
+# Import các chức năng marketing từ module marketing
+from .views.marketing import (
+    marketing, marketing_dashboard, delete_campaign, marketing_analytics,
+    campaign_list, campaign_add, campaign_detail, campaign_edit,
+    email_templates, social_marketing, sms_push,
+    affiliate, remarketing, automation, marketing_chart_data,
+    remarketing_campaign
+)
+
 from .views.compare import compare_sources  # Import compare_sources từ module compare chứ không phải source
 from .views.product_source import add_source_product  # Import add_source_product từ module product_source
 from .views.settings import settings_view, update_general_settings, update_payment_settings  # Import settings view
@@ -49,7 +58,8 @@ from .views import (
 # Import warranty functions from views
 from .views import (
     warranty_management, warranty_detail, warranty_report, send_new_account,
-    create_warranty, update_warranty_status, assign_warranty, add_warranty_note, delete_warranty
+    create_warranty, update_warranty_status, assign_warranty, add_warranty_note, delete_warranty,
+    warranty_dashboard, warranty_by_status, warranty_settings
 )
 
 from .views import subscription_management, subscription_plans
@@ -99,14 +109,22 @@ urlpatterns = [
     
     # Warranty Management
     path('warranty/', warranty_management, name='warranty'),
+    path('warranty/dashboard/', warranty_dashboard, name='warranty_dashboard'),
     path('warranty/<int:warranty_id>/', warranty_detail, name='warranty_detail'),
     path('warranty/report/', warranty_report, name='warranty_report'),
     path('warranty/send-new-account/<int:user_id>/', send_new_account, name='send_new_account'),
     path('warranty/create/', create_warranty, name='create_warranty'),
+    path('warranty/create/', create_warranty, name='warranty_request_add'),  # Alias for create_warranty
     path('warranty/<int:warranty_id>/update-status/', update_warranty_status, name='update_warranty_status'),
     path('warranty/<int:warranty_id>/assign/', assign_warranty, name='assign_warranty'),
     path('warranty/<int:warranty_id>/add-note/', add_warranty_note, name='add_warranty_note'),
     path('warranty/<int:warranty_id>/delete/', delete_warranty, name='delete_warranty'),
+    path('warranty/status/', warranty_by_status, name='warranty_by_status'),  # Thêm URL mới để hiển thị tất cả yêu cầu
+    path('warranty/pending/', warranty_by_status, {'status': 'pending'}, name='warranty_pending'),
+    path('warranty/processing/', warranty_by_status, {'status': 'in_progress'}, name='warranty_processing'),
+    path('warranty/resolved/', warranty_by_status, {'status': 'resolved'}, name='warranty_resolved'),
+    path('warranty/closed/', warranty_by_status, {'status': 'closed'}, name='warranty_closed'),
+    path('warranty/settings/', warranty_settings, name='warranty_settings'),
     
     # Subscription Management
     path('subscription/', subscription_management, name='subscription_list'),
@@ -141,6 +159,7 @@ urlpatterns = [
     
     # Product Management
     path('products/', product_list, name='products'),
+    path('products/', product_list, name='product_list'),  # Alias for products
     path('products/add/', add_product, name='add_product'),
     path('products/<int:product_id>/edit/', edit_product, name='edit_product'),
     path('products/<int:product_id>/delete/', delete_product, name='delete_product'),
@@ -158,8 +177,18 @@ urlpatterns = [
     path('products/categories/add/', add_category, name='add_category'),
     path('products/categories/<int:category_id>/edit/', edit_category, name='edit_category'),
     
+    # Attributes (added to fix NoReverseMatch error)
+    path('products/attributes/', product_attributes, name='attributes'),
+    
+    # Product Reviews (added to fix NoReverseMatch error)
+    path('products/reviews/', product_reviews, name='product_reviews'),
+    
     # Import Products
     path('products/import/', import_products, name='import_products'),
+    path('products/import/', import_products, name='product_import'),  # Alias for import_products
+
+    # Export Products
+    path('products/export/', export_products, name='product_export'),
     
     # Order Management
     path('orders/', order_management, name='order_management'),
@@ -176,13 +205,31 @@ urlpatterns = [
     path('orders/history/', order_history, name='order_history'),
     path('users/<int:user_id>/orders/', customer_orders, name='customer_orders'),
     
+    # Order status tabs
+    path('orders/pending/', order_list, {'status': 'pending'}, name='order_pending'),
+    path('orders/processing/', order_list, {'status': 'processing'}, name='order_processing'),
+    path('orders/completed/', order_list, {'status': 'completed'}, name='order_completed'),
+    path('orders/cancelled/', order_list, {'status': 'cancelled'}, name='order_cancelled'),
+    path('orders/shipped/', order_list, {'status': 'shipped'}, name='order_shipped'),
+    path('orders/returned/', order_list, {'status': 'returned'}, name='order_returned'),
+    path('orders/refunded/', order_list, {'status': 'refunded'}, name='order_refunded'),
+    
+    # Order reports
+    path('orders/reports/', order_list, name='order_reports'),
+    
     # Discount Management
-    path('discounts/', discount_list, name='discounts'),
-    path('discounts/add/', discount_add, name='add_discount'),
-    path('discounts/<int:discount_id>/edit/', discount_edit, name='edit_discount'),
-    path('discounts/<int:discount_id>/delete/', discount_delete, name='delete_discount'),
-    path('discounts/<int:discount_id>/toggle/', toggle_discount, name='toggle_discount'),
-    path('discounts/report/', discount_report, name='discount_report'),
+    path('discounts/', views.discount.discount_list, name='discounts'),
+    path('discounts/add/', views.discount.discount_add, name='add_discount'),
+    path('discounts/add/', views.discount.discount_add, name='discount_add'),  # Alias for add_discount
+    path('discounts/edit/<int:discount_id>/', views.discount.discount_edit, name='edit_discount'),
+    path('discounts/delete/<int:discount_id>/', views.discount.discount_delete, name='delete_discount'),
+    path('discounts/dashboard/', views.discount.discount_dashboard, name='discount_dashboard'),
+    path('discounts/report/', views.discount.discount_report, name='discount_report'),
+    path('discounts/history/', views.discount.discount_history, name='discount_history'),
+    path('discounts/import/', views.discount.import_discounts, name='import_discounts'),
+    path('discounts/export/', views.discount.export_discounts, name='export_discounts'),
+    path('discounts/backup/', views.discount.backup_discounts, name='backup_discounts'),
+    path('discounts/restore/', views.discount.restore_discounts, name='restore_discounts'),
     
     # Banner Management
     path('banners/', banner_list, name='banners'),
@@ -202,6 +249,26 @@ urlpatterns = [
     path('marketing/dashboard/', marketing_dashboard, name='marketing_dashboard'),  # URL pattern cho marketing dashboard
     path('marketing/delete-campaign/', delete_campaign, name='delete_campaign'),  # URL pattern cho xóa chiến dịch
     path('marketing/analytics/', marketing_analytics, name='marketing_analytics'),  # URL pattern cho phân tích tiếp thị
+    
+    # Bổ sung các URL cho các tính năng marketing mới
+    path('marketing/campaigns/', campaign_list, name='campaign_list'),  # Danh sách chiến dịch
+    path('marketing/campaigns/add/', campaign_add, name='campaign_add'),  # Thêm chiến dịch
+    path('marketing/campaigns/<int:campaign_id>/', campaign_detail, name='campaign_detail'),  # Chi tiết chiến dịch
+    path('marketing/campaigns/<int:campaign_id>/edit/', campaign_edit, name='campaign_edit'),  # Sửa chiến dịch
+    
+    # Email marketing
+    path('marketing/email-templates/', email_templates, name='email_templates'),  # Các mẫu email
+    
+    # Social marketing
+    path('marketing/social/', social_marketing, name='social_marketing'),
+    path('marketing/sms-push/', sms_push, name='sms_push'),
+    path('marketing/affiliate/', affiliate, name='affiliate'),
+    path('marketing/remarketing/', remarketing, name='remarketing'),
+    path('marketing/automation/', automation, name='automation'),
+    path('marketing/remarketing/campaign/<int:campaign_id>/', remarketing_campaign, name='remarketing_campaign'),
+    
+    # API cho dữ liệu biểu đồ
+    path('marketing/chart-data/', marketing_chart_data, name='marketing_chart_data'),  # API dữ liệu biểu đồ
     
     # Email
     path('email/logs/', email_logs, name='email_logs'),

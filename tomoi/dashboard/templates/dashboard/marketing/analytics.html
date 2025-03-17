@@ -1,0 +1,675 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Phân tích Marketing{% endblock %}
+
+{% block extra_css %}
+{% include 'dashboard/marketing/styles.html' %}
+<link rel="stylesheet" href="{% static 'css/analytics.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+<style>
+    .metric-card {
+        border-radius: 10px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .chart-container {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        margin-bottom: 25px;
+        overflow: hidden;
+    }
+    
+    .chart-header {
+        padding: 15px 20px;
+        border-bottom: 1px solid #eaecf4;
+    }
+    
+    .chart-body {
+        padding: 20px;
+        min-height: 300px;
+    }
+    
+    .filter-box {
+        background-color: #f8f9fc;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .channel-filter .btn {
+        margin-right: 10px;
+        margin-bottom: 10px;
+        border-radius: 20px;
+        padding: 6px 15px;
+    }
+    
+    .channel-filter .btn.active {
+        background-color: #4e73df;
+        color: white;
+        border-color: #4e73df;
+    }
+    
+    .daterangepicker-container {
+        position: relative;
+    }
+    
+    .daterangepicker-container i {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        color: #6c757d;
+    }
+    
+    .comparison-card {
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .comparison-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+    
+    .comparison-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    .change-indicator {
+        display: flex;
+        align-items: center;
+        font-weight: 600;
+        margin-left: 15px;
+    }
+    
+    .change-indicator.positive {
+        color: #1cc88a;
+    }
+    
+    .change-indicator.negative {
+        color: #e74a3b;
+    }
+    
+    .change-indicator i {
+        margin-right: 5px;
+    }
+    
+    .campaign-performance-table th, .campaign-performance-table td {
+        padding: 12px 15px;
+        vertical-align: middle;
+    }
+    
+    .chart-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 15px;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        font-size: 0.85rem;
+    }
+    
+    .legend-color {
+        width: 15px;
+        height: 15px;
+        margin-right: 8px;
+        border-radius: 3px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Phân tích Marketing</h1>
+        <div>
+            <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" id="exportReportBtn">
+                <i class="fas fa-download fa-sm text-white-50"></i> Xuất báo cáo
+            </button>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="filter-box">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="form-label">Khoảng thời gian</label>
+                        <div class="daterangepicker-container">
+                            <input type="text" class="form-control" id="daterange" name="daterange" value="01/06/2023 - 30/06/2023">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">So sánh với</label>
+                        <select class="form-control" id="comparisonPeriod">
+                            <option value="previous_period">Kỳ trước</option>
+                            <option value="previous_year">Cùng kỳ năm trước</option>
+                            <option value="custom">Tùy chỉnh</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Loại báo cáo</label>
+                        <select class="form-control" id="reportType">
+                            <option value="overview">Tổng quan</option>
+                            <option value="campaigns">Chiến dịch</option>
+                            <option value="channels">Kênh marketing</option>
+                            <option value="conversion">Chuyển đổi</option>
+                            <option value="customer">Khách hàng</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <label class="form-label">Kênh marketing</label>
+                        <div class="channel-filter">
+                            <button class="btn btn-outline-primary active">Tất cả</button>
+                            <button class="btn btn-outline-primary">Email</button>
+                            <button class="btn btn-outline-primary">Social Media</button>
+                            <button class="btn btn-outline-primary">SMS & Push</button>
+                            <button class="btn btn-outline-primary">Affiliate</button>
+                            <button class="btn btn-outline-primary">Remarketing</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12 text-end">
+                        <button class="btn btn-primary" id="applyFilters">
+                            <i class="fas fa-filter me-1"></i> Áp dụng
+                        </button>
+                        <button class="btn btn-outline-secondary" id="resetFilters">
+                            <i class="fas fa-undo me-1"></i> Đặt lại
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics Overview -->
+    <div class="row">
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="comparison-card bg-white shadow">
+                <div>
+                    <div class="comparison-value">{{ metrics.total_campaigns }}</div>
+                    <div class="comparison-label">Tổng số chiến dịch</div>
+                </div>
+                <div class="change-indicator positive">
+                    <i class="fas fa-arrow-up"></i> 12%
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="comparison-card bg-white shadow">
+                <div>
+                    <div class="comparison-value">{{ metrics.active_campaigns }}</div>
+                    <div class="comparison-label">Chiến dịch đang hoạt động</div>
+                </div>
+                <div class="change-indicator positive">
+                    <i class="fas fa-arrow-up"></i> 8%
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="comparison-card bg-white shadow">
+                <div>
+                    <div class="comparison-value">{{ metrics.conversion_rate|floatformat:1 }}%</div>
+                    <div class="comparison-label">Tỷ lệ chuyển đổi</div>
+                </div>
+                <div class="change-indicator positive">
+                    <i class="fas fa-arrow-up"></i> 0.5%
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="comparison-card bg-white shadow">
+                <div>
+                    <div class="comparison-value">{{ metrics.roi|floatformat:1 }}x</div>
+                    <div class="comparison-label">ROI</div>
+                </div>
+                <div class="change-indicator positive">
+                    <i class="fas fa-arrow-up"></i> 0.3x
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="row">
+        <!-- Campaign Performance Chart -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="chart-container shadow">
+                <div class="chart-header d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Hiệu suất chiến dịch theo thời gian</h6>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="campaignMetricDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            Engagement
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="campaignMetricDropdown">
+                            <li><a class="dropdown-item active" href="#">Engagement</a></li>
+                            <li><a class="dropdown-item" href="#">Conversion</a></li>
+                            <li><a class="dropdown-item" href="#">Click-through Rate</a></li>
+                            <li><a class="dropdown-item" href="#">Cost per Conversion</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <canvas id="campaignPerformanceChart"></canvas>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #4e73df;"></div>
+                            <span>Email</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #1cc88a;"></div>
+                            <span>Social Media</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #36b9cc;"></div>
+                            <span>SMS & Push</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #f6c23e;"></div>
+                            <span>Affiliate</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Channel Distribution Chart -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="chart-container shadow">
+                <div class="chart-header">
+                    <h6 class="m-0 font-weight-bold text-primary">Phân bổ theo kênh</h6>
+                </div>
+                <div class="chart-body">
+                    <canvas id="channelDistributionChart"></canvas>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #4e73df;"></div>
+                            <span>Email (42%)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #1cc88a;"></div>
+                            <span>Social Media (28%)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #36b9cc;"></div>
+                            <span>SMS & Push (15%)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #f6c23e;"></div>
+                            <span>Affiliate (10%)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #e74a3b;"></div>
+                            <span>Remarketing (5%)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="row">
+        <!-- Conversion Funnel -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="chart-container shadow">
+                <div class="chart-header">
+                    <h6 class="m-0 font-weight-bold text-primary">Phễu chuyển đổi</h6>
+                </div>
+                <div class="chart-body">
+                    <canvas id="conversionFunnelChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Conversion Rate Trend -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="chart-container shadow">
+                <div class="chart-header">
+                    <h6 class="m-0 font-weight-bold text-primary">Xu hướng tỷ lệ chuyển đổi</h6>
+                </div>
+                <div class="chart-body">
+                    <canvas id="conversionRateChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Campaign Performance Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Hiệu suất theo chiến dịch</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="campaignTableDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="campaignTableDropdown">
+                            <a class="dropdown-item" href="#">Xuất sang Excel</a>
+                            <a class="dropdown-item" href="#">Xuất sang PDF</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#">Xem tất cả chiến dịch</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered campaign-performance-table" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Tên chiến dịch</th>
+                                    <th>Kênh</th>
+                                    <th>Hiển thị</th>
+                                    <th>Click</th>
+                                    <th>Chuyển đổi</th>
+                                    <th>CTR</th>
+                                    <th>Tỉ lệ chuyển đổi</th>
+                                    <th>Chi phí</th>
+                                    <th>ROI</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Khuyến mãi mùa hè</td>
+                                    <td><span class="badge bg-primary text-white">Email</span></td>
+                                    <td>5,280</td>
+                                    <td>1,245</td>
+                                    <td>320</td>
+                                    <td>23.5%</td>
+                                    <td>6.1%</td>
+                                    <td>1,200,000đ</td>
+                                    <td>3.2x</td>
+                                </tr>
+                                <tr>
+                                    <td>Flash Sale cuối tuần</td>
+                                    <td><span class="badge bg-success text-white">Social</span></td>
+                                    <td>12,450</td>
+                                    <td>3,250</td>
+                                    <td>520</td>
+                                    <td>26.1%</td>
+                                    <td>4.2%</td>
+                                    <td>2,500,000đ</td>
+                                    <td>2.8x</td>
+                                </tr>
+                                <tr>
+                                    <td>Nhắc nhở giỏ hàng</td>
+                                    <td><span class="badge bg-info text-white">SMS</span></td>
+                                    <td>3,180</td>
+                                    <td>920</td>
+                                    <td>285</td>
+                                    <td>28.9%</td>
+                                    <td>9.0%</td>
+                                    <td>850,000đ</td>
+                                    <td>4.5x</td>
+                                </tr>
+                                <tr>
+                                    <td>Giới thiệu bạn bè</td>
+                                    <td><span class="badge bg-warning text-dark">Affiliate</span></td>
+                                    <td>8,620</td>
+                                    <td>1,850</td>
+                                    <td>420</td>
+                                    <td>21.5%</td>
+                                    <td>4.9%</td>
+                                    <td>1,800,000đ</td>
+                                    <td>3.1x</td>
+                                </tr>
+                                <tr>
+                                    <td>Quảng cáo động</td>
+                                    <td><span class="badge bg-danger text-white">Remarketing</span></td>
+                                    <td>6,350</td>
+                                    <td>1,520</td>
+                                    <td>310</td>
+                                    <td>23.9%</td>
+                                    <td>4.9%</td>
+                                    <td>1,650,000đ</td>
+                                    <td>2.5x</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize date range picker
+    $('#daterange').daterangepicker({
+        opens: 'left',
+        locale: {
+            format: 'DD/MM/YYYY'
+        }
+    });
+    
+    // Campaign Performance Chart
+    var ctxCampaign = document.getElementById('campaignPerformanceChart').getContext('2d');
+    var campaignChart = new Chart(ctxCampaign, {
+        type: 'line',
+        data: {
+            labels: ['1/6', '8/6', '15/6', '22/6', '29/6'],
+            datasets: [
+                {
+                    label: 'Email',
+                    backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                    borderColor: 'rgba(78, 115, 223, 1)',
+                    data: [1250, 1450, 1380, 1520, 1650],
+                    lineTension: 0.3,
+                    pointRadius: 3,
+                    pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                    pointBorderColor: 'rgba(78, 115, 223, 1)',
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: 'rgba(78, 115, 223, 1)',
+                    pointHoverBorderColor: 'rgba(78, 115, 223, 1)',
+                    pointHitRadius: 10,
+                    pointBorderWidth: 2
+                },
+                {
+                    label: 'Social Media',
+                    backgroundColor: 'rgba(28, 200, 138, 0.05)',
+                    borderColor: 'rgba(28, 200, 138, 1)',
+                    data: [980, 1120, 1280, 1350, 1420],
+                    lineTension: 0.3,
+                    pointRadius: 3,
+                    pointBackgroundColor: 'rgba(28, 200, 138, 1)',
+                    pointBorderColor: 'rgba(28, 200, 138, 1)',
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: 'rgba(28, 200, 138, 1)',
+                    pointHoverBorderColor: 'rgba(28, 200, 138, 1)',
+                    pointHitRadius: 10,
+                    pointBorderWidth: 2
+                },
+                {
+                    label: 'SMS & Push',
+                    backgroundColor: 'rgba(54, 185, 204, 0.05)',
+                    borderColor: 'rgba(54, 185, 204, 1)',
+                    data: [620, 680, 720, 750, 780],
+                    lineTension: 0.3,
+                    pointRadius: 3,
+                    pointBackgroundColor: 'rgba(54, 185, 204, 1)',
+                    pointBorderColor: 'rgba(54, 185, 204, 1)',
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: 'rgba(54, 185, 204, 1)',
+                    pointHoverBorderColor: 'rgba(54, 185, 204, 1)',
+                    pointHitRadius: 10,
+                    pointBorderWidth: 2
+                },
+                {
+                    label: 'Affiliate',
+                    backgroundColor: 'rgba(246, 194, 62, 0.05)',
+                    borderColor: 'rgba(246, 194, 62, 1)',
+                    data: [450, 480, 510, 520, 580],
+                    lineTension: 0.3,
+                    pointRadius: 3,
+                    pointBackgroundColor: 'rgba(246, 194, 62, 1)',
+                    pointBorderColor: 'rgba(246, 194, 62, 1)',
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: 'rgba(246, 194, 62, 1)',
+                    pointHoverBorderColor: 'rgba(246, 194, 62, 1)',
+                    pointHitRadius: 10,
+                    pointBorderWidth: 2
+                }
+            ]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    
+    // Channel Distribution Chart
+    var ctxChannel = document.getElementById('channelDistributionChart').getContext('2d');
+    var channelChart = new Chart(ctxChannel, {
+        type: 'doughnut',
+        data: {
+            labels: ['Email', 'Social Media', 'SMS & Push', 'Affiliate', 'Remarketing'],
+            datasets: [{
+                data: [42, 28, 15, 10, 5],
+                backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'],
+                hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617'],
+                hoverBorderColor: 'rgba(234, 236, 244, 1)',
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            cutout: '70%'
+        }
+    });
+    
+    // Conversion Funnel Chart
+    var ctxFunnel = document.getElementById('conversionFunnelChart').getContext('2d');
+    var funnelChart = new Chart(ctxFunnel, {
+        type: 'bar',
+        data: {
+            labels: ['Tiếp cận', 'Tương tác', 'Click', 'Thêm giỏ hàng', 'Thanh toán'],
+            datasets: [{
+                label: 'Số lượng',
+                backgroundColor: [
+                    '#4e73df',
+                    '#3a5ccc',
+                    '#2a46b8',
+                    '#1a30a5',
+                    '#0a1a91'
+                ],
+                data: [10000, 4500, 2200, 1200, 850],
+                barPercentage: 0.7,
+                categoryPercentage: 0.7
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    
+    // Conversion Rate Chart
+    var ctxRate = document.getElementById('conversionRateChart').getContext('2d');
+    var rateChart = new Chart(ctxRate, {
+        type: 'line',
+        data: {
+            labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'],
+            datasets: [{
+                label: 'Tỷ lệ chuyển đổi',
+                backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                borderColor: 'rgba(78, 115, 223, 1)',
+                data: [2.5, 3.1, 3.7, 3.2, 4.0, 3.8],
+                lineTension: 0.3,
+                pointRadius: 3,
+                pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                pointBorderColor: 'rgba(78, 115, 223, 1)',
+                pointHoverRadius: 5,
+                pointHoverBackgroundColor: 'rgba(78, 115, 223, 1)',
+                pointHoverBorderColor: 'rgba(78, 115, 223, 1)',
+                pointHitRadius: 10,
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Filter button interactions
+    $('.channel-filter .btn').on('click', function() {
+        $(this).toggleClass('active');
+    });
+    
+    // Reset filters button
+    $('#resetFilters').on('click', function() {
+        $('.channel-filter .btn').removeClass('active');
+        $('.channel-filter .btn:first-child').addClass('active');
+        $('#comparisonPeriod').val('previous_period');
+        $('#reportType').val('overview');
+        $('#daterange').val('01/06/2023 - 30/06/2023');
+    });
+});
+</script>
+{% endblock %} 

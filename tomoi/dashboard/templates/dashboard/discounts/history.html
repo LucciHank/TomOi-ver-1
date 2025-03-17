@@ -1,0 +1,279 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Lịch sử mã giảm giá{% endblock %}
+
+{% block extra_css %}
+<style>
+    .change-detail {
+        background-color: #f8f9fc;
+        border-radius: 4px;
+        padding: 10px;
+        font-family: monospace;
+        font-size: 13px;
+        overflow-x: auto;
+    }
+    
+    .change-detail .added {
+        background-color: #e6ffed;
+        color: #22863a;
+    }
+    
+    .change-detail .removed {
+        background-color: #ffeef0;
+        color: #cb2431;
+    }
+    
+    .action-badge {
+        display: inline-block;
+        padding: 0.25em 0.6em;
+        font-size: 80%;
+        font-weight: 600;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 10rem;
+    }
+    
+    .action-create {
+        background-color: #cce5ff;
+        color: #004085;
+    }
+    
+    .action-update {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    .action-delete {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    
+    .action-activate {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    
+    .action-deactivate {
+        background-color: #e2e3e5;
+        color: #383d41;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Lịch sử mã giảm giá</h1>
+        <a href="{% url 'dashboard:discounts' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Lịch sử thay đổi mã giảm giá</h6>
+        </div>
+        <div class="card-body">
+            <!-- Filters -->
+            <form method="get" class="mb-4">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="filter_code">Mã giảm giá</label>
+                            <input type="text" id="filter_code" name="code" class="form-control" value="{{ request.GET.code }}">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="filter_action">Hành động</label>
+                            <select id="filter_action" name="action" class="form-control">
+                                <option value="">Tất cả</option>
+                                <option value="create" {% if request.GET.action == 'create' %}selected{% endif %}>Tạo mới</option>
+                                <option value="update" {% if request.GET.action == 'update' %}selected{% endif %}>Cập nhật</option>
+                                <option value="delete" {% if request.GET.action == 'delete' %}selected{% endif %}>Xóa</option>
+                                <option value="activate" {% if request.GET.action == 'activate' %}selected{% endif %}>Kích hoạt</option>
+                                <option value="deactivate" {% if request.GET.action == 'deactivate' %}selected{% endif %}>Vô hiệu hóa</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="filter_user">Người thực hiện</label>
+                            <select id="filter_user" name="user" class="form-control">
+                                <option value="">Tất cả</option>
+                                {% for user in users %}
+                                <option value="{{ user.id }}" {% if request.GET.user|add:"0" == user.id %}selected{% endif %}>{{ user.get_full_name|default:user.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="filter_date">Ngày thực hiện</label>
+                            <input type="date" id="filter_date" name="date" class="form-control" value="{{ request.GET.date }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end">
+                    <a href="{% url 'dashboard:discount_history' %}" class="btn btn-secondary mr-2">
+                        <i class="fas fa-undo"></i> Đặt lại
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter"></i> Lọc
+                    </button>
+                </div>
+            </form>
+            
+            <!-- History table -->
+            {% if history_entries %}
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="thead-light">
+                            <tr>
+                                <th style="width: 180px;">Thời gian</th>
+                                <th style="width: 130px;">Mã giảm giá</th>
+                                <th style="width: 100px;">Hành động</th>
+                                <th>Thay đổi</th>
+                                <th style="width: 150px;">Người thực hiện</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry in history_entries %}
+                            <tr>
+                                <td>{{ entry.created_at|date:"d/m/Y H:i:s" }}</td>
+                                <td>
+                                    {% if entry.discount_code %}
+                                        <code>{{ entry.discount_code }}</code>
+                                    {% else %}
+                                        <span class="text-muted">--</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if entry.action_type == 'create' %}
+                                        <span class="action-badge action-create">Tạo mới</span>
+                                    {% elif entry.action_type == 'update' %}
+                                        <span class="action-badge action-update">Cập nhật</span>
+                                    {% elif entry.action_type == 'delete' %}
+                                        <span class="action-badge action-delete">Xóa</span>
+                                    {% elif entry.action_type == 'activate' %}
+                                        <span class="action-badge action-activate">Kích hoạt</span>
+                                    {% elif entry.action_type == 'deactivate' %}
+                                        <span class="action-badge action-deactivate">Vô hiệu hóa</span>
+                                    {% else %}
+                                        <span class="action-badge">{{ entry.action_type }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if entry.changes_json %}
+                                        <div class="change-detail">
+                                            {% for field, change in entry.get_changes.items %}
+                                                <div class="mb-1">
+                                                    <strong>{{ field }}:</strong> 
+                                                    {% if change.old is not None %}
+                                                        <span class="removed">{{ change.old }}</span>
+                                                    {% endif %}
+                                                    {% if change.old is not None and change.new is not None %}
+                                                        <i class="fas fa-arrow-right text-muted mx-1"></i>
+                                                    {% endif %}
+                                                    {% if change.new is not None %}
+                                                        <span class="added">{{ change.new }}</span>
+                                                    {% endif %}
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% elif entry.action_type == 'create' %}
+                                        <em>Đã tạo mã giảm giá mới</em>
+                                    {% elif entry.action_type == 'delete' %}
+                                        <em>Đã xóa mã giảm giá</em>
+                                    {% elif entry.action_type == 'activate' %}
+                                        <em>Đã kích hoạt mã giảm giá</em>
+                                    {% elif entry.action_type == 'deactivate' %}
+                                        <em>Đã vô hiệu hóa mã giảm giá</em>
+                                    {% else %}
+                                        <span class="text-muted">Không có dữ liệu thay đổi</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if entry.user %}
+                                        {{ entry.user.get_full_name|default:entry.user.username }}
+                                    {% else %}
+                                        <span class="text-muted">Hệ thống</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <div class="d-flex justify-content-center mt-4">
+                    <ul class="pagination">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="First">
+                                    <span aria-hidden="true">&laquo;&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }} <span class="sr-only">(current)</span></span>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Last">
+                                    <span aria-hidden="true">&raquo;&raquo;</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-history fa-3x text-gray-300 mb-3"></i>
+                    <p class="mb-0">Không có lịch sử thay đổi nào</p>
+                    <p class="small text-muted">Các thay đổi đối với mã giảm giá sẽ được ghi lại ở đây.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Highlight filter fields if they are used
+        document.querySelectorAll('input[name], select[name]').forEach(function(el) {
+            if (el.value && el.value !== '') {
+                el.classList.add('border-primary');
+            }
+        });
+    });
+</script>
+{% endblock %} 

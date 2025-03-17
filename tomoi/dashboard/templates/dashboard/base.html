@@ -15,7 +15,7 @@
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     
     <!-- Bootstrap core CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -57,7 +57,7 @@
     
     <!-- Core JavaScript-->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <!-- Select2 JS -->
@@ -129,13 +129,11 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Xác nhận đăng xuất?</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
+                    <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?</div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Hủy</button>
+                    <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Hủy</button>
                     <a class="btn btn-primary" href="{% url 'dashboard:logout' %}">Đăng xuất</a>
                 </div>
             </div>
@@ -186,100 +184,44 @@
 
     {% block scripts %}{% endblock %}
 
-    <!-- Custom scripts -->
-    <script src="{% static 'dashboard/js/sb-admin-2.js' %}"></script>
+    <!-- Core JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+    <script src="{% static 'dashboard/js/sb-admin-2.min.js' %}"></script>
+    
+    <!-- DataTables -->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Bootstrap 5 Fix -->
     <script src="{% static 'dashboard/js/bootstrap5-fix.js' %}"></script>
     
     {% block extra_js %}
-    <!-- Thêm mã JavaScript này vào cuối file base.html, trước </body> -->
     <script>
         $(document).ready(function() {
             // Fix dropdown trong topbar
             $('.nav-item.dropdown').on({
                 mouseenter: function() {
                     if($(window).width() > 768) {
-                        $(this).find('.dropdown-menu').stop(true, true).delay(100).fadeIn(150);
+                        $(this).find('.dropdown-menu').addClass('show');
                     }
                 },
                 mouseleave: function() {
                     if($(window).width() > 768) {
-                        $(this).find('.dropdown-menu').stop(true, true).delay(100).fadeOut(150);
+                        $(this).find('.dropdown-menu').removeClass('show');
                     }
                 }
             });
             
-            // Fix Click vào dropdown toggle
-            $('.dropdown-toggle').on('click', function(e) {
-                if($(window).width() <= 768) {
-                    e.preventDefault();
-                    $(this).dropdown('toggle');
-                }
-            });
-            
-            // Fix sidebar trong mobile
-            $('#sidebarToggleTop').on('click', function() {
-                $('body').toggleClass('sidebar-toggled');
-                $('.sidebar').toggleClass('toggled');
-            });
-            
-            // Load avatar mặc định nếu không có
-            if ($('.img-profile').attr('src') === '') {
-                $('.img-profile').attr('src', '/static/dashboard/images/default-avatar.png');
-            }
-            
-            // Đảm bảo hiển thị đúng active item trong sidebar
-            var path = window.location.pathname;
-            $('.collapse-item').each(function() {
-                if ($(this).attr('href') === path) {
-                    $(this).addClass('active');
-                    $(this).closest('.collapse').addClass('show');
-                    $(this).closest('.nav-item').find('.nav-link').removeClass('collapsed');
-                }
+            // Xử lý dropdown cho Bootstrap 5
+            $('.dropdown-toggle').each(function(){
+                new bootstrap.Dropdown(this);
             });
         });
     </script>
-    {% endblock %}
-
-    <script>
-    $(document).ready(function() {
-        // Xử lý active menu item
-        var currentUrl = window.location.pathname;
-        $('.collapse-item').each(function() {
-            if ($(this).attr('href') === currentUrl) {
-                $(this).addClass('active');
-                $(this).closest('.collapse').addClass('show');
-                $(this).closest('.nav-item').find('.nav-link').removeClass('collapsed');
-            }
-        });
-
-        // Xử lý toggle sidebar
-        $("#sidebarToggle").on('click', function(e) {
-            $("body").toggleClass("sidebar-toggled");
-            $(".sidebar").toggleClass("toggled");
-            if ($(".sidebar").hasClass("toggled")) {
-                $('.sidebar .collapse').collapse('hide');
-            }
-        });
-    });
-    </script>
-
-    <!-- Thêm vào cuối, trước </body> -->
-    <script src="/static/dashboard/js/bootstrap5-fix.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
-
-    <!-- Thêm vào phần head của trang base.html -->
-    {% block base_js %}
-    <!-- Chỉ load jQuery một lần -->
-    <script>
-        // Kiểm tra nếu jQuery đã được tải
-        if (typeof jQuery == 'undefined') {
-            document.write('<script src="https://code.jquery.com/jquery-3.6.0.min.js"><\/script>');
-        }
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/startbootstrap-sb-admin-2/4.1.4/js/sb-admin-2.min.js"></script>
     {% endblock %}
 </body>
 </html> 

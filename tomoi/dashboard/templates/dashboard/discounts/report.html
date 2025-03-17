@@ -1,0 +1,584 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Báo cáo sử dụng mã giảm giá{% endblock %}
+
+{% block page_title %}Báo cáo sử dụng mã giảm giá{% endblock %}
+{% block page_subtitle %}Thống kê chi tiết lượt sử dụng và hiệu quả của mã giảm giá{% endblock %}
+
+{% block extra_css %}
+<style>
+    .filter-card {
+        background-color: #f8f9fc;
+        border-radius: 0.35rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .chart-container {
+        height: 300px;
+        margin-bottom: 1.5rem;
+    }
+    
+    .summary-card {
+        border-radius: 0.5rem;
+        transition: all 0.3s;
+    }
+    
+    .summary-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    .detail-row {
+        cursor: pointer;
+    }
+    
+    .detail-row:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+    
+    .expanded-details {
+        background-color: #f8f9fc;
+        border-left: 4px solid #4e73df;
+        padding: 1rem;
+        margin: 0.5rem 0 1rem 1rem;
+    }
+    
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .badge-success {
+        background-color: #1cc88a;
+    }
+    
+    .badge-warning {
+        background-color: #f6c23e;
+    }
+    
+    .badge-danger {
+        background-color: #e74a3b;
+    }
+    
+    .badge-info {
+        background-color: #36b9cc;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Báo cáo sử dụng mã giảm giá</h1>
+        <div>
+            <button type="button" class="btn btn-success btn-sm" id="exportBtn">
+                <i class="fas fa-file-excel fa-sm"></i> Xuất Excel
+            </button>
+            <button type="button" class="btn btn-info btn-sm" id="printBtn">
+                <i class="fas fa-print fa-sm"></i> In báo cáo
+            </button>
+            <a href="{% url 'dashboard:discounts' %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-list fa-sm"></i> Danh sách mã
+            </a>
+        </div>
+    </div>
+
+    <!-- Bộ lọc báo cáo -->
+    <div class="card shadow mb-4 filter-card">
+        <form method="get" action="{% url 'dashboard:discount_report' %}" id="reportFilterForm">
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label for="discount_code" class="form-label">Mã giảm giá</label>
+                    <select class="form-select" id="discount_code" name="discount_code">
+                        <option value="">Tất cả mã</option>
+                        {% for discount in all_discounts %}
+                        <option value="{{ discount.code }}" {% if request.GET.discount_code == discount.code %}selected{% endif %}>
+                            {{ discount.code }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="period" class="form-label">Thời gian</label>
+                    <select class="form-select" id="period" name="period">
+                        <option value="week" {% if request.GET.period == 'week' %}selected{% endif %}>7 ngày qua</option>
+                        <option value="month" {% if request.GET.period == 'month' %}selected{% endif %}>30 ngày qua</option>
+                        <option value="quarter" {% if request.GET.period == 'quarter' %}selected{% endif %}>3 tháng qua</option>
+                        <option value="year" {% if request.GET.period == 'year' %}selected{% endif %}>1 năm qua</option>
+                        <option value="custom" {% if request.GET.period == 'custom' %}selected{% endif %}>Tùy chỉnh</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3" id="customDateContainer" style="display: none;">
+                    <label for="date_range" class="form-label">Khoảng thời gian</label>
+                    <input type="text" class="form-control" id="date_range" name="date_range" 
+                           value="{{ request.GET.date_range|default:'' }}" placeholder="Từ ngày - Đến ngày">
+                </div>
+                <div class="col-md-2 mb-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Áp dụng</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tổng quan báo cáo -->
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2 summary-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Tổng số đơn hàng
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_orders|default:'0' }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card border-left-success shadow h-100 py-2 summary-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Giá trị đơn hàng
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_order_value|floatformat:0|default:'0' }} VNĐ</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card border-left-info shadow h-100 py-2 summary-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Tổng giá trị giảm
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_discount_amount|floatformat:0|default:'0' }} VNĐ</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-tags fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2 summary-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Tỷ lệ giảm trung bình
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ average_discount_percentage|floatformat:1|default:'0' }}%</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-percentage fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Biểu đồ thống kê sử dụng -->
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Thống kê sử dụng mã giảm giá</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="chartDropdown"
+                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                            aria-labelledby="chartDropdown">
+                            <div class="dropdown-header">Loại biểu đồ:</div>
+                            <a class="dropdown-item chart-type" href="#" data-type="bar">Biểu đồ cột</a>
+                            <a class="dropdown-item chart-type" href="#" data-type="line">Biểu đồ đường</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item chart-data" href="#" data-data="count">Số lượt sử dụng</a>
+                            <a class="dropdown-item chart-data" href="#" data-data="amount">Giá trị giảm</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="discountUsageChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thống kê theo loại giảm giá -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thống kê theo loại</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="discountTypeChart"></canvas>
+                    </div>
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Loại giảm giá</th>
+                                    <th>Số lượt</th>
+                                    <th>Giá trị giảm</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Phần trăm (%)</td>
+                                    <td>{{ percentage_count|default:'0' }}</td>
+                                    <td>{{ percentage_amount|floatformat:0|default:'0' }} VNĐ</td>
+                                </tr>
+                                <tr>
+                                    <td>Số tiền cố định</td>
+                                    <td>{{ fixed_count|default:'0' }}</td>
+                                    <td>{{ fixed_amount|floatformat:0|default:'0' }} VNĐ</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lịch sử sử dụng chi tiết -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Lịch sử sử dụng mã giảm giá</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="usageHistoryTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Thời gian</th>
+                            <th>Mã giảm giá</th>
+                            <th>Người dùng</th>
+                            <th>Đơn hàng</th>
+                            <th>Giá gốc</th>
+                            <th>Giá sau giảm</th>
+                            <th>Số tiền giảm</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usage in usage_history %}
+                        <tr class="detail-row" data-order-id="{{ usage.order.id }}">
+                            <td>{{ usage.used_at|date:"d/m/Y H:i" }}</td>
+                            <td><span class="badge bg-primary">{{ usage.discount.code }}</span></td>
+                            <td>
+                                {% if usage.user.profile.avatar %}
+                                <img src="{{ usage.user.profile.avatar.url }}" alt="{{ usage.user.username }}" class="user-avatar me-2">
+                                {% else %}
+                                <i class="fas fa-user-circle me-2"></i>
+                                {% endif %}
+                                {{ usage.user.username }}
+                            </td>
+                            <td>#{{ usage.order.order_number }}</td>
+                            <td>{{ usage.original_price|floatformat:0 }} VNĐ</td>
+                            <td>{{ usage.final_price|floatformat:0 }} VNĐ</td>
+                            <td>{{ usage.discount_amount|floatformat:0 }} VNĐ</td>
+                            <td>
+                                {% if usage.order.status == 'completed' %}
+                                <span class="badge bg-success">Hoàn thành</span>
+                                {% elif usage.order.status == 'cancelled' %}
+                                <span class="badge bg-danger">Đã hủy</span>
+                                {% elif usage.order.status == 'processing' %}
+                                <span class="badge bg-warning">Đang xử lý</span>
+                                {% else %}
+                                <span class="badge bg-info">{{ usage.order.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr class="order-details" id="details-{{ usage.order.id }}" style="display: none;">
+                            <td colspan="8">
+                                <div class="expanded-details">
+                                    <h6 class="font-weight-bold">Chi tiết đơn hàng #{{ usage.order.order_number }}</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>Khách hàng:</strong> {{ usage.user.get_full_name }}</p>
+                                            <p><strong>Địa chỉ:</strong> {{ usage.order.shipping_address }}</p>
+                                            <p><strong>SĐT:</strong> {{ usage.order.phone }}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Ngày đặt:</strong> {{ usage.order.created_at|date:"d/m/Y H:i" }}</p>
+                                            <p><strong>Phương thức thanh toán:</strong> {{ usage.order.payment_method }}</p>
+                                            <p><strong>Trạng thái thanh toán:</strong> {{ usage.order.payment_status }}</p>
+                                        </div>
+                                    </div>
+                                    <h6 class="font-weight-bold mt-3">Sản phẩm trong đơn hàng</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Sản phẩm</th>
+                                                    <th>Số lượng</th>
+                                                    <th>Đơn giá</th>
+                                                    <th>Thành tiền</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for item in usage.order.items.all %}
+                                                <tr>
+                                                    <td>{{ item.product.name }}</td>
+                                                    <td>{{ item.quantity }}</td>
+                                                    <td>{{ item.price|floatformat:0 }} VNĐ</td>
+                                                    <td>{{ item.total|floatformat:0 }} VNĐ</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <td colspan="3" class="text-right"><strong>Tổng:</strong></td>
+                                                    <td>{{ usage.original_price|floatformat:0 }} VNĐ</td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="3" class="text-right"><strong>Giảm giá:</strong></td>
+                                                    <td>-{{ usage.discount_amount|floatformat:0 }} VNĐ</td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="3" class="text-right"><strong>Thành tiền:</strong></td>
+                                                    <td><strong>{{ usage.final_price|floatformat:0 }} VNĐ</strong></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                    <div class="text-end mt-3">
+                                        <a href="{% url 'dashboard:order_detail' usage.order.id %}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-eye"></i> Xem chi tiết đơn hàng
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center">Không có dữ liệu lịch sử sử dụng mã giảm giá.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.css">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // DateRangePicker
+    $('#date_range').daterangepicker({
+        opens: 'left',
+        locale: {
+            format: 'DD/MM/YYYY',
+            applyLabel: 'Áp dụng',
+            cancelLabel: 'Hủy',
+            fromLabel: 'Từ',
+            toLabel: 'Đến',
+            customRangeLabel: 'Tùy chỉnh',
+            daysOfWeek: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
+            monthNames: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+                         'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
+            firstDay: 1
+        }
+    });
+
+    // Hiển thị tùy chọn ngày tùy chỉnh khi chọn "Tùy chỉnh"
+    $('#period').change(function() {
+        if ($(this).val() === 'custom') {
+            $('#customDateContainer').show();
+        } else {
+            $('#customDateContainer').hide();
+        }
+    });
+
+    // Kích hoạt ban đầu nếu đã chọn tùy chỉnh
+    if ($('#period').val() === 'custom') {
+        $('#customDateContainer').show();
+    }
+
+    // DataTable
+    $('#usageHistoryTable').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/vi.json'
+        },
+        order: [[0, 'desc']],
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Tất cả"]]
+    });
+
+    // Hiển thị/ẩn chi tiết đơn hàng khi click vào hàng
+    $('.detail-row').click(function() {
+        var orderId = $(this).data('order-id');
+        $('#details-' + orderId).toggle();
+    });
+
+    // Biểu đồ sử dụng mã giảm giá
+    var usageCtx = document.getElementById('discountUsageChart').getContext('2d');
+    var usageChart = new Chart(usageCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ chart_labels|safe|default:'[]' }},
+            datasets: [{
+                label: 'Số lượt sử dụng',
+                data: {{ usage_counts|safe|default:'[]' }},
+                backgroundColor: 'rgba(78, 115, 223, 0.5)',
+                borderColor: 'rgba(78, 115, 223, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        drawBorder: false,
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+
+    // Biểu đồ thống kê theo loại giảm giá
+    var typeCtx = document.getElementById('discountTypeChart').getContext('2d');
+    var typeChart = new Chart(typeCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Phần trăm (%)', 'Số tiền cố định'],
+            datasets: [{
+                data: [{{ percentage_count|default:'0' }}, {{ fixed_count|default:'0' }}],
+                backgroundColor: ['#4e73df', '#1cc88a'],
+                hoverBackgroundColor: ['#2e59d9', '#17a673'],
+                hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            },
+            cutout: '0%'
+        }
+    });
+
+    // Thay đổi loại biểu đồ
+    $('.chart-type').click(function(e) {
+        e.preventDefault();
+        var chartType = $(this).data('type');
+        usageChart.config.type = chartType;
+        usageChart.update();
+    });
+
+    // Thay đổi dữ liệu biểu đồ (số lượng/giá trị)
+    $('.chart-data').click(function(e) {
+        e.preventDefault();
+        var dataType = $(this).data('data');
+        
+        if (dataType === 'count') {
+            usageChart.data.datasets[0].label = 'Số lượt sử dụng';
+            usageChart.data.datasets[0].data = {{ usage_counts|safe|default:'[]' }};
+        } else {
+            usageChart.data.datasets[0].label = 'Giá trị giảm (VNĐ)';
+            usageChart.data.datasets[0].data = {{ discount_amounts|safe|default:'[]' }};
+        }
+        
+        usageChart.update();
+    });
+
+    // Xuất Excel
+    $('#exportBtn').click(function() {
+        var wb = XLSX.utils.book_new();
+        
+        // Thống kê tổng quan
+        var summaryData = [
+            ['BÁO CÁO SỬ DỤNG MÃ GIẢM GIÁ'],
+            ['Thời gian báo cáo:', '{{ report_period }}'],
+            [''],
+            ['THỐNG KÊ TỔNG QUAN'],
+            ['Tổng số đơn hàng:', '{{ total_orders|default:"0" }}'],
+            ['Giá trị đơn hàng:', '{{ total_order_value|floatformat:0|default:"0" }} VNĐ'],
+            ['Tổng giá trị giảm:', '{{ total_discount_amount|floatformat:0|default:"0" }} VNĐ'],
+            ['Tỷ lệ giảm trung bình:', '{{ average_discount_percentage|floatformat:1|default:"0" }}%'],
+            [''],
+            ['THỐNG KÊ THEO LOẠI'],
+            ['Loại giảm giá', 'Số lượt', 'Giá trị giảm'],
+            ['Phần trăm (%)', '{{ percentage_count|default:"0" }}', '{{ percentage_amount|floatformat:0|default:"0" }} VNĐ'],
+            ['Số tiền cố định', '{{ fixed_count|default:"0" }}', '{{ fixed_amount|floatformat:0|default:"0" }} VNĐ'],
+            ['']
+        ];
+        
+        var summaryWS = XLSX.utils.aoa_to_sheet(summaryData);
+        XLSX.utils.book_append_sheet(wb, summaryWS, "Tổng quan");
+        
+        // Chi tiết lịch sử sử dụng
+        var historyHeaders = ['Thời gian', 'Mã giảm giá', 'Người dùng', 'Đơn hàng', 'Giá gốc (VNĐ)', 'Giá sau giảm (VNĐ)', 'Số tiền giảm (VNĐ)', 'Trạng thái'];
+        var historyData = [historyHeaders];
+        
+        {% for usage in usage_history %}
+        historyData.push([
+            '{{ usage.used_at|date:"d/m/Y H:i" }}',
+            '{{ usage.discount.code }}',
+            '{{ usage.user.username }}',
+            '#{{ usage.order.order_number }}',
+            '{{ usage.original_price|floatformat:0 }}',
+            '{{ usage.final_price|floatformat:0 }}',
+            '{{ usage.discount_amount|floatformat:0 }}',
+            '{{ usage.order.get_status_display }}'
+        ]);
+        {% endfor %}
+        
+        var historyWS = XLSX.utils.aoa_to_sheet(historyData);
+        XLSX.utils.book_append_sheet(wb, historyWS, "Lịch sử sử dụng");
+        
+        // Xuất file
+        XLSX.writeFile(wb, "Báo_cáo_mã_giảm_giá_{{ today|date:'d-m-Y' }}.xlsx");
+    });
+
+    // In báo cáo
+    $('#printBtn').click(function() {
+        window.print();
+    });
+});
+</script>
+{% endblock %} 

@@ -10,8 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
-from pathlib import Path
 import os
+import sys
+from pathlib import Path
+
+# Thiết lập UTF-8 làm mã hóa mặc định cho Python
+import io
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,29 +47,60 @@ SECRET_KEY = 'django-insecure-07d6%7f4=mg5e+g89&b(ke1-oklw=^2m(9ub&4f352i9kl8$pf
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+# Logging Configuration
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
     'handlers': {
         'console': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+            'stream': sys.stdout,
         },
         'file': {
+            'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': 'debug.log',
+            'filename': os.path.join(BASE_DIR, 'debug.log'),
+            'formatter': 'verbose',
+            'encoding': 'utf-8',
         },
     },
     'loggers': {
         'django': {
             'handlers': ['console', 'file'],
-            'level': 'INFO',
+            'propagate': True,
         },
-        'payment': {
+        'django.request': {
             'handlers': ['console', 'file'],
-            'level': 'DEBUG',
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django.db.backends': {
+            'level': 'INFO',
+            'handlers': ['console'],
+            'propagate': False,
         },
     },
 }
+
 ALLOWED_HOSTS = []
 
 

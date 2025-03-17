@@ -1,0 +1,214 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Sao lưu mã giảm giá{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Sao lưu mã giảm giá</h1>
+        <a href="{% url 'dashboard:discounts' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Tạo bản sao lưu mới</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'dashboard:backup_discounts' %}" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        {% if messages %}
+                        <div class="alert alert-info">
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="form-group">
+                            <label for="{{ form.backup_name.id_for_label }}">{{ form.backup_name.label }}</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-file-archive"></i></span>
+                                </div>
+                                {{ form.backup_name }}
+                            </div>
+                            {% if form.backup_name.help_text %}
+                                <small class="form-text text-muted">{{ form.backup_name.help_text }}</small>
+                            {% endif %}
+                            {% if form.backup_name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.backup_name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="custom-control custom-checkbox">
+                                {{ form.include_usage }}
+                                <label class="custom-control-label" for="{{ form.include_usage.id_for_label }}">
+                                    {{ form.include_usage.label }}
+                                </label>
+                            </div>
+                            {% if form.include_usage.help_text %}
+                                <small class="form-text text-muted">{{ form.include_usage.help_text }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="custom-control custom-checkbox">
+                                {{ form.download_backup }}
+                                <label class="custom-control-label" for="{{ form.download_backup.id_for_label }}">
+                                    {{ form.download_backup.label }}
+                                </label>
+                            </div>
+                            {% if form.download_backup.help_text %}
+                                <small class="form-text text-muted">{{ form.download_backup.help_text }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Tạo bản sao lưu
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Bản sao lưu gần đây</h6>
+                    <a href="{% url 'dashboard:restore_discounts' %}" class="btn btn-sm btn-info">
+                        <i class="fas fa-undo"></i> Khôi phục
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if backups %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Tên bản sao lưu</th>
+                                        <th>Ngày tạo</th>
+                                        <th>Số mã giảm giá</th>
+                                        <th>Người tạo</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for backup in backups %}
+                                    <tr>
+                                        <td>{{ backup.name }}</td>
+                                        <td>{{ backup.created_at|date:"d/m/Y H:i" }}</td>
+                                        <td>{{ backup.get_discount_count }}</td>
+                                        <td>{{ backup.created_by.username|default:"--" }}</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{% url 'dashboard:download_backup' backup.id %}" class="btn btn-outline-primary">
+                                                    <i class="fas fa-download"></i>
+                                                </a>
+                                                <a href="{% url 'dashboard:restore_discounts' %}?backup_id={{ backup.id }}" class="btn btn-outline-success">
+                                                    <i class="fas fa-undo"></i>
+                                                </a>
+                                                <a href="#" class="btn btn-outline-danger delete-backup" data-id="{{ backup.id }}" data-toggle="modal" data-target="#deleteBackupModal">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-archive fa-3x text-gray-300 mb-3"></i>
+                            <p class="mb-0">Chưa có bản sao lưu nào được tạo</p>
+                            <p class="small text-muted">Hãy tạo bản sao lưu đầu tiên của bạn.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Backup Modal -->
+    <div class="modal fade" id="deleteBackupModal" tabindex="-1" role="dialog" aria-labelledby="deleteBackupModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteBackupModalLabel">Xóa bản sao lưu?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Bạn có chắc chắn muốn xóa bản sao lưu này? Thao tác này không thể hoàn tác.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <form id="deleteBackupForm" method="post" action="{% url 'dashboard:delete_backup' 0 %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Xóa</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Form validation
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+    
+    // Add styling to input
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('input[type="text"]').forEach(function(el) {
+            el.classList.add('form-control');
+        });
+    });
+    
+    // Delete backup confirmation
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.delete-backup').forEach(function(el) {
+            el.addEventListener('click', function(e) {
+                var backupId = this.getAttribute('data-id');
+                var form = document.getElementById('deleteBackupForm');
+                form.action = form.action.replace(/\/\d+\/$/, '/' + backupId + '/');
+            });
+        });
+    });
+</script>
+{% endblock %} 

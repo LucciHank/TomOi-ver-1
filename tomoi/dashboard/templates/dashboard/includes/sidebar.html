@@ -51,6 +51,37 @@
 
     <!-- Heading -->
     <div class="sidebar-heading">
+        Mã giảm giá
+    </div>
+
+    <!-- Nav Item - Discount Codes Collapse Menu -->
+    <li class="nav-item {% if 'discounts' in request.path %}active{% endif %}">
+        <a class="nav-link {% if 'discounts' in request.path %}{% else %}collapsed{% endif %}" href="#" data-bs-toggle="collapse" data-bs-target="#collapseDiscounts"
+            aria-expanded="{% if 'discounts' in request.path %}true{% else %}false{% endif %}" aria-controls="collapseDiscounts">
+            <i class="fas fa-fw fa-tags"></i>
+            <span>Mã giảm giá</span>
+        </a>
+        <div id="collapseDiscounts" class="collapse {% if 'discounts' in request.path %}show{% endif %}" aria-labelledby="headingDiscounts" data-bs-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản lý mã giảm giá:</h6>
+                <a class="collapse-item {% if request.resolver_match.url_name == 'discount_dashboard' %}active{% endif %}" href="{% url 'dashboard:discount_dashboard' %}">
+                    <i class="fas fa-chart-area fa-sm fa-fw mr-1"></i> Tổng quan
+                </a>
+                <a class="collapse-item {% if request.resolver_match.url_name == 'discounts' %}active{% endif %}" href="{% url 'dashboard:discounts' %}">
+                    <i class="fas fa-list fa-sm fa-fw mr-1"></i> Danh sách mã
+                </a>
+                <a class="collapse-item {% if request.resolver_match.url_name == 'add_discount' %}active{% endif %}" href="{% url 'dashboard:add_discount' %}">
+                    <i class="fas fa-plus fa-sm fa-fw mr-1"></i> Thêm mã mới
+                </a>
+                <a class="collapse-item {% if request.resolver_match.url_name == 'discount_report' %}active{% endif %}" href="{% url 'dashboard:discount_report' %}">
+                    <i class="fas fa-file-alt fa-sm fa-fw mr-1"></i> Báo cáo sử dụng
+                </a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Heading -->
+    <div class="sidebar-heading">
         Quản lý
     </div>
 
@@ -184,7 +215,6 @@
                 <a class="collapse-item {% if request.resolver_match.url_name == 'marketing' %}active{% endif %}" href="{% url 'dashboard:marketing' %}">Tổng quan</a>
                 <a class="collapse-item {% if request.resolver_match.url_name == 'campaigns' %}active{% endif %}" href="{% url 'dashboard:campaigns' %}">Chiến dịch</a>
                 <a class="collapse-item {% if request.resolver_match.url_name == 'banners' %}active{% endif %}" href="{% url 'dashboard:banners' %}">Banners</a>
-                <a class="collapse-item" href="#">Mã giảm giá</a>
                 <a class="collapse-item" href="#">Email Marketing</a>
                 <a class="collapse-item" href="#">Chương trình giới thiệu</a>
             </div>

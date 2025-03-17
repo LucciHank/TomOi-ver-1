@@ -1,3 +1,48 @@
+# Cấu hình bí mật và tệp cấu hình
 client_secret.json
+.env
+.env.local
+.env.development
+.env.production
+
+# Môi trường ảo Python
 .venv
-*.pyc
+venv/
+env/
+ENV/
+
+# Các tệp Python sinh ra
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Thư mục logs và cơ sở dữ liệu
+*.log
+logs/
+*.sqlite3
+*.sqlite3-journal
+
+# IDE và trình soạn thảo
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store

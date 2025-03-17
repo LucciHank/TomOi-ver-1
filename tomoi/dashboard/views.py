@@ -3725,3 +3725,12 @@ def update_product_status(request, product_id):
         })
     
     return JsonResponse({'success': False, 'message': 'Phương thức không được hỗ trợ'}, status=405)
+
+# Product Attributes
+@staff_member_required
+def product_attributes(request):
+    # Tạm thời tạo một view đơn giản
+    return render(request, 'dashboard/products/attributes.html', {
+        'title': 'Thuộc tính sản phẩm',
+        'active_tab': 'products'
+    })

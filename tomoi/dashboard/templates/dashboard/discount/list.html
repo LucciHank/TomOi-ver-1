@@ -1,0 +1,223 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Quản lý mã giảm giá{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Quản lý mã giảm giá</h1>
+        <a href="{% url 'dashboard:add_discount' %}" class="btn btn-primary">
+            <i class="fas fa-plus fa-sm text-white-50"></i> Thêm mã giảm giá
+        </a>
+    </div>
+
+    <!-- Thống kê tổng quan -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Tổng số mã giảm giá</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_discounts }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-ticket-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Mã đang hoạt động</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ active_discounts }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Mã hết hạn</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ expired_discounts }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Tổng giá trị giảm</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_discount_value|floatformat:0 }}đ</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danh sách mã giảm giá -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách mã giảm giá</h6>
+            <div>
+                <a href="{% url 'dashboard:discount_import' %}" class="btn btn-success btn-sm">
+                    <i class="fas fa-file-import"></i> Import
+                </a>
+                <a href="{% url 'dashboard:discount_export' %}" class="btn btn-info btn-sm">
+                    <i class="fas fa-file-export"></i> Export
+                </a>
+                <a href="{% url 'dashboard:discount_backup' %}" class="btn btn-warning btn-sm">
+                    <i class="fas fa-database"></i> Sao lưu
+                </a>
+                <a href="{% url 'dashboard:discount_history' %}" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-history"></i> Lịch sử
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Mã</th>
+                            <th>Loại</th>
+                            <th>Giá trị</th>
+                            <th>Bắt đầu</th>
+                            <th>Kết thúc</th>
+                            <th>Giới hạn</th>
+                            <th>Đã dùng</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for discount in discounts %}
+                        <tr>
+                            <td>{{ discount.code }}</td>
+                            <td>{{ discount.get_discount_type_display }}</td>
+                            <td>
+                                {% if discount.discount_type == 'percentage' %}
+                                    {{ discount.value }}%
+                                {% else %}
+                                    {{ discount.value|floatformat:0 }}đ
+                                {% endif %}
+                            </td>
+                            <td>{{ discount.valid_from|date:"d/m/Y" }}</td>
+                            <td>{{ discount.valid_to|date:"d/m/Y" }}</td>
+                            <td>{{ discount.max_uses|default:"Không giới hạn" }}</td>
+                            <td>{{ discount.used_count }}</td>
+                            <td>
+                                <span class="badge badge-{{ discount.is_active|yesno:'success,danger' }}">
+                                    {{ discount.is_active|yesno:'Hoạt động,Hết hạn' }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'dashboard:edit_discount' discount.id %}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="btn btn-danger btn-sm delete-discount" data-id="{{ discount.id }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <button class="btn btn-{{ discount.is_active|yesno:'warning,success' }} btn-sm toggle-discount" 
+                                        data-id="{{ discount.id }}"
+                                        data-active="{{ discount.is_active }}">
+                                    <i class="fas fa-{{ discount.is_active|yesno:'ban,check' }}"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center">Không có mã giảm giá nào</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Khởi tạo DataTable
+    $('#dataTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Vietnamese.json"
+        }
+    });
+
+    // Xử lý xóa mã giảm giá
+    $('.delete-discount').click(function() {
+        var discountId = $(this).data('id');
+        if (confirm('Bạn có chắc chắn muốn xóa mã giảm giá này?')) {
+            $.ajax({
+                url: `/dashboard/discounts/${discountId}/delete/`,
+                type: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        location.reload();
+                    } else {
+                        alert(response.message);
+                    }
+                }
+            });
+        }
+    });
+
+    // Xử lý bật/tắt mã giảm giá
+    $('.toggle-discount').click(function() {
+        var discountId = $(this).data('id');
+        var isActive = $(this).data('active');
+        var newStatus = !isActive;
+        
+        $.ajax({
+            url: `/dashboard/discounts/${discountId}/toggle/`,
+            type: 'POST',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    location.reload();
+                } else {
+                    alert(response.message);
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

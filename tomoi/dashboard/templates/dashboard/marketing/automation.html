@@ -1,0 +1,745 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Tự động hóa Marketing{% endblock %}
+
+{% block extra_css %}
+{% include 'dashboard/marketing/styles.html' %}
+<style>
+    .workflow-card {
+        background-color: white;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .workflow-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    
+    .workflow-header {
+        padding: 20px;
+        position: relative;
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .workflow-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .workflow-description {
+        color: var(--gray);
+        font-size: 14px;
+    }
+    
+    .workflow-body {
+        padding: 20px;
+    }
+    
+    .workflow-stats {
+        display: flex;
+        margin-bottom: 20px;
+    }
+    
+    .workflow-stat {
+        flex: 1;
+        text-align: center;
+        padding: 10px;
+    }
+    
+    .stat-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--dark);
+    }
+    
+    .workflow-steps {
+        margin-bottom: 20px;
+    }
+    
+    .workflow-step {
+        display: flex;
+        margin-bottom: 15px;
+        align-items: flex-start;
+    }
+    
+    .step-number {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background-color: var(--primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin-right: 15px;
+        flex-shrink: 0;
+    }
+    
+    .step-content {
+        flex: 1;
+    }
+    
+    .step-title {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .step-description {
+        font-size: 13px;
+        color: var(--gray);
+    }
+    
+    .workflow-footer {
+        padding: 15px 20px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .status-tag {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    
+    .status-active {
+        background-color: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+    }
+    
+    .status-draft {
+        background-color: rgba(108, 117, 125, 0.1);
+        color: #6c757d;
+    }
+    
+    .status-paused {
+        background-color: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+    }
+    
+    .workflow-icons {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+    }
+    
+    .trigger-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        background-color: var(--light-gray);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 5px;
+    }
+    
+    .trigger-icon.email {
+        color: #4e73df;
+    }
+    
+    .trigger-icon.time {
+        color: #1cc88a;
+    }
+    
+    .trigger-icon.action {
+        color: #f6c23e;
+    }
+    
+    .trigger-icon.purchase {
+        color: #e74a3b;
+    }
+    
+    .workflow-connect {
+        border-left: 2px dashed var(--border);
+        height: calc(100% - 30px);
+        position: absolute;
+        left: 14px;
+        top: 30px;
+    }
+    
+    .workflow-template {
+        background-color: rgba(78, 115, 223, 0.05);
+        border: 1px solid rgba(78, 115, 223, 0.1);
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .workflow-template:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .template-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background-color: var(--primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+    
+    .template-title {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .template-description {
+        font-size: 13px;
+        color: var(--gray);
+    }
+    
+    .visual-workflow {
+        position: relative;
+        margin-top: 30px;
+    }
+    
+    .workflow-node {
+        position: relative;
+        z-index: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header-card">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="dashboard-header-title">Tự động hóa Marketing</div>
+                <div class="dashboard-header-desc">Tạo và quản lý các quy trình tự động hóa cho chiến dịch marketing</div>
+                
+                <div class="btn-group">
+                    <a href="{% url 'dashboard:automation' %}?action=new" class="btn btn-light">
+                        <i class="fas fa-plus mr-1"></i> Tạo quy trình mới
+                    </a>
+                    <a href="#" class="btn btn-outline-light">
+                        <i class="fas fa-cog mr-1"></i> Cài đặt
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="dashboard-stat-cards">
+                    <div class="dashboard-stat-card">
+                        <div class="stat-title">Tổng quy trình</div>
+                        <div class="stat-value">12</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up mr-1"></i> 2 mới
+                        </div>
+                    </div>
+                    <div class="dashboard-stat-card">
+                        <div class="stat-title">Đang hoạt động</div>
+                        <div class="stat-value">8</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-check mr-1"></i> 80%
+                        </div>
+                    </div>
+                    <div class="dashboard-stat-card">
+                        <div class="stat-title">Khách hàng tiếp cận</div>
+                        <div class="stat-value">2.4k</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up mr-1"></i> 18.5%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="row">
+        <div class="col-12">
+            <div class="tab-nav">
+                <a href="#" class="nav-link active" data-tab="all">Tất cả quy trình</a>
+                <a href="#" class="nav-link" data-tab="active">Đang hoạt động</a>
+                <a href="#" class="nav-link" data-tab="templates">Mẫu có sẵn</a>
+                <a href="#" class="nav-link" data-tab="analytics">Phân tích</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="filter-box">
+                <form method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <label for="trigger" class="form-label">Loại kích hoạt</label>
+                        <select class="form-control" id="trigger" name="trigger">
+                            <option value="">Tất cả</option>
+                            <option value="email">Email</option>
+                            <option value="time">Thời gian</option>
+                            <option value="action">Hành động</option>
+                            <option value="purchase">Mua hàng</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="status" class="form-label">Trạng thái</label>
+                        <select class="form-control" id="status" name="status">
+                            <option value="">Tất cả</option>
+                            <option value="active">Đang hoạt động</option>
+                            <option value="draft">Bản nháp</option>
+                            <option value="paused">Tạm dừng</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="dateRange" class="form-label">Ngày tạo</label>
+                        <input type="text" class="form-control" id="dateRange" name="date_range" placeholder="Chọn khoảng thời gian">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="search" class="form-label">Tìm kiếm</label>
+                        <input type="text" class="form-control" id="search" name="search" placeholder="Tìm theo tên quy trình...">
+                    </div>
+                    <div class="col-12 text-end mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-1"></i> Lọc
+                        </button>
+                        <button type="reset" class="btn btn-secondary">
+                            <i class="fas fa-undo me-1"></i> Đặt lại
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Templates Section (visible when Templates tab is selected) -->
+    <div class="row templates-section" style="display: none;">
+        <div class="col-12 mb-4">
+            <h4 class="mb-3">Mẫu quy trình tự động</h4>
+            <p class="text-muted">Chọn một mẫu để bắt đầu nhanh chóng với quy trình tự động hóa của bạn.</p>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="workflow-template">
+                <div class="template-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <div class="template-title">Chào mừng khách hàng mới</div>
+                <div class="template-description">Gửi email chào mừng tự động khi có khách hàng mới đăng ký tài khoản.</div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="workflow-template">
+                <div class="template-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="template-title">Giỏ hàng bị bỏ quên</div>
+                <div class="template-description">Nhắc nhở khách hàng về giỏ hàng chưa thanh toán sau 24 giờ.</div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="workflow-template">
+                <div class="template-icon">
+                    <i class="fas fa-birthday-cake"></i>
+                </div>
+                <div class="template-title">Chúc mừng sinh nhật</div>
+                <div class="template-description">Gửi email chúc mừng sinh nhật kèm mã giảm giá đặc biệt.</div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="workflow-template">
+                <div class="template-icon">
+                    <i class="fas fa-thumbs-up"></i>
+                </div>
+                <div class="template-title">Yêu cầu đánh giá sản phẩm</div>
+                <div class="template-description">Gửi email yêu cầu đánh giá sau khi khách hàng nhận được sản phẩm.</div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="workflow-template">
+                <div class="template-icon">
+                    <i class="fas fa-user-clock"></i>
+                </div>
+                <div class="template-title">Tái kích hoạt khách hàng</div>
+                <div class="template-description">Gửi ưu đãi đặc biệt cho khách hàng không hoạt động trong 30 ngày.</div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="workflow-template">
+                <div class="template-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="template-title">Thông báo sản phẩm mới</div>
+                <div class="template-description">Thông báo cho khách hàng khi có sản phẩm mới trong danh mục họ quan tâm.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Workflows List -->
+    <div class="row workflows-list">
+        {% for workflow in workflows %}
+        <div class="col-lg-6">
+            <div class="workflow-card">
+                <div class="workflow-header">
+                    <div class="workflow-title">{{ workflow.title }}</div>
+                    <div class="workflow-description">{{ workflow.description }}</div>
+                    <div class="workflow-icons">
+                        {% if workflow.trigger_type == 'email' %}
+                        <div class="trigger-icon email"><i class="fas fa-envelope"></i></div>
+                        {% elif workflow.trigger_type == 'time' %}
+                        <div class="trigger-icon time"><i class="fas fa-clock"></i></div>
+                        {% elif workflow.trigger_type == 'action' %}
+                        <div class="trigger-icon action"><i class="fas fa-mouse-pointer"></i></div>
+                        {% elif workflow.trigger_type == 'purchase' %}
+                        <div class="trigger-icon purchase"><i class="fas fa-shopping-cart"></i></div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="workflow-body">
+                    <div class="workflow-stats">
+                        <div class="workflow-stat">
+                            <div class="stat-value">{{ workflow.total_users|default:"124" }}</div>
+                            <div class="stat-label">Người dùng</div>
+                        </div>
+                        <div class="workflow-stat">
+                            <div class="stat-value">{{ workflow.conversion_rate|default:"3.8" }}%</div>
+                            <div class="stat-label">Tỷ lệ chuyển đổi</div>
+                        </div>
+                        <div class="workflow-stat">
+                            <div class="stat-value">{{ workflow.total_revenue|default:"2.4M₫" }}</div>
+                            <div class="stat-label">Doanh thu</div>
+                        </div>
+                    </div>
+                    
+                    <div class="workflow-steps">
+                        <div style="position: relative;">
+                            {% for step in workflow.steps %}
+                            <div class="workflow-step">
+                                <div class="step-number">{{ forloop.counter }}</div>
+                                <div class="step-content">
+                                    <div class="step-title">{{ step.title }}</div>
+                                    <div class="step-description">{{ step.description }}</div>
+                                </div>
+                            </div>
+                            {% if not forloop.last %}
+                            <div class="workflow-connect"></div>
+                            {% endif %}
+                            {% empty %}
+                            <div class="workflow-step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <div class="step-title">Kích hoạt khi khách hàng đăng ký mới</div>
+                                    <div class="step-description">Quy trình bắt đầu khi có khách hàng mới đăng ký tài khoản.</div>
+                                </div>
+                            </div>
+                            <div class="workflow-connect"></div>
+                            <div class="workflow-step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <div class="step-title">Gửi email chào mừng</div>
+                                    <div class="step-description">Gửi email chào mừng kèm mã giảm giá 10% cho đơn hàng đầu tiên.</div>
+                                </div>
+                            </div>
+                            <div class="workflow-connect"></div>
+                            <div class="workflow-step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <div class="step-title">Đợi 3 ngày</div>
+                                    <div class="step-description">Chờ 3 ngày sau khi gửi email chào mừng.</div>
+                                </div>
+                            </div>
+                            <div class="workflow-connect"></div>
+                            <div class="workflow-step">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <div class="step-title">Kiểm tra đơn hàng đầu tiên</div>
+                                    <div class="step-description">Nếu chưa có đơn hàng, gửi email nhắc nhở với mã giảm giá 15%.</div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="workflow-footer">
+                    <div>
+                        <span class="status-tag status-{{ workflow.status|default:'active' }}">
+                            {% if workflow.status == 'active' %}
+                            Đang hoạt động
+                            {% elif workflow.status == 'draft' %}
+                            Bản nháp
+                            {% elif workflow.status == 'paused' %}
+                            Tạm dừng
+                            {% else %}
+                            Đang hoạt động
+                            {% endif %}
+                        </span>
+                        <small class="text-muted ml-2">Cập nhật: {{ workflow.updated_at|default:"10/06/2023" }}</small>
+                    </div>
+                    <div>
+                        <a href="#" class="btn btn-sm btn-outline-primary me-2">
+                            <i class="fas fa-chart-line me-1"></i> Phân tích
+                        </a>
+                        <a href="#" class="btn btn-sm btn-primary">
+                            <i class="fas fa-edit me-1"></i> Chỉnh sửa
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <!-- Example Workflow -->
+        <div class="col-lg-6">
+            <div class="workflow-card">
+                <div class="workflow-header">
+                    <div class="workflow-title">Chào mừng khách hàng mới</div>
+                    <div class="workflow-description">Tự động gửi email chào mừng và các ưu đãi theo thời gian</div>
+                    <div class="workflow-icons">
+                        <div class="trigger-icon email"><i class="fas fa-envelope"></i></div>
+                    </div>
+                </div>
+                <div class="workflow-body">
+                    <div class="workflow-stats">
+                        <div class="workflow-stat">
+                            <div class="stat-value">124</div>
+                            <div class="stat-label">Người dùng</div>
+                        </div>
+                        <div class="workflow-stat">
+                            <div class="stat-value">3.8%</div>
+                            <div class="stat-label">Tỷ lệ chuyển đổi</div>
+                        </div>
+                        <div class="workflow-stat">
+                            <div class="stat-value">2.4M₫</div>
+                            <div class="stat-label">Doanh thu</div>
+                        </div>
+                    </div>
+                    
+                    <div class="workflow-steps">
+                        <div style="position: relative;">
+                            <div class="workflow-step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <div class="step-title">Kích hoạt khi khách hàng đăng ký mới</div>
+                                    <div class="step-description">Quy trình bắt đầu khi có khách hàng mới đăng ký tài khoản.</div>
+                                </div>
+                            </div>
+                            <div class="workflow-connect"></div>
+                            <div class="workflow-step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <div class="step-title">Gửi email chào mừng</div>
+                                    <div class="step-description">Gửi email chào mừng kèm mã giảm giá 10% cho đơn hàng đầu tiên.</div>
+                                </div>
+                            </div>
+                            <div class="workflow-connect"></div>
+                            <div class="workflow-step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <div class="step-title">Đợi 3 ngày</div>
+                                    <div class="step-description">Chờ 3 ngày sau khi gửi email chào mừng.</div>
+                                </div>
+                            </div>
+                            <div class="workflow-connect"></div>
+                            <div class="workflow-step">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <div class="step-title">Kiểm tra đơn hàng đầu tiên</div>
+                                    <div class="step-description">Nếu chưa có đơn hàng, gửi email nhắc nhở với mã giảm giá 15%.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="workflow-footer">
+                    <div>
+                        <span class="status-tag status-active">Đang hoạt động</span>
+                        <small class="text-muted ml-2">Cập nhật: 10/06/2023</small>
+                    </div>
+                    <div>
+                        <a href="#" class="btn btn-sm btn-outline-primary me-2">
+                            <i class="fas fa-chart-line me-1"></i> Phân tích
+                        </a>
+                        <a href="#" class="btn btn-sm btn-primary">
+                            <i class="fas fa-edit me-1"></i> Chỉnh sửa
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="workflow-card">
+                <div class="workflow-header">
+                    <div class="workflow-title">Giỏ hàng bị bỏ quên</div>
+                    <div class="workflow-description">Nhắc nhở khách hàng về giỏ hàng chưa thanh toán</div>
+                    <div class="workflow-icons">
+                        <div class="trigger-icon time"><i class="fas fa-clock"></i></div>
+                    </div>
+                </div>
+                <div class="workflow-body">
+                    <div class="workflow-stats">
+                        <div class="workflow-stat">
+                            <div class="stat-value">87</div>
+                            <div class="stat-label">Người dùng</div>
+                        </div>
+                        <div class="workflow-stat">
+                            <div class="stat-value">5.2%</div>
+                            <div class="stat-label">Tỷ lệ chuyển đổi</div>
+                        </div>
+                        <div class="workflow-stat">
+                            <div class="stat-value">1.8M₫</div>
+                            <div class="stat-label">Doanh thu</div>
+                        </div>
+                    </div>
+                    
+                    <div class="workflow-steps">
+                        <div style="position: relative;">
+                            <div class="workflow-step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <div class="step-title">Phát hiện giỏ hàng bị bỏ quên</div>
+                                    <div class="step-description">Kích hoạt khi khách hàng thêm sản phẩm vào giỏ nhưng không thanh toán trong 4 giờ.</div>
+                                </div>
+                            </div>
+                            <div class="workflow-connect"></div>
+                            <div class="workflow-step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <div class="step-title">Gửi email nhắc nhở đầu tiên</div>
+                                    <div class="step-description">Gửi email nhắc nhở về sản phẩm trong giỏ hàng sau 4 giờ.</div>
+                                </div>
+                            </div>
+                            <div class="workflow-connect"></div>
+                            <div class="workflow-step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <div class="step-title">Đợi 24 giờ</div>
+                                    <div class="step-description">Chờ thêm 24 giờ nữa nếu khách hàng vẫn chưa hoàn tất đơn hàng.</div>
+                                </div>
+                            </div>
+                            <div class="workflow-connect"></div>
+                            <div class="workflow-step">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <div class="step-title">Gửi email với mã giảm giá</div>
+                                    <div class="step-description">Gửi email thứ hai với mã giảm giá 5% để khuyến khích hoàn tất đơn hàng.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="workflow-footer">
+                    <div>
+                        <span class="status-tag status-active">Đang hoạt động</span>
+                        <small class="text-muted ml-2">Cập nhật: 05/06/2023</small>
+                    </div>
+                    <div>
+                        <a href="#" class="btn btn-sm btn-outline-primary me-2">
+                            <i class="fas fa-chart-line me-1"></i> Phân tích
+                        </a>
+                        <a href="#" class="btn btn-sm btn-primary">
+                            <i class="fas fa-edit me-1"></i> Chỉnh sửa
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Trước</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Sau</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab functionality
+    const tabLinks = document.querySelectorAll('.tab-nav .nav-link');
+    const templatesSection = document.querySelector('.templates-section');
+    const workflowsList = document.querySelector('.workflows-list');
+    
+    tabLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Remove active class from all tabs
+            tabLinks.forEach(tab => tab.classList.remove('active'));
+            
+            // Add active class to current tab
+            this.classList.add('active');
+            
+            // Show/hide templates section based on selected tab
+            const tabName = this.getAttribute('data-tab');
+            
+            if (tabName === 'templates') {
+                templatesSection.style.display = 'flex';
+                workflowsList.style.display = 'none';
+            } else {
+                templatesSection.style.display = 'none';
+                workflowsList.style.display = 'flex';
+            }
+            
+            // Example: Add tab parameter to current URL
+            const url = new URL(window.location);
+            url.searchParams.set('tab', tabName);
+            window.history.pushState({}, '', url);
+        });
+    });
+    
+    // Initialize date range picker if available
+    if($.fn.daterangepicker) {
+        $('#dateRange').daterangepicker({
+            opens: 'left',
+            locale: {
+                format: 'DD/MM/YYYY'
+            }
+        });
+    }
+    
+    // Template selection
+    const workflowTemplates = document.querySelectorAll('.workflow-template');
+    
+    workflowTemplates.forEach(template => {
+        template.addEventListener('click', function() {
+            // In a real app, this would redirect to the workflow editor with the template pre-loaded
+            const templateName = this.querySelector('.template-title').textContent;
+            
+            // Example: Show alert for now
+            alert(`Bạn đã chọn mẫu: ${templateName}. Trong ứng dụng thực tế, bạn sẽ được chuyển đến trình soạn thảo quy trình với mẫu này.`);
+            
+            // Example: Redirect to workflow editor with template parameter
+            // window.location.href = '{% url "dashboard:automation" %}?action=new&template=' + encodeURIComponent(templateName);
+        });
+    });
+});
+</script>
+{% endblock %} 

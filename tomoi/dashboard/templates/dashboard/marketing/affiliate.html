@@ -1,0 +1,811 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Tiếp thị liên kết{% endblock %}
+
+{% block extra_css %}
+{% include 'dashboard/marketing/styles.html' %}
+<style>
+    /* Màu cho các cấp độ đối tác */
+    .tier-basic {
+        background-color: #6c757d;
+    }
+    
+    .tier-silver {
+        background-color: #adb5bd;
+    }
+    
+    .tier-gold {
+        background-color: #ffc107;
+    }
+    
+    .tier-platinum {
+        background-color: #17a2b8;
+    }
+    
+    .referral-link-box {
+        background-color: var(--light-gray);
+        border-radius: 8px;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .referral-link-box input {
+        flex: 1;
+        margin-right: 10px;
+    }
+    
+    .avatar-small {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 15px;
+        object-fit: cover;
+    }
+    
+    .affiliate-detail {
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: 15px;
+    }
+    
+    .detail-col {
+        flex: 1;
+        min-width: 200px;
+        margin-bottom: 10px;
+    }
+    
+    .detail-label {
+        font-size: 12px;
+        color: var(--gray);
+        margin-bottom: 5px;
+    }
+    
+    .detail-value {
+        font-weight: 600;
+    }
+    
+    .tier-tag {
+        display: inline-block;
+        padding: 3px 10px;
+        color: white;
+        border-radius: 20px;
+        font-size: 12px;
+        margin-left: 8px;
+    }
+    
+    .referral-item {
+        border-bottom: 1px solid var(--border);
+        padding: 10px 0;
+        margin-bottom: 10px;
+    }
+    
+    .referral-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 5px;
+    }
+    
+    .referral-amount {
+        font-weight: 600;
+        color: var(--success);
+    }
+    
+    .affiliate-stats {
+        margin-bottom: 20px;
+    }
+    
+    .commission-history {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        padding: 15px;
+        margin-top: 20px;
+    }
+    
+    .history-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .history-details {
+        flex: 1;
+    }
+    
+    .history-date {
+        font-size: 12px;
+        color: var(--gray);
+    }
+    
+    .history-amount {
+        font-weight: 600;
+        text-align: right;
+        min-width: 100px;
+    }
+    
+    .paid {
+        color: var(--success);
+    }
+    
+    .pending {
+        color: var(--warning);
+    }
+    
+    .overview-card {
+        background-color: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .overview-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .overview-card .icon {
+        font-size: 30px;
+        color: var(--primary);
+        margin-bottom: 15px;
+    }
+    
+    .overview-card .title {
+        font-size: 14px;
+        color: var(--gray);
+        margin-bottom: 10px;
+    }
+    
+    .overview-card .value {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 10px;
+    }
+    
+    .overview-card .change {
+        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .progress-container {
+        margin: 15px 0;
+    }
+    
+    .progress-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+    }
+    
+    .progress-label {
+        font-size: 12px;
+        color: var(--gray);
+    }
+    
+    .progress-value {
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    .progress {
+        height: 6px;
+        background-color: var(--light-gray);
+    }
+    
+    .progress-bar {
+        background-color: var(--primary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header-card">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="dashboard-header-title">Tiếp thị liên kết</div>
+                <div class="dashboard-header-desc">Quản lý chương trình tiếp thị liên kết của bạn</div>
+                
+                <div class="btn-group">
+                    <a href="{% url 'dashboard:affiliate' %}?action=new" class="btn btn-light">
+                        <i class="fas fa-plus mr-1"></i> Tạo chương trình
+                    </a>
+                    <a href="#" class="btn btn-outline-light">
+                        <i class="fas fa-cog mr-1"></i> Cài đặt
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="dashboard-stat-cards">
+                    <div class="dashboard-stat-card">
+                        <div class="stat-title">Tổng đối tác</div>
+                        <div class="stat-value">284</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up mr-1"></i> 14.2%
+                        </div>
+                    </div>
+                    <div class="dashboard-stat-card">
+                        <div class="stat-title">Doanh thu tạo ra</div>
+                        <div class="stat-value">82.4M₫</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up mr-1"></i> 23.5%
+                        </div>
+                    </div>
+                    <div class="dashboard-stat-card">
+                        <div class="stat-title">Hoa hồng đã trả</div>
+                        <div class="stat-value">12.6M₫</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up mr-1"></i> 18.9%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overview cards -->
+    <div class="row">
+        <div class="col-md-3">
+            <div class="overview-card">
+                <div class="icon"><i class="fas fa-users"></i></div>
+                <div class="title">TỔNG ĐỐI TÁC</div>
+                <div class="value">284</div>
+                <div class="change positive">
+                    <i class="fas fa-arrow-up mr-1"></i> 14.2% so với tháng trước
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="overview-card">
+                <div class="icon"><i class="fas fa-chart-line"></i></div>
+                <div class="title">DOANH THU TẠO RA</div>
+                <div class="value">82.4M₫</div>
+                <div class="change positive">
+                    <i class="fas fa-arrow-up mr-1"></i> 23.5% so với tháng trước
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="overview-card">
+                <div class="icon"><i class="fas fa-hand-holding-usd"></i></div>
+                <div class="title">HOA HỒNG ĐÃ TRẢ</div>
+                <div class="value">12.6M₫</div>
+                <div class="change positive">
+                    <i class="fas fa-arrow-up mr-1"></i> 18.9% so với tháng trước
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="overview-card">
+                <div class="icon"><i class="fas fa-percentage"></i></div>
+                <div class="title">TỶ LỆ CHUYỂN ĐỔI</div>
+                <div class="value">5.8%</div>
+                <div class="change positive">
+                    <i class="fas fa-arrow-up mr-1"></i> 1.2% so với tháng trước
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Link chia sẻ -->
+    <div class="referral-link-box">
+        <i class="fas fa-link mr-3" style="color: var(--primary);"></i>
+        <input type="text" class="form-control" value="https://tomoi.vn/ref?code=YOUR_AFFILIATE_CODE" readonly>
+        <button class="btn btn-primary" id="copy-link-btn">
+            <i class="fas fa-copy mr-1"></i> Sao chép
+        </button>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="row">
+        <div class="col-12">
+            <div class="tab-nav">
+                <a href="#" class="nav-link active" data-tab="all">Tất cả đối tác</a>
+                <a href="#" class="nav-link" data-tab="active">Đang hoạt động</a>
+                <a href="#" class="nav-link" data-tab="pending">Chờ duyệt</a>
+                <a href="#" class="nav-link" data-tab="reports">Báo cáo</a>
+                <a href="#" class="nav-link" data-tab="payouts">Thanh toán</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="filter-box">
+                <form method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <label for="status" class="form-label">Trạng thái</label>
+                        <select class="form-control" id="status" name="status">
+                            <option value="">Tất cả</option>
+                            <option value="active">Đang hoạt động</option>
+                            <option value="pending">Chờ duyệt</option>
+                            <option value="paused">Tạm dừng</option>
+                            <option value="blocked">Đã khóa</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="tier" class="form-label">Cấp độ</label>
+                        <select class="form-control" id="tier" name="tier">
+                            <option value="">Tất cả</option>
+                            <option value="basic">Cơ bản</option>
+                            <option value="silver">Bạc</option>
+                            <option value="gold">Vàng</option>
+                            <option value="platinum">Bạch kim</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="dateRange" class="form-label">Thời gian tham gia</label>
+                        <input type="text" class="form-control" id="dateRange" name="date_range" placeholder="Chọn khoảng thời gian">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="search" class="form-label">Tìm kiếm</label>
+                        <input type="text" class="form-control" id="search" name="search" placeholder="Tìm theo tên, email...">
+                    </div>
+                    <div class="col-12 text-end mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-1"></i> Lọc
+                        </button>
+                        <button type="reset" class="btn btn-secondary">
+                            <i class="fas fa-undo me-1"></i> Đặt lại
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Affiliates List -->
+    <div class="row">
+        {% for affiliate in affiliates %}
+        <div class="col-lg-6">
+            <div class="module-card">
+                <div class="module-header">
+                    <div class="d-flex align-items-center">
+                        <img src="{{ affiliate.avatar_url|default:'https://via.placeholder.com/40' }}" alt="{{ affiliate.name }}" class="avatar-small">
+                        <div>
+                            <h5 class="mb-0">{{ affiliate.name }}</h5>
+                            <small>{{ affiliate.email }}</small>
+                            {% if affiliate.tier == 'basic' %}
+                            <span class="tier-tag tier-basic">Cơ bản</span>
+                            {% elif affiliate.tier == 'silver' %}
+                            <span class="tier-tag tier-silver">Bạc</span>
+                            {% elif affiliate.tier == 'gold' %}
+                            <span class="tier-tag tier-gold">Vàng</span>
+                            {% elif affiliate.tier == 'platinum' %}
+                            <span class="tier-tag tier-platinum">Bạch kim</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-eye me-2"></i> Xem chi tiết</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i> Chỉnh sửa</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-ban me-2"></i> Tạm dừng</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash-alt me-2"></i> Xóa</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="module-body">
+                    <div class="affiliate-detail">
+                        <div class="detail-col">
+                            <div class="detail-label">Ngày tham gia</div>
+                            <div class="detail-value">{{ affiliate.joined_date }}</div>
+                        </div>
+                        <div class="detail-col">
+                            <div class="detail-label">Tỷ lệ hoa hồng</div>
+                            <div class="detail-value">{{ affiliate.commission_rate }}</div>
+                        </div>
+                        <div class="detail-col">
+                            <div class="detail-label">Trạng thái</div>
+                            <div class="detail-value">
+                                {% if affiliate.status == 'active' %}
+                                <span class="text-success">Đang hoạt động</span>
+                                {% elif affiliate.status == 'pending' %}
+                                <span class="text-warning">Chờ duyệt</span>
+                                {% elif affiliate.status == 'paused' %}
+                                <span class="text-secondary">Tạm dừng</span>
+                                {% else %}
+                                <span class="text-danger">Đã khóa</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="detail-col">
+                            <div class="detail-label">Hoa hồng chờ</div>
+                            <div class="detail-value">{{ affiliate.pending_commission }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="module-stats">
+                        <div class="module-stat">
+                            <div class="stat-value">{{ affiliate.clicks|default:"312" }}</div>
+                            <div class="stat-label">Lượt click</div>
+                        </div>
+                        <div class="module-stat">
+                            <div class="stat-value">{{ affiliate.conversions|default:"18" }}</div>
+                            <div class="stat-label">Lượt chuyển đổi</div>
+                        </div>
+                        <div class="module-stat">
+                            <div class="stat-value">{{ affiliate.conversion_rate|default:"5.8" }}%</div>
+                            <div class="stat-label">Tỷ lệ chuyển đổi</div>
+                        </div>
+                        <div class="module-stat">
+                            <div class="stat-value">{{ affiliate.total_commission|default:"2.4M₫" }}</div>
+                            <div class="stat-label">Tổng hoa hồng</div>
+                        </div>
+                    </div>
+                    
+                    <h6 class="mt-4 mb-3">Giới thiệu gần đây</h6>
+                    <div class="recent-referrals">
+                        {% for referral in affiliate.recent_referrals %}
+                        <div class="referral-item">
+                            <div class="referral-header">
+                                <div>{{ referral.customer_name }}</div>
+                                <div class="referral-amount">{{ referral.amount }}</div>
+                            </div>
+                            <div class="text-muted small">{{ referral.date }} - {{ referral.product }}</div>
+                        </div>
+                        {% empty %}
+                        <div class="referral-item">
+                            <div class="referral-header">
+                                <div>Nguyễn Văn A</div>
+                                <div class="referral-amount">250.000₫</div>
+                            </div>
+                            <div class="text-muted small">15/06/2023 - Áo thun TomOi Basic</div>
+                        </div>
+                        <div class="referral-item">
+                            <div class="referral-header">
+                                <div>Trần Thị B</div>
+                                <div class="referral-amount">420.000₫</div>
+                            </div>
+                            <div class="text-muted small">12/06/2023 - Quần jeans TomOi Slim fit</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-info">
+                            <div class="progress-label">Tiến độ cấp Vàng</div>
+                            <div class="progress-value">65%</div>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar" style="width: 65%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <div>
+                        <small class="text-muted">Cập nhật lần cuối: {{ affiliate.last_updated|default:"10/06/2023" }}</small>
+                    </div>
+                    <div>
+                        <a href="#" class="btn btn-sm btn-outline-primary me-2">
+                            <i class="fas fa-chart-line me-1"></i> Phân tích
+                        </a>
+                        <a href="#" class="btn btn-sm btn-primary">
+                            <i class="fas fa-dollar-sign me-1"></i> Trả hoa hồng
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <!-- Example Affiliates -->
+        <div class="col-lg-6">
+            <div class="module-card">
+                <div class="module-header">
+                    <div class="d-flex align-items-center">
+                        <img src="https://via.placeholder.com/40" alt="Lê Văn Minh" class="avatar-small">
+                        <div>
+                            <h5 class="mb-0">Lê Văn Minh</h5>
+                            <small>levanminh@example.com</small>
+                            <span class="tier-tag tier-gold">Vàng</span>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-eye me-2"></i> Xem chi tiết</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i> Chỉnh sửa</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-ban me-2"></i> Tạm dừng</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash-alt me-2"></i> Xóa</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="module-body">
+                    <div class="affiliate-detail">
+                        <div class="detail-col">
+                            <div class="detail-label">Ngày tham gia</div>
+                            <div class="detail-value">01/01/2023</div>
+                        </div>
+                        <div class="detail-col">
+                            <div class="detail-label">Tỷ lệ hoa hồng</div>
+                            <div class="detail-value">15%</div>
+                        </div>
+                        <div class="detail-col">
+                            <div class="detail-label">Trạng thái</div>
+                            <div class="detail-value">
+                                <span class="text-success">Đang hoạt động</span>
+                            </div>
+                        </div>
+                        <div class="detail-col">
+                            <div class="detail-label">Hoa hồng chờ</div>
+                            <div class="detail-value">1.2M₫</div>
+                        </div>
+                    </div>
+                    
+                    <div class="module-stats">
+                        <div class="module-stat">
+                            <div class="stat-value">1,245</div>
+                            <div class="stat-label">Lượt click</div>
+                        </div>
+                        <div class="module-stat">
+                            <div class="stat-value">86</div>
+                            <div class="stat-label">Lượt chuyển đổi</div>
+                        </div>
+                        <div class="module-stat">
+                            <div class="stat-value">6.9%</div>
+                            <div class="stat-label">Tỷ lệ chuyển đổi</div>
+                        </div>
+                        <div class="module-stat">
+                            <div class="stat-value">8.5M₫</div>
+                            <div class="stat-label">Tổng hoa hồng</div>
+                        </div>
+                    </div>
+                    
+                    <h6 class="mt-4 mb-3">Giới thiệu gần đây</h6>
+                    <div class="recent-referrals">
+                        <div class="referral-item">
+                            <div class="referral-header">
+                                <div>Nguyễn Văn A</div>
+                                <div class="referral-amount">250.000₫</div>
+                            </div>
+                            <div class="text-muted small">15/06/2023 - Áo thun TomOi Basic</div>
+                        </div>
+                        <div class="referral-item">
+                            <div class="referral-header">
+                                <div>Trần Thị B</div>
+                                <div class="referral-amount">420.000₫</div>
+                            </div>
+                            <div class="text-muted small">12/06/2023 - Quần jeans TomOi Slim fit</div>
+                        </div>
+                        <div class="referral-item">
+                            <div class="referral-header">
+                                <div>Phạm Văn C</div>
+                                <div class="referral-amount">580.000₫</div>
+                            </div>
+                            <div class="text-muted small">08/06/2023 - Áo khoác TomOi Bomber</div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-info">
+                            <div class="progress-label">Tiến độ cấp Bạch kim</div>
+                            <div class="progress-value">78%</div>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar" style="width: 78%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <div>
+                        <small class="text-muted">Cập nhật lần cuối: 10/06/2023</small>
+                    </div>
+                    <div>
+                        <a href="#" class="btn btn-sm btn-outline-primary me-2">
+                            <i class="fas fa-chart-line me-1"></i> Phân tích
+                        </a>
+                        <a href="#" class="btn btn-sm btn-primary">
+                            <i class="fas fa-dollar-sign me-1"></i> Trả hoa hồng
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="module-card">
+                <div class="module-header">
+                    <div class="d-flex align-items-center">
+                        <img src="https://via.placeholder.com/40" alt="Trần Thu Hương" class="avatar-small">
+                        <div>
+                            <h5 class="mb-0">Trần Thu Hương</h5>
+                            <small>thutran@example.com</small>
+                            <span class="tier-tag tier-silver">Bạc</span>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-eye me-2"></i> Xem chi tiết</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i> Chỉnh sửa</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-ban me-2"></i> Tạm dừng</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash-alt me-2"></i> Xóa</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="module-body">
+                    <div class="affiliate-detail">
+                        <div class="detail-col">
+                            <div class="detail-label">Ngày tham gia</div>
+                            <div class="detail-value">15/02/2023</div>
+                        </div>
+                        <div class="detail-col">
+                            <div class="detail-label">Tỷ lệ hoa hồng</div>
+                            <div class="detail-value">12%</div>
+                        </div>
+                        <div class="detail-col">
+                            <div class="detail-label">Trạng thái</div>
+                            <div class="detail-value">
+                                <span class="text-success">Đang hoạt động</span>
+                            </div>
+                        </div>
+                        <div class="detail-col">
+                            <div class="detail-label">Hoa hồng chờ</div>
+                            <div class="detail-value">850.000₫</div>
+                        </div>
+                    </div>
+                    
+                    <div class="module-stats">
+                        <div class="module-stat">
+                            <div class="stat-value">932</div>
+                            <div class="stat-label">Lượt click</div>
+                        </div>
+                        <div class="module-stat">
+                            <div class="stat-value">57</div>
+                            <div class="stat-label">Lượt chuyển đổi</div>
+                        </div>
+                        <div class="module-stat">
+                            <div class="stat-value">6.1%</div>
+                            <div class="stat-label">Tỷ lệ chuyển đổi</div>
+                        </div>
+                        <div class="module-stat">
+                            <div class="stat-value">6.2M₫</div>
+                            <div class="stat-label">Tổng hoa hồng</div>
+                        </div>
+                    </div>
+                    
+                    <h6 class="mt-4 mb-3">Giới thiệu gần đây</h6>
+                    <div class="recent-referrals">
+                        <div class="referral-item">
+                            <div class="referral-header">
+                                <div>Đỗ Minh Tuấn</div>
+                                <div class="referral-amount">320.000₫</div>
+                            </div>
+                            <div class="text-muted small">14/06/2023 - Áo sơ mi TomOi Casual</div>
+                        </div>
+                        <div class="referral-item">
+                            <div class="referral-header">
+                                <div>Hoàng Thị Lan</div>
+                                <div class="referral-amount">480.000₫</div>
+                            </div>
+                            <div class="text-muted small">10/06/2023 - Váy liền TomOi Summer</div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-info">
+                            <div class="progress-label">Tiến độ cấp Vàng</div>
+                            <div class="progress-value">42%</div>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar" style="width: 42%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <div>
+                        <small class="text-muted">Cập nhật lần cuối: 14/06/2023</small>
+                    </div>
+                    <div>
+                        <a href="#" class="btn btn-sm btn-outline-primary me-2">
+                            <i class="fas fa-chart-line me-1"></i> Phân tích
+                        </a>
+                        <a href="#" class="btn btn-sm btn-primary">
+                            <i class="fas fa-dollar-sign me-1"></i> Trả hoa hồng
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Trước</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Sau</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Copy referral link to clipboard
+    const linkInput = document.querySelector('.referral-link-box input');
+    const copyLinkButton = document.querySelector('#copy-link-btn');
+    
+    if (copyLinkButton) {
+        copyLinkButton.addEventListener('click', function() {
+            linkInput.select();
+            document.execCommand('copy');
+            
+            // Show copied feedback
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-check me-1"></i> Đã sao chép';
+            setTimeout(() => {
+                this.innerHTML = originalText;
+            }, 2000);
+        });
+    }
+    
+    // Tab functionality
+    const tabLinks = document.querySelectorAll('.tab-nav .nav-link');
+    
+    tabLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Remove active class from all tabs
+            tabLinks.forEach(tab => tab.classList.remove('active'));
+            
+            // Add active class to current tab
+            this.classList.add('active');
+            
+            // You can add logic here to show/hide content based on selected tab
+            const tabName = this.getAttribute('data-tab');
+            console.log(`Selected tab: ${tabName}`);
+            
+            // Example: Add tab parameter to current URL
+            const url = new URL(window.location);
+            url.searchParams.set('tab', tabName);
+            window.history.pushState({}, '', url);
+        });
+    });
+    
+    // Initialize date range picker if available
+    if($.fn.daterangepicker) {
+        $('#dateRange').daterangepicker({
+            opens: 'left',
+            locale: {
+                format: 'DD/MM/YYYY'
+            }
+        });
+    }
+});
+</script>
+{% endblock %} 

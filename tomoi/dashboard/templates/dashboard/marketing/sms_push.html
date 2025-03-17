@@ -1,0 +1,663 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}SMS & Thông báo đẩy{% endblock %}
+
+{% block extra_css %}
+{% include 'dashboard/marketing/styles.html' %}
+<style>
+    .sms {
+        background-color: #4267B2;
+    }
+    
+    .push {
+        background-color: #E91E63;
+    }
+    
+    .notification-content {
+        background-color: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    
+    .notification-preview {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 10px;
+    }
+    
+    .sms-preview {
+        max-width: 300px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 15px;
+        background-color: #f5f5f5;
+        position: relative;
+        margin: 0 auto;
+    }
+    
+    .push-preview {
+        max-width: 320px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 10px;
+        background-color: white;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        margin: 0 auto;
+    }
+    
+    .push-preview-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+    }
+    
+    .push-preview-app-icon {
+        width: 20px;
+        height: 20px;
+        border-radius: 5px;
+        background-color: var(--primary);
+        margin-right: 8px;
+    }
+    
+    .push-preview-app-name {
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    .push-preview-time {
+        font-size: 10px;
+        color: #999;
+        margin-left: auto;
+    }
+    
+    .push-preview-content {
+        padding: 5px 0;
+    }
+    
+    .push-preview-title {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 3px;
+    }
+    
+    .push-preview-message {
+        font-size: 13px;
+        color: #333;
+    }
+    
+    .audience-info {
+        display: flex;
+        margin-top: 10px;
+        margin-bottom: 5px;
+    }
+    
+    .audience-segment {
+        font-size: 12px;
+        padding: 3px 10px;
+        border-radius: 20px;
+        background-color: var(--light-gray);
+        margin-right: 10px;
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .audience-segment i {
+        margin-right: 5px;
+        font-size: 10px;
+    }
+    
+    .performance-metric {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+        border-radius: 8px;
+        background-color: var(--light-gray);
+        margin-right: 10px;
+        min-width: 80px;
+    }
+    
+    .performance-value {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--dark);
+    }
+    
+    .performance-label {
+        font-size: 12px;
+        color: var(--gray);
+    }
+    
+    .schedule-info {
+        display: flex;
+        align-items: center;
+        margin-top: 10px;
+        color: var(--gray);
+        font-size: 13px;
+    }
+    
+    .schedule-info i {
+        margin-right: 5px;
+    }
+    
+    .message-type-badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 20px;
+        color: white;
+        font-size: 12px;
+        margin-right: 10px;
+    }
+    
+    .message-type-badge.sms {
+        background-color: #4267B2;
+    }
+    
+    .message-type-badge.push {
+        background-color: #E91E63;
+    }
+    
+    .delivery-status {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        background-color: var(--light-gray);
+    }
+    
+    .status-scheduled {
+        color: var(--warning);
+    }
+    
+    .status-sent {
+        color: var(--primary);
+    }
+    
+    .status-delivered {
+        color: var(--success);
+    }
+    
+    .status-failed {
+        color: var(--danger);
+    }
+    
+    .progress-mini {
+        height: 4px;
+        background-color: #e9ecef;
+        border-radius: 2px;
+        margin-top: 5px;
+    }
+    
+    .progress-mini .progress-bar {
+        background-color: var(--primary);
+        border-radius: 2px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header-card">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="dashboard-header-title">SMS & Thông báo đẩy</div>
+                <div class="dashboard-header-desc">Quản lý và gửi SMS và thông báo đẩy đến khách hàng</div>
+                
+                <div class="btn-group">
+                    <a href="{% url 'dashboard:sms_push' %}?action=create" class="btn btn-light">
+                        <i class="fas fa-plus mr-1"></i> Tạo tin nhắn
+                    </a>
+                    <a href="{% url 'dashboard:sms_push' %}?action=schedule" class="btn btn-outline-light">
+                        <i class="fas fa-clock mr-1"></i> Lên lịch
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="dashboard-stat-cards">
+                    <div class="dashboard-stat-card">
+                        <div class="stat-title">Tổng tin nhắn</div>
+                        <div class="stat-value">184</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up mr-1"></i> 24%
+                        </div>
+                    </div>
+                    <div class="dashboard-stat-card">
+                        <div class="stat-title">Tỷ lệ mở</div>
+                        <div class="stat-value">78.2%</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up mr-1"></i> 5.7%
+                        </div>
+                    </div>
+                    <div class="dashboard-stat-card">
+                        <div class="stat-title">Tỷ lệ chuyển đổi</div>
+                        <div class="stat-value">12.4%</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up mr-1"></i> 3.2%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="row">
+        <div class="col-12">
+            <div class="tab-nav">
+                <a href="#" class="nav-link active" data-tab="all">Tất cả</a>
+                <a href="#" class="nav-link" data-tab="sms">SMS</a>
+                <a href="#" class="nav-link" data-tab="push">Thông báo đẩy</a>
+                <a href="#" class="nav-link" data-tab="templates">Mẫu tin nhắn</a>
+                <a href="#" class="nav-link" data-tab="analytics">Phân tích</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="filter-box">
+                <form method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <label for="type" class="form-label">Loại tin nhắn</label>
+                        <select class="form-control" id="type" name="type">
+                            <option value="">Tất cả</option>
+                            <option value="sms">SMS</option>
+                            <option value="push">Thông báo đẩy</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="status" class="form-label">Trạng thái</label>
+                        <select class="form-control" id="status" name="status">
+                            <option value="">Tất cả</option>
+                            <option value="scheduled">Đã lên lịch</option>
+                            <option value="sent">Đã gửi</option>
+                            <option value="delivered">Đã nhận</option>
+                            <option value="failed">Thất bại</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="dateRange" class="form-label">Khoảng thời gian</label>
+                        <input type="text" class="form-control" id="dateRange" name="date_range" placeholder="Chọn khoảng thời gian">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="search" class="form-label">Tìm kiếm</label>
+                        <input type="text" class="form-control" id="search" name="search" placeholder="Tìm theo nội dung...">
+                    </div>
+                    <div class="col-12 text-end mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-1"></i> Lọc
+                        </button>
+                        <button type="reset" class="btn btn-secondary">
+                            <i class="fas fa-undo me-1"></i> Đặt lại
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages List -->
+    <div class="row">
+        {% for message in messages %}
+        <div class="col-lg-6">
+            <div class="module-card">
+                <div class="module-header">
+                    <div>
+                        <span class="message-type-badge {{ message.type|lower }}">{{ message.type }}</span>
+                        <span class="delivery-status status-{{ message.status|lower }}">
+                            {% if message.status == 'scheduled' %}
+                            Đã lên lịch
+                            {% elif message.status == 'sent' %}
+                            Đã gửi
+                            {% elif message.status == 'delivered' %}
+                            Đã nhận
+                            {% elif message.status == 'failed' %}
+                            Thất bại
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-eye me-2"></i> Xem chi tiết</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-copy me-2"></i> Sao chép</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i> Chỉnh sửa</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash-alt me-2"></i> Xóa</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="module-body">
+                    <div class="notification-content">
+                        <h6>{{ message.title|default:"Tin khuyến mãi đặc biệt" }}</h6>
+                        <p>{{ message.content|default:"Ưu đãi đặc biệt hôm nay: Giảm 30% cho tất cả sản phẩm. Đừng bỏ lỡ cơ hội mua sắm!" }}</p>
+                        
+                        <div class="notification-preview">
+                            {% if message.type == 'SMS' %}
+                            <div class="sms-preview">
+                                {{ message.content|default:"Ưu đãi đặc biệt hôm nay: Giảm 30% cho tất cả sản phẩm. Đừng bỏ lỡ cơ hội mua sắm! Mã: SUMMER30" }}
+                            </div>
+                            {% else %}
+                            <div class="push-preview">
+                                <div class="push-preview-header">
+                                    <div class="push-preview-app-icon"></div>
+                                    <div class="push-preview-app-name">TomOi Shop</div>
+                                    <div class="push-preview-time">Vừa xong</div>
+                                </div>
+                                <div class="push-preview-content">
+                                    <div class="push-preview-title">{{ message.title|default:"Tin khuyến mãi đặc biệt" }}</div>
+                                    <div class="push-preview-message">{{ message.content|default:"Ưu đãi đặc biệt hôm nay: Giảm 30% cho tất cả sản phẩm. Đừng bỏ lỡ cơ hội mua sắm!" }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="audience-info">
+                        <div class="audience-segment">
+                            <i class="fas fa-users"></i> Người dùng: {{ message.audience_count|default:"1,245" }}
+                        </div>
+                        {% if message.audience_segment %}
+                        <div class="audience-segment">
+                            <i class="fas fa-tag"></i> {{ message.audience_segment }}
+                        </div>
+                        {% else %}
+                        <div class="audience-segment">
+                            <i class="fas fa-tag"></i> Khách hàng thân thiết
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex mt-3">
+                        <div class="performance-metric">
+                            <div class="performance-value">{{ message.sent_rate|default:"98" }}%</div>
+                            <div class="performance-label">Đã gửi</div>
+                        </div>
+                        <div class="performance-metric">
+                            <div class="performance-value">{{ message.delivered_rate|default:"95" }}%</div>
+                            <div class="performance-label">Đã nhận</div>
+                        </div>
+                        <div class="performance-metric">
+                            <div class="performance-value">{{ message.opened_rate|default:"78" }}%</div>
+                            <div class="performance-label">Đã mở</div>
+                        </div>
+                        <div class="performance-metric">
+                            <div class="performance-value">{{ message.conversion_rate|default:"12" }}%</div>
+                            <div class="performance-label">Chuyển đổi</div>
+                        </div>
+                    </div>
+                    
+                    <div class="schedule-info">
+                        <i class="fas fa-clock"></i> 
+                        {% if message.status == 'scheduled' %}
+                        Sẽ gửi vào: {{ message.scheduled_time|default:"15/07/2023 08:00" }}
+                        {% else %}
+                        Đã gửi: {{ message.sent_time|default:"12/07/2023 08:00" }}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <div>
+                        <small class="text-muted">Tạo bởi: {{ message.created_by|default:"Admin" }} - {{ message.created_at|default:"10/07/2023" }}</small>
+                    </div>
+                    <div>
+                        {% if message.status == 'scheduled' %}
+                        <a href="#" class="btn btn-sm btn-warning me-2">
+                            <i class="fas fa-pause me-1"></i> Tạm dừng
+                        </a>
+                        {% elif message.status == 'sent' or message.status == 'delivered' %}
+                        <a href="#" class="btn btn-sm btn-outline-primary me-2">
+                            <i class="fas fa-chart-line me-1"></i> Phân tích
+                        </a>
+                        {% elif message.status == 'failed' %}
+                        <a href="#" class="btn btn-sm btn-danger me-2">
+                            <i class="fas fa-redo me-1"></i> Thử lại
+                        </a>
+                        {% endif %}
+                        <a href="#" class="btn btn-sm btn-primary">
+                            <i class="fas fa-copy me-1"></i> Sao chép
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <!-- Example Messages -->
+        <div class="col-lg-6">
+            <div class="module-card">
+                <div class="module-header">
+                    <div>
+                        <span class="message-type-badge sms">SMS</span>
+                        <span class="delivery-status status-delivered">Đã nhận</span>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-eye me-2"></i> Xem chi tiết</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-copy me-2"></i> Sao chép</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i> Chỉnh sửa</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash-alt me-2"></i> Xóa</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="module-body">
+                    <div class="notification-content">
+                        <h6>Khuyến mãi mùa hè</h6>
+                        <p>Ưu đãi đặc biệt hôm nay: Giảm 30% cho tất cả sản phẩm mùa hè. Đừng bỏ lỡ cơ hội mua sắm!</p>
+                        
+                        <div class="notification-preview">
+                            <div class="sms-preview">
+                                TomOi: Ưu đãi đặc biệt hôm nay - Giảm 30% cho tất cả sản phẩm mùa hè. Ghé thăm shop ngay hôm nay! Mã: SUMMER30. Hủy: soạn TD STOP gửi 8089
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="audience-info">
+                        <div class="audience-segment">
+                            <i class="fas fa-users"></i> Người dùng: 1,245
+                        </div>
+                        <div class="audience-segment">
+                            <i class="fas fa-tag"></i> Khách hàng thân thiết
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex mt-3">
+                        <div class="performance-metric">
+                            <div class="performance-value">98%</div>
+                            <div class="performance-label">Đã gửi</div>
+                        </div>
+                        <div class="performance-metric">
+                            <div class="performance-value">95%</div>
+                            <div class="performance-label">Đã nhận</div>
+                        </div>
+                        <div class="performance-metric">
+                            <div class="performance-value">78%</div>
+                            <div class="performance-label">Đã mở</div>
+                        </div>
+                        <div class="performance-metric">
+                            <div class="performance-value">12%</div>
+                            <div class="performance-label">Chuyển đổi</div>
+                        </div>
+                    </div>
+                    
+                    <div class="schedule-info">
+                        <i class="fas fa-clock"></i> Đã gửi: 12/07/2023 08:00
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <div>
+                        <small class="text-muted">Tạo bởi: Admin - 10/07/2023</small>
+                    </div>
+                    <div>
+                        <a href="#" class="btn btn-sm btn-outline-primary me-2">
+                            <i class="fas fa-chart-line me-1"></i> Phân tích
+                        </a>
+                        <a href="#" class="btn btn-sm btn-primary">
+                            <i class="fas fa-copy me-1"></i> Sao chép
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="module-card">
+                <div class="module-header">
+                    <div>
+                        <span class="message-type-badge push">PUSH</span>
+                        <span class="delivery-status status-scheduled">Đã lên lịch</span>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-eye me-2"></i> Xem chi tiết</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-copy me-2"></i> Sao chép</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i> Chỉnh sửa</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash-alt me-2"></i> Xóa</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="module-body">
+                    <div class="notification-content">
+                        <h6>Flash Sale cuối tuần!</h6>
+                        <p>Flash Sale cuối tuần sẽ bắt đầu trong 24 giờ. Chuẩn bị săn hàng giảm giá lên đến 50%!</p>
+                        
+                        <div class="notification-preview">
+                            <div class="push-preview">
+                                <div class="push-preview-header">
+                                    <div class="push-preview-app-icon"></div>
+                                    <div class="push-preview-app-name">TomOi Shop</div>
+                                    <div class="push-preview-time">Vừa xong</div>
+                                </div>
+                                <div class="push-preview-content">
+                                    <div class="push-preview-title">Flash Sale cuối tuần!</div>
+                                    <div class="push-preview-message">Flash Sale cuối tuần sẽ bắt đầu trong 24 giờ. Chuẩn bị săn hàng giảm giá lên đến 50%!</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="audience-info">
+                        <div class="audience-segment">
+                            <i class="fas fa-users"></i> Người dùng: 2,850
+                        </div>
+                        <div class="audience-segment">
+                            <i class="fas fa-tag"></i> Người dùng app
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex mt-3">
+                        <div class="performance-metric">
+                            <div class="performance-value">0%</div>
+                            <div class="performance-label">Đã gửi</div>
+                        </div>
+                        <div class="performance-metric">
+                            <div class="performance-value">0%</div>
+                            <div class="performance-label">Đã nhận</div>
+                        </div>
+                        <div class="performance-metric">
+                            <div class="performance-value">0%</div>
+                            <div class="performance-label">Đã mở</div>
+                        </div>
+                        <div class="performance-metric">
+                            <div class="performance-value">0%</div>
+                            <div class="performance-label">Chuyển đổi</div>
+                        </div>
+                    </div>
+                    
+                    <div class="schedule-info">
+                        <i class="fas fa-clock"></i> Sẽ gửi vào: 15/07/2023 08:00
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <div>
+                        <small class="text-muted">Tạo bởi: Admin - 14/07/2023</small>
+                    </div>
+                    <div>
+                        <a href="#" class="btn btn-sm btn-warning me-2">
+                            <i class="fas fa-pause me-1"></i> Tạm dừng
+                        </a>
+                        <a href="#" class="btn btn-sm btn-primary">
+                            <i class="fas fa-copy me-1"></i> Sao chép
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Trước</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Sau</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab functionality
+    const tabLinks = document.querySelectorAll('.tab-nav .nav-link');
+    
+    tabLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Remove active class from all tabs
+            tabLinks.forEach(tab => tab.classList.remove('active'));
+            
+            // Add active class to current tab
+            this.classList.add('active');
+            
+            // You can add logic here to show/hide content based on selected tab
+            const tabName = this.getAttribute('data-tab');
+            console.log(`Selected tab: ${tabName}`);
+            
+            // Example: Add tab parameter to current URL
+            const url = new URL(window.location);
+            url.searchParams.set('tab', tabName);
+            window.history.pushState({}, '', url);
+        });
+    });
+    
+    // Initialize date range picker if available
+    if($.fn.daterangepicker) {
+        $('#dateRange').daterangepicker({
+            opens: 'left',
+            locale: {
+                format: 'DD/MM/YYYY'
+            }
+        });
+    }
+});
+</script>
+{% endblock %} 

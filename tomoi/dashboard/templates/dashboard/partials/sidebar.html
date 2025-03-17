@@ -28,20 +28,55 @@
         Quản lý người dùng
     </div>
 
-    <!-- Nav Item - Users -->
+    <!-- Users -->
     <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUsers"
-            aria-expanded="false" aria-controls="collapseUsers">
-            <i class="fas fa-fw fa-users"></i>
+        <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#collapseUsers" aria-expanded="false" aria-controls="collapseUsers">
+            <i class="fas fa-users"></i>
             <span>Người dùng</span>
         </a>
-        <div id="collapseUsers" class="collapse" aria-labelledby="headingUsers"
-            data-parent="#accordionSidebar">
+        <div id="collapseUsers" class="collapse" aria-labelledby="headingUsers" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Quản lý người dùng:</h6>
-                <a class="collapse-item" href="{% url 'dashboard:user_list' %}">Danh sách</a>
-                <a class="collapse-item" href="{% url 'dashboard:user_dashboard' %}">Thống kê</a>
-                <a class="collapse-item" href="{% url 'dashboard:user_add' %}">Thêm mới</a>
+                <a class="collapse-item" href="{% url 'dashboard:user_list' %}">
+                    <i class="fas fa-user-friends"></i> Danh sách người dùng
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:user_add' %}">
+                    <i class="fas fa-user-plus"></i> Thêm người dùng
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:user_groups' %}">
+                    <i class="fas fa-user-shield"></i> Phân quyền
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:import_users' %}">
+                    <i class="fas fa-file-import"></i> Import
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:export_users' %}">
+                    <i class="fas fa-file-export"></i> Export
+                </a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Suppliers -->
+    <li class="nav-item">
+        <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#collapseSuppliers" aria-expanded="false" aria-controls="collapseSuppliers">
+            <i class="fas fa-truck"></i>
+            <span>Nhà cung cấp</span>
+        </a>
+        <div id="collapseSuppliers" class="collapse" aria-labelledby="headingSuppliers" data-bs-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản lý nhà cung cấp:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:source_list' %}">
+                    <i class="fas fa-list"></i> Danh sách nhà cung cấp
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:source_add' %}">
+                    <i class="fas fa-plus-circle"></i> Thêm nhà cung cấp
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:compare_sources' %}">
+                    <i class="fas fa-balance-scale"></i> So sánh nguồn
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:source_logs' %}">
+                    <i class="fas fa-history"></i> Nhật ký
+                </a>
             </div>
         </div>
     </li>
@@ -54,39 +89,26 @@
         </a>
     </li>
     
-    <!-- Nav Item - Warranty -->
+    <!-- Warranty Management -->
     <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseWarranty"
-            aria-expanded="false" aria-controls="collapseWarranty">
-            <i class="fas fa-fw fa-shield-alt"></i>
-            <span>Bảo hành</span>
+        <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#collapseWarranty" aria-expanded="false" aria-controls="collapseWarranty">
+            <i class="fas fa-tools"></i>
+            <span>Quản lý bảo hành</span>
         </a>
-        <div id="collapseWarranty" class="collapse" aria-labelledby="headingWarranty"
-            data-parent="#accordionSidebar">
+        <div id="collapseWarranty" class="collapse" aria-labelledby="headingWarranty" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Quản lý bảo hành:</h6>
-                <a class="collapse-item" href="{% url 'dashboard:warranty' %}">
-                    <i class="fas fa-clipboard-list fa-sm fa-fw mr-1"></i> Tổng quan
+                <a class="collapse-item" href="{% url 'dashboard:warranty_dashboard' %}">
+                    <i class="fas fa-tachometer-alt"></i> Tổng quan
                 </a>
-                <a class="collapse-item" href="{% url 'dashboard:create_warranty' %}">
-                    <i class="fas fa-plus fa-sm fa-fw mr-1"></i> Tạo yêu cầu mới
+                <a class="collapse-item" href="{% url 'dashboard:warranty_request_add' %}">
+                    <i class="fas fa-plus-circle"></i> Tạo yêu cầu
                 </a>
-                <a class="collapse-item" href="{% url 'dashboard:warranty' %}?status=pending">
-                    <i class="fas fa-clock fa-sm fa-fw mr-1"></i> Chờ xử lý
+                <a class="collapse-item" href="{% url 'dashboard:warranty_by_status' %}">
+                    <i class="fas fa-list"></i> Danh sách yêu cầu
                 </a>
-                <a class="collapse-item" href="{% url 'dashboard:warranty' %}?status=in_progress">
-                    <i class="fas fa-spinner fa-sm fa-fw mr-1"></i> Đang xử lý
-                </a>
-                <div class="collapse-divider"></div>
-                <h6 class="collapse-header">Công cụ:</h6>
-                <a class="collapse-item" href="{% url 'dashboard:warranty_report' %}">
-                    <i class="fas fa-chart-pie fa-sm fa-fw mr-1"></i> Báo cáo bảo hành
-                </a>
-                <a class="collapse-item" href="{% url 'dashboard:warranty' %}?status=resolved">
-                    <i class="fas fa-check-circle fa-sm fa-fw mr-1"></i> Đã giải quyết
-                </a>
-                <a class="collapse-item" href="{% url 'dashboard:warranty' %}?status=closed">
-                    <i class="fas fa-archive fa-sm fa-fw mr-1"></i> Đã đóng
+                <a class="collapse-item" href="{% url 'dashboard:warranty_settings' %}">
+                    <i class="fas fa-cog"></i> Thiết lập
                 </a>
             </div>
         </div>
@@ -94,13 +116,13 @@
 
     <!-- Nav Item - Subscription Management -->
     <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSubscriptions"
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseSubscriptions"
             aria-expanded="false" aria-controls="collapseSubscriptions">
             <i class="fas fa-fw fa-credit-card"></i>
             <span>Gia hạn</span>
         </a>
         <div id="collapseSubscriptions" class="collapse" aria-labelledby="headingSubscriptions"
-            data-parent="#accordionSidebar">
+            data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Quản lý gia hạn:</h6>
                 <a class="collapse-item" href="{% url 'dashboard:subscription_list' %}">
@@ -120,25 +142,6 @@
             </div>
         </div>
     </li>
-    
-    <!-- Nav Item - Source Management -->
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSources"
-            aria-expanded="false" aria-controls="collapseSources">
-            <i class="fas fa-fw fa-database"></i>
-            <span>Nhà cung cấp</span>
-        </a>
-        <div id="collapseSources" class="collapse" aria-labelledby="headingSources"
-            data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Quản lý nguồn nhập:</h6>
-                <a class="collapse-item" href="{% url 'dashboard:source_list' %}">Danh sách</a>
-                <a class="collapse-item" href="{% url 'dashboard:compare_sources' %}">So sánh nguồn</a>
-                <a class="collapse-item" href="{% url 'dashboard:source_add' %}">Thêm mới</a>
-                <a class="collapse-item" href="{% url 'dashboard:source_logs' %}">Nhật ký</a>
-            </div>
-        </div>
-    </li>
 
     <!-- Divider -->
     <hr class="sidebar-divider">
@@ -148,77 +151,59 @@
         Cửa hàng
     </div>
 
-    <!-- Nav Item - Products Collapse Menu -->
+    <!-- Products -->
     <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProducts"
-            aria-expanded="false" aria-controls="collapseProducts">
-            <i class="fas fa-fw fa-box"></i>
+        <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#collapseProducts" aria-expanded="false" aria-controls="collapseProducts">
+            <i class="fas fa-box-open"></i>
             <span>Sản phẩm</span>
         </a>
-        <div id="collapseProducts" class="collapse" aria-labelledby="headingProducts"
-            data-parent="#accordionSidebar">
+        <div id="collapseProducts" class="collapse" aria-labelledby="headingProducts" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Quản lý sản phẩm:</h6>
-                <a class="collapse-item" href="{% url 'dashboard:products' %}">
-                    <i class="fas fa-list fa-sm fa-fw mr-1"></i> Danh sách
+                <a class="collapse-item" href="{% url 'dashboard:product_list' %}">
+                    <i class="fas fa-list"></i> Danh sách sản phẩm
                 </a>
                 <a class="collapse-item" href="{% url 'dashboard:add_product' %}">
-                    <i class="fas fa-plus fa-sm fa-fw mr-1"></i> Thêm mới
+                    <i class="fas fa-plus-circle"></i> Thêm sản phẩm
                 </a>
                 <a class="collapse-item" href="{% url 'dashboard:categories' %}">
-                    <i class="fas fa-tags fa-sm fa-fw mr-1"></i> Danh mục
+                    <i class="fas fa-tags"></i> Danh mục
                 </a>
-                <a class="collapse-item" href="{% url 'dashboard:add_category' %}">
-                    <i class="fas fa-folder-plus fa-sm fa-fw mr-1"></i> Thêm danh mục
+                <a class="collapse-item" href="{% url 'dashboard:attributes' %}">
+                    <i class="fas fa-sliders-h"></i> Thuộc tính
                 </a>
-                <a class="collapse-item" href="{% url 'dashboard:import_products' %}">
-                    <i class="fas fa-file-import fa-sm fa-fw mr-1"></i> Nhập sản phẩm
+                <a class="collapse-item" href="{% url 'dashboard:product_reviews' %}">
+                    <i class="fas fa-star"></i> Đánh giá
                 </a>
-                <div class="collapse-divider"></div>
-                <h6 class="collapse-header">Công cụ bổ sung:</h6>
-                <a class="collapse-item" href="{% url 'dashboard:add_source_product' %}">
-                    <i class="fas fa-link fa-sm fa-fw mr-1"></i> Liên kết nguồn
+                <a class="collapse-item" href="{% url 'dashboard:product_import' %}">
+                    <i class="fas fa-file-import"></i> Import
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:product_export' %}">
+                    <i class="fas fa-file-export"></i> Export
                 </a>
             </div>
         </div>
     </li>
 
-    <!-- Nav Item - Orders -->
+    <!-- Orders -->
     <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOrders"
-            aria-expanded="false" aria-controls="collapseOrders">
-            <i class="fas fa-fw fa-shopping-cart"></i>
+        <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#collapseOrders" aria-expanded="false" aria-controls="collapseOrders">
+            <i class="fas fa-shopping-cart"></i>
             <span>Đơn hàng</span>
         </a>
-        <div id="collapseOrders" class="collapse" aria-labelledby="headingOrders"
-            data-parent="#accordionSidebar">
+        <div id="collapseOrders" class="collapse" aria-labelledby="headingOrders" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Quản lý đơn hàng:</h6>
-                <a class="collapse-item" href="{% url 'dashboard:order_management' %}">
-                    <i class="fas fa-clipboard-list fa-sm fa-fw mr-1"></i> Tổng quan
-                </a>
                 <a class="collapse-item" href="{% url 'dashboard:order_list' %}">
-                    <i class="fas fa-list fa-sm fa-fw mr-1"></i> Danh sách đơn hàng
-                </a>
-                <a class="collapse-item" href="{% url 'dashboard:order_management' %}?status=pending">
-                    <i class="fas fa-clock fa-sm fa-fw mr-1"></i> Chờ xử lý
-                </a>
-                <a class="collapse-item" href="{% url 'dashboard:order_management' %}?status=processing">
-                    <i class="fas fa-spinner fa-sm fa-fw mr-1"></i> Đang xử lý
-                </a>
-                <a class="collapse-item" href="{% url 'dashboard:order_history' %}">
-                    <i class="fas fa-history fa-sm fa-fw mr-1"></i> Lịch sử đơn hàng
+                    <i class="fas fa-list"></i> Tất cả đơn hàng
                 </a>
                 <div class="collapse-divider"></div>
                 <h6 class="collapse-header">Công cụ:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:order_reports' %}">
+                    <i class="fas fa-chart-bar"></i> Báo cáo
+                </a>
                 <a class="collapse-item" href="{% url 'dashboard:export_orders' %}">
-                    <i class="fas fa-file-export fa-sm fa-fw mr-1"></i> Xuất báo cáo
-                </a>
-                <a class="collapse-item" href="{% url 'dashboard:order_management' %}?status=cancelled">
-                    <i class="fas fa-ban fa-sm fa-fw mr-1"></i> Đơn đã hủy
-                </a>
-                <a class="collapse-item" href="{% url 'dashboard:order_management' %}?status=completed">
-                    <i class="fas fa-check-circle fa-sm fa-fw mr-1"></i> Đơn hoàn thành
+                    <i class="fas fa-file-export"></i> Xuất dữ liệu
                 </a>
             </div>
         </div>
@@ -232,32 +217,101 @@
         Marketing
     </div>
 
-    <!-- Nav Item - Marketing -->
+    <!-- Marketing -->
     <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMarketing"
-            aria-expanded="true" aria-controls="collapseMarketing">
-            <i class="fas fa-fw fa-bullhorn"></i>
+        <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#collapseMarketing" aria-expanded="false" aria-controls="collapseMarketing">
+            <i class="fas fa-bullhorn"></i>
             <span>Marketing</span>
         </a>
-        <div id="collapseMarketing" class="collapse" aria-labelledby="headingMarketing"
-            data-parent="#accordionSidebar">
+        <div id="collapseMarketing" class="collapse" aria-labelledby="headingMarketing" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Công cụ Marketing:</h6>
-                <a class="collapse-item" href="{% url 'dashboard:marketing' %}">Chiến dịch</a>
-                <a class="collapse-item" href="{% url 'dashboard:discounts' %}">Mã giảm giá</a>
-                <a class="collapse-item" href="{% url 'dashboard:banners' %}">Banner</a>
+                <h6 class="collapse-header">Quản lý Marketing:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:marketing_dashboard' %}">
+                    <i class="fas fa-chart-line"></i> Tổng quan
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:email_templates' %}">
+                    <i class="fas fa-envelope"></i> Email Marketing
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:marketing_analytics' %}">
+                    <i class="fas fa-chart-pie"></i> Phân tích
+                </a>
+
+                <!-- Social Marketing -->
+                <a class="collapse-item" href="{% url 'dashboard:marketing_dashboard' %}?tab=social">
+                    <i class="fas fa-share-alt"></i> Social Marketing
+                </a>
+                
+                <!-- SMS & Push -->
+                <a class="collapse-item" href="{% url 'dashboard:marketing_dashboard' %}?tab=sms_push">
+                    <i class="fas fa-sms"></i> SMS & Push
+                </a>
+                
+                <!-- Affiliate Marketing -->
+                <a class="collapse-item" href="{% url 'dashboard:marketing_dashboard' %}?tab=affiliate">
+                    <i class="fas fa-handshake"></i> Affiliate
+                </a>
+                
+                <!-- Remarketing -->
+                <a class="collapse-item" href="{% url 'dashboard:marketing_dashboard' %}?tab=remarketing">
+                    <i class="fas fa-sync-alt"></i> Remarketing
+                </a>
+                
+                <!-- Automation -->
+                <a class="collapse-item" href="{% url 'dashboard:marketing_dashboard' %}?tab=automation">
+                    <i class="fas fa-robot"></i> Automation
+                </a>
+                
+                <div class="collapse-divider"></div>
+                <h6 class="collapse-header">Chiến dịch:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:marketing_dashboard' %}?action=new_campaign">
+                    <i class="fas fa-plus-circle"></i> Tạo chiến dịch mới
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:marketing_dashboard' %}?action=campaigns">
+                    <i class="fas fa-list"></i> Danh sách chiến dịch
+                </a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Discount Codes -->
+    <li class="nav-item">
+        <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#collapseDiscounts" aria-expanded="false" aria-controls="collapseDiscounts">
+            <i class="fas fa-tags"></i>
+            <span>Mã giảm giá</span>
+        </a>
+        <div id="collapseDiscounts" class="collapse" aria-labelledby="headingDiscounts" data-bs-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản lý mã giảm giá:</h6>
+                <a class="collapse-item" href="{% url 'dashboard:discount_dashboard' %}">
+                    <i class="fas fa-tachometer-alt"></i> Tổng quan
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:discounts' %}">
+                    <i class="fas fa-list"></i> Danh sách
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:discount_add' %}">
+                    <i class="fas fa-plus-circle"></i> Thêm mới
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:discount_history' %}">
+                    <i class="fas fa-history"></i> Lịch sử thay đổi
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:import_discounts' %}">
+                    <i class="fas fa-file-import"></i> Import
+                </a>
+                <a class="collapse-item" href="{% url 'dashboard:export_discounts' %}">
+                    <i class="fas fa-file-export"></i> Export
+                </a>
             </div>
         </div>
     </li>
 
     <!-- Nav Item - Chatbot Menu -->
     <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseChatbot"
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseChatbot"
             aria-expanded="true" aria-controls="collapseChatbot">
             <i class="fas fa-robot"></i>
             <span>Chatbot</span>
         </a>
-        <div id="collapseChatbot" class="collapse" aria-labelledby="headingChatbot" data-parent="#accordionSidebar">
+        <div id="collapseChatbot" class="collapse" aria-labelledby="headingChatbot" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Quản lý Chatbot:</h6>
                 <a class="collapse-item" href="{% url 'dashboard:chatbot_dashboard' %}">Tổng quan</a>
@@ -272,11 +326,11 @@
 
     <!-- Add this to your sidebar navigation -->
     <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSettings" aria-expanded="false" aria-controls="collapseSettings">
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseSettings" aria-expanded="false" aria-controls="collapseSettings">
             <i class="fas fa-cogs"></i>
             <span>Cài đặt hệ thống</span>
         </a>
-        <div id="collapseSettings" class="collapse" aria-labelledby="headingSettings" data-parent="#accordionSidebar">
+        <div id="collapseSettings" class="collapse" aria-labelledby="headingSettings" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Tùy chọn cài đặt:</h6>
                 <a class="collapse-item" href="{% url 'dashboard:settings' %}?tab=general">Cài đặt chung</a>
@@ -339,6 +393,16 @@
         padding: 0.75rem 1rem;
         color: rgba(255, 255, 255, 0.8);
         text-align: left;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* Text overflow cho tất cả các mục có thể bị tràn */
+    .sidebar span, .sidebar .collapse-item, .sidebar .collapse-header {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     
     /* Đảm bảo phần nội dung chính không bị đè */
@@ -385,17 +449,15 @@
         }
     }
 
-    /* Sidebar animation và hover effects */
+    /* Sidebar animation và hover effects - loại bỏ hiệu ứng translateX */
     .hover-effect:hover {
         background: rgba(255, 255, 255, 0.1);
-        transform: translateX(5px);
         transition: all 0.3s ease;
     }
     
     .hover-subtle:hover {
         background: rgba(78, 115, 223, 0.1);
         color: #4e73df;
-        transform: translateX(3px);
         transition: all 0.2s ease;
     }
     
@@ -406,6 +468,9 @@
     .sidebar-heading {
         letter-spacing: 1px;
         font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     
     .pulse-link {
@@ -502,9 +567,9 @@
         letter-spacing: 0.05rem;
     }
 
-    /* Thêm hiệu ứng biến đổi cho menu items */
+    /* Thêm hiệu ứng biến đổi cho menu items - loại bỏ transform translateX */
     .nav-item {
-        transition: background-color 0.3s ease, transform 0.3s ease;
+        transition: background-color 0.3s ease;
         position: relative;
     }
 
@@ -646,11 +711,6 @@
         background-color: #fff;
     }
     
-    /* Đảm bảo dropdown hiển thị đúng */
-    .sidebar .collapse.show {
-        display: block !important;
-    }
-    
     /* Đảm bảo dropdown không bị ẩn bởi các style khác */
     .sidebar .collapse-inner {
         padding: 0.5rem 0;
@@ -669,6 +729,9 @@
         color: #3a3b45;
         text-align: left;
         border-radius: 0.35rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     
     /* Hiệu ứng hover cho các item trong dropdown */
@@ -689,12 +752,12 @@
     
     /* Xoay và làm nổi bật icon mũi tên khi dropdown được mở */
     .dropdown-indicator.open {
-        transform: translateY(-50%) rotate(90deg);
+        transform: translateY(-50%) rotate(90deg) !important;
         opacity: 1;
     }
     
     /* Cải thiện hiển thị của các tab có dropdown */
-    .sidebar .nav-link[data-target] {
+    .sidebar .nav-link[data-bs-target] {
         position: relative;
         padding-right: 2rem;
     }
@@ -722,12 +785,11 @@
         border-left: 3px solid transparent;
     }
     
-    /* Hiệu ứng hover mượt mà hơn cho các item trong dropdown */
+    /* Hiệu ứng hover mượt mà hơn cho các item trong dropdown - loại bỏ transform */
     .sidebar .collapse-item:hover {
         background-color: rgba(78, 115, 223, 0.1);
         color: #4e73df;
         border-left: 3px solid #4e73df;
-        transform: translateX(3px);
     }
     
     /* Hiệu ứng active cho item đang được chọn */
@@ -750,6 +812,8 @@
     .sidebar .collapse-header {
         margin: 0;
         white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
         padding: 0.5rem 1.5rem;
         text-transform: uppercase;
         font-size: 0.65rem;
@@ -772,6 +836,15 @@ $(document).ready(function() {
     // Thay thế nút sidebarToggle hiện tại bằng nút mới
     $('#sidebarToggle').replaceWith('<div class="sidebar-toggle" id="customSidebarToggle"><i class="fas fa-angle-left"></i></div>');
     
+    // Xóa tất cả các icon dropdown-indicator hiện có
+    $('.dropdown-indicator').remove();
+    
+    // Xóa icon mũi tên mặc định của Bootstrap nếu có
+    $('.nav-link[data-bs-toggle="collapse"] .fa-angle-right, .nav-link[data-bs-toggle="collapse"] .fa-angle-down').remove();
+    
+    // Thêm icon mũi tên mới cho các tab có dropdown
+    $('.sidebar .nav-link[data-bs-toggle="collapse"]').append('<i class="fas fa-angle-right dropdown-indicator"></i>');
+    
     // Xử lý sự kiện click vào nút thu gọn
     $('#customSidebarToggle').on('click', function() {
         $('body').toggleClass('sidebar-toggled');
@@ -790,7 +863,7 @@ $(document).ready(function() {
             const savedDropdown = localStorage.getItem('sidebar-dropdown');
             if (savedDropdown) {
                 $(savedDropdown).addClass('show');
-                const $navLink = $(`[data-target="${savedDropdown}"]`);
+                const $navLink = $(`[data-bs-target="${savedDropdown}"]`);
                 $navLink.removeClass('collapsed');
                 $navLink.find('.dropdown-indicator').addClass('open');
             }
@@ -806,48 +879,48 @@ $(document).ready(function() {
         const savedDropdown = localStorage.getItem('sidebar-dropdown');
         if (savedDropdown) {
             $(savedDropdown).addClass('show');
-            const $navLink = $(`[data-target="${savedDropdown}"]`);
+            const $navLink = $(`[data-bs-target="${savedDropdown}"]`);
             $navLink.removeClass('collapsed');
             $navLink.find('.dropdown-indicator').addClass('open');
         }
     }
     
-    // Thêm icon mũi tên cho các tab có dropdown
-    $('.sidebar .nav-link[data-toggle="collapse"]').append('<i class="fas fa-angle-right dropdown-indicator"></i>');
+    // Vô hiệu hóa Bootstrap collapse mặc định
+    $('.sidebar .nav-link[data-bs-toggle="collapse"]').attr('data-bs-toggle', 'custom-collapse');
     
-    // Xử lý dropdown menu bằng cách thêm sự kiện click trực tiếp
-    $('.sidebar .nav-link[data-toggle="collapse"]').each(function() {
+    // Xử lý dropdown menu với cơ chế click mới
+    $('.sidebar .nav-link[data-bs-target]').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
         const $this = $(this);
-        const targetId = $this.attr('data-target');
+        const targetId = $this.attr('data-bs-target');
         
-        // Xóa thuộc tính data-toggle để ngăn Bootstrap xử lý
-        $this.removeAttr('data-toggle');
+        // Kiểm tra trạng thái hiện tại
+        const isOpen = $(targetId).hasClass('show');
         
-        // Thêm sự kiện click trực tiếp
-        $this.on('click', function(e) {
-            e.preventDefault();
-            
+        // Nếu đang mở, đóng lại khi click
+        if (isOpen) {
+            $(targetId).removeClass('show');
+            $this.addClass('collapsed');
+            $this.find('.dropdown-indicator').removeClass('open');
+            localStorage.removeItem('sidebar-dropdown');
+        } 
+        // Nếu đang đóng, mở ra và đóng các dropdown khác
+        else {
             // Đóng tất cả các dropdown khác
-            $('.sidebar .collapse.show').not(targetId).removeClass('show');
-            $('.sidebar .nav-link').not($this).addClass('collapsed');
+            $('.sidebar .collapse.show').removeClass('show');
+            $('.sidebar .nav-link').addClass('collapsed');
             $('.sidebar .nav-link .dropdown-indicator').removeClass('open');
             
-            // Toggle class show cho target
-            $(targetId).toggleClass('show');
-            
-            // Toggle class collapsed cho nav-link
-            $this.toggleClass('collapsed');
-            
-            // Toggle class open cho icon mũi tên
-            $this.find('.dropdown-indicator').toggleClass('open');
+            // Mở dropdown hiện tại
+            $(targetId).addClass('show');
+            $this.removeClass('collapsed');
+            $this.find('.dropdown-indicator').addClass('open');
             
             // Lưu trạng thái vào localStorage
-            if ($(targetId).hasClass('show')) {
-                localStorage.setItem('sidebar-dropdown', targetId);
-            } else {
-                localStorage.removeItem('sidebar-dropdown');
-            }
-        });
+            localStorage.setItem('sidebar-dropdown', targetId);
+        }
     });
     
     // Khi hover vào nav-item khi sidebar đã thu gọn
@@ -876,7 +949,7 @@ $(document).ready(function() {
     const currentPath = window.location.pathname;
     $('.sidebar .collapse-item').each(function() {
         const href = $(this).attr('href');
-        if (href === currentPath) {
+        if (href && currentPath && href === currentPath) {
             $(this).addClass('active');
             $(this).closest('.collapse').addClass('show');
             $(this).closest('.nav-item').find('.nav-link').removeClass('collapsed');

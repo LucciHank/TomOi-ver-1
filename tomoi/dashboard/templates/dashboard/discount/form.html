@@ -1,0 +1,213 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ is_add|yesno:"Thêm,Sửa" }} mã giảm giá{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">{{ is_add|yesno:"Thêm,Sửa" }} mã giảm giá</h1>
+        <a href="{% url 'dashboard:discounts' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Quay lại
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin mã giảm giá</h6>
+        </div>
+        <div class="card-body">
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="code">Mã giảm giá *</label>
+                            <input type="text" class="form-control" id="code" name="code" 
+                                   value="{{ form.code|default:'' }}" required>
+                            <div class="invalid-feedback">
+                                Vui lòng nhập mã giảm giá
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="discount_type">Loại giảm giá *</label>
+                            <select class="form-control" id="discount_type" name="discount_type" required>
+                                <option value="">-- Chọn loại --</option>
+                                <option value="percentage" {% if form.discount_type == 'percentage' %}selected{% endif %}>
+                                    Phần trăm (%)
+                                </option>
+                                <option value="fixed" {% if form.discount_type == 'fixed' %}selected{% endif %}>
+                                    Số tiền cố định
+                                </option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Vui lòng chọn loại giảm giá
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="value">Giá trị *</label>
+                            <input type="number" class="form-control" id="value" name="value" 
+                                   value="{{ form.value|default:'' }}" required>
+                            <div class="invalid-feedback">
+                                Vui lòng nhập giá trị giảm
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="min_purchase">Giá trị đơn hàng tối thiểu</label>
+                            <input type="number" class="form-control" id="min_purchase" name="min_purchase" 
+                                   value="{{ form.min_purchase|default:0 }}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="valid_from">Thời gian bắt đầu *</label>
+                            <input type="datetime-local" class="form-control" id="valid_from" name="valid_from" 
+                                   value="{{ form.valid_from|date:'Y-m-d\TH:i' }}" required>
+                            <div class="invalid-feedback">
+                                Vui lòng chọn thời gian bắt đầu
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="valid_to">Thời gian kết thúc *</label>
+                            <input type="datetime-local" class="form-control" id="valid_to" name="valid_to" 
+                                   value="{{ form.valid_to|date:'Y-m-d\TH:i' }}" required>
+                            <div class="invalid-feedback">
+                                Vui lòng chọn thời gian kết thúc
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="max_uses">Số lần sử dụng tối đa</label>
+                            <input type="number" class="form-control" id="max_uses" name="max_uses" 
+                                   value="{{ form.max_uses|default:0 }}">
+                            <small class="form-text text-muted">Để 0 nếu không giới hạn</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="uses_per_customer">Số lần sử dụng/khách hàng</label>
+                            <input type="number" class="form-control" id="uses_per_customer" name="uses_per_customer" 
+                                   value="{{ form.uses_per_customer|default:1 }}">
+                            <small class="form-text text-muted">Để 0 nếu không giới hạn</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="description">Mô tả</label>
+                            <textarea class="form-control" id="description" name="description" rows="3">{{ form.description|default:'' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Sản phẩm áp dụng</label>
+                            <select class="form-control select2" name="products" multiple>
+                                {% for product in products %}
+                                <option value="{{ product.id }}" {% if product.id in form.products %}selected{% endif %}>
+                                    {{ product.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Danh mục áp dụng</label>
+                            <select class="form-control select2" name="categories" multiple>
+                                {% for category in categories %}
+                                <option value="{{ category.id }}" {% if category.id in form.categories %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Người dùng được phép sử dụng</label>
+                            <select class="form-control select2" name="allowed_users" multiple>
+                                <option value="all" {% if 'all' in form.allowed_users %}selected{% endif %}>
+                                    Tất cả người dùng
+                                </option>
+                                {% for user in users %}
+                                <option value="{{ user.id }}" {% if user.id in form.allowed_users %}selected{% endif %}>
+                                    {{ user.username }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="is_active" name="is_active" 
+                               {% if form.is_active %}checked{% endif %}>
+                        <label class="custom-control-label" for="is_active">Kích hoạt</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save fa-sm text-white-50"></i> Lưu
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Khởi tạo Select2
+    $('.select2').select2({
+        theme: 'bootstrap4',
+        width: '100%'
+    });
+
+    // Validate form
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+});
+</script>
+{% endblock %} 

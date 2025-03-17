@@ -1,0 +1,662 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Social Media Marketing{% endblock %}
+
+{% block extra_css %}
+{% include 'dashboard/marketing/styles.html' %}
+<style>
+    /* Định nghĩa màu nền cho từng nền tảng social */
+    .facebook {
+        background-color: #4267B2;
+    }
+    
+    .tiktok {
+        background-color: #000000;
+    }
+    
+    .threads {
+        background-color: #101010;
+    }
+    
+    .telegram {
+        background-color: #0088cc;
+    }
+    
+    .messenger {
+        background-color: #0084ff;
+    }
+    
+    .instagram {
+        background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    }
+    
+    .social-content {
+        background-color: var(--light-gray);
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+    
+    .social-media {
+        margin-top: 15px;
+    }
+    
+    .social-media img {
+        width: 100%;
+        border-radius: 8px;
+        max-height: 200px;
+        object-fit: cover;
+    }
+    
+    .social-stats {
+        display: flex;
+        gap: 15px;
+    }
+    
+    .social-stat {
+        display: flex;
+        align-items: center;
+    }
+    
+    .social-stat i {
+        margin-right: 5px;
+        color: var(--primary);
+    }
+    
+    .dashboard-header-card {
+        border-radius: 10px;
+        background: linear-gradient(to right, var(--primary), #224abe);
+        padding: 20px;
+        margin-bottom: 25px;
+        color: white;
+    }
+    
+    .dashboard-header-title {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    
+    .dashboard-header-desc {
+        opacity: 0.8;
+        margin-bottom: 20px;
+    }
+    
+    .dashboard-stat-cards {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .dashboard-stat-card {
+        background-color: rgba(255,255,255,0.1);
+        border-radius: 8px;
+        padding: 15px;
+        flex: 1;
+        min-width: 150px;
+    }
+    
+    .dashboard-stat-card .stat-title {
+        font-size: 12px;
+        opacity: 0.8;
+    }
+    
+    .dashboard-stat-card .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        margin: 5px 0;
+        color: white;
+    }
+    
+    .dashboard-stat-card .stat-change {
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .stat-change.positive {
+        color: #4ade80;
+    }
+    
+    .stat-change.negative {
+        color: #f87171;
+    }
+    
+    .tag-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 10px;
+    }
+    
+    .tag-item {
+        background-color: var(--primary-light);
+        color: var(--primary);
+        font-size: 11px;
+        padding: 3px 8px;
+        border-radius: 12px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header-card">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="dashboard-header-title">Social Media Marketing</div>
+                <div class="dashboard-header-desc">Quản lý và phân tích các chiến dịch tiếp thị trên mạng xã hội</div>
+                
+                <div class="btn-group">
+                    <a href="{% url 'dashboard:social_marketing' %}?action=create" class="btn btn-light">
+                        <i class="fas fa-plus mr-1"></i> Tạo bài đăng
+                    </a>
+                    <a href="#" class="btn btn-outline-light">
+                        <i class="fas fa-calendar mr-1"></i> Lên lịch
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="dashboard-stat-cards">
+                    <div class="dashboard-stat-card">
+                        <div class="stat-title">Tổng bài đăng</div>
+                        <div class="stat-value">28</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up mr-1"></i> 12.5%
+                        </div>
+                    </div>
+                    <div class="dashboard-stat-card">
+                        <div class="stat-title">Tương tác</div>
+                        <div class="stat-value">4.2K</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up mr-1"></i> 8.3%
+                        </div>
+                    </div>
+                    <div class="dashboard-stat-card">
+                        <div class="stat-title">Chuyển đổi</div>
+                        <div class="stat-value">3.8%</div>
+                        <div class="stat-change negative">
+                            <i class="fas fa-arrow-down mr-1"></i> 2.1%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="row">
+        <div class="col-12">
+            <div class="tab-nav">
+                <a href="#" class="nav-link active" data-tab="all">Tất cả bài đăng</a>
+                <a href="#" class="nav-link" data-tab="scheduled">Đã lên lịch</a>
+                <a href="#" class="nav-link" data-tab="published">Đã đăng</a>
+                <a href="#" class="nav-link" data-tab="draft">Bản nháp</a>
+                <a href="#" class="nav-link" data-tab="analytics">Phân tích</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="filter-box">
+                <form method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <label for="platform" class="form-label">Nền tảng</label>
+                        <select class="form-control" id="platform" name="platform">
+                            <option value="">Tất cả</option>
+                            <option value="facebook">Facebook</option>
+                            <option value="tiktok">TikTok</option>
+                            <option value="instagram">Instagram</option>
+                            <option value="threads">Threads</option>
+                            <option value="telegram">Telegram</option>
+                            <option value="messenger">Messenger</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="status" class="form-label">Trạng thái</label>
+                        <select class="form-control" id="status" name="status">
+                            <option value="">Tất cả</option>
+                            <option value="published">Đã đăng</option>
+                            <option value="scheduled">Đã lên lịch</option>
+                            <option value="draft">Bản nháp</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="dateRange" class="form-label">Khoảng thời gian</label>
+                        <input type="text" class="form-control" id="dateRange" name="date_range" placeholder="Chọn khoảng thời gian">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="search" class="form-label">Tìm kiếm</label>
+                        <input type="text" class="form-control" id="search" name="search" placeholder="Nội dung bài đăng...">
+                    </div>
+                    <div class="col-12 text-end mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-1"></i> Lọc
+                        </button>
+                        <button type="reset" class="btn btn-secondary">
+                            <i class="fas fa-undo me-1"></i> Đặt lại
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Social Media Posts -->
+    <div class="row">
+        {% for post in social_posts %}
+        <div class="col-lg-6">
+            <div class="module-card">
+                <div class="module-header">
+                    <div class="social-platform">
+                        {% if post.platform == 'Facebook' %}
+                        <div class="platform-icon facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </div>
+                        <span>Facebook</span>
+                        {% elif post.platform == 'TikTok' %}
+                        <div class="platform-icon tiktok">
+                            <i class="fab fa-tiktok"></i>
+                        </div>
+                        <span>TikTok</span>
+                        {% elif post.platform == 'Instagram' %}
+                        <div class="platform-icon instagram">
+                            <i class="fab fa-instagram"></i>
+                        </div>
+                        <span>Instagram</span>
+                        {% elif post.platform == 'Threads' %}
+                        <div class="platform-icon threads">
+                            <i class="fab fa-instagram"></i>
+                        </div>
+                        <span>Threads</span>
+                        {% elif post.platform == 'Telegram' %}
+                        <div class="platform-icon telegram">
+                            <i class="fab fa-telegram-plane"></i>
+                        </div>
+                        <span>Telegram</span>
+                        {% elif post.platform == 'Messenger' %}
+                        <div class="platform-icon messenger">
+                            <i class="fab fa-facebook-messenger"></i>
+                        </div>
+                        <span>Messenger</span>
+                        {% endif %}
+                        
+                        {% if post.status == 'published' %}
+                        <span class="status-badge status-published">Đã đăng</span>
+                        {% elif post.status == 'scheduled' %}
+                        <span class="status-badge status-scheduled">Đã lên lịch</span>
+                        {% else %}
+                        <span class="status-badge status-draft">Bản nháp</span>
+                        {% endif %}
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{% url 'dashboard:social_marketing' %}?action=detail&id={{ post.id }}"><i class="fas fa-eye me-2"></i> Xem chi tiết</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i> Chỉnh sửa</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-copy me-2"></i> Sao chép</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash-alt me-2"></i> Xóa</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="module-body">
+                    <div class="social-content">
+                        <p>{{ post.content }}</p>
+                        
+                        <div class="tag-list">
+                            {% for tag in post.tags %}
+                            <span class="tag-item">#{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="social-media">
+                        <img src="{% static 'img/social-placeholder.jpg' %}" alt="Social Media Post Image">
+                    </div>
+                    
+                    <div class="audience-info">
+                        <i class="fas fa-chart-line audience-icon"></i>
+                        <span>Hiệu suất: <strong>Tốt hơn 65%</strong> so với bài đăng gần đây</span>
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <div class="social-stats">
+                        <div class="social-stat">
+                            <i class="far fa-heart"></i>
+                            <span>{{ post.likes|default:"356" }}</span>
+                        </div>
+                        <div class="social-stat">
+                            <i class="far fa-comment"></i>
+                            <span>{{ post.comments|default:"48" }}</span>
+                        </div>
+                        <div class="social-stat">
+                            <i class="fas fa-share"></i>
+                            <span>{{ post.shares|default:"23" }}</span>
+                        </div>
+                    </div>
+                    <div class="social-date">
+                        <small class="text-muted">Đăng ngày: {{ post.published_date|default:"10/06/2023" }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <!-- Example Posts -->
+        <div class="col-lg-6">
+            <div class="module-card">
+                <div class="module-header">
+                    <div class="social-platform">
+                        <div class="platform-icon facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </div>
+                        <span>Facebook</span>
+                        <span class="status-badge status-published">Đã đăng</span>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-eye me-2"></i> Xem chi tiết</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i> Chỉnh sửa</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-copy me-2"></i> Sao chép</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash-alt me-2"></i> Xóa</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="module-body">
+                    <div class="social-content">
+                        <p>🎉 Khuyến mãi mùa hè đã bắt đầu! Giảm giá lên đến 50% cho tất cả sản phẩm. Ghé thăm cửa hàng ngay hôm nay để không bỏ lỡ cơ hội!</p>
+                        
+                        <div class="tag-list">
+                            <span class="tag-item">#khuyenmai</span>
+                            <span class="tag-item">#muahe</span>
+                            <span class="tag-item">#giamgia</span>
+                        </div>
+                    </div>
+                    <div class="social-media">
+                        <img src="{% static 'img/social-placeholder.jpg' %}" alt="Social Media Post Image">
+                    </div>
+                    
+                    <div class="audience-info">
+                        <i class="fas fa-chart-line audience-icon"></i>
+                        <span>Hiệu suất: <strong>Tốt hơn 65%</strong> so với bài đăng gần đây</span>
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <div class="social-stats">
+                        <div class="social-stat">
+                            <i class="far fa-heart"></i>
+                            <span>356</span>
+                        </div>
+                        <div class="social-stat">
+                            <i class="far fa-comment"></i>
+                            <span>48</span>
+                        </div>
+                        <div class="social-stat">
+                            <i class="fas fa-share"></i>
+                            <span>23</span>
+                        </div>
+                    </div>
+                    <div class="social-date">
+                        <small class="text-muted">Đăng ngày: 10/06/2023</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="module-card">
+                <div class="module-header">
+                    <div class="social-platform">
+                        <div class="platform-icon tiktok">
+                            <i class="fab fa-tiktok"></i>
+                        </div>
+                        <span>TikTok</span>
+                        <span class="status-badge status-scheduled">Đã lên lịch</span>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-eye me-2"></i> Xem chi tiết</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i> Chỉnh sửa</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-copy me-2"></i> Sao chép</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash-alt me-2"></i> Xóa</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="module-body">
+                    <div class="social-content">
+                        <p>Video giới thiệu sản phẩm mới nhất của chúng tôi!</p>
+                        
+                        <div class="tag-list">
+                            <span class="tag-item">#newproduct</span>
+                            <span class="tag-item">#tiktok</span>
+                            <span class="tag-item">#viral</span>
+                        </div>
+                    </div>
+                    <div class="social-media">
+                        <img src="{% static 'img/social-placeholder.jpg' %}" alt="Social Media Post Image">
+                    </div>
+                    
+                    <div class="audience-info">
+                        <i class="fas fa-bullseye audience-icon"></i>
+                        <span>Đối tượng mục tiêu: <strong>Người dùng 18-35 tuổi</strong></span>
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <div class="social-stats">
+                        <div class="social-stat">
+                            <i class="far fa-heart"></i>
+                            <span>0</span>
+                        </div>
+                        <div class="social-stat">
+                            <i class="far fa-comment"></i>
+                            <span>0</span>
+                        </div>
+                        <div class="social-stat">
+                            <i class="fas fa-share"></i>
+                            <span>0</span>
+                        </div>
+                    </div>
+                    <div class="social-date">
+                        <small class="text-muted">Đăng ngày: 15/06/2023 (Đã lên lịch)</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="module-card">
+                <div class="module-header">
+                    <div class="social-platform">
+                        <div class="platform-icon instagram">
+                            <i class="fab fa-instagram"></i>
+                        </div>
+                        <span>Instagram</span>
+                        <span class="status-badge status-published">Đã đăng</span>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-eye me-2"></i> Xem chi tiết</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i> Chỉnh sửa</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-copy me-2"></i> Sao chép</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash-alt me-2"></i> Xóa</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="module-body">
+                    <div class="social-content">
+                        <p>✨ Bộ sưu tập mới đã ra mắt! Thiết kế độc đáo, chất liệu cao cấp. Khám phá ngay!</p>
+                        
+                        <div class="tag-list">
+                            <span class="tag-item">#bosuutap</span>
+                            <span class="tag-item">#fashion</span>
+                            <span class="tag-item">#tomoi</span>
+                        </div>
+                    </div>
+                    <div class="social-media">
+                        <img src="{% static 'img/social-placeholder.jpg' %}" alt="Social Media Post Image">
+                    </div>
+                    
+                    <div class="audience-info">
+                        <i class="fas fa-chart-line audience-icon"></i>
+                        <span>Hiệu suất: <strong>Tốt hơn 42%</strong> so với bài đăng gần đây</span>
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <div class="social-stats">
+                        <div class="social-stat">
+                            <i class="far fa-heart"></i>
+                            <span>528</span>
+                        </div>
+                        <div class="social-stat">
+                            <i class="far fa-comment"></i>
+                            <span>72</span>
+                        </div>
+                        <div class="social-stat">
+                            <i class="fas fa-share"></i>
+                            <span>35</span>
+                        </div>
+                    </div>
+                    <div class="social-date">
+                        <small class="text-muted">Đăng ngày: 08/06/2023</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="module-card">
+                <div class="module-header">
+                    <div class="social-platform">
+                        <div class="platform-icon threads">
+                            <i class="fab fa-instagram"></i>
+                        </div>
+                        <span>Threads</span>
+                        <span class="status-badge status-draft">Bản nháp</span>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-eye me-2"></i> Xem chi tiết</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i> Chỉnh sửa</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-copy me-2"></i> Sao chép</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash-alt me-2"></i> Xóa</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="module-body">
+                    <div class="social-content">
+                        <p>Chúng tôi đang chuẩn bị ra mắt điều gì đó đặc biệt. Hãy đón xem!</p>
+                        
+                        <div class="tag-list">
+                            <span class="tag-item">#comingsoon</span>
+                            <span class="tag-item">#specialannouncement</span>
+                        </div>
+                    </div>
+                    <div class="social-media">
+                        <img src="{% static 'img/social-placeholder.jpg' %}" alt="Social Media Post Image">
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <div class="social-stats">
+                        <div class="social-stat">
+                            <i class="far fa-heart"></i>
+                            <span>0</span>
+                        </div>
+                        <div class="social-stat">
+                            <i class="far fa-comment"></i>
+                            <span>0</span>
+                        </div>
+                        <div class="social-stat">
+                            <i class="fas fa-share"></i>
+                            <span>0</span>
+                        </div>
+                    </div>
+                    <div class="social-date">
+                        <small class="text-muted">Chỉnh sửa lần cuối: 12/06/2023</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Trước</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Sau</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab functionality
+    const tabLinks = document.querySelectorAll('.tab-nav .nav-link');
+    
+    tabLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Remove active class from all tabs
+            tabLinks.forEach(tab => tab.classList.remove('active'));
+            
+            // Add active class to current tab
+            this.classList.add('active');
+            
+            // You can add logic here to show/hide content based on selected tab
+            const tabName = this.getAttribute('data-tab');
+            console.log(`Selected tab: ${tabName}`);
+            
+            // Example: Add tab parameter to current URL
+            const url = new URL(window.location);
+            url.searchParams.set('tab', tabName);
+            window.history.pushState({}, '', url);
+        });
+    });
+    
+    // Initialize date range picker if available
+    if($.fn.daterangepicker) {
+        $('#dateRange').daterangepicker({
+            opens: 'left',
+            locale: {
+                format: 'DD/MM/YYYY'
+            }
+        });
+    }
+});
+</script>
+{% endblock %} 

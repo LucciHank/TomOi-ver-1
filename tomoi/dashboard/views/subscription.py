@@ -283,34 +283,37 @@ def subscription_plans(request):
         max_warranty_count = request.POST.get('max_warranty_count', 0)
         is_active = request.POST.get('is_active') == 'on'
         
-        if plan_id:
-            # Cập nhật gói hiện có
-            plan = get_object_or_404(SubscriptionPlan, id=plan_id)
-            plan.name = name
-            plan.description = description
-            plan.price = price
-            plan.duration_days = duration_days
-            plan.max_warranty_count = max_warranty_count
-            plan.is_active = is_active
-            plan.save()
-            messages.success(request, f'Đã cập nhật gói {name}')
-        else:
-            # Tạo gói mới
-            SubscriptionPlan.objects.create(
-                name=name,
-                description=description,
-                price=price,
-                duration_days=duration_days,
-                max_warranty_count=max_warranty_count,
-                is_active=is_active
-            )
-            messages.success(request, f'Đã thêm gói {name}')
+        try:
+            if plan_id:
+                # Cập nhật gói hiện có
+                plan = get_object_or_404(SubscriptionPlan, id=plan_id)
+                plan.name = name
+                plan.description = description
+                plan.price = price
+                plan.duration_days = duration_days
+                plan.max_warranty_count = max_warranty_count
+                plan.is_active = is_active
+                plan.save()
+                messages.success(request, f'Da cap nhat goi {name}')
+            else:
+                # Tạo gói mới
+                SubscriptionPlan.objects.create(
+                    name=name,
+                    description=description,
+                    price=price,
+                    duration_days=duration_days,
+                    max_warranty_count=max_warranty_count,
+                    is_active=is_active
+                )
+                messages.success(request, f'Da them goi {name}')
+        except Exception as e:
+            messages.error(request, f'Loi: {str(e)}')
             
         return redirect('dashboard:subscription_plans')
     
     return render(request, 'dashboard/subscriptions/plans.html', {
         'plans': plans,
-        'title': 'Quản lý gói đăng ký',
+        'title': 'Quan ly goi dang ky',
         'active_tab': 'subscriptions'
     })
 

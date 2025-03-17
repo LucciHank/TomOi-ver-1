@@ -1,12 +1,32 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
 
-{% block title %}Tạo chiến dịch mới{% endblock %}
+{% block title %}{% if is_edit %}Chỉnh sửa chiến dịch{% else %}Tạo chiến dịch mới{% endif %}{% endblock %}
+
+{% block extra_css %}
+{% include 'dashboard/marketing/styles.html' %}
+<style>
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+    
+    .note-editor {
+        border-radius: 0.35rem;
+        border-color: #d1d3e2;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Tạo chiến dịch mới</h1>
+        <h1 class="h3 mb-0 text-gray-800">{% if is_edit %}Chỉnh sửa chiến dịch{% else %}Tạo chiến dịch mới{% endif %}</h1>
         <a href="{% url 'dashboard:campaign_list' %}" class="btn btn-secondary btn-sm">
             <i class="fas fa-arrow-left fa-sm"></i> Quay lại
         </a>
@@ -17,24 +37,21 @@
             <h6 class="m-0 font-weight-bold text-primary">Thông tin chiến dịch</h6>
         </div>
         <div class="card-body">
-            <form method="post" action="{% url 'dashboard:campaign_add' %}">
+            <form method="post" action="{% if is_edit %}{% url 'dashboard:campaign_edit' campaign_id=campaign.id %}{% else %}{% url 'dashboard:campaign_add' %}{% endif %}">
                 {% csrf_token %}
                 
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="name" class="form-label">Tên chiến dịch <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="name" name="name" required>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ campaign.name|default:'' }}" required>
                     </div>
                     <div class="col-md-6">
                         <label for="type" class="form-label">Loại chiến dịch <span class="text-danger">*</span></label>
                         <select class="form-control" id="type" name="type" required>
                             <option value="">-- Chọn loại chiến dịch --</option>
-                            <option value="email">Email Marketing</option>
-                            <option value="social">Social Media</option>
-                            <option value="banner">Banner Ads</option>
-                            <option value="discount">Khuyến mãi</option>
-                            <option value="event">Sự kiện</option>
-                            <option value="other">Khác</option>
+                            {% for type in campaign_types %}
+                            <option value="{{ type.id }}" {% if campaign.type == type.id %}selected{% endif %}>{{ type.name }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                 </div>
@@ -42,23 +59,23 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="start_date" class="form-label">Ngày bắt đầu <span class="text-danger">*</span></label>
-                        <input type="datetime-local" class="form-control" id="start_date" name="start_date" required>
+                        <input type="datetime-local" class="form-control" id="start_date" name="start_date" value="{{ campaign.start_date|date:'Y-m-d\TH:i'|default:'' }}" required>
                     </div>
                     <div class="col-md-6">
                         <label for="end_date" class="form-label">Ngày kết thúc <span class="text-danger">*</span></label>
-                        <input type="datetime-local" class="form-control" id="end_date" name="end_date" required>
+                        <input type="datetime-local" class="form-control" id="end_date" name="end_date" value="{{ campaign.end_date|date:'Y-m-d\TH:i'|default:'' }}" required>
                     </div>
                 </div>
                 
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="budget" class="form-label">Ngân sách (VNĐ)</label>
-                        <input type="number" class="form-control" id="budget" name="budget" min="0">
+                        <input type="number" class="form-control" id="budget" name="budget" min="0" value="{{ campaign.budget|default:'' }}">
                     </div>
                     <div class="col-md-6">
                         <label for="is_active" class="form-label">Trạng thái</label>
                         <div class="form-check mt-2">
-                            <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+                            <input class="form-check-input" type="checkbox" id="is_active" name="is_active" {% if campaign.status == 'active' or not is_edit %}checked{% endif %}>
                             <label class="form-check-label" for="is_active">
                                 Kích hoạt chiến dịch
                             </label>
@@ -68,23 +85,23 @@
                 
                 <div class="mb-3">
                     <label for="description" class="form-label">Mô tả chiến dịch</label>
-                    <textarea class="form-control" id="description" name="description" rows="5"></textarea>
+                    <textarea class="form-control" id="description" name="description" rows="5">{{ campaign.description|default:'' }}</textarea>
                 </div>
                 
                 <div class="mb-3">
                     <label for="target_audience" class="form-label">Đối tượng mục tiêu</label>
                     <select class="form-control" id="target_audience" name="target_audience">
                         <option value="">-- Chọn đối tượng --</option>
-                        <option value="all">Tất cả khách hàng</option>
-                        <option value="new">Khách hàng mới</option>
-                        <option value="existing">Khách hàng hiện tại</option>
-                        <option value="inactive">Khách hàng không hoạt động</option>
+                        <option value="all" {% if campaign.target_audience == 'all' %}selected{% endif %}>Tất cả khách hàng</option>
+                        <option value="new" {% if campaign.target_audience == 'new' %}selected{% endif %}>Khách hàng mới</option>
+                        <option value="existing" {% if campaign.target_audience == 'existing' %}selected{% endif %}>Khách hàng hiện tại</option>
+                        <option value="inactive" {% if campaign.target_audience == 'inactive' %}selected{% endif %}>Khách hàng không hoạt động</option>
                     </select>
                 </div>
                 
                 <div class="text-center mt-4">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-1"></i> Tạo chiến dịch
+                        <i class="fas fa-save me-1"></i> {% if is_edit %}Cập nhật{% else %}Tạo chiến dịch{% endif %}
                     </button>
                     <button type="reset" class="btn btn-secondary">
                         <i class="fas fa-undo me-1"></i> Làm lại
@@ -104,8 +121,10 @@
         var startDate = now.toISOString().slice(0, 16);
         var endDate = new Date(now.getTime() + 30*24*60*60*1000).toISOString().slice(0, 16);
         
+        {% if not is_edit %}
         $('#start_date').val(startDate);
         $('#end_date').val(endDate);
+        {% endif %}
         
         // Validate end date is after start date
         $('#start_date, #end_date').change(function() {

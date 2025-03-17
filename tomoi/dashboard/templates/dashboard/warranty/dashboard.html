@@ -1,0 +1,337 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load dashboard_extras %}
+
+{% block title %}Tổng quan bảo hành{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Tổng quan bảo hành</h1>
+        <a href="{% url 'dashboard:warranty_request_add' %}" class="d-none d-sm-inline-block btn btn-primary shadow-sm">
+            <i class="fas fa-plus fa-sm text-white-50"></i> Tạo yêu cầu mới
+        </a>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Tổng số yêu cầu -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Tổng số yêu cầu</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_requests }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chờ xử lý -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Chờ xử lý</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ pending_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Đang xử lý -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Đang xử lý</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ in_progress_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-spinner fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Đã giải quyết -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Đã giải quyết</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ resolved_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Biểu đồ phân bố trạng thái -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Phân bố trạng thái yêu cầu bảo hành</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="statusDistributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thời gian xử lý trung bình -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Thời gian xử lý</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 20rem;" 
+                            src="{% static 'dashboard/images/undraw_time_management.svg' %}" alt="Time Management">
+                    </div>
+                    <p>Thời gian xử lý trung bình: 
+                        <span class="font-weight-bold">
+                            {% if avg_resolution_time %}
+                                {{ avg_resolution_time }} giờ
+                            {% else %}
+                                Chưa có dữ liệu
+                            {% endif %}
+                        </span>
+                    </p>
+                    <a href="{% url 'dashboard:warranty_by_status' %}" class="btn btn-info btn-sm">
+                        Xem danh sách yêu cầu
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Các yêu cầu gần đây -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Yêu cầu bảo hành gần đây</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Khách hàng</th>
+                                    <th>Trạng thái</th>
+                                    <th>Ngày tạo</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in recent_requests %}
+                                <tr>
+                                    <td>{{ request.id }}</td>
+                                    <td>{{ request.user.get_full_name|default:request.user.username }}</td>
+                                    <td>
+                                        {% if request.status == 'pending' %}
+                                            <span class="badge badge-warning">Chờ xử lý</span>
+                                        {% elif request.status == 'in_progress' %}
+                                            <span class="badge badge-info">Đang xử lý</span>
+                                        {% elif request.status == 'resolved' %}
+                                            <span class="badge badge-success">Đã giải quyết</span>
+                                        {% elif request.status == 'closed' %}
+                                            <span class="badge badge-secondary">Đã đóng</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ request.created_at|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        <a href="{% url 'dashboard:warranty_detail' request.id %}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">Chưa có yêu cầu bảo hành nào</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <!-- Phân bố theo nguồn -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Phân bố theo nguồn</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie pt-4 pb-2">
+                        <canvas id="sourceDistributionChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center small">
+                        {% for source in source_stats %}
+                        <span class="mr-2">
+                            <i class="fas fa-circle" style="color: {{ forloop.counter|random_color }}"></i> {{ source.source__name|default:"Không xác định" }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phân bố theo lý do -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Phân bố theo lý do</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie pt-4 pb-2">
+                        <canvas id="reasonDistributionChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center small">
+                        {% for reason in reason_stats %}
+                        <span class="mr-2">
+                            <i class="fas fa-circle" style="color: {{ forloop.counter|random_color }}"></i> {{ reason.reason__name|default:"Khác" }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Biểu đồ phân bố trạng thái
+        var statusCtx = document.getElementById("statusDistributionChart");
+        var statusChart = new Chart(statusCtx, {
+            type: 'bar',
+            data: {
+                labels: ["Chờ xử lý", "Đang xử lý", "Đã giải quyết", "Đã đóng"],
+                datasets: [{
+                    label: "Số lượng",
+                    backgroundColor: ['#f6c23e', '#36b9cc', '#1cc88a', '#858796'],
+                    data: [{{ pending_count }}, {{ in_progress_count }}, {{ resolved_count }}, {{ closed_count }}],
+                }],
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        precision: 0
+                    }
+                }
+            }
+        });
+
+        // Biểu đồ phân bố theo nguồn
+        var sourceCtx = document.getElementById("sourceDistributionChart");
+        var sourceChart = new Chart(sourceCtx, {
+            type: 'doughnut',
+            data: {
+                labels: [
+                    {% for source in source_stats %}
+                        "{{ source.source__name|default:'Không xác định' }}",
+                    {% endfor %}
+                ],
+                datasets: [{
+                    data: [
+                        {% for source in source_stats %}
+                            {{ source.count }},
+                        {% endfor %}
+                    ],
+                    backgroundColor: [
+                        '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
+                        '#5a5c69', '#858796', '#6610f2', '#fd7e14', '#20c997'
+                    ],
+                    hoverBackgroundColor: [
+                        '#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be3326',
+                        '#484a54', '#717384', '#5d0fd9', '#de6a09', '#17a681'
+                    ],
+                    hoverBorderColor: "rgba(234, 236, 244, 1)",
+                }],
+            },
+            options: {
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // Biểu đồ phân bố theo lý do
+        var reasonCtx = document.getElementById("reasonDistributionChart");
+        var reasonChart = new Chart(reasonCtx, {
+            type: 'doughnut',
+            data: {
+                labels: [
+                    {% for reason in reason_stats %}
+                        "{{ reason.reason__name|default:'Khác' }}",
+                    {% endfor %}
+                ],
+                datasets: [{
+                    data: [
+                        {% for reason in reason_stats %}
+                            {{ reason.count }},
+                        {% endfor %}
+                    ],
+                    backgroundColor: [
+                        '#1cc88a', '#4e73df', '#36b9cc', '#f6c23e', '#e74a3b',
+                        '#5a5c69', '#858796', '#6610f2', '#fd7e14', '#20c997'
+                    ],
+                    hoverBackgroundColor: [
+                        '#17a673', '#2e59d9', '#2c9faf', '#dda20a', '#be3326',
+                        '#484a54', '#717384', '#5d0fd9', '#de6a09', '#17a681'
+                    ],
+                    hoverBorderColor: "rgba(234, 236, 244, 1)",
+                }],
+            },
+            options: {
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %} 

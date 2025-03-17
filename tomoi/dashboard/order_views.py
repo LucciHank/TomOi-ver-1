@@ -148,7 +148,7 @@ def order_management(request):
         return render(request, 'dashboard/orders/management.html', context)
 
 @staff_member_required
-def order_list(request):
+def order_list(request, **kwargs):
     """Danh sách đơn hàng dạng list đơn giản"""
     orders = Order.objects.all().order_by('-created_at')
     
@@ -166,8 +166,8 @@ def order_list(request):
             Q(user__full_name__icontains=customer)
         )
     
-    # Lọc theo trạng thái
-    status = request.GET.get('status')
+    # Lọc theo trạng thái - ưu tiên tham số từ URL pattern (kwargs)
+    status = kwargs.get('status') or request.GET.get('status')
     if status:
         orders = orders.filter(status=status)
     
@@ -178,12 +178,24 @@ def order_list(request):
     
     context = {
         'orders': orders_page,
-        'order_id': order_id,
-        'customer': customer,
-        'status': status
+        'status_filter': status or 'all',  # Lưu trạng thái lọc để hiển thị active tab
+        'title': f"Đơn hàng {get_status_display(status)}" if status else "Tất cả đơn hàng"
     }
     
     return render(request, 'dashboard/orders/list.html', context)
+
+def get_status_display(status_code):
+    """Hàm trợ giúp để hiển thị tên trạng thái theo mã"""
+    status_map = {
+        'pending': 'đang chờ xử lý',
+        'processing': 'đang xử lý',
+        'completed': 'đã hoàn thành',
+        'cancelled': 'đã hủy',
+        'shipped': 'đang giao hàng',
+        'returned': 'đã trả lại',
+        'refunded': 'đã hoàn tiền'
+    }
+    return status_map.get(status_code, '')
 
 @staff_member_required
 def order_detail(request, order_id):

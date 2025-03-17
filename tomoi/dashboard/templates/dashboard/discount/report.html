@@ -1,0 +1,271 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Báo cáo mã giảm giá{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Báo cáo mã giảm giá</h1>
+        <div>
+            <a href="{% url 'dashboard:discounts' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left fa-sm text-white-50"></i> Quay lại
+            </a>
+            <a href="{% url 'dashboard:export_discount_report' %}" class="btn btn-primary">
+                <i class="fas fa-download fa-sm text-white-50"></i> Xuất báo cáo
+            </a>
+        </div>
+    </div>
+
+    <!-- Bộ lọc -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Bộ lọc</h6>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="period">Thời gian</label>
+                        <select class="form-control" id="period" name="period">
+                            <option value="week" {% if request.GET.period == 'week' %}selected{% endif %}>7 ngày gần nhất</option>
+                            <option value="month" {% if request.GET.period == 'month' %}selected{% endif %}>30 ngày gần nhất</option>
+                            <option value="quarter" {% if request.GET.period == 'quarter' %}selected{% endif %}>90 ngày gần nhất</option>
+                            <option value="year" {% if request.GET.period == 'year' %}selected{% endif %}>1 năm gần nhất</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="discount_type">Loại mã</label>
+                        <select class="form-control" id="discount_type" name="discount_type">
+                            <option value="">Tất cả</option>
+                            <option value="percentage" {% if request.GET.discount_type == 'percentage' %}selected{% endif %}>Phần trăm</option>
+                            <option value="fixed" {% if request.GET.discount_type == 'fixed' %}selected{% endif %}>Số tiền cố định</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="status">Trạng thái</label>
+                        <select class="form-control" id="status" name="status">
+                            <option value="">Tất cả</option>
+                            <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Đang hoạt động</option>
+                            <option value="expired" {% if request.GET.status == 'expired' %}selected{% endif %}>Hết hạn</option>
+                            <option value="upcoming" {% if request.GET.status == 'upcoming' %}selected{% endif %}>Sắp tới</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <i class="fas fa-filter"></i> Lọc
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Biểu đồ -->
+    <div class="row">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Số lần sử dụng theo thời gian</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="usageChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Phân bố loại mã</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie pt-4">
+                        <canvas id="typeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bảng thống kê -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thống kê chi tiết</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Loại mã</th>
+                            <th>Số lượng</th>
+                            <th>Tổng giá trị</th>
+                            <th>Số lần sử dụng</th>
+                            <th>Tỷ lệ sử dụng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for type in discount_types %}
+                        <tr>
+                            <td>{{ type.name }}</td>
+                            <td>{{ type.count }}</td>
+                            <td>{{ type.total_value|floatformat:0 }}đ</td>
+                            <td>{{ type.usage_count }}</td>
+                            <td>{{ type.usage_rate }}%</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top mã giảm giá -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Top mã giảm giá được sử dụng nhiều nhất</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Mã</th>
+                            <th>Loại</th>
+                            <th>Giá trị</th>
+                            <th>Số lần sử dụng</th>
+                            <th>Tổng giá trị giảm</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for discount in top_discounts %}
+                        <tr>
+                            <td>{{ discount.code }}</td>
+                            <td>{{ discount.get_discount_type_display }}</td>
+                            <td>
+                                {% if discount.discount_type == 'percentage' %}
+                                    {{ discount.value }}%
+                                {% else %}
+                                    {{ discount.value|floatformat:0 }}đ
+                                {% endif %}
+                            </td>
+                            <td>{{ discount.used_count }}</td>
+                            <td>{{ discount.total_discount_value|floatformat:0 }}đ</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lịch sử sử dụng gần đây -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Lịch sử sử dụng gần đây</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Thời gian</th>
+                            <th>Mã</th>
+                            <th>Người dùng</th>
+                            <th>Đơn hàng</th>
+                            <th>Giá trị giảm</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usage in recent_usage %}
+                        <tr>
+                            <td>{{ usage.used_at|date:"d/m/Y H:i" }}</td>
+                            <td>{{ usage.discount.code }}</td>
+                            <td>{{ usage.user.username }}</td>
+                            <td>
+                                <a href="{% url 'dashboard:order_detail' usage.order.id %}">
+                                    #{{ usage.order.order_number }}
+                                </a>
+                            </td>
+                            <td>{{ usage.discount_value|floatformat:0 }}đ</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">Chưa có lịch sử sử dụng</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+$(document).ready(function() {
+    // Khởi tạo DataTable
+    $('#dataTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Vietnamese.json"
+        }
+    });
+
+    // Biểu đồ sử dụng theo thời gian
+    var ctx = document.getElementById('usageChart').getContext('2d');
+    var usageChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ usage_chart_labels|safe }},
+            datasets: [{
+                label: 'Số lần sử dụng',
+                data: {{ usage_chart_data|safe }},
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Biểu đồ phân bố loại mã
+    var ctx2 = document.getElementById('typeChart').getContext('2d');
+    var typeChart = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+            labels: {{ type_chart_labels|safe }},
+            datasets: [{
+                data: {{ type_chart_data|safe }},
+                backgroundColor: [
+                    'rgb(255, 99, 132)',
+                    'rgb(54, 162, 235)',
+                    'rgb(255, 205, 86)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+});
+</script>
+{% endblock %} 

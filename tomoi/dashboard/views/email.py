@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 
+@staff_member_required
 @login_required
 def create_email_template(request):
     """Tạo mẫu email mới"""
@@ -14,8 +16,10 @@ def create_email_template(request):
         # )
         return redirect('dashboard:email_templates')
     
-    return render(request, 'dashboard/emails/template_form.html', {'is_new': True})
+    context = {'title': 'Tạo mẫu email'}
+    return render(request, 'dashboard/email/template_form.html', context)
 
+@staff_member_required
 @login_required
 def edit_email_template(request, template_id):
     """Chỉnh sửa mẫu email"""
@@ -29,7 +33,5 @@ def edit_email_template(request, template_id):
         # template.save()
         return redirect('dashboard:email_templates')
     
-    return render(request, 'dashboard/emails/template_form.html', {
-        'is_new': False,
-        'template': {'id': template_id}
-    }) 
+    context = {'title': 'Chỉnh sửa mẫu email'}
+    return render(request, 'dashboard/email/template_form.html', context) 

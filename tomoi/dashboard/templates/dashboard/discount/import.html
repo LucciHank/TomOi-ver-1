@@ -1,0 +1,49 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Import mã giảm giá{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Import mã giảm giá</h1>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Import từ file CSV</h6>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="file">Chọn file CSV</label>
+                    <input type="file" class="form-control-file" id="file" name="file" accept=".csv" required>
+                    <small class="form-text text-muted">File CSV phải có các cột: Code, Type, Value, Start Date, End Date, Usage Limit, Status</small>
+                </div>
+                <button type="submit" class="btn btn-primary">Import</button>
+            </form>
+
+            <hr>
+
+            <h6 class="font-weight-bold">Hướng dẫn:</h6>
+            <ol>
+                <li>Tải mẫu file CSV <a href="{% url 'dashboard:discount_export' %}">tại đây</a></li>
+                <li>Điền thông tin mã giảm giá theo mẫu</li>
+                <li>Chọn file CSV đã điền thông tin</li>
+                <li>Nhấn nút Import</li>
+            </ol>
+
+            <div class="alert alert-info">
+                <h6>Lưu ý:</h6>
+                <ul>
+                    <li>File CSV phải có định dạng UTF-8</li>
+                    <li>Ngày tháng phải có định dạng YYYY-MM-DD</li>
+                    <li>Type phải là 'percentage' hoặc 'fixed'</li>
+                    <li>Status phải là 'active' hoặc 'inactive'</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

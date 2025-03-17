@@ -1,0 +1,711 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Remarketing{% endblock %}
+
+{% block extra_css %}
+{% include 'dashboard/marketing/styles.html' %}
+<style>
+    /* Màu nền cho các nền tảng */
+    .facebook {
+        background-color: #4267B2;
+    }
+    
+    .google {
+        background-color: #DB4437;
+    }
+    
+    .web {
+        background-color: #607D8B;
+    }
+    
+    .email {
+        background-color: #E91E63;
+    }
+    
+    .dashboard-header-card {
+        border-radius: 10px;
+        background: linear-gradient(to right, var(--primary), #224abe);
+        padding: 20px;
+        margin-bottom: 25px;
+        color: white;
+    }
+    
+    .dashboard-header-title {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    
+    .dashboard-header-desc {
+        opacity: 0.8;
+        margin-bottom: 20px;
+    }
+    
+    .dashboard-stat-cards {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .dashboard-stat-card {
+        background-color: rgba(255,255,255,0.1);
+        border-radius: 8px;
+        padding: 15px;
+        flex: 1;
+        min-width: 150px;
+    }
+    
+    .dashboard-stat-card .stat-title {
+        font-size: 12px;
+        opacity: 0.8;
+    }
+    
+    .dashboard-stat-card .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        margin: 5px 0;
+        color: white;
+    }
+    
+    .dashboard-stat-card .stat-change {
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .stat-change.positive {
+        color: #4ade80;
+    }
+    
+    .stat-change.negative {
+        color: #f87171;
+    }
+    
+    .campaign-name {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .campaign-type {
+        display: inline-block;
+        font-size: 12px;
+        padding: 3px 10px;
+        border-radius: 20px;
+        margin-bottom: 10px;
+        background-color: var(--primary-light);
+        color: var(--primary);
+    }
+    
+    .campaign-description {
+        color: var(--gray);
+        margin-bottom: 15px;
+    }
+    
+    .setup-instruction-steps {
+        margin: 20px 0;
+        counter-reset: step-counter;
+    }
+    
+    .setup-step {
+        display: flex;
+        margin-bottom: 15px;
+        padding: 10px;
+        border-radius: 8px;
+        background-color: white;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    
+    .setup-step-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: var(--primary);
+        color: white;
+        font-weight: 600;
+        margin-right: 15px;
+        flex-shrink: 0;
+    }
+    
+    .setup-step-number::before {
+        counter-increment: step-counter;
+        content: counter(step-counter);
+    }
+    
+    .setup-step-content {
+        flex: 1;
+    }
+    
+    .setup-step-title {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .setup-step-description {
+        font-size: 13px;
+        color: var(--gray);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header-card">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="dashboard-header-title">Remarketing</div>
+                <div class="dashboard-header-desc">Tạo chiến dịch tiếp thị lại để tiếp cận khách hàng đã tương tác với thương hiệu của bạn</div>
+                
+                <div class="btn-group">
+                    <a href="{% url 'dashboard:remarketing' %}?action=create" class="btn btn-light">
+                        <i class="fas fa-plus mr-1"></i> Tạo chiến dịch
+                    </a>
+                    <a href="#" class="btn btn-outline-light">
+                        <i class="fas fa-download mr-1"></i> Xuất báo cáo
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="dashboard-stat-cards">
+                    <div class="dashboard-stat-card">
+                        <div class="stat-title">Tổng chiến dịch</div>
+                        <div class="stat-value">12</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up mr-1"></i> 25%
+                        </div>
+                    </div>
+                    <div class="dashboard-stat-card">
+                        <div class="stat-title">Tỷ lệ chuyển đổi</div>
+                        <div class="stat-value">24.8%</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up mr-1"></i> 6.2%
+                        </div>
+                    </div>
+                    <div class="dashboard-stat-card">
+                        <div class="stat-title">Doanh thu</div>
+                        <div class="stat-value">12.5M₫</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up mr-1"></i> 32.8%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Setup Card -->
+    <div class="setup-card">
+        <h5>Cài đặt mã Remarketing</h5>
+        <p>Thêm mã theo dõi vào website của bạn để bắt đầu thu thập dữ liệu khách hàng</p>
+        
+        <div class="setup-instruction-steps">
+            <div class="setup-step">
+                <div class="setup-step-number"></div>
+                <div class="setup-step-content">
+                    <div class="setup-step-title">Thêm mã theo dõi vào trang web của bạn</div>
+                    <div class="setup-step-description">
+                        Sao chép mã bên dưới và thêm vào thẻ <code>&lt;head&gt;</code> của trang web
+                    </div>
+                </div>
+            </div>
+            <div class="setup-step">
+                <div class="setup-step-number"></div>
+                <div class="setup-step-content">
+                    <div class="setup-step-title">Xác minh cài đặt</div>
+                    <div class="setup-step-description">
+                        Sử dụng công cụ kiểm tra để đảm bảo mã đã được cài đặt đúng cách
+                    </div>
+                </div>
+            </div>
+            <div class="setup-step">
+                <div class="setup-step-number"></div>
+                <div class="setup-step-content">
+                    <div class="setup-step-title">Tạo đối tượng và chiến dịch</div>
+                    <div class="setup-step-description">
+                        Bắt đầu tạo các đối tượng và chiến dịch remarketing để tiếp cận khách hàng tiềm năng
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="code-snippet">
+&lt;!-- TomOi Remarketing Code --&gt;
+&lt;script&gt;
+  !function(t,o,m,o,i){t.TomOiTracker=o;t[o]=t[o]||function(){
+  (t[o].q=t[o].q||[]).push(arguments)},t[o].l=1*new Date();i=m.createElement("script"),
+  tag=m.getElementsByTagName("script")[0];i.async=1;i.src=
+  "https://trk.tomoi.com/tracking.js";tag.parentNode.insertBefore(i,tag)
+  }(window,document,"toi");
+  
+  toi("init", "YOUR-TRACKING-ID");
+  toi("track", "PageView");
+&lt;/script&gt;
+&lt;!-- End TomOi Remarketing Code --&gt;
+        </div>
+        <button class="btn btn-primary" id="copy-code-btn">
+            <i class="fas fa-copy me-1"></i> Sao chép mã
+        </button>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="row">
+        <div class="col-12">
+            <div class="tab-nav">
+                <a href="#" class="nav-link active" data-tab="campaigns">Chiến dịch</a>
+                <a href="#" class="nav-link" data-tab="audiences">Đối tượng</a>
+                <a href="#" class="nav-link" data-tab="analytics">Phân tích</a>
+                <a href="#" class="nav-link" data-tab="settings">Cài đặt</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="filter-box">
+                <form method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <label for="type" class="form-label">Loại chiến dịch</label>
+                        <select class="form-control" id="type" name="type">
+                            <option value="">Tất cả</option>
+                            <option value="cart">Giỏ hàng bỏ dở</option>
+                            <option value="product">Sản phẩm đã xem</option>
+                            <option value="purchase">Mua lại</option>
+                            <option value="custom">Tùy chỉnh</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="status" class="form-label">Trạng thái</label>
+                        <select class="form-control" id="status" name="status">
+                            <option value="">Tất cả</option>
+                            <option value="active">Đang hoạt động</option>
+                            <option value="paused">Tạm dừng</option>
+                            <option value="inactive">Không hoạt động</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="platform" class="form-label">Nền tảng</label>
+                        <select class="form-control" id="platform" name="platform">
+                            <option value="">Tất cả</option>
+                            <option value="facebook">Facebook</option>
+                            <option value="google">Google</option>
+                            <option value="email">Email</option>
+                            <option value="web">Website</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="search" class="form-label">Tìm kiếm</label>
+                        <input type="text" class="form-control" id="search" name="search" placeholder="Tên chiến dịch...">
+                    </div>
+                    <div class="col-12 text-end mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-1"></i> Lọc
+                        </button>
+                        <button type="reset" class="btn btn-secondary">
+                            <i class="fas fa-undo me-1"></i> Đặt lại
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Remarketing Campaigns -->
+    <div class="row">
+        {% for campaign in campaigns %}
+        <div class="col-lg-6">
+            <div class="module-card">
+                <div class="module-header">
+                    <div>
+                        <h5 class="campaign-name">{{ campaign.name }}</h5>
+                        <div class="campaign-type">{{ campaign.type_display }}</div>
+                        <span class="status-badge 
+                            {% if campaign.status == 'active' %}status-active
+                            {% elif campaign.status == 'paused' %}status-paused
+                            {% else %}status-inactive{% endif %}">
+                            {{ campaign.status_display }}
+                        </span>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{% url 'dashboard:remarketing_campaign' campaign_id=campaign.id %}"><i class="fas fa-eye me-2"></i> Xem chi tiết</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i> Chỉnh sửa</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-pause me-2"></i> Tạm dừng</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash-alt me-2"></i> Xóa</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="module-body">
+                    <p class="campaign-description">{{ campaign.description }}</p>
+                    
+                    <div class="module-stats">
+                        <div class="module-stat">
+                            <div class="stat-value">{{ campaign.impressions }}</div>
+                            <div class="stat-label">Hiển thị</div>
+                        </div>
+                        <div class="module-stat">
+                            <div class="stat-value">{{ campaign.clicks }}</div>
+                            <div class="stat-label">Nhấp chuột</div>
+                        </div>
+                        <div class="module-stat">
+                            <div class="stat-value">{{ campaign.conversion_rate }}%</div>
+                            <div class="stat-label">Tỷ lệ chuyển đổi</div>
+                        </div>
+                        <div class="module-stat">
+                            <div class="stat-value">{{ campaign.revenue }}</div>
+                            <div class="stat-label">Doanh thu</div>
+                        </div>
+                    </div>
+                    
+                    <div class="audience-info">
+                        <i class="fas fa-users audience-icon"></i>
+                        <span>Đang tiếp cận <strong>{{ campaign.audience_count }}</strong> người dùng</span>
+                    </div>
+                    
+                    <div class="platform-list">
+                        {% for platform in campaign.platforms %}
+                        <div class="platform-item">
+                            {% if platform == 'facebook' %}
+                            <i class="fab fa-facebook-f platform-icon-small"></i>
+                            <span>Facebook</span>
+                            {% elif platform == 'google' %}
+                            <i class="fab fa-google platform-icon-small"></i>
+                            <span>Google</span>
+                            {% elif platform == 'email' %}
+                            <i class="fas fa-envelope platform-icon-small"></i>
+                            <span>Email</span>
+                            {% elif platform == 'web' %}
+                            <i class="fas fa-globe platform-icon-small"></i>
+                            <span>Web</span>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <div>
+                        <small class="text-muted">Tạo ngày: {{ campaign.created_at }}</small>
+                    </div>
+                    <div>
+                        <a href="{% url 'dashboard:remarketing_campaign' campaign_id=campaign.id %}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-chart-line me-1"></i> Xem báo cáo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <!-- Example Campaigns -->
+        <div class="col-lg-6">
+            <div class="module-card">
+                <div class="module-header">
+                    <div>
+                        <h5 class="campaign-name">Giỏ hàng bỏ dở</h5>
+                        <div class="campaign-type">Giỏ hàng</div>
+                        <span class="status-badge status-active">Đang hoạt động</span>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-eye me-2"></i> Xem chi tiết</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i> Chỉnh sửa</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-pause me-2"></i> Tạm dừng</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash-alt me-2"></i> Xóa</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="module-body">
+                    <p class="campaign-description">Nhắc nhở khách hàng về các sản phẩm vẫn còn trong giỏ hàng và cung cấp ưu đãi đặc biệt để hoàn tất giao dịch.</p>
+                    
+                    <div class="module-stats">
+                        <div class="module-stat">
+                            <div class="stat-value">2,450</div>
+                            <div class="stat-label">Hiển thị</div>
+                        </div>
+                        <div class="module-stat">
+                            <div class="stat-value">620</div>
+                            <div class="stat-label">Nhấp chuột</div>
+                        </div>
+                        <div class="module-stat">
+                            <div class="stat-value">28.5%</div>
+                            <div class="stat-label">Tỷ lệ chuyển đổi</div>
+                        </div>
+                        <div class="module-stat">
+                            <div class="stat-value">4.8M₫</div>
+                            <div class="stat-label">Doanh thu</div>
+                        </div>
+                    </div>
+                    
+                    <div class="audience-info">
+                        <i class="fas fa-users audience-icon"></i>
+                        <span>Đang tiếp cận <strong>1,850</strong> người dùng</span>
+                    </div>
+                    
+                    <div class="platform-list">
+                        <div class="platform-item">
+                            <i class="fab fa-facebook-f platform-icon-small"></i>
+                            <span>Facebook</span>
+                        </div>
+                        <div class="platform-item">
+                            <i class="fas fa-envelope platform-icon-small"></i>
+                            <span>Email</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <div>
+                        <small class="text-muted">Tạo ngày: 01/05/2023</small>
+                    </div>
+                    <div>
+                        <a href="#" class="btn btn-sm btn-primary">
+                            <i class="fas fa-chart-line me-1"></i> Xem báo cáo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="module-card">
+                <div class="module-header">
+                    <div>
+                        <h5 class="campaign-name">Sản phẩm đã xem</h5>
+                        <div class="campaign-type">Sản phẩm</div>
+                        <span class="status-badge status-paused">Tạm dừng</span>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-eye me-2"></i> Xem chi tiết</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i> Chỉnh sửa</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-play me-2"></i> Kích hoạt</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash-alt me-2"></i> Xóa</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="module-body">
+                    <p class="campaign-description">Hiển thị quảng cáo cho người dùng về các sản phẩm họ đã xem trên trang web nhưng chưa mua.</p>
+                    
+                    <div class="module-stats">
+                        <div class="module-stat">
+                            <div class="stat-value">4,120</div>
+                            <div class="stat-label">Hiển thị</div>
+                        </div>
+                        <div class="module-stat">
+                            <div class="stat-value">845</div>
+                            <div class="stat-label">Nhấp chuột</div>
+                        </div>
+                        <div class="module-stat">
+                            <div class="stat-value">21.2%</div>
+                            <div class="stat-label">Tỷ lệ chuyển đổi</div>
+                        </div>
+                        <div class="module-stat">
+                            <div class="stat-value">3.2M₫</div>
+                            <div class="stat-label">Doanh thu</div>
+                        </div>
+                    </div>
+                    
+                    <div class="audience-info">
+                        <i class="fas fa-users audience-icon"></i>
+                        <span>Đang tiếp cận <strong>3,580</strong> người dùng</span>
+                    </div>
+                    
+                    <div class="platform-list">
+                        <div class="platform-item">
+                            <i class="fab fa-google platform-icon-small"></i>
+                            <span>Google</span>
+                        </div>
+                        <div class="platform-item">
+                            <i class="fas fa-globe platform-icon-small"></i>
+                            <span>Web</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <div>
+                        <small class="text-muted">Tạo ngày: 15/04/2023</small>
+                    </div>
+                    <div>
+                        <a href="#" class="btn btn-sm btn-primary">
+                            <i class="fas fa-chart-line me-1"></i> Xem báo cáo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="module-card">
+                <div class="module-header">
+                    <div>
+                        <h5 class="campaign-name">Khách hàng không hoạt động</h5>
+                        <div class="campaign-type">Tương tác</div>
+                        <span class="status-badge status-active">Đang hoạt động</span>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-eye me-2"></i> Xem chi tiết</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i> Chỉnh sửa</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-pause me-2"></i> Tạm dừng</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash-alt me-2"></i> Xóa</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="module-body">
+                    <p class="campaign-description">Tiếp cận lại khách hàng đã mua hàng nhưng không hoạt động trong 30 ngày qua, với ưu đãi đặc biệt.</p>
+                    
+                    <div class="module-stats">
+                        <div class="module-stat">
+                            <div class="stat-value">3,850</div>
+                            <div class="stat-label">Hiển thị</div>
+                        </div>
+                        <div class="module-stat">
+                            <div class="stat-value">752</div>
+                            <div class="stat-label">Nhấp chuột</div>
+                        </div>
+                        <div class="module-stat">
+                            <div class="stat-value">19.6%</div>
+                            <div class="stat-label">Tỷ lệ chuyển đổi</div>
+                        </div>
+                        <div class="module-stat">
+                            <div class="stat-value">2.8M₫</div>
+                            <div class="stat-label">Doanh thu</div>
+                        </div>
+                    </div>
+                    
+                    <div class="audience-info">
+                        <i class="fas fa-users audience-icon"></i>
+                        <span>Đang tiếp cận <strong>2,450</strong> người dùng</span>
+                    </div>
+                    
+                    <div class="platform-list">
+                        <div class="platform-item">
+                            <i class="fab fa-facebook-f platform-icon-small"></i>
+                            <span>Facebook</span>
+                        </div>
+                        <div class="platform-item">
+                            <i class="fas fa-envelope platform-icon-small"></i>
+                            <span>Email</span>
+                        </div>
+                        <div class="platform-item">
+                            <i class="fas fa-globe platform-icon-small"></i>
+                            <span>Web</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <div>
+                        <small class="text-muted">Tạo ngày: 22/05/2023</small>
+                    </div>
+                    <div>
+                        <a href="#" class="btn btn-sm btn-primary">
+                            <i class="fas fa-chart-line me-1"></i> Xem báo cáo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Trước</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Sau</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Copy tracking code to clipboard
+    const codeSnippet = document.querySelector('.code-snippet');
+    const copyButton = document.querySelector('#copy-code-btn');
+    
+    if (copyButton) {
+        copyButton.addEventListener('click', function() {
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeSnippet.textContent.trim();
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+            
+            // Show copied feedback
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-check me-1"></i> Đã sao chép';
+            setTimeout(() => {
+                this.innerHTML = originalText;
+            }, 2000);
+        });
+    }
+    
+    // Tab functionality
+    const tabLinks = document.querySelectorAll('.tab-nav .nav-link');
+    
+    tabLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Remove active class from all tabs
+            tabLinks.forEach(tab => tab.classList.remove('active'));
+            
+            // Add active class to current tab
+            this.classList.add('active');
+            
+            // You can add logic here to show/hide content based on selected tab
+            const tabName = this.getAttribute('data-tab');
+            console.log(`Selected tab: ${tabName}`);
+            
+            // Example: Add tab parameter to current URL
+            const url = new URL(window.location);
+            url.searchParams.set('tab', tabName);
+            window.history.pushState({}, '', url);
+        });
+    });
+    
+    // Initialize date range picker if available
+    if($.fn.daterangepicker) {
+        $('#dateRange').daterangepicker({
+            opens: 'left',
+            locale: {
+                format: 'DD/MM/YYYY'
+            }
+        });
+    }
+});
+</script>
+{% endblock %} 
