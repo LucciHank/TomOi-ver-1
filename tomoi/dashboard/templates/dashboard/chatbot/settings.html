@@ -113,10 +113,13 @@
                                 <label for="model" class="form-label fw-bold">Model AI:</label>
                                 <select class="form-control" id="model" name="model">
                                     <!-- Gemini models -->
-                                    <option value="gemini-2.0-flash" {% if api_config.model == 'gemini-2.0-flash' %}selected{% endif %}>Gemini 2.0 Flash - Cân bằng tốc độ/hiệu quả</option>
-                                    <option value="gemini-2.0-flash-lite" {% if api_config.model == 'gemini-2.0-flash-lite' %}selected{% endif %}>Gemini 2.0 Flash-Lite - Tiết kiệm chi phí</option>
-                                    <option value="gemini-1.5-pro" {% if api_config.model == 'gemini-1.5-pro' %}selected{% endif %}>Gemini 1.5 Pro (Phiên bản cũ)</option>
-                                    <option value="gemini-1.5-flash" {% if api_config.model == 'gemini-1.5-flash' %}selected{% endif %}>Gemini 1.5 Flash (Phiên bản cũ)</option>
+                                    <option value="gemini-2.0-flash" {% if api_config.model == 'gemini-2.0-flash' %}selected{% endif %}>Gemini 2.0 Flash - Nhanh và đa chức năng</option>
+                                    <option value="gemini-2.0-flash-lite" {% if api_config.model == 'gemini-2.0-flash-lite' %}selected{% endif %}>Gemini 2.0 Flash-Lite - Tiết kiệm, độ trễ thấp</option>
+                                    <option value="gemini-2.0-pro-exp-02-05" {% if api_config.model == 'gemini-2.0-pro-exp-02-05' %}selected{% endif %}>Gemini 2.0 Pro Experimental - Mạnh mẽ nhất</option>
+                                    <option value="gemini-1.5-flash" {% if api_config.model == 'gemini-1.5-flash' %}selected{% endif %}>Gemini 1.5 Flash - Nhanh và linh hoạt</option>
+                                    <option value="gemini-1.5-flash-8b" {% if api_config.model == 'gemini-1.5-flash-8b' %}selected{% endif %}>Gemini 1.5 Flash-8B - Cho tác vụ đơn giản</option>
+                                    <option value="gemini-1.5-pro" {% if api_config.model == 'gemini-1.5-pro' %}selected{% endif %}>Gemini 1.5 Pro - Suy luận phức tạp</option>
+                                    <option value="imagen-3.0-generate-002" {% if api_config.model == 'imagen-3.0-generate-002' %}selected{% endif %}>Imagen 3 - Tạo hình ảnh</option>
                                 </select>
                             </div>
                             
@@ -275,10 +278,13 @@
         if (apiType === 'gemini') {
             // Danh sách models mới nhất của Gemini
             const geminiModels = [
-                { value: 'gemini-2.0-flash', text: 'Gemini 2.0 Flash - Cân bằng tốc độ/hiệu quả' },
-                { value: 'gemini-2.0-flash-lite', text: 'Gemini 2.0 Flash-Lite - Tiết kiệm chi phí' },
-                { value: 'gemini-1.5-pro', text: 'Gemini 1.5 Pro (Phiên bản cũ)' },
-                { value: 'gemini-1.5-flash', text: 'Gemini 1.5 Flash (Phiên bản cũ)' }
+                { value: 'gemini-2.0-flash', text: 'Gemini 2.0 Flash - Nhanh và đa chức năng' },
+                { value: 'gemini-2.0-flash-lite', text: 'Gemini 2.0 Flash-Lite - Tiết kiệm, độ trễ thấp' },
+                { value: 'gemini-2.0-pro-exp-02-05', text: 'Gemini 2.0 Pro Experimental - Mạnh mẽ nhất' },
+                { value: 'gemini-1.5-flash', text: 'Gemini 1.5 Flash - Nhanh và linh hoạt' },
+                { value: 'gemini-1.5-flash-8b', text: 'Gemini 1.5 Flash-8B - Cho tác vụ đơn giản' },
+                { value: 'gemini-1.5-pro', text: 'Gemini 1.5 Pro - Suy luận phức tạp' },
+                { value: 'imagen-3.0-generate-002', text: 'Imagen 3 - Tạo hình ảnh' }
             ];
             
             geminiModels.forEach(model => {

@@ -200,11 +200,13 @@
                                     <div class="form-group">
                                         <label for="gemini_model">Mô hình</label>
                                         <select class="form-control" id="gemini_model" name="gemini_model">
-                                            <option value="gemini-2.0-flash" {% if gemini_model == 'gemini-2.0-flash' %}selected{% endif %}>Gemini 2.0 Flash - Cân bằng tốc độ/hiệu quả</option>
-                                            <option value="gemini-2.0-flash-lite" {% if gemini_model == 'gemini-2.0-flash-lite' %}selected{% endif %}>Gemini 2.0 Flash-Lite - Tiết kiệm chi phí</option>
-                                            <option value="gemini-2.0-pro" {% if gemini_model == 'gemini-2.0-pro' %}selected{% endif %}>Gemini 2.0 Pro - Hiệu suất cao nhất</option>
-                                            <option value="gemini-1.5-pro" {% if gemini_model == 'gemini-1.5-pro' %}selected{% endif %}>Gemini 1.5 Pro (Phiên bản cũ)</option>
-                                            <option value="gemini-1.5-flash" {% if gemini_model == 'gemini-1.5-flash' %}selected{% endif %}>Gemini 1.5 Flash (Phiên bản cũ)</option>
+                                            <option value="gemini-2.0-flash" {% if gemini_model == 'gemini-2.0-flash' %}selected{% endif %}>Gemini 2.0 Flash - Nhanh và đa chức năng</option>
+                                            <option value="gemini-2.0-flash-lite" {% if gemini_model == 'gemini-2.0-flash-lite' %}selected{% endif %}>Gemini 2.0 Flash-Lite - Tiết kiệm, độ trễ thấp</option>
+                                            <option value="gemini-2.0-pro-exp-02-05" {% if gemini_model == 'gemini-2.0-pro-exp-02-05' %}selected{% endif %}>Gemini 2.0 Pro Experimental - Mạnh mẽ nhất</option>
+                                            <option value="gemini-1.5-flash" {% if gemini_model == 'gemini-1.5-flash' %}selected{% endif %}>Gemini 1.5 Flash - Nhanh và linh hoạt</option>
+                                            <option value="gemini-1.5-flash-8b" {% if gemini_model == 'gemini-1.5-flash-8b' %}selected{% endif %}>Gemini 1.5 Flash-8B - Cho tác vụ đơn giản</option>
+                                            <option value="gemini-1.5-pro" {% if gemini_model == 'gemini-1.5-pro' %}selected{% endif %}>Gemini 1.5 Pro - Suy luận phức tạp</option>
+                                            <option value="imagen-3.0-generate-002" {% if gemini_model == 'imagen-3.0-generate-002' %}selected{% endif %}>Imagen 3 - Tạo hình ảnh</option>
                                         </select>
                                         <small class="form-text text-muted">
                                             <i class="fas fa-info-circle"></i> Được cập nhật theo phiên bản mới nhất của Google Gemini
@@ -429,10 +431,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Nút kiểm tra kết nối
     document.getElementById('testGeminiBtn').addEventListener('click', function() {
         const apiKey = document.getElementById('geminiApiKey').value;
+        const model = document.getElementById('gemini_model').value;
         const resultElement = document.getElementById('geminiTestResult');
         
-        if (!apiKey) {
-            resultElement.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> Vui lòng nhập API key!';
+        if (!apiKey || !model) {
+            resultElement.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> Vui lòng nhập API key và chọn mô hình!';
             resultElement.className = 'api-test-result api-test-error';
             resultElement.style.display = 'inline-block';
             return;
@@ -445,7 +448,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Tạo request
         const xhr = new XMLHttpRequest();
         xhr.open('POST', '{% url "dashboard:test_gemini_api" %}', true);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.setRequestHeader('X-CSRFToken', document.querySelector('[name=csrfmiddlewaretoken]').value);
         
         xhr.onload = function() {
@@ -455,7 +458,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     resultElement.innerHTML = '<i class="fas fa-check-circle mr-1"></i> Kết nối thành công!';
                     resultElement.className = 'api-test-result api-test-success';
                 } else {
-                    resultElement.innerHTML = '<i class="fas fa-times-circle mr-1"></i> Lỗi: ' + response.error;
+                    resultElement.innerHTML = '<i class="fas fa-times-circle mr-1"></i> Lỗi: ' + response.message;
                     resultElement.className = 'api-test-result api-test-error';
                 }
             } else {
@@ -467,14 +470,13 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('testGeminiBtn').innerHTML = '<i class="fas fa-plug mr-1"></i> Kiểm tra kết nối';
         };
         
-        xhr.onerror = function() {
-            resultElement.innerHTML = '<i class="fas fa-times-circle mr-1"></i> Lỗi kết nối đến server';
-            resultElement.className = 'api-test-result api-test-error';
-            resultElement.style.display = 'inline-block';
-            document.getElementById('testGeminiBtn').innerHTML = '<i class="fas fa-plug mr-1"></i> Kiểm tra kết nối';
-        };
+        // Gửi dữ liệu dưới dạng JSON
+        const requestData = JSON.stringify({
+            api_key: apiKey,
+            model: model
+        });
         
-        xhr.send('api_key=' + encodeURIComponent(apiKey) + '&csrfmiddlewaretoken=' + encodeURIComponent(document.querySelector('[name=csrfmiddlewaretoken]').value));
+        xhr.send(requestData);
     });
     
     // Xử lý hiển thị/ẩn mật khẩu

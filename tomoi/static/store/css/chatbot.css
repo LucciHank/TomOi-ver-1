@@ -433,4 +433,21 @@
     .chat-launcher-text {
         display: none;
     }
+}
+
+/* CSS cho thông báo lỗi */
+.message.bot.error .message-text {
+    background-color: #fff1f0;
+    border-left: 4px solid #ff4d4f;
+    padding-left: 10px;
+}
+
+.error-text {
+    color: #dc3545;
+    font-size: 14px;
+    padding: 10px;
+}
+
+.error-text i {
+    margin-right: 5px;
 } 

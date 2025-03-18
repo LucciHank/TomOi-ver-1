@@ -1,44 +1,40 @@
 // Sửa phần gửi tin nhắn để sử dụng API công khai
 function sendChatbotMessage(message) {
-    // Lấy API key, model từ data attribute của chatbot container
-    const chatbotContainer = document.getElementById('tomoi-chatbot');
-    const apiKey = chatbotContainer.getAttribute('data-api-key');
-    const apiType = chatbotContainer.getAttribute('data-api-type');
-    const model = chatbotContainer.getAttribute('data-model');
-    
-    console.log("Đang gửi tin nhắn với API key:", apiKey ? "Đã cấu hình" : "Chưa cấu hình");
-    
-    if (!apiKey) {
-        displayErrorMessage('API key is required');
-        return;
-    }
-    
     // Hiển thị tin nhắn người dùng
     displayUserMessage(message);
     
     // Hiển thị trạng thái đang nhập
     showTypingIndicator();
     
+    console.log("Gửi tin nhắn đến API:", message);
+    
     // Gửi tin nhắn đến API công khai
-    fetch('/api/public/chatbot-process/', {
+    fetch('/accounts/api/public/chatbot-process/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
         },
         body: JSON.stringify({
-            message: message,
+            message: message
         })
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log("Nhận response từ server, status:", response.status);
+        return response.json();
+    })
     .then(data => {
         // Ẩn trạng thái đang nhập
         hideTypingIndicator();
+        
+        console.log("Dữ liệu trả về:", data);
         
         if (data.success) {
             // Hiển thị phản hồi từ chatbot
             displayBotMessage(data.response);
         } else {
             // Hiển thị lỗi
+            console.error("Lỗi từ API:", data.message);
             displayErrorMessage(data.message || 'Đã xảy ra lỗi khi xử lý tin nhắn');
         }
     })
@@ -46,8 +42,24 @@ function sendChatbotMessage(message) {
         // Ẩn trạng thái đang nhập
         hideTypingIndicator();
         console.error('Lỗi khi gửi tin nhắn:', error);
-        displayErrorMessage('Đã xảy ra lỗi khi gửi tin nhắn');
+        displayErrorMessage('Không thể kết nối đến máy chủ. Vui lòng thử lại sau.');
     });
+}
+
+// Hàm lấy CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }
 
 // Hàm hiển thị tin nhắn người dùng

@@ -26,7 +26,8 @@ from .views import api_settings, save_api_config, test_api
 from .views import chatbot_api_settings, chatbot_save_api, chatbot_test_api
 from .views import settings as app_settings, logs, responses
 from .views.user import user_dashboard
-from .views.chatbot import dashboard as chatbot_dashboard  # Import chatbot_dashboard view
+from .views.chatbot import (dashboard as chatbot_dashboard, 
+                           chatbot_test_api, settings as chatbot_settings)
 
 # Import các chức năng marketing từ module marketing
 from .views.marketing import (
@@ -283,7 +284,7 @@ urlpatterns = [
     
     # Chatbot Settings
     path('chatbot/dashboard/', chatbot_dashboard, name='chatbot_dashboard'),
-    path('chatbot/settings/', chatbot_api_settings, name='chatbot_settings'),
+    path('chatbot/settings/', chatbot_settings, name='chatbot_settings'),
     path('chatbot/api/', chatbot_api_settings, name='chatbot_api'),  # Alias for chatbot_settings
     path('chatbot/settings/save/', chatbot_save_api, name='chatbot_save_api'),
     path('chatbot/settings/test/', chatbot_test_api, name='chatbot_test_api'),
@@ -317,6 +318,12 @@ urlpatterns = [
     path('api/events/<int:event_id>/update/', views.api.update_event, name='api_update_event'),
     path('api/events/<int:event_id>/delete/', views.api.delete_event, name='api_delete_event'),
     path('api/calendar/google-status/', views.calendar.calendar_events, name='api_calendar_google_status'),
+
+    # Thêm endpoint mới cho Chatbot test API
+    path('chatbot/settings/test-gemini/', views.api.test_api, name='test_gemini_api'),
+    
+    # API cho lịch sử trò chuyện
+    path('api/chatbot/logs/<str:chat_id>/detail/', views.api.get_chat_detail, name='api_chat_detail'),
 ]
 
 if settings.DEBUG:

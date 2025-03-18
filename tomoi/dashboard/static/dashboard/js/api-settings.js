@@ -24,13 +24,15 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Xác định URL dựa trên context
             const testApiUrl = window.location.pathname.includes('/chatbot/') 
-                ? '/dashboard/chatbot/api/test/' 
-                : '/dashboard/settings/api/test/';
+                ? '/dashboard/chatbot/settings/test-gemini/' 
+                : '/dashboard/api/settings/test/';
             
             const apiType = document.getElementById('api_type').value;
             const apiKey = document.getElementById('api_key').value;
             const model = document.getElementById('model').value;
             const endpoint = document.getElementById('endpoint')?.value || '';
+            
+            console.log("Gọi API URL:", testApiUrl);
             
             if (!apiKey) {
                 Swal.fire({
@@ -105,8 +107,10 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Xác định URL dựa trên context
             const saveApiUrl = window.location.pathname.includes('/chatbot/') 
-                ? '/dashboard/chatbot/api/save/' 
-                : '/dashboard/settings/api/save/';
+                ? '/dashboard/chatbot/settings/save/' 
+                : '/dashboard/api/settings/save/';
+
+            console.log("Gọi Save API URL:", saveApiUrl);
             
             const apiType = document.getElementById('api_type').value;
             const apiKey = document.getElementById('api_key').value;

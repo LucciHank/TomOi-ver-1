@@ -76,7 +76,7 @@ class DiscountHistory(models.Model):
     
     discount = models.ForeignKey('store.Discount', on_delete=models.CASCADE, related_name='history', null=True, blank=True)
     discount_code = models.CharField(max_length=50, verbose_name="Mã giảm giá")
-    action_type = models.CharField(max_length=20, choices=ACTION_CHOICES, verbose_name="Loại hành động")
+    action_type = models.CharField(max_length=20, choices=ACTION_CHOICES, verbose_name="Loại hành động", default='update')
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Người thực hiện")
     changes_json = models.TextField(blank=True, null=True, verbose_name="Chi tiết thay đổi (JSON)")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Thời gian thực hiện")

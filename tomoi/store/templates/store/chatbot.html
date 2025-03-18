@@ -91,6 +91,12 @@ let lastMessage = '';
 let isProcessing = false;
 let messageHistory = []; // Lưu lịch sử hội thoại
 
+// Thêm biến để theo dõi thời gian không hoạt động và timer
+let inactivityTimer = null;
+let lastInteractionTime = new Date();
+let ratingShown = false;
+let satisfactionRating = 0;
+
 // Khởi tạo DOM elements
 function initChat() {
     cacheElements();
@@ -354,7 +360,7 @@ async function processSendMessage(message) {
     // Đảm bảo chúng ta có API key
     if (!chatbotConfig || !chatbotConfig.api_key) {
         console.error("Không tìm thấy API key");
-        removeTypingIndicator();
+        hideTypingIndicator();
         addBotMessage("Xin lỗi, không thể kết nối với trí tuệ nhân tạo. Vui lòng thử lại sau.");
         isProcessing = false;
         return;
@@ -399,7 +405,7 @@ async function processSendMessage(message) {
     }
     
     // URL endpoint của Gemini API
-    const apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${chatbotConfig.model || 'gemini-1.5-flash-latest'}:generateContent?key=${chatbotConfig.api_key}`;
+    const apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${chatbotConfig.model || 'gemini-1.5-flash'}:generateContent?key=${chatbotConfig.api_key}`;
     
     // Tạo request body phù hợp với ngữ cảnh
     const requestContents = [];
@@ -428,7 +434,7 @@ async function processSendMessage(message) {
             contents: requestContents,
             generationConfig: {
                 temperature: chatbotConfig.temperature || 0.7,
-                maxOutputTokens: 8192
+                maxOutputTokens: 2048
             }
         })
     })
@@ -439,7 +445,7 @@ async function processSendMessage(message) {
         return response.json();
     })
     .then(data => {
-        removeTypingIndicator();
+        hideTypingIndicator();
         
         console.log("Gemini API response:", data);
         
@@ -472,7 +478,7 @@ async function processSendMessage(message) {
     })
     .catch(error => {
         console.error("Lỗi khi gọi Gemini API:", error);
-        removeTypingIndicator();
+        hideTypingIndicator();
         
         // Kiểm tra nếu lỗi liên quan đến API key
         if (error.message.includes("API key")) {
@@ -495,72 +501,152 @@ function formatMarkdownToHTML(text) {
         .replace(/^## (.*$)/gm, '<h2>$1</h2>')
         .replace(/^### (.*$)/gm, '<h3>$1</h3>')
         
-        // Bold và italic
+        // Bold và italic - làm rõ pattern để không còn hiển thị dấu **
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
         
-        // Bullet lists
+        // Xử lý điểm đậm (bullet points) với ngắt dòng tốt hơn
         .replace(/^\* (.*$)/gm, '<li>$1</li>')
         .replace(/^- (.*$)/gm, '<li>$1</li>')
+        
+        // Bọc các điểm đậm trong thẻ ul
+        .replace(/(<li>.*<\/li>)(?!\s*<li>)/gs, '<ul>$1</ul>')
         
         // Links
         .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>')
         
-        // Line breaks
-        .replace(/\n/g, '<br>');
+        // Xử lý ngắt dòng tốt hơn: 2 dấu xuống dòng liên tiếp thành thẻ đoạn văn
+        .replace(/\n\n/g, '</p><p>')
+        
+        // Xử lý ngắt dòng đơn
+        .replace(/\n/g, '<br>')
+        
+        // Đảm bảo văn bản được bọc trong thẻ p
+        .replace(/^(.+)$/, '<p>$1</p>')
+        
+        // Sửa thẻ p lồng nhau
+        .replace(/<p><p>/g, '<p>')
+        .replace(/<\/p><\/p>/g, '</p>');
 }
 
-// Hàm gửi tin nhắn đến API - đơn giản hóa
+// Hàm thêm lỗi vào giao diện
+function addErrorMessage(message) {
+    const chatMessages = document.getElementById('chat-messages');
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'message bot error';
+    errorDiv.innerHTML = `
+        <div class="message-avatar">
+            <img src="/static/store/images/chatbot-avatar.png" alt="TomOi Assistant">
+        </div>
+        <div class="message-content">
+            <div class="message-text error-text">
+                <i class="fas fa-exclamation-circle"></i> 
+                ${message}
+            </div>
+            <div class="message-time">Bây giờ</div>
+        </div>
+    `;
+    chatMessages.appendChild(errorDiv);
+    scrollToBottom();
+}
+
+// Hàm gửi tin nhắn đến API
 function sendMessageToAPI(message) {
-    if (isProcessing) {
-        console.log("Đang xử lý tin nhắn khác, bỏ qua");
-        return;
-    }
+    if (isProcessing) return;
     
     isProcessing = true;
     lastMessage = message;
     
-    // Lưu tin nhắn vào lịch sử
-    messageHistory.push({ role: "user", content: message });
-    
-    // Hiển thị typing indicator
+    // Hiển thị đang nhập
     showTypingIndicator();
     
-    // Kiểm tra config
-    if (!chatbotConfig || !chatbotConfig.api_key) {
-        fetchChatbotConfig().then(success => {
-            if (success) {
-                processSendMessage(message);
-            } else {
-                removeTypingIndicator();
-                addBotMessage("Xin lỗi, không thể kết nối với trí tuệ nhân tạo. Vui lòng thử lại sau.");
-                isProcessing = false;
-            }
-        });
-    } else {
-        processSendMessage(message);
+    // Lưu vào lịch sử
+    messageHistory.push({
+        role: 'user',
+        content: message
+    });
+    
+    console.log("Gửi tin nhắn đến API:", message); 
+    
+    // Kiểm tra kết nối API
+    if (!navigator.onLine) {
+        hideTypingIndicator();
+        addErrorMessage("Không có kết nối internet. Vui lòng kiểm tra kết nối của bạn.");
+        isProcessing = false;
+        return;
     }
+    
+    // Gọi API thực tế
+    fetch('/accounts/api/public/chatbot-process/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            message: message,
+            history: messageHistory.slice(-10) // Gửi 10 tin nhắn gần nhất
+        })
+    })
+    .then(response => {
+        console.log("Nhận response từ server, status:", response.status);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Ẩn đang nhập
+        hideTypingIndicator();
+        
+        console.log("Dữ liệu trả về:", data);
+        
+        if (data.success) {
+            // Hiển thị phản hồi
+            addBotMessage(data.response);
+            
+            // Thêm vào lịch sử
+            messageHistory.push({
+                role: 'assistant',
+                content: data.response
+            });
+        } else {
+            // Hiển thị lỗi
+            console.error("Lỗi từ API:", data.message);
+            addErrorMessage(data.message || 'Đã xảy ra lỗi khi xử lý tin nhắn');
+        }
+        
+        isProcessing = false;
+    })
+    .catch(error => {
+        console.error('Lỗi khi gửi tin nhắn:', error);
+        hideTypingIndicator();
+        addErrorMessage('Không thể kết nối đến máy chủ. Vui lòng thử lại sau hoặc liên hệ quản trị viên.');
+        isProcessing = false;
+    });
+}
+
+// Hàm lấy CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }
 
 // Hàm gửi log chat lên server - cập nhật endpoint chính xác
 function logChatHistory(userMessage, botResponse) {
     console.log("Đang lưu lịch sử chat...");
-    // Lấy CSRF token từ cookie
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
     
+    // Lấy CSRF token từ cookie
     const sessionId = getSessionId();
     const csrftoken = getCookie('csrftoken');
     
@@ -579,14 +665,22 @@ function logChatHistory(userMessage, botResponse) {
     
     console.log("Gửi dữ liệu lịch sử chat:", data);
     
-    // Gửi đến endpoint chính của dashboard để lưu lịch sử chat
-    fetch('/dashboard/api/chatbot/log/', {
+    // Thử lưu log bằng endpoint API đơn giản nhất
+    fetch('/api/log-chat/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': csrftoken
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+            session_id: sessionId,
+            user_query: userMessage,
+            assistant_response: botResponse,
+            metadata: JSON.stringify({
+                user_agent: navigator.userAgent,
+                page_url: window.location.href
+            })
+        }),
         credentials: 'include'
     })
     .then(response => {
@@ -600,49 +694,11 @@ function logChatHistory(userMessage, botResponse) {
         console.log("Đã lưu lịch sử chat thành công:", data);
     })
     .catch(error => {
-        console.warn("Lỗi khi lưu lịch sử chat (1):", error);
-        
-        // Nếu API chính thất bại, thử endpoint khác
-        fetch('/accounts/api/public/chatbot-log/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken
-            },
-            body: JSON.stringify(data),
-            credentials: 'include'
-        })
-        .then(response => {
-            console.log("Phản hồi API dự phòng 1:", response.status);
-            if (!response.ok) {
-                throw new Error('Lỗi khi lưu lịch sử chat: ' + response.status);
-            }
-            return response.json();
-        })
-        .catch(error => {
-            console.warn("Lỗi khi lưu lịch sử chat (2):", error);
-            
-            // Thử endpoint cuối cùng
-            fetch('/api/log-chat/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken
-                },
-                body: JSON.stringify({
-                    session_id: sessionId,
-                    user_query: userMessage,
-                    assistant_response: botResponse,
-                    metadata: JSON.stringify({
-                        user_agent: navigator.userAgent,
-                        page_url: window.location.href
-                    })
-                }),
-                credentials: 'include'
-            })
-            .catch(e => {
-                console.error("Lỗi khi lưu lịch sử chat (3):", e);
-            });
+        console.warn("Lỗi khi lưu lịch sử chat:", error);
+        console.log("Lưu chat vào local log:", {
+            user_message: userMessage,
+            bot_response: botResponse,
+            timestamp: new Date().toISOString()
         });
     });
 }
@@ -684,13 +740,30 @@ function addUserMessage(message) {
     scrollToBottom();
 }
 
-// Thêm tin nhắn bot
+// Thêm tin nhắn bot với hiệu ứng typing
 function addBotMessage(message) {
     if (!elements.chatMessages) return;
     
-    // Loại bỏ các pattern không mong muốn một lần nữa
+    // Làm mới thời gian tương tác
+    resetInactivityTimer();
+    
+    // Loại bỏ các pattern không mong muốn
     message = message.replace(/chat log \(not sent\):.+/gi, '');
     message = message.replace(/API key is required/gi, '');
+    
+    // Giới hạn nội dung hiển thị về các tài khoản premium
+    if (message.toLowerCase().includes('netflix') || 
+        message.toLowerCase().includes('spotify') ||
+        message.toLowerCase().includes('youtube premium') ||
+        message.toLowerCase().includes('tài khoản premium')) {
+        
+        // Không cần thay đổi, đã đúng chủ đề
+    } else if (!message.toLowerCase().includes('sản phẩm') && 
+               !message.toLowerCase().includes('khuyến mãi') &&
+               !message.toLowerCase().includes('tài khoản')) {
+        // Thêm thông tin về sản phẩm của shop
+        message += '<p>Chúng tôi chuyên cung cấp các tài khoản premium chất lượng cao như Netflix, Spotify, YouTube Premium và nhiều dịch vụ khác. Hãy cho tôi biết bạn đang tìm kiếm gói dịch vụ nào?</p>';
+    }
     
     // Xử lý trường hợp lặp lại tin nhắn
     if (lastMessage && (message === lastMessage || message === lastMessage.substring(1))) {
@@ -701,33 +774,56 @@ function addBotMessage(message) {
     const botAvatar = document.querySelector('.chat-avatar img')?.src || '{% static "store/images/chatbot-avatar.png" %}';
     const botName = document.getElementById('chatbot-name')?.textContent || 'TomOi Assistant';
     
-    const messageHTML = `
-        <div class="message bot">
-            <div class="message-avatar">
-                <img src="${botAvatar}" alt="${botName}">
-            </div>
-            <div class="message-content">
-                <div class="message-text">${message}</div>
-                <div class="message-time">${timestamp}</div>
-            </div>
+    // Tạo container cho tin nhắn
+    const messageContainer = document.createElement('div');
+    messageContainer.className = 'message bot';
+    messageContainer.innerHTML = `
+        <div class="message-avatar">
+            <img src="${botAvatar}" alt="${botName}">
+        </div>
+        <div class="message-content">
+            <div class="message-text typing-effect"></div>
+            <div class="message-time">${timestamp}</div>
         </div>
     `;
     
-    elements.chatMessages.insertAdjacentHTML('beforeend', messageHTML);
+    elements.chatMessages.appendChild(messageContainer);
+    scrollToBottom();
+    
+    // Element hiển thị text
+    const textElement = messageContainer.querySelector('.message-text');
+    
+    // Áp dụng hiệu ứng typing nhanh
+    const formattedMessage = formatMarkdownToHTML(message);
+    
+    // Tạo hiệu ứng typing
+    let htmlWithoutTags = formattedMessage.replace(/<[^>]*>/g, ''); // Loại bỏ thẻ HTML để tính độ dài thực
+    let typingSpeed = Math.min(10, Math.max(1, Math.floor(htmlWithoutTags.length / 100))); // Tự động điều chỉnh tốc độ
+    
+    // Đặt ngay nội dung HTML thay vì typing từng ký tự
+    textElement.innerHTML = formattedMessage;
+    textElement.classList.remove('typing-effect');
     
     // Lưu vào history
     messageHistory.push({ role: "assistant", content: message, time: timestamp });
     
     scrollToBottom();
+    
+    // Thiết lập lại timer để hiển thị đánh giá sau 1 phút không có tương tác
+    resetInactivityTimer();
 }
 
 // Hiển thị typing indicator
 function showTypingIndicator() {
-    removeTypingIndicator();
+    // Đảm bảo chỉ hiển thị một typing indicator
+    hideTypingIndicator();
     
-    if (!elements.chatMessages) return;
+    if (!elements || !elements.chatMessages) {
+        console.error("Không tìm thấy chatMessages element");
+        return;
+    }
     
-    const botAvatar = document.querySelector('.chat-avatar img')?.src || '{% static "store/images/chatbot-avatar.png" %}';
+    const botAvatar = document.querySelector('.chat-avatar img')?.src || '/static/store/images/chatbot-avatar.png';
     const botName = document.getElementById('chatbot-name')?.textContent || 'TomOi Assistant';
     
     const indicatorHTML = `
@@ -750,7 +846,10 @@ function showTypingIndicator() {
 }
 
 // Xóa typing indicator
-function removeTypingIndicator() {
+function hideTypingIndicator() {
+    // Đảm bảo DOM đã được load
+    if (typeof document === 'undefined') return;
+    
     const typingIndicator = document.querySelector('.typing-indicator-container');
     if (typingIndicator) {
         typingIndicator.remove();
@@ -765,9 +864,10 @@ function scrollToBottom() {
     }
 }
 
-// Lấy cấu hình chatbot - sửa đổi để trả về promise và log chi tiết
+// Lấy cấu hình chatbot từ server
 function fetchChatbotConfig() {
     console.log("Đang lấy cấu hình chatbot...");
+    
     return fetch('/accounts/api/public/chatbot-config/')
         .then(response => {
             if (!response.ok) {
@@ -779,7 +879,10 @@ function fetchChatbotConfig() {
             console.log("Config response:", data);
             if (data.success && data.config) {
                 chatbotConfig = data.config;
-                // Log API key (chỉ 5 ký tự đầu để bảo mật)
+                console.log("Đã tải cấu hình chatbot:", chatbotConfig);
+                
+                // Cập nhật UI với thông tin từ cấu hình
+                document.getElementById('chatbot-name').textContent = chatbotConfig.chatbot_name;
                 console.log("API key loaded:", 
                     chatbotConfig.api_key ? 
                     (chatbotConfig.api_key.substring(0, 5) + "...") : "Not found");
@@ -793,8 +896,231 @@ function fetchChatbotConfig() {
         })
         .catch(error => {
             console.error("Lỗi khi lấy cấu hình:", error);
+            
+            // Nếu gặp lỗi, tạo cấu hình mặc định
+            chatbotConfig = {
+                'chatbot_name': 'TomOi Assistant',
+                'api_type': 'gemini',
+                'model': 'gemini-1.5-flash'
+            };
+            
+            console.log("Đã tạo cấu hình mặc định:", chatbotConfig);
+            document.getElementById('chatbot-name').textContent = chatbotConfig.chatbot_name;
+            
             return false;
         });
+}
+
+// Hàm đặt lại timer không hoạt động
+function resetInactivityTimer() {
+    lastInteractionTime = new Date();
+    
+    // Xóa timer cũ nếu có
+    if (inactivityTimer) {
+        clearTimeout(inactivityTimer);
+    }
+    
+    // Xóa đánh giá cũ nếu có
+    const ratingContainer = document.querySelector('.satisfaction-rating-container');
+    if (ratingContainer) {
+        ratingContainer.remove();
+        ratingShown = false;
+    }
+    
+    // Tạo timer mới - 60 giây
+    inactivityTimer = setTimeout(() => {
+        showSatisfactionRating();
+    }, 60000); // 60000ms = 1 phút
+}
+
+// Hiển thị đánh giá mức độ hài lòng
+function showSatisfactionRating() {
+    // Chỉ hiển thị nếu chưa được hiển thị và có ít nhất một tin nhắn từ bot
+    if (ratingShown || messageHistory.filter(msg => msg.role === "assistant").length === 0) {
+        return;
+    }
+    
+    ratingShown = true;
+    
+    const ratingContainer = document.createElement('div');
+    ratingContainer.className = 'satisfaction-rating-container message bot';
+    
+    const botAvatar = document.querySelector('.chat-avatar img')?.src || '{% static "store/images/chatbot-avatar.png" %}';
+    
+    ratingContainer.innerHTML = `
+        <div class="message-avatar">
+            <img src="${botAvatar}" alt="TomOi Assistant">
+        </div>
+        <div class="message-content rating-content">
+            <div class="rating-text">Bạn đánh giá phản hồi của TomAI như nào?</div>
+            <div class="rating-stars">
+                <span class="star" data-rating="1" title="Rất tệ"><i class="far fa-star"></i></span>
+                <span class="star" data-rating="2" title="Tệ"><i class="far fa-star"></i></span>
+                <span class="star" data-rating="3" title="Bình thường"><i class="far fa-star"></i></span>
+                <span class="star" data-rating="4" title="Tốt"><i class="far fa-star"></i></span>
+                <span class="star" data-rating="5" title="Rất tốt"><i class="far fa-star"></i></span>
+            </div>
+            <div class="rating-label"></div>
+            <div class="feedback-container" style="display: none;">
+                <textarea class="feedback-text" placeholder="Điểm cần cải thiện (không bắt buộc)"></textarea>
+                <button class="send-feedback-btn">Gửi</button>
+            </div>
+            <div class="rating-action">
+                <a href="#" class="give-feedback-link">Góp ý thêm</a>
+            </div>
+        </div>
+    `;
+    
+    elements.chatMessages.appendChild(ratingContainer);
+    scrollToBottom();
+    
+    // Thiết lập sự kiện cho các sao
+    const stars = ratingContainer.querySelectorAll('.star');
+    stars.forEach(star => {
+        // Hiệu ứng hover
+        star.addEventListener('mouseover', function() {
+            const rating = parseInt(this.getAttribute('data-rating'));
+            updateStars(stars, rating, true);
+            
+            // Hiển thị nhãn đánh giá
+            const ratingLabel = ratingContainer.querySelector('.rating-label');
+            let labelText = '';
+            let labelColor = '';
+            
+            switch(rating) {
+                case 1:
+                    labelText = 'Rất tệ';
+                    labelColor = '#e74a3b'; // Đỏ
+                    break;
+                case 2:
+                    labelText = 'Tệ';
+                    labelColor = '#f6c23e'; // Cam
+                    break;
+                case 3:
+                    labelText = 'Bình thường';
+                    labelColor = '#f6c23e'; // Vàng
+                    break;
+                case 4:
+                    labelText = 'Tốt';
+                    labelColor = '#1cc88a'; // Xanh lá nhạt
+                    break;
+                case 5:
+                    labelText = 'Rất tốt';
+                    labelColor = '#1cc88a'; // Xanh lá
+                    break;
+            }
+            
+            ratingLabel.textContent = `${rating}: ${labelText}`;
+            ratingLabel.style.color = labelColor;
+        });
+        
+        // Sự kiện mouseout
+        star.addEventListener('mouseout', function() {
+            if (satisfactionRating > 0) {
+                updateStars(stars, satisfactionRating, true);
+            } else {
+                updateStars(stars, 0, false);
+                ratingContainer.querySelector('.rating-label').textContent = '';
+            }
+        });
+        
+        // Sự kiện click để đánh giá
+        star.addEventListener('click', function() {
+            const rating = parseInt(this.getAttribute('data-rating'));
+            satisfactionRating = rating;
+            updateStars(stars, rating, true);
+            
+            // Gửi đánh giá lên server
+            submitRating(rating);
+        });
+    });
+    
+    // Sự kiện cho nút góp ý thêm
+    const feedbackLink = ratingContainer.querySelector('.give-feedback-link');
+    feedbackLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Hiển thị ô góp ý
+        const feedbackContainer = ratingContainer.querySelector('.feedback-container');
+        feedbackContainer.style.display = 'block';
+        this.parentElement.style.display = 'none';
+    });
+    
+    // Sự kiện cho nút gửi góp ý
+    const sendFeedbackBtn = ratingContainer.querySelector('.send-feedback-btn');
+    sendFeedbackBtn.addEventListener('click', function() {
+        const feedbackText = ratingContainer.querySelector('.feedback-text').value.trim();
+        if (feedbackText) {
+            submitFeedback(feedbackText);
+        }
+        
+        // Ẩn khung góp ý và hiển thị thông báo cảm ơn
+        ratingContainer.querySelector('.feedback-container').style.display = 'none';
+        ratingContainer.querySelector('.rating-content').innerHTML += '<div class="thank-you-message">Cảm ơn bạn đã đánh giá và góp ý!</div>';
+    });
+}
+
+// Cập nhật hiển thị sao
+function updateStars(stars, rating, fill) {
+    stars.forEach((star, index) => {
+        const starIcon = star.querySelector('i');
+        if (fill && index < rating) {
+            starIcon.className = 'fas fa-star'; // Sao đặc
+            star.classList.add('selected');
+        } else {
+            starIcon.className = 'far fa-star'; // Sao rỗng
+            star.classList.remove('selected');
+        }
+    });
+}
+
+// Gửi đánh giá lên server
+function submitRating(rating) {
+    const sessionId = getSessionId();
+    
+    fetch('/api/rate-chat/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            session_id: sessionId,
+            rating: rating
+        }),
+        credentials: 'include'
+    })
+    .then(response => {
+        console.log("Đã gửi đánh giá:", response.status);
+    })
+    .catch(error => {
+        console.warn("Lỗi khi gửi đánh giá:", error);
+    });
+}
+
+// Gửi feedback lên server
+function submitFeedback(feedback) {
+    const sessionId = getSessionId();
+    
+    fetch('/api/feedback-chat/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            session_id: sessionId,
+            feedback: feedback,
+            rating: satisfactionRating
+        }),
+        credentials: 'include'
+    })
+    .then(response => {
+        console.log("Đã gửi góp ý:", response.status);
+    })
+    .catch(error => {
+        console.warn("Lỗi khi gửi góp ý:", error);
+    });
 }
 
 // Khởi tạo chatbot khi trang đã tải xong
@@ -1319,5 +1645,108 @@ document.addEventListener('DOMContentLoaded', initChat);
 
 .see-more a:hover {
     text-decoration: underline;
+}
+
+/* Styles for chat launcher and window */
+#tomoi-chatbot-widget {
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Styles cho phần đánh giá mức độ hài lòng */
+.satisfaction-rating-container {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.rating-content {
+    padding: 15px;
+    background-color: #f8f9fc;
+    border: 1px solid #e3e6f0;
+    border-radius: 10px;
+}
+
+.rating-text {
+    font-weight: 500;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.rating-stars {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+}
+
+.star {
+    font-size: 24px;
+    color: #f6c23e;
+    cursor: pointer;
+    padding: 0 5px;
+    transition: transform 0.2s;
+}
+
+.star:hover {
+    transform: scale(1.2);
+}
+
+.star.selected {
+    color: #f6c23e;
+}
+
+.rating-label {
+    text-align: center;
+    font-weight: 500;
+    height: 20px;
+    margin: 5px 0;
+}
+
+.rating-action {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.give-feedback-link {
+    color: #4e73df;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.give-feedback-link:hover {
+    text-decoration: underline;
+}
+
+.feedback-container {
+    margin-top: 10px;
+}
+
+.feedback-text {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #d1d3e2;
+    border-radius: 5px;
+    resize: vertical;
+    min-height: 60px;
+    margin-bottom: 10px;
+}
+
+.send-feedback-btn {
+    background-color: #4e73df;
+    color: white;
+    border: none;
+    padding: 5px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    float: right;
+}
+
+.send-feedback-btn:hover {
+    background-color: #2e59d9;
+}
+
+.thank-you-message {
+    text-align: center;
+    margin-top: 10px;
+    color: #1cc88a;
+    font-weight: 500;
 }
 </style>

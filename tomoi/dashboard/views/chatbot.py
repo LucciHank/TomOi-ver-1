@@ -27,7 +27,7 @@ def dashboard(request):
     """Trang tổng quan Chatbot"""
     # Lấy thông tin cấu hình hiện tại
     try:
-        config = ChatbotConfig.objects.filter(is_active=True).first()
+        config = ChatbotConfig.objects.filter(active=True).first()
         api = APIConfig.objects.filter(active=True).first()
     except Exception as e:
         print(f"Lỗi khi lấy cấu hình chatbot: {str(e)}")
@@ -59,10 +59,28 @@ def dashboard(request):
 @user_passes_test(is_admin)
 def chatbot_api_settings(request):
     """Trang cấu hình API Chatbot"""
-    active_api_config = APIConfig.objects.filter(is_active=True, api_type='gemini').first()
+    active_api_config = APIConfig.objects.filter(active=True).first()
+    chatbot_config = ChatbotConfig.objects.filter(active=True).first()
+    
+    # Tạo cấu hình mặc định nếu chưa có
+    if not active_api_config:
+        active_api_config = APIConfig.objects.create(
+            api_type='gemini',
+            model='gemini-1.5-flash',
+            temperature=0.7,
+            active=True
+        )
+    
+    if not chatbot_config:
+        chatbot_config = ChatbotConfig.objects.create(
+            chatbot_name="TomOi Assistant",
+            base_prompt="Bạn là trợ lý AI của cửa hàng TomOi, chuyên cung cấp thông tin về sản phẩm và dịch vụ.",
+            active=True
+        )
     
     context = {
         'active_api_config': active_api_config,
+        'config': chatbot_config,
         'active_tab': 'chatbot'
     }
     
@@ -103,7 +121,7 @@ def chatbot_save_api(request):
                 config.temperature = temperature
                 config.max_tokens = max_tokens
                 config.endpoint = endpoint
-                config.is_active = True
+                config.active = True
                 config.save()
                 print(f"Updated existing API config: {config.id}")
             else:
@@ -114,12 +132,12 @@ def chatbot_save_api(request):
                     temperature=temperature,
                     max_tokens=max_tokens,
                     endpoint=endpoint,
-                    is_active=True
+                    active=True
                 )
                 print(f"Created new API config: {config.id}")
             
             # Vô hiệu hóa các cấu hình khác cùng loại
-            APIConfig.objects.filter(api_type=api_type).exclude(id=config.id).update(is_active=False)
+            APIConfig.objects.filter(api_type=api_type).exclude(id=config.id).update(active=False)
             
             return JsonResponse({
                 'success': True,
@@ -166,12 +184,12 @@ def settings(request):
     """Trang cài đặt Chatbot"""
     # Lấy cấu hình hiện tại nếu có
     try:
-        config = ChatbotConfig.objects.filter(is_active=True).first()
-        api_config = APIConfig.objects.filter(is_active=True).first()
+        config = ChatbotConfig.objects.filter(active=True).first()
+        api_config = APIConfig.objects.filter(active=True).first()
         
         # Log để kiểm tra
         if config:
-            print(f"Đã tìm thấy cấu hình chatbot: {config.name}, is_active={config.is_active}")
+            print(f"Đã tìm thấy cấu hình chatbot: {config.name}, is_active={config.active}")
         if api_config:
             print(f"Đã tìm thấy cấu hình API: {api_config.api_type}, model={api_config.model}")
             
@@ -211,59 +229,39 @@ def responses(request):
     return render(request, 'dashboard/chatbot/responses.html', context)
 
 def test_api_connection(api_type, api_key, model, endpoint=None):
-    """Kiểm tra kết nối API"""
-    print(f"Kiểm tra kết nối {api_type} API với key: {api_key[:5]}...")
+    """Kiểm tra kết nối API dựa theo hướng dẫn mới nhất của Google"""
+    print(f"Kiểm tra kết nối Gemini API với key: {api_key[:5]}... và model: {model}")
     
     try:
-        if api_type == 'gemini':
-            import google.generativeai as genai
-            genai.configure(api_key=api_key)
-            model_obj = genai.GenerativeModel(model)
-            response = model_obj.generate_content("Xin chào, đây là tin nhắn kiểm tra kết nối. Trả lời ngắn gọn.")
-            
-            if response and hasattr(response, 'text'):
-                return {
-                    'success': True,
-                    'message': 'Kết nối Gemini API thành công'
-                }
-            return {
-                'success': False,
-                'message': 'Không nhận được phản hồi hợp lệ từ Gemini API'
-            }
-            
-        elif api_type == 'openai':
-            import openai
-            openai.api_key = api_key
-            if endpoint:
-                openai.api_base = endpoint
-                
-            response = openai.ChatCompletion.create(
-                model=model,
-                messages=[
-                    {"role": "user", "content": "Xin chào, đây là tin nhắn kiểm tra kết nối. Trả lời ngắn gọn."}
-                ],
-                max_tokens=20
-            )
-            
-            if response and 'choices' in response and len(response['choices']) > 0:
-                return {
-                    'success': True,
-                    'message': 'Kết nối OpenAI API thành công'
-                }
-            return {
-                'success': False,
-                'message': 'Không nhận được phản hồi hợp lệ từ OpenAI API'
-            }
-            
-        # Thêm các loại API khác nếu cần
+        # Sử dụng thư viện chính thức từ Google
+        from google import genai
         
+        # Khởi tạo client với API key
+        client = genai.Client(api_key=api_key)
+        
+        # Gửi request test đơn giản
+        response = client.models.generate_content(
+            model=model,
+            contents=["Xin chào, đây là tin nhắn kiểm tra kết nối. Trả lời ngắn gọn."]
+        )
+        
+        # Kiểm tra kết quả
+        if response and hasattr(response, 'text'):
+            return {
+                'success': True,
+                'message': f'Kết nối Gemini API thành công với model {model}'
+            }
         return {
             'success': False,
-            'message': f'Loại API không được hỗ trợ: {api_type}'
+            'message': 'Không nhận được phản hồi hợp lệ từ Gemini API'
         }
-        
+    except ImportError as ie:
+        return {
+            'success': False,
+            'message': f'Thiếu thư viện: {str(ie)}. Vui lòng cài đặt: pip install google-generativeai'
+        }
     except Exception as e:
-        print(f"Lỗi kết nối: {str(e)}")
+        print(f"Lỗi kết nối Gemini API: {str(e)}")
         return {
             'success': False,
             'message': f'Lỗi kết nối: {str(e)}'
@@ -332,7 +330,7 @@ def chatbot_config(request, config_id=None):
             config.name = name
             config.base_prompt = base_prompt
             config.rejection_message = rejection_message
-            config.is_active = is_active
+            config.active = is_active
             config.save()
         else:
             # Tạo cấu hình mới
@@ -340,7 +338,7 @@ def chatbot_config(request, config_id=None):
                 name=name,
                 base_prompt=base_prompt,
                 rejection_message=rejection_message,
-                is_active=is_active
+                active=is_active
             )
         
         # Xử lý danh mục được phép
@@ -374,7 +372,7 @@ def chatbot_config(request, config_id=None):
         
         # Nếu cấu hình này được đánh dấu là active, hãy tắt các cấu hình khác
         if is_active:
-            ChatbotConfig.objects.exclude(id=config.id).update(is_active=False)
+            ChatbotConfig.objects.exclude(id=config.id).update(active=False)
         
         return redirect('dashboard:chatbot_dashboard')
     
@@ -413,7 +411,7 @@ def api_integration(request):
                 integration.api_key = api_key
                 integration.api_version = api_version
                 integration.timeout = timeout
-                integration.is_active = is_active
+                integration.active = is_active
                 integration.save()
             else:
                 # Tạo tích hợp mới
@@ -424,12 +422,12 @@ def api_integration(request):
                     api_key=api_key,
                     api_version=api_version,
                     timeout=timeout,
-                    is_active=is_active
+                    active=is_active
                 )
             
             # Nếu tích hợp này được đánh dấu là active, hãy tắt các tích hợp khác
             if is_active:
-                APIIntegration.objects.exclude(id=integration.id).update(is_active=False)
+                APIIntegration.objects.exclude(id=integration.id).update(active=False)
             
             return redirect('dashboard:api_integration')
         
@@ -498,12 +496,12 @@ def chat_api(request):
             return JsonResponse({'error': 'Missing required fields'}, status=400)
         
         # Lấy cấu hình chatbot đang kích hoạt
-        config = ChatbotConfig.objects.filter(is_active=True).first()
+        config = ChatbotConfig.objects.filter(active=True).first()
         if not config:
             return JsonResponse({'error': 'No active chatbot configuration found'}, status=500)
         
         # Lấy tích hợp API đang kích hoạt
-        api_integration = APIIntegration.objects.filter(is_active=True).first()
+        api_integration = APIIntegration.objects.filter(active=True).first()
         if not api_integration:
             return JsonResponse({'error': 'No active API integration found'}, status=500)
         
@@ -790,7 +788,7 @@ def save_chatbot_settings(request):
         # Lấy dữ liệu từ request
         api_type = data.get('api_type', 'gemini')
         api_key = data.get('api_key')
-        model = data.get('model', 'gemini-1.5-pro')  # Mặc định là 1.5 pro thay vì 2.0 pro
+        model = data.get('model', 'gemini-1.5-flash')  # Mặc định là Gemini 1.5 Flash
         temperature = float(data.get('temperature', 0.7))
         chatbot_name = data.get('chatbot_name')
         base_prompt = data.get('base_prompt')
@@ -806,18 +804,18 @@ def save_chatbot_settings(request):
                 'model': model,
                 'temperature': temperature,
                 'endpoint': endpoint,
-                'is_active': True
+                'active': True
             }
         )
         
         # Vô hiệu hóa các cấu hình API khác
-        APIConfig.objects.exclude(id=api_config.id).update(is_active=False)
+        APIConfig.objects.exclude(id=api_config.id).update(active=False)
         
         # Kiểm tra các trường có trong model trước khi cập nhật
         chatbot_config_fields = {
             'chatbot_name': chatbot_name,
             'base_prompt': base_prompt,
-            'is_active': True
+            'active': True
         }
         
         # Cập nhật hoặc tạo mới cấu hình Chatbot
@@ -827,7 +825,7 @@ def save_chatbot_settings(request):
         )
         
         # Vô hiệu hóa các cấu hình Chatbot khác
-        ChatbotConfig.objects.exclude(id=chatbot_config.id).update(is_active=False)
+        ChatbotConfig.objects.exclude(id=chatbot_config.id).update(active=False)
         
         print(f"Đã lưu cấu hình Chatbot thành công: {chatbot_config.name}, API: {api_config.api_type}")
         
@@ -848,8 +846,8 @@ def get_chatbot_config(request):
     """Trả về cấu hình chatbot cho frontend"""
     try:
         # Lấy cấu hình chatbot và API đang hoạt động
-        config = ChatbotConfig.objects.filter(is_active=True).first()
-        api_config = APIConfig.objects.filter(is_active=True).first()
+        config = ChatbotConfig.objects.filter(active=True).first()
+        api_config = APIConfig.objects.filter(active=True).first()
         
         if not config or not api_config:
             return JsonResponse({

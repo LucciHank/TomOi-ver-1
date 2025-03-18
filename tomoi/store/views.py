@@ -23,7 +23,7 @@ from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
 from django.utils.crypto import get_random_string
 from django.urls import reverse
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.views.decorators.http import require_http_methods, require_POST
 from django.db.models import Q, Count
 import time
@@ -35,6 +35,7 @@ from django.contrib.auth.hashers import check_password
 from django.core.cache import cache
 import pyotp
 from django.templatetags.static import static
+from dashboard.models.chatbot import ChatLog, ChatFeedback
 
 
 def dashboard(request):
@@ -983,3 +984,132 @@ def trending_searches(request):
         })
     
     return JsonResponse({'suggestions': suggestions})
+
+# Các hàm API cho chatbot
+@csrf_exempt
+@require_POST
+def log_chat_message(request):
+    """API endpoint để lưu lịch sử trò chuyện với chatbot"""
+    try:
+        data = json.loads(request.body)
+        
+        session_id = data.get('session_id')
+        user_query = data.get('user_query')
+        assistant_response = data.get('assistant_response')
+        metadata = data.get('metadata', {})
+        
+        if not session_id or not user_query or not assistant_response:
+            return JsonResponse({
+                'success': False,
+                'message': 'Thiếu thông tin bắt buộc'
+            }, status=400)
+            
+        # Lưu log chat vào database
+        chat_log = ChatLog.objects.create(
+            session_id=session_id,
+            user=request.user if request.user.is_authenticated else None,
+            user_query=user_query,
+            response=assistant_response,
+            status='success',
+            metadata=metadata
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Đã lưu lịch sử trò chuyện',
+            'log_id': chat_log.id
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'message': 'Dữ liệu không hợp lệ'
+        }, status=400)
+    except Exception as e:
+        print(f"Lỗi khi lưu lịch sử chat: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': f'Lỗi: {str(e)}'
+        }, status=500)
+
+@csrf_exempt
+@require_POST
+def rate_chat_message(request):
+    """API endpoint để đánh giá chatbot"""
+    try:
+        data = json.loads(request.body)
+        
+        session_id = data.get('session_id')
+        rating = data.get('rating')
+        
+        if not session_id or not rating:
+            return JsonResponse({
+                'success': False,
+                'message': 'Thiếu thông tin bắt buộc'
+            }, status=400)
+            
+        # Cập nhật đánh giá cho tất cả chatlog trong phiên
+        updated = ChatLog.objects.filter(session_id=session_id).update(
+            satisfaction_rating=rating
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Đã cập nhật đánh giá',
+            'updated_logs': updated
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'message': 'Dữ liệu không hợp lệ'
+        }, status=400)
+    except Exception as e:
+        print(f"Lỗi khi cập nhật đánh giá: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': f'Lỗi: {str(e)}'
+        }, status=500)
+
+@csrf_exempt
+@require_POST
+def send_chat_feedback(request):
+    """API endpoint để gửi góp ý về chatbot"""
+    try:
+        data = json.loads(request.body)
+        
+        session_id = data.get('session_id')
+        feedback = data.get('feedback')
+        rating = data.get('rating')
+        
+        if not session_id or not feedback:
+            return JsonResponse({
+                'success': False,
+                'message': 'Thiếu thông tin bắt buộc'
+            }, status=400)
+            
+        # Lưu góp ý vào database
+        chat_feedback = ChatFeedback.objects.create(
+            session_id=session_id,
+            user=request.user if request.user.is_authenticated else None,
+            feedback_text=feedback,
+            rating=rating or 0
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Đã gửi góp ý thành công',
+            'feedback_id': chat_feedback.id
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'message': 'Dữ liệu không hợp lệ'
+        }, status=400)
+    except Exception as e:
+        print(f"Lỗi khi gửi góp ý: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': f'Lỗi: {str(e)}'
+        }, status=500)

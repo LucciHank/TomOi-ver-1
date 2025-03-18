@@ -63,6 +63,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import models
 from dashboard.models.chatbot import ChatbotConfig
 from dashboard.models.api import APIConfig
+from django.db import connection
 
 logger = logging.getLogger(__name__)
 
@@ -2545,48 +2546,83 @@ def get_transaction_detail(request, transaction_id):
 def public_chatbot_config(request):
     """API endpoint công khai để lấy cấu hình chatbot"""
     try:
-        print("=== PUBLIC CHATBOT CONFIG API CALLED ===")
-        # Lấy cấu hình chatbot và API đang hoạt động
-        config = ChatbotConfig.objects.filter(is_active=True).first()
-        api_config = APIConfig.objects.filter(is_active=True).first()
+        print("[DEBUG] Gọi API public_chatbot_config")
         
-        print(f"Config found: {config is not None}")
-        print(f"API config found: {api_config is not None}")
+        # Truy cập trực tiếp đến database
+        try:
+            with connection.cursor() as cursor:
+                # Truy vấn ChatbotConfig
+                cursor.execute("""
+                    SELECT id, name, chatbot_name FROM dashboard_chatbotconfig 
+                    LIMIT 1
+                """)
+                config_row = cursor.fetchone()
+                
+                if config_row:
+                    config_id, config_name, chatbot_name = config_row
+                    config = {
+                        'id': config_id,
+                        'name': config_name,
+                        'chatbot_name': chatbot_name
+                    }
+                else:
+                    config = None
+                
+                # Truy vấn APIConfig
+                cursor.execute("""
+                    SELECT id, api_type, api_key, model FROM dashboard_apiconfig
+                    LIMIT 1
+                """)
+                api_row = cursor.fetchone()
+                
+                if api_row:
+                    api_id, api_type, api_key, model = api_row
+                    api_config = {
+                        'id': api_id,
+                        'api_type': api_type,
+                        'api_key': api_key,
+                        'model': model
+                    }
+                else:
+                    api_config = None
+                
+        except Exception as db_error:
+            print(f"[ERROR] Lỗi khi truy cập database: {str(db_error)}")
+            return JsonResponse({
+                'success': False,
+                'message': f'Lỗi khi truy cập database: {str(db_error)}'
+            })
+        
+        print(f"[DEBUG] Config tìm thấy: {config is not None}")
+        print(f"[DEBUG] API config tìm thấy: {api_config is not None}")
         
         if config:
-            print(f"Chatbot name: {config.chatbot_name}")
-            print(f"Is active: {config.is_active}")
+            print(f"[DEBUG] Tên chatbot: {config.get('chatbot_name')}")
         
         if api_config:
-            print(f"API type: {api_config.api_type}")
-            print(f"API key: {api_config.api_key[:5]}...")
-            print(f"Model: {api_config.model}")
-            print(f"Active: {api_config.active}")
+            print(f"[DEBUG] Loại API: {api_config.get('api_type')}")
+            print(f"[DEBUG] API key: {api_config.get('api_key')[:5]}..." if api_config.get('api_key') else "None")
+            print(f"[DEBUG] Model: {api_config.get('model')}")
         
         if not config or not api_config:
-            print("Missing config or API config")
             return JsonResponse({
                 'success': False,
                 'message': 'Chưa cấu hình chatbot hoặc API'
             })
-        
-        response_data = {
+            
+        # Trả về thông tin cấu hình (không bao gồm API key đầy đủ)
+        return JsonResponse({
             'success': True,
             'config': {
-                'chatbot_name': config.chatbot_name,
-                'base_prompt': config.base_prompt,
-                'api_type': api_config.api_type,
-                'api_key': api_config.api_key,
-                'model': api_config.model,
-                'temperature': float(api_config.temperature),
-                'endpoint': api_config.endpoint
+                'chatbot_name': config.get('chatbot_name'),
+                'api_type': api_config.get('api_type'),
+                'model': api_config.get('model'),
+                # Gửi API key thực tế (giấu bớt)
+                'api_key': api_config.get('api_key')[:5] + '*****' if api_config.get('api_key') else None
             }
-        }
-        
-        print(f"Response data: {response_data}")
-        return JsonResponse(response_data)
+        })
     except Exception as e:
-        print(f"Lỗi khi lấy cấu hình public chatbot: {str(e)}")
+        print(f"[ERROR] Lỗi khi lấy cấu hình chatbot: {str(e)}")
         import traceback
         traceback.print_exc()
         return JsonResponse({
@@ -2598,35 +2634,202 @@ def public_chatbot_config(request):
 def public_chatbot_process(request):
     """API endpoint công khai để xử lý tin nhắn chatbot"""
     if request.method != 'POST':
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
+        return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
     
     try:
         print("=== CHATBOT PROCESS API CALLED ===")
         print(f"URL path: {request.path}")
-        data = json.loads(request.body)
-        message = data.get('message', '')
         
-        print(f"Received message: {message}")
+        try:
+            # Phân tích JSON request body
+            data = json.loads(request.body)
+            message = data.get('message', '')
+            history = data.get('history', [])
+            print(f"Received message: {message}")
+        except json.JSONDecodeError:
+            print("Invalid JSON in request body")
+            return JsonResponse({
+                'success': False,
+                'message': 'Định dạng JSON không hợp lệ'
+            }, status=400)
         
-        # Lấy cấu hình API
-        config = ChatbotConfig.objects.filter(is_active=True).first()
-        api_config = APIConfig.objects.filter(is_active=True).first()
+        # Lấy cấu hình API - truy cập trực tiếp đến database
+        try:
+            with connection.cursor() as cursor:
+                # Truy vấn ChatbotConfig
+                cursor.execute("""
+                    SELECT id, name, base_prompt, chatbot_name FROM dashboard_chatbotconfig 
+                    LIMIT 1
+                """)
+                config_row = cursor.fetchone()
+                
+                if config_row:
+                    config_id, config_name, base_prompt, chatbot_name = config_row
+                    config = {
+                        'id': config_id,
+                        'name': config_name,
+                        'base_prompt': base_prompt,
+                        'chatbot_name': chatbot_name
+                    }
+                else:
+                    config = None
+                
+                # Truy vấn APIConfig
+                cursor.execute("""
+                    SELECT id, api_key, model, temperature FROM dashboard_apiconfig
+                    LIMIT 1
+                """)
+                api_row = cursor.fetchone()
+                
+                if api_row:
+                    api_id, api_key, model, temperature = api_row
+                    api_config = {
+                        'id': api_id,
+                        'api_type': 'gemini', # Luôn sử dụng Gemini
+                        'api_key': api_key,
+                        'model': model or 'gemini-1.5-flash',
+                        'temperature': float(temperature) if temperature is not None else 0.7
+                    }
+                else:
+                    api_config = None
+                
+        except Exception as db_error:
+            print(f"Lỗi khi truy cập database: {str(db_error)}")
+            return JsonResponse({
+                'success': False,
+                'message': f'Lỗi khi truy cập database: {str(db_error)}'
+            })
         
         print(f"Config found: {config is not None}")
         print(f"API config found: {api_config is not None}")
         
-        if not config or not api_config:
+        if not config:
+            print("Không tìm thấy cấu hình ChatbotConfig")
             return JsonResponse({
                 'success': False,
-                'message': 'Chưa cấu hình chatbot hoặc API'
+                'message': 'Chưa cấu hình chatbot. Vui lòng liên hệ quản trị viên để cấu hình.'
+            })
+            
+        if not api_config:
+            print("Không tìm thấy cấu hình APIConfig")
+            return JsonResponse({
+                'success': False,
+                'message': 'Chưa cấu hình API. Vui lòng liên hệ quản trị viên để cấu hình.'
+            })
+            
+        if not api_config.get('api_key'):
+            print("API key không được cấu hình")
+            return JsonResponse({
+                'success': False,
+                'message': 'API key chưa được cấu hình. Vui lòng liên hệ quản trị viên để cấu hình API key.'
             })
         
-        # Xử lý tin nhắn với API
-        chatbot_name = config.chatbot_name or "TomOi Assistant"
+        # In thông tin cấu hình để debug
+        print(f"Model: {api_config.get('model')}")
+        print(f"API Key: {api_config.get('api_key')[:5]}...")
+        
+        # Xử lý tin nhắn với API động
+        chatbot_name = config.get('chatbot_name') or "TomOi Assistant"
+        api_key = api_config.get('api_key')
+        model = api_config.get('model')
+        temperature = api_config.get('temperature') or 0.7
+        
+        # Chuẩn bị prompt với base prompt từ cấu hình
+        base_prompt = config.get('base_prompt') or "Bạn là trợ lý AI của cửa hàng TomOi."
+        
+        # Kiểm tra API key có giá trị hợp lệ
+        if not api_key or len(api_key.strip()) < 5:
+            print("API key không hợp lệ hoặc quá ngắn")
+            return JsonResponse({
+                'success': False,
+                'message': 'API key không hợp lệ. Vui lòng liên hệ quản trị viên để kiểm tra API key.'
+            })
+            
+        # Đảm bảo model được xác định
+        if not model:
+            print("Model không được xác định")
+            model = 'gemini-1.5-flash'  # Mặc định nếu không có
+            print(f"Sử dụng model mặc định: {model}")
+        
+        response_text = ""
+        
+        # Sử dụng Gemini API
+        try:
+            print("Sử dụng Gemini API...")
+            
+            try:
+                import google.generativeai as genai
+            except ImportError:
+                print("Không thể import thư viện google.generativeai")
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Thiếu thư viện google.generativeai. Vui lòng cài đặt thư viện này.'
+                })
+            
+            genai.configure(api_key=api_key)
+            
+            # Chuẩn bị cấu hình phù hợp với model
+            generation_config = {
+                "temperature": temperature,
+                "top_p": 0.9,
+                "top_k": 40,
+                "max_output_tokens": 2048,
+            }
+            
+            # Xử lý đặc biệt cho mô hình image generation
+            if model == 'imagen-3.0-generate-002':
+                try:
+                    print("Sử dụng Imagen API để tạo hình ảnh")
+                    # Xử lý tạo hình ảnh sẽ được thêm sau khi có yêu cầu cụ thể
+                    response_text = "Hiện tại chưa hỗ trợ tạo hình ảnh. Vui lòng sử dụng model khác."
+                except Exception as model_error:
+                    print(f"Lỗi khi tạo hình ảnh: {str(model_error)}")
+                    return JsonResponse({
+                        'success': False,
+                        'message': f'Lỗi khi tạo hình ảnh: {str(model_error)}'
+                    })
+            else:
+                # Sử dụng lịch sử trò chuyện nếu có
+                contents = []
+                
+                # KHÔNG sử dụng system role với Gemini API vì không được hỗ trợ
+                # Thay vào đó, thêm base_prompt vào tin nhắn đầu tiên của người dùng
+                user_intro = f"{base_prompt}\n\nNgười dùng: {message}"
+                
+                # Thêm tin nhắn hiện tại 
+                contents.append({
+                    "role": "user",
+                    "parts": [{"text": user_intro}]
+                })
+                
+                try:
+                    model_obj = genai.GenerativeModel(model_name=model, generation_config=generation_config)
+                    
+                    # Sử dụng generate_content với nội dung đã chuẩn bị
+                    response = model_obj.generate_content(contents)
+                    
+                    response_text = response.text
+                    print("Gemini API response received")
+                except Exception as model_error:
+                    print(f"Lỗi khi tạo mô hình hoặc tạo nội dung: {str(model_error)}")
+                    return JsonResponse({
+                        'success': False,
+                        'message': f'Lỗi khi tạo nội dung: {str(model_error)}'
+                    })
+                
+        except Exception as api_error:
+            print(f"Lỗi khi gọi Gemini API: {str(api_error)}")
+            return JsonResponse({
+                'success': False,
+                'message': f'Lỗi khi gọi Gemini API: {str(api_error)}'
+            })
+        
+        # Lưu log chat nếu cần
+        print(f"Gửi phản hồi: {response_text[:50]}...")
         
         return JsonResponse({
             'success': True,
-            'response': f"Đây là phản hồi từ {chatbot_name}. Tin nhắn của bạn: {message}"
+            'response': response_text
         })
     except Exception as e:
         print(f"Lỗi khi xử lý tin nhắn chatbot: {str(e)}")
@@ -2634,7 +2837,7 @@ def public_chatbot_process(request):
         traceback.print_exc()
         return JsonResponse({
             'success': False,
-            'message': f'Lỗi: {str(e)}'
+            'message': f'Lỗi hệ thống: {str(e)}. Vui lòng thử lại sau hoặc liên hệ quản trị viên.'
         })
 
 @csrf_exempt

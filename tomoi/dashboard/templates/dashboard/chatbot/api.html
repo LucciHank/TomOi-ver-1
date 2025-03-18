@@ -88,9 +88,6 @@
                             <label for="api_type" class="form-label fw-bold">Loại API:</label>
                             <select class="form-select form-control" id="api_type" name="api_type">
                                 <option value="gemini" {% if active_api_config.api_type == 'gemini' %}selected{% endif %}>Google Gemini AI</option>
-                                <option value="openai" {% if active_api_config.api_type == 'openai' %}selected{% endif %}>OpenAI</option>
-                                <option value="anthropic" {% if active_api_config.api_type == 'anthropic' %}selected{% endif %}>Anthropic Claude</option>
-                                <option value="cohere" {% if active_api_config.api_type == 'cohere' %}selected{% endif %}>Cohere</option>
                             </select>
                         </div>
                         
@@ -109,29 +106,13 @@
                             <select class="form-select form-control" id="model" name="model">
                                 <!-- Google Gemini models -->
                                 <optgroup label="Google Gemini">
-                                    <option value="gemini-pro" {% if active_api_config.api_type == 'gemini' and active_api_config.model == 'gemini-pro' %}selected{% endif %}>Gemini Pro</option>
-                                    <option value="gemini-pro-vision" {% if active_api_config.api_type == 'gemini' and active_api_config.model == 'gemini-pro-vision' %}selected{% endif %}>Gemini Pro Vision</option>
-                                    <option value="gemini-ultra" {% if active_api_config.api_type == 'gemini' and active_api_config.model == 'gemini-ultra' %}selected{% endif %}>Gemini Ultra</option>
-                                </optgroup>
-                                
-                                <!-- OpenAI models -->
-                                <optgroup label="OpenAI">
-                                    <option value="gpt-4o" {% if active_api_config.api_type == 'openai' and active_api_config.model == 'gpt-4o' %}selected{% endif %}>GPT-4o</option>
-                                    <option value="gpt-4" {% if active_api_config.api_type == 'openai' and active_api_config.model == 'gpt-4' %}selected{% endif %}>GPT-4</option>
-                                    <option value="gpt-3.5-turbo" {% if active_api_config.api_type == 'openai' and active_api_config.model == 'gpt-3.5-turbo' %}selected{% endif %}>GPT-3.5 Turbo</option>
-                                </optgroup>
-                                
-                                <!-- Anthropic models -->
-                                <optgroup label="Anthropic">
-                                    <option value="claude-3-opus" {% if active_api_config.api_type == 'anthropic' and active_api_config.model == 'claude-3-opus' %}selected{% endif %}>Claude 3 Opus</option>
-                                    <option value="claude-3-sonnet" {% if active_api_config.api_type == 'anthropic' and active_api_config.model == 'claude-3-sonnet' %}selected{% endif %}>Claude 3 Sonnet</option>
-                                    <option value="claude-3-haiku" {% if active_api_config.api_type == 'anthropic' and active_api_config.model == 'claude-3-haiku' %}selected{% endif %}>Claude 3 Haiku</option>
-                                </optgroup>
-                                
-                                <!-- Cohere models -->
-                                <optgroup label="Cohere">
-                                    <option value="command" {% if active_api_config.api_type == 'cohere' and active_api_config.model == 'command' %}selected{% endif %}>Command</option>
-                                    <option value="command-light" {% if active_api_config.api_type == 'cohere' and active_api_config.model == 'command-light' %}selected{% endif %}>Command Light</option>
+                                    <option value="gemini-2.0-flash" {% if active_api_config.api_type == 'gemini' and active_api_config.model == 'gemini-2.0-flash' %}selected{% endif %}>Gemini 2.0 Flash - Nhanh và đa chức năng</option>
+                                    <option value="gemini-2.0-flash-lite" {% if active_api_config.api_type == 'gemini' and active_api_config.model == 'gemini-2.0-flash-lite' %}selected{% endif %}>Gemini 2.0 Flash-Lite - Tiết kiệm, độ trễ thấp</option>
+                                    <option value="gemini-2.0-pro-exp-02-05" {% if active_api_config.api_type == 'gemini' and active_api_config.model == 'gemini-2.0-pro-exp-02-05' %}selected{% endif %}>Gemini 2.0 Pro Experimental - Mạnh mẽ nhất</option>
+                                    <option value="gemini-1.5-flash" {% if active_api_config.api_type == 'gemini' and active_api_config.model == 'gemini-1.5-flash' %}selected{% endif %}>Gemini 1.5 Flash - Nhanh và linh hoạt</option>
+                                    <option value="gemini-1.5-flash-8b" {% if active_api_config.api_type == 'gemini' and active_api_config.model == 'gemini-1.5-flash-8b' %}selected{% endif %}>Gemini 1.5 Flash-8B - Cho tác vụ đơn giản</option>
+                                    <option value="gemini-1.5-pro" {% if active_api_config.api_type == 'gemini' and active_api_config.model == 'gemini-1.5-pro' %}selected{% endif %}>Gemini 1.5 Pro - Suy luận phức tạp</option>
+                                    <option value="imagen-3.0-generate-002" {% if active_api_config.api_type == 'gemini' and active_api_config.model == 'imagen-3.0-generate-002' %}selected{% endif %}>Imagen 3 - Tạo hình ảnh</option>
                                 </optgroup>
                             </select>
                         </div>
@@ -202,24 +183,6 @@
                         </ol>
                     </div>
                     
-                    <div class="instruction-step">
-                        <i class="fas fa-arrow-right"></i> <strong>OpenAI:</strong>
-                        <ol class="mt-2">
-                            <li>Truy cập <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI Platform</a></li>
-                            <li>Đăng nhập tài khoản OpenAI</li>
-                            <li>Tạo Secret key mới và sao chép</li>
-                        </ol>
-                    </div>
-                    
-                    <div class="instruction-step">
-                        <i class="fas fa-arrow-right"></i> <strong>Anthropic:</strong>
-                        <ol class="mt-2">
-                            <li>Truy cập <a href="https://console.anthropic.com/keys" target="_blank">Anthropic Console</a></li>
-                            <li>Đăng ký tài khoản nếu chưa có</li>
-                            <li>Tạo API key mới</li>
-                        </ol>
-                    </div>
-                    
                     <div class="alert alert-info mt-3">
                         <i class="fas fa-info-circle mr-1"></i> Google Gemini AI cho phép sử dụng miễn phí với giới hạn 60 request/phút
                     </div>
@@ -245,7 +208,7 @@
     // Hiển thị/ẩn endpoint tùy thuộc vào loại API
     document.getElementById('api_type').addEventListener('change', function() {
         const endpointContainer = document.getElementById('endpoint-container');
-        if (this.value === 'openai' || this.value === 'anthropic' || this.value === 'cohere') {
+        if (this.value === 'gemini') {
             endpointContainer.style.display = 'block';
         } else {
             endpointContainer.style.display = 'none';
