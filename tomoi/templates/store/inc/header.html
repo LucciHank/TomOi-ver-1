@@ -1,0 +1,18 @@
+                    <a href="{% url 'store:cart' %}" class="cart-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                        {% if cart_count > 0 %}
+                            <span class="cart-count">{{ cart_count }}</span>
+                        {% endif %}
+                    </a>
+                    
+                    <!-- Thêm icon chat -->
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'store:user_chat' %}" class="chat-icon ml-3" style="position: relative; display: inline-block; margin-right: 15px;">
+                        <i class="fas fa-comments" style="font-size: 1.2rem;"></i>
+                        <span id="chat-badge" style="position: absolute; top: -8px; right: -8px; background-color: #e74a3b; color: white; border-radius: 50%; font-size: 0.7rem; padding: 2px 6px; display: {% if unread_messages_count > 0 %}inline{% else %}none{% endif %};">
+                            {{ unread_messages_count|default:0 }}
+                        </span>
+                    </a>
+                    {% endif %}
+                    
+                    {% if user.is_authenticated %} 

@@ -363,7 +363,7 @@ def warranty_dashboard(request):
     # Thời gian xử lý trung bình (tính từ các yêu cầu đã giải quyết)
     resolved_requests = WarrantyRequest.objects.filter(
         status__in=['resolved', 'closed'], 
-        resolved_at__isnull=False
+        completed_at__isnull=False
     )
     
     avg_resolution_time = None
@@ -371,8 +371,8 @@ def warranty_dashboard(request):
         total_time = timedelta()
         count = 0
         for req in resolved_requests:
-            if req.resolved_at and req.created_at:
-                total_time += req.resolved_at - req.created_at
+            if req.completed_at and req.created_at:
+                total_time += req.completed_at - req.created_at
                 count += 1
         
         if count > 0:

@@ -318,30 +318,59 @@
 <body data-user-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
   {% csrf_token %}
 
+<!-- Thanh thông tin nhỏ phía trên header -->
+<div class="top-info-bar">
+  <div class="container">
+    <div class="row">
+      <div class="col-12 info-section">
+        <a href="#"><i class="fas fa-info-circle"></i> Thông tin liên hệ</a>
+        <a href="#"><i class="fas fa-shopping-cart"></i> Hướng dẫn mua hàng</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Thêm style cho thanh thông tin -->
+<style>
+  .top-info-bar {
+    background-color: #f8f9fa;
+    padding: 6px 0;
+    font-size: 12px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .top-info-bar a {
+    color: #666;
+    text-decoration: none;
+    margin-left: 15px;
+    transition: color 0.3s;
+  }
+  
+  .top-info-bar a:hover {
+    color: #e50914;
+  }
+  
+  .top-info-bar i {
+    margin-right: 5px;
+  }
+  
+  .separator {
+    color: #ddd;
+    margin: 0 10px;
+  }
+  
+  .info-section {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+</style>
+
 <nav class="navbar navbar-expand-lg">
       <!-- Logo -->
       <a class="navbar-brand" href="{% url 'store:home' %}">
           <img alt="Logo" src="https://placehold.co/40x40"/>
       </a>
-      
-        <!-- Menu button -->
-        <div class="nav-menu-item">
-          <button class="category-button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-list"></i>
-            Danh mục
-          </button>
-          <ul class="dropdown-menu category-list">
-            {% for category in categories %}
-            <li>
-                <a class="dropdown-item" href="{% url 'store:category_detail' category.slug %}">
-                    <i class="{{ category.icon_class|default:'fas fa-folder' }}"></i>
-                    {{ category.name }}
-                </a>
-            </li>
-            {% endfor %}
-          </ul>
-        </div>
-      </div>
 
         <!-- Search bar -->
         <div class="header-search">
@@ -359,89 +388,104 @@
         </div>
         <ul class="navbar-nav ms-auto">
 
-            <!-- User Icon -->
-            <li class="nav-item">
-                <a class="nav-link user-icon" href="#">
-                    {% if user.is_authenticated %}
-                        {% if user.avatar %}
-                            <img src="{{ user.avatar.url }}" alt="Avatar">
-                        {% else %}
-                            <img src="{% static 'images/default-avatar.png' %}" alt="Default Avatar">
-                        {% endif %}
-                    {% else %}
-                        <i class="fa fa-user"></i>
-                    {% endif %}
-                </a>
-                <div class="dropdown-content">
-                    {% if user.is_authenticated %}
-                        <p class="username">
-                            <i class="fas fa-user"></i>
-                            <span>{{ user.username }}</span>
-                        </p>
-                        <a href="#" class="dropdown-item">
-                            <i class="fas fa-wallet"></i> Số dư: <b>{{ user.balance|format_balance }}</b>
-                        </a>
-                        <a href="{% url 'accounts:user_info' %}" class="dropdown-item">
-                            <i class="fas fa-user-cog"></i> Thông tin tài khoản
-                        </a>
-                        <a href="{% url 'accounts:security' %}" class="dropdown-item">
-                            <i class="fas fa-shield-alt"></i> Bảo mật
-                        </a>
-                        <a href="/store/user-info/order-history/" class="dropdown-item">
-                            <i class="fas fa-history"></i> Sản phẩm đã mua
-                        </a>
-                        <a href="{% url 'accounts:wishlist' %}" class="dropdown-item">
-                            <i class="fas fa-heart"></i> Sản phẩm yêu thích
-                        </a>
-                        <a href="{% url 'accounts:logout' %}" class="dropdown-item">
-                            <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                        </a>
-                    {% else %}
-                        <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#authModal">
-                            <i class="fas fa-sign-in-alt"></i> Đăng nhập / Đăng ký
-                        </a>
-                    {% endif %}
-                </div>
-            </li>
-
-            <!-- Cart -->
-            <li class="nav-item cart-wrapper">
-                <button class="cart-button">
-                    <i class="fas fa-shopping-cart"></i>
-                    Giỏ hàng
-                    <span class="cart-count-badge" style="display: none;">0</span>
+            <!-- User Account -->
+            <div class="navbar-action-item" style="position: relative; margin-left: 20px;">
+              {% if user.is_authenticated %}
+                <button class="avatar-button" style="width: 45px; height: 45px; border-radius: 50%; overflow: hidden; border: 2px solid #f0f0f0; transition: all 0.2s ease; background: none; cursor: pointer; padding: 0;">
+                  {% if user.avatar %}
+                    <img src="{{ user.avatar.url }}" alt="{{ user.username }}" style="width: 100%; height: 100%; object-fit: cover;">
+                  {% else %}
+                    <img src="{% static 'images/default-avatar.png' %}" alt="Default Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                  {% endif %}
                 </button>
-                <div class="cart-dropdown-content">
-                    <div class="cart-items">
-        {% for item in cart_items %}
-                        <div class="cart-item" data-id="{{ item.id }}" data-stock="{{ item.stock }}">
-                            <div class="item-controls">
-                                <div class="quantity-controls">
-                                    <button class="quantity-btn minus" data-id="{{ item.id }}">-</button>
-                                    <input type="number" class="quantity-input" value="{{ item.quantity }}" min="1" max="{{ item.stock }}" readonly>
-                                    <button class="quantity-btn plus" data-id="{{ item.id }}">+</button>
-                                </div>
-                                <button class="remove-btn" data-id="{{ item.id }}">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-        </div>
-        {% endfor %}
-        </div>
-                    <div class="empty-cart" style="display: none;">
-                        <i class="fas fa-shopping-cart"></i>
-                        <p>Bạn chưa có sản phẩm nào trong giỏ hàng</p>
-                    </div>
-                    <div class="cart-total">
-                        <span>Tổng cộng:</span>
-                        <span class="total-amount">0đ</span>
-                    </div>
-                    <div class="cart-footer">
-                        <a href="{% url 'store:cart' %}" class="btn btn-primary">Xem giỏ hàng</a>
-                        <a href="#" class="btn btn-checkout">Thanh toán ngay</a>
-                    </div>
+              {% else %}
+                <button type="button" class="avatar-button" data-bs-toggle="modal" data-bs-target="#authModal" style="width: 45px; height: 45px; border-radius: 50%; overflow: hidden; border: 2px solid #f0f0f0; transition: all 0.2s ease; background: #f8f8f8; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center;">
+                  <i class="fas fa-user" style="font-size: 24px; color: #888;"></i>
+                </button>
+              {% endif %}
+              <div class="dropdown-content user-dropdown" style="display: none; position: absolute; background-color: white; min-width: 220px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); border-radius: 8px; top: 100%; right: 0; margin-top: 10px; z-index: 1001; overflow: hidden; transform-origin: top right; padding: 0;">
+                {% if user.is_authenticated %}
+                  <p class="username" style="font-weight: 600; color: #333; display: flex; align-items: center; padding: 10px 15px; border-bottom: 1px solid #eaeaea; margin: 0;">
+                    <i class="fas fa-user-circle" style="margin-right: 8px; color: #757575;"></i>
+                    <span>{{ user.username }}</span>
+                  </p>
+                  <a href="#" class="dropdown-item" style="display: flex; align-items: center; color: #333; padding: 10px 15px; text-decoration: none; transition: background-color 0.2s ease; font-size: 14px; position: relative; overflow: hidden;">
+                    <i class="fas fa-wallet" style="margin-right: 10px; color: #757575; font-size: 16px; width: 20px; text-align: center;"></i> Số dư: <b>{{ user.balance|format_balance }}</b>
+                  </a>
+                  <a href="{% url 'accounts:user_info' %}" class="dropdown-item" style="display: flex; align-items: center; color: #333; padding: 10px 15px; text-decoration: none; transition: background-color 0.2s ease; font-size: 14px; position: relative; overflow: hidden;">
+                    <i class="fas fa-user-cog" style="margin-right: 10px; color: #757575; font-size: 16px; width: 20px; text-align: center;"></i> Thông tin tài khoản
+                  </a>
+                  <a href="{% url 'accounts:security' %}" class="dropdown-item" style="display: flex; align-items: center; color: #333; padding: 10px 15px; text-decoration: none; transition: background-color 0.2s ease; font-size: 14px; position: relative; overflow: hidden;">
+                    <i class="fas fa-shield-alt" style="margin-right: 10px; color: #757575; font-size: 16px; width: 20px; text-align: center;"></i> Bảo mật
+                  </a>
+                  <a href="/store/user-info/order-history/" class="dropdown-item" style="display: flex; align-items: center; color: #333; padding: 10px 15px; text-decoration: none; transition: background-color 0.2s ease; font-size: 14px; position: relative; overflow: hidden;">
+                    <i class="fas fa-history" style="margin-right: 10px; color: #757575; font-size: 16px; width: 20px; text-align: center;"></i> Sản phẩm đã mua
+                  </a>
+                  <a href="{% url 'accounts:wishlist' %}" class="dropdown-item" style="display: flex; align-items: center; color: #333; padding: 10px 15px; text-decoration: none; transition: background-color 0.2s ease; font-size: 14px; position: relative; overflow: hidden;">
+                    <i class="fas fa-heart" style="margin-right: 10px; color: #757575; font-size: 16px; width: 20px; text-align: center;"></i> Sản phẩm yêu thích
+                  </a>
+                  <a href="{% url 'accounts:logout' %}" class="dropdown-item" style="display: flex; align-items: center; color: #333; padding: 10px 15px; text-decoration: none; transition: background-color 0.2s ease; font-size: 14px; position: relative; overflow: hidden;">
+                    <i class="fas fa-sign-out-alt" style="margin-right: 10px; color: #757575; font-size: 16px; width: 20px; text-align: center;"></i> Đăng xuất
+                  </a>
+                {% else %}
+                  <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#authModal" style="display: flex; align-items: center; color: #333; padding: 10px 15px; text-decoration: none; transition: background-color 0.2s ease; font-size: 14px; position: relative; overflow: hidden;">
+                    <i class="fas fa-sign-in-alt" style="margin-right: 10px; color: #757575; font-size: 16px; width: 20px; text-align: center;"></i> Đăng nhập / Đăng ký
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Thông báo -->
+            <div class="navbar-action-item" style="position: relative; margin-left: 20px;">
+              <a href="#" class="action-button" style="background: #ffe5e5; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #df2626; padding: 0; transition: all 0.2s ease; overflow: hidden; position: relative; border-radius: 50%; height: 45px; width: 45px; text-decoration: none;">
+                <i class="fas fa-bell" style="font-size: 20px;"></i>
+                {% if unread_notifications_count > 0 %}
+                <span class="notification-badge" style="position: absolute; top: -5px; right: -5px; background-color: #df2626; color: white; border-radius: 50%; font-size: 10px; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">{{ unread_notifications_count }}</span>
+                {% endif %}
+              </a>
+              <div class="dropdown-content notification-dropdown" style="display: none; position: absolute; background-color: white; width: 320px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); border-radius: 8px; top: 100%; right: 0; margin-top: 10px; z-index: 1001; overflow: hidden; transform-origin: top right;">
+                <div class="dropdown-header" style="background-color: #f5f5f5; padding: 12px 15px; font-weight: 600; color: #333; border-bottom: 1px solid #eaeaea; display: flex; justify-content: space-between; align-items: center;">
+                  <span class="dropdown-title" style="font-size: 14px;">Thông báo</span>
                 </div>
-            </li>
+                <div class="notification-items" style="max-height: 300px; overflow-y: auto;">
+                  <div class="empty-state" style="padding: 20px; text-align: center; color: #757575;">
+                    <i class="fas fa-bell-slash" style="font-size: 32px; color: #bdbdbd; margin-bottom: 10px;"></i>
+                    <p style="margin: 0; font-size: 13px;">Không có thông báo mới</p>
+                  </div>
+                </div>
+                <div class="dropdown-footer" style="display: flex; justify-content: center; padding: 10px; border-top: 1px solid #eaeaea;">
+                  <a href="#" class="btn-text" style="color: #df2626; font-size: 13px; text-decoration: none;">Xem tất cả thông báo</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Shopping Cart - Thêm chữ "Giỏ hàng" -->
+            <div class="navbar-action-item" style="position: relative; margin-left: 20px;">
+              <a href="{% url 'store:cart' %}" class="action-button" style="background: #000000; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; padding: 0 20px 0 15px; transition: all 0.2s ease; overflow: hidden; position: relative; border-radius: 25px; height: 45px; text-decoration: none;">
+                <i class="fas fa-shopping-cart" style="font-size: 20px; margin-right: 10px;"></i>
+                <span style="font-size: 14px; font-weight: 500;">Giỏ hàng</span>
+                <span class="cart-count-badge" style="position: absolute; top: -5px; right: -5px; background-color: #df2626; color: white; border-radius: 50%; font-size: 10px; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">{{ cart_count|default:"0" }}</span>
+              </a>
+              <div class="dropdown-content cart-dropdown" style="display: none; position: absolute; background-color: white; width: 320px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); border-radius: 8px; top: 100%; right: 0; margin-top: 10px; z-index: 1001; overflow: hidden; transform-origin: top right;">
+                <div class="dropdown-header" style="background-color: #f5f5f5; padding: 12px 15px; font-weight: 600; color: #333; border-bottom: 1px solid #eaeaea; display: flex; justify-content: space-between; align-items: center;">
+                  <span class="dropdown-title" style="font-size: 14px;">Giỏ hàng của bạn</span>
+                </div>
+                <div class="cart-items" style="max-height: 300px; overflow-y: auto;">
+                  <div class="empty-state" style="padding: 20px; text-align: center; color: #757575;">
+                    <i class="fas fa-shopping-cart" style="font-size: 32px; color: #bdbdbd; margin-bottom: 10px;"></i>
+                    <p style="margin: 0; font-size: 13px;">Giỏ hàng trống</p>
+                  </div>
+                </div>
+                <div class="cart-total" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; font-weight: 600; border-top: 1px solid #eaeaea;">
+                  <span>Tổng cộng:</span>
+                  <span class="total-amount">0đ</span>
+                </div>
+                <div class="cart-footer" style="display: flex; gap: 10px; padding: 15px; border-top: 1px solid #eaeaea;">
+                  <a href="{% url 'store:cart' %}" class="btn btn-outline-secondary" style="flex: 1; padding: 8px; font-size: 14px;">Xem giỏ hàng</a>
+                  <a href="{% url 'store:checkout' %}" class="btn btn-checkout" style="flex: 1; padding: 8px; font-size: 14px; background-color: #df2626; color: white; border: none; transition: all 0.2s ease; position: relative; overflow: hidden; text-decoration: none;">Thanh toán</a>
+                </div>
+              </div>
+            </div>
         </ul>
     </div>
 </nav>
@@ -487,10 +531,9 @@
 <style>
 /* Main Navigation */
 .main-nav {
-    background: white;
-    border-bottom: 1px solid #eee;
+    background: #df2626;
     padding: 10px 0;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
 .nav-list {
@@ -503,60 +546,62 @@
 }
 
 .nav-item {
-    flex: 1;
+    flex: 0 0 20%;
     text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80px;
 }
 
 .nav-link {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 10px;
-    color: #333;
+    justify-content: center;
+    padding: 15px;
+    color: white;
     text-decoration: none;
     transition: all 0.3s ease;
     border-radius: 8px;
+    width: 100%;
+    height: 100%;
 }
 
 .nav-link:hover {
-    background: #f8f9fa;
-    color: #e50914;
+    background: rgba(255, 255, 255, 0.2);
     transform: translateY(-2px);
 }
 
 .nav-link i {
-    font-size: 1.5rem;
-    margin-bottom: 8px;
+    font-size: 1.8rem;
+    margin-bottom: 10px;
 }
 
 .nav-link span {
-    font-size: 0.9rem;
+    font-size: 1rem;
     font-weight: 500;
+    text-align: center;
+    line-height: 1.2;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
+    .nav-item {
+        height: 70px;
+    }
+    
     .nav-link {
-        padding: 8px;
+        padding: 10px;
     }
     
     .nav-link i {
-        font-size: 1.2rem;
+        font-size: 1.4rem;
         margin-bottom: 5px;
     }
     
     .nav-link span {
         font-size: 0.8rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .nav-link span {
-        display: none;
-    }
-    
-    .nav-link i {
-        margin-bottom: 0;
     }
 }
 </style>
@@ -1590,6 +1635,73 @@ function getCookie(name) {
   <script src="{% static 'store/js/search.js' %}"></script>
   {% include 'store/chatbot.html' %}
   <script src="{% static 'store/js/chatbot.js' %}"></script>
+
+<!-- Thêm script để xử lý hover và dropdown -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Xử lý hover cho dropdown Thông báo và Nhắn tin
+  const headerLinks = document.querySelectorAll('.header-icon-link');
+  
+  headerLinks.forEach(link => {
+    const dropdown = link.querySelector('.dropdown-content');
+    if (!dropdown) return;
+    
+    // Xử lý sự kiện hover
+    link.addEventListener('mouseenter', function() {
+      dropdown.style.display = 'block';
+    });
+    
+    link.addEventListener('mouseleave', function() {
+      dropdown.style.display = 'none';
+    });
+    
+    // Xử lý sự kiện click
+    link.addEventListener('click', function(e) {
+      if (!e.target.closest('.dropdown-content')) {
+        e.preventDefault();
+        if (dropdown.style.display === 'block') {
+          dropdown.style.display = 'none';
+        } else {
+          dropdown.style.display = 'block';
+        }
+      }
+    });
+  });
+  
+  // Xử lý hover cho dropdown giỏ hàng và tài khoản
+  const actionItems = document.querySelectorAll('.navbar-action-item');
+  
+  actionItems.forEach(item => {
+    const dropdown = item.querySelector('.dropdown-content');
+    if (!dropdown) return;
+    
+    // Xử lý sự kiện hover
+    item.addEventListener('mouseenter', function() {
+      dropdown.style.display = 'block';
+    });
+    
+    item.addEventListener('mouseleave', function() {
+      dropdown.style.display = 'none';
+    });
+  });
+  
+  // Đảm bảo modal đăng nhập hoạt động
+  const authModal = document.getElementById('authModal');
+  if (authModal) {
+    console.log('Auth modal found');
+    
+    // Xử lý nút đăng nhập
+    const loginButtons = document.querySelectorAll('[data-bs-target="#authModal"]');
+    loginButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        console.log('Login button clicked');
+        const modal = new bootstrap.Modal(document.getElementById('authModal'));
+        modal.show();
+      });
+    });
+  }
+});
+</script>
 </body>
 </html>
 

@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from . import views  # Import file views.py gốc
@@ -49,4 +49,12 @@ urlpatterns = [
     # Chatbot API endpoints
     path('api/chatbot/', chatbot.chatbot_api, name='chatbot_api'),
     path('api/log-chat/', chatbot.log_chat, name='log_chat'),
+    
+    # Chat URLs
+    path('chat/', include([
+        path('', views.user_chat_dashboard, name='user_chat'),
+        path('send-message/', views.user_send_message, name='user_send_message'),
+        path('update-read-status/', views.update_read_status, name='update_read_status'),
+        path('get-unread-count/', views.get_unread_count, name='get_unread_count'),
+    ])),
 ] 

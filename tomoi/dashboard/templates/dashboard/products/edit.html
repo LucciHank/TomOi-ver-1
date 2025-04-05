@@ -243,16 +243,16 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="{{ form.primary_image.id_for_label }}">Ảnh chính</label>
-                                    {{ form.primary_image }}
-                                    <small class="form-text text-muted">Ảnh hiển thị chính cho sản phẩm.</small>
+                                    <label for="id_primary_image">Ảnh chính mới</label>
+                                    <input type="file" name="primary_image" class="form-control" id="id_primary_image">
+                                    <small class="form-text text-muted">Tải lên ảnh mới sẽ thay thế ảnh chính hiện tại</small>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="{{ form.additional_images.id_for_label }}">Ảnh bổ sung</label>
-                                    {{ form.additional_images }}
-                                    <small class="form-text text-muted">{{ form.additional_images.help_text }}</small>
+                                    <label for="id_additional_images">Thêm ảnh phụ</label>
+                                    <input type="file" name="additional_images" class="form-control" id="id_additional_images" multiple>
+                                    <small class="form-text text-muted">Có thể chọn nhiều ảnh cùng lúc</small>
                                 </div>
                             </div>
                         </div>

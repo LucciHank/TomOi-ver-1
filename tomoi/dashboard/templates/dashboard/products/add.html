@@ -14,25 +14,109 @@
         margin-right: 10px;
         margin-bottom: 10px;
         border: 1px solid #ddd;
+        border-radius: 4px;
+        transition: transform 0.2s;
+    }
+    .preview-image:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
     .image-preview-container {
         display: flex;
         flex-wrap: wrap;
         margin-top: 10px;
+        gap: 12px;
     }
     .nav-tabs .nav-link {
         border: 1px solid #e3e6f0;
         margin-right: 5px;
-        color: #6e707e;
+        color: #4e73df;
+        font-weight: 500;
+        border-radius: 0.5rem 0.5rem 0 0;
+        padding: 12px 20px;
+        transition: all 0.2s;
+    }
+    .nav-tabs .nav-link:hover {
+        background-color: #f8f9fc;
     }
     .nav-tabs .nav-link.active {
         background-color: #4e73df;
         color: white;
         border-color: #4e73df;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+    }
+    .tab-content {
+        padding: 20px;
+        border: 1px solid #e3e6f0;
+        border-top: none;
+        border-radius: 0 0 0.5rem 0.5rem;
+        background-color: #fff;
+    }
+    .form-group.row {
+        margin-bottom: 1.5rem;
+        align-items: center;
+    }
+    .col-form-label {
+        font-weight: 500;
+        color: #5a5c69;
+    }
+    .text-danger {
+        margin-left: 4px;
+    }
+    .form-control, .custom-select, .select2-container--default .select2-selection--single {
+        border-radius: 0.35rem;
+        border: 1px solid #d1d3e2;
+        padding: 0.375rem 0.75rem;
+        height: calc(1.5em + 0.75rem + 2px);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        transition: all 0.2s;
+    }
+    .form-control:focus, .custom-select:focus, .select2-container--default.select2-container--focus .select2-selection--single {
+        border-color: #b7c1ec;
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+    }
+    .custom-file-label {
+        border-radius: 0.35rem;
+        border: 1px solid #d1d3e2;
+    }
+    .custom-file-input:focus ~ .custom-file-label {
+        border-color: #b7c1ec;
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
     }
     .select2-container--default .select2-selection--multiple {
         border: 1px solid #d1d3e2;
         border-radius: 0.35rem;
+        min-height: calc(1.5em + 0.75rem + 2px);
+    }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: #4e73df;
+        border: 1px solid #4e73df;
+        color: white;
+        border-radius: 20px;
+        padding: 2px 10px;
+    }
+    .card-footer {
+        background-color: #f8f9fc;
+        border-top: 1px solid #e3e6f0;
+        padding: 1.25rem;
+        text-align: right;
+    }
+    .btn-submit {
+        padding: 10px 25px;
+        font-weight: 500;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .custom-control-label {
+        cursor: pointer;
+    }
+    .custom-switch .custom-control-label::before {
+        width: 2.5rem;
+    }
+    .custom-switch .custom-control-label::after {
+        transform: translateX(1.3rem);
+    }
+    .custom-switch .custom-control-input:checked ~ .custom-control-label::after {
+        transform: translateX(1.3rem);
     }
 </style>
 {% endblock %}
@@ -44,32 +128,44 @@
 
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <ul class="nav nav-tabs card-header-tabs" role="tablist">
+            <ul class="nav nav-tabs card-header-tabs" id="productTabs" role="tablist">
                 <li class="nav-item">
-                    <a class="nav-link active" id="info-tab" data-toggle="tab" href="#info" role="tab">Thông tin cơ bản</a>
+                    <a class="nav-link active" id="info-tab" data-bs-toggle="tab" href="#info" role="tab" aria-controls="info" aria-selected="true">
+                        <i class="fas fa-info-circle mr-1"></i> Thông tin cơ bản
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="pricing-tab" data-toggle="tab" href="#pricing" role="tab">Giá & Tồn kho</a>
+                    <a class="nav-link" id="pricing-tab" data-bs-toggle="tab" href="#pricing" role="tab" aria-controls="pricing" aria-selected="false">
+                        <i class="fas fa-tag mr-1"></i> Giá & Tồn kho
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="images-tab" data-toggle="tab" href="#images" role="tab">Hình ảnh</a>
+                    <a class="nav-link" id="images-tab" data-bs-toggle="tab" href="#images" role="tab" aria-controls="images" aria-selected="false">
+                        <i class="fas fa-images mr-1"></i> Hình ảnh
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="attributes-tab" data-toggle="tab" href="#attributes" role="tab">Thuộc tính</a>
+                    <a class="nav-link" id="attributes-tab" data-bs-toggle="tab" href="#attributes" role="tab" aria-controls="attributes" aria-selected="false">
+                        <i class="fas fa-list-ul mr-1"></i> Thuộc tính
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="related-tab" data-toggle="tab" href="#related" role="tab">Sản phẩm liên quan</a>
+                    <a class="nav-link" id="related-tab" data-bs-toggle="tab" href="#related" role="tab" aria-controls="related" aria-selected="false">
+                        <i class="fas fa-project-diagram mr-1"></i> Sản phẩm liên quan
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="seo-tab" data-toggle="tab" href="#seo" role="tab">SEO</a>
+                    <a class="nav-link" id="seo-tab" data-bs-toggle="tab" href="#seo" role="tab" aria-controls="seo" aria-selected="false">
+                        <i class="fas fa-search mr-1"></i> SEO
+                    </a>
                 </li>
             </ul>
         </div>
-        <div class="card-body">
+        <div class="card-body p-0">
             <form method="post" enctype="multipart/form-data" id="product-form">
                 {% csrf_token %}
                 
-                <div class="tab-content">
+                <div class="tab-content" id="productTabContent">
                     <!-- Thông tin cơ bản -->
                     <div class="tab-pane fade show active" id="info" role="tabpanel">
                         <div class="form-group row">
@@ -242,9 +338,14 @@
                         <div class="form-group row">
                             <label class="col-sm-2 col-form-label">Ảnh chính</label>
                             <div class="col-sm-10">
-                                <select name="main_image" id="main_image" class="form-control">
-                                    <option value="">Chọn ảnh chính sau khi tải lên</option>
-                                </select>
+                                <input type="file" name="primary_image" class="form-control" id="id_primary_image">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Ảnh phụ</label>
+                            <div class="col-sm-10">
+                                <input type="file" name="additional_images" class="form-control" id="id_additional_images" multiple>
+                                <small class="form-text text-muted">Có thể chọn nhiều ảnh cùng lúc</small>
                             </div>
                         </div>
                     </div>
@@ -354,12 +455,12 @@
                     </div>
                 </div>
                 
-                <div class="form-group row mt-4">
+                <div class="card-footer">
                     <div class="col-sm-10 offset-sm-2">
-                        <button type="submit" class="btn btn-primary btn-lg">
+                        <button type="submit" class="btn btn-primary btn-submit">
                             <i class="fas fa-save mr-2"></i>Lưu sản phẩm
                         </button>
-                        <a href="{% url 'dashboard:products' %}" class="btn btn-secondary btn-lg">Hủy</a>
+                        <a href="{% url 'dashboard:products' %}" class="btn btn-secondary">Hủy</a>
                     </div>
                 </div>
             </form>
@@ -373,16 +474,32 @@
 <script src="{% static 'vendor/summernote/summernote-bs4.min.js' %}"></script>
 <script>
 $(document).ready(function() {
+    // Fix tab switching issue - Bootstrap 5 version
+    $('.nav-tabs .nav-link').on('click', function(e) {
+        e.preventDefault();
+        
+        // Deactivate all tabs and tab contents
+        $('.nav-tabs .nav-link').removeClass('active').attr('aria-selected', 'false');
+        $('.tab-pane').removeClass('show active');
+        
+        // Activate the clicked tab
+        $(this).addClass('active').attr('aria-selected', 'true');
+        var targetId = $(this).attr('href');
+        $(targetId).addClass('show active');
+    });
+    
     // Khởi tạo Select2
     $('.select2').select2({
         placeholder: "Chọn...",
-        allowClear: true
+        allowClear: true,
+        width: '100%'
     });
     
     $('.select2-tags').select2({
         tags: true,
         tokenSeparators: [','],
-        placeholder: "Nhập tags..."
+        placeholder: "Nhập tags...",
+        width: '100%'
     });
     
     // Khởi tạo Summernote

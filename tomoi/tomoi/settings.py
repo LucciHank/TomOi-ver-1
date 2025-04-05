@@ -165,6 +165,9 @@ TEMPLATES = [
                 'store.context_processors.wishlist_status',
                 'dashboard.context_processors.dashboard_settings',
                 'store.context_processors.chatbot_config',
+                'dashboard.context_processors.admin_chat_stats',
+                'store.context_processors.cart_processor',
+                'store.context_processors.categories_processor',
             ],
         },
     },
@@ -345,3 +348,10 @@ CSRF_COOKIE_SECURE = False  # Đặt thành True trên production với HTTPS
 CSRF_COOKIE_HTTPONLY = False  # Để JavaScript có thể đọc cookie
 CSRF_USE_SESSIONS = False  # Không lưu CSRF token trong session
 CSRF_COOKIE_SAMESITE = 'Lax'  # Hoặc 'None' với Secure=True
+
+# VNPAY settings
+VNPAY_TMN_CODE = 'TOMOI001'  # Mã website của merchant trên VNPay
+VNPAY_HASH_SECRET_KEY = 'GDTXADCLXSUFAFKQWMBDYPWXXZHZWQSB'  # Chuỗi bí mật
+VNPAY_PAYMENT_URL = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'  # URL thanh toán của VNPay
+VNPAY_RETURN_URL = 'http://127.0.0.1:8000/accounts/vnpay-return/'  # URL callback khi thanh toán xong
+VNPAY_RETURN_URL_DEPOSIT = 'http://127.0.0.1:8000/accounts/deposit/vnpay-deposit-return/'  # URL callback khi nạp tiền xong

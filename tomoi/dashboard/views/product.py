@@ -9,6 +9,7 @@ from django.core.paginator import Paginator
 from store.models import Product, Category, Brand, ProductLabel
 from dashboard.models.product import ProductImage, ProductChangeLog
 from dashboard.models.source import SourceProduct
+from dashboard.forms import ProductForm
 
 @staff_member_required
 def update_product_status(request, product_id):
@@ -201,13 +202,56 @@ def get_product(request, product_id):
 
 @staff_member_required
 def product_attributes(request):
-    """
-    Quản lý thuộc tính sản phẩm
-    """
+    """View xử lý quản lý thuộc tính sản phẩm"""
+    if request.method == 'POST':
+        # Kiểm tra loại form
+        form_type = request.POST.get('form_type', '')
+        
+        if form_type == 'attribute':
+            # Xử lý khi có submit form thuộc tính
+            name = request.POST.get('name')
+            slug = request.POST.get('slug')
+            description = request.POST.get('description')
+            
+            # Thực hiện logic tạo thuộc tính sản phẩm mới
+            # (Sẽ phát triển sau)
+            
+            messages.success(request, f'Đã tạo thuộc tính "{name}" thành công')
+            return redirect('dashboard:attributes')
+        
+        elif form_type == 'brand':
+            # Xử lý thêm thương hiệu mới
+            name = request.POST.get('name', '')
+            slug = request.POST.get('slug', '')
+            description = request.POST.get('description', '')
+            is_active = request.POST.get('is_active') == 'on'
+            
+            # Tạo thương hiệu mới
+            brand = Brand(
+                name=name,
+                slug=slug,
+                description=description,
+                is_active=is_active
+            )
+            
+            # Xử lý logo nếu có
+            if 'logo' in request.FILES:
+                brand.logo = request.FILES['logo']
+                
+            brand.save()
+            messages.success(request, f'Đã thêm thương hiệu {name} thành công')
+            return redirect('dashboard:attributes')
+    
+    # Lấy danh sách thương hiệu cho form
+    brands = Brand.objects.all().order_by('name')
+    
+    # Xử lý hiển thị trang
     context = {
+        'brands': brands,
         'title': 'Thuộc tính sản phẩm',
         'active_tab': 'products'
     }
+    
     return render(request, 'dashboard/products/attributes.html', context)
 
 @staff_member_required
@@ -266,4 +310,224 @@ def export_products(request):
             product.created_at.strftime('%d/%m/%Y') if hasattr(product, 'created_at') else ''
         ])
     
-    return response 
+    return response
+
+@staff_member_required
+def add_product(request):
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            product = form.save()
+            
+            # Xử lý ảnh chính
+            if 'primary_image' in request.FILES:
+                ProductImage.objects.create(
+                    product=product,
+                    image=request.FILES['primary_image'],
+                    is_primary=True
+                )
+            
+            # Xử lý nhiều ảnh sản phẩm
+            if 'additional_images' in request.FILES:
+                for image in request.FILES.getlist('additional_images'):
+                    ProductImage.objects.create(
+                        product=product,
+                        image=image,
+                        is_primary=False
+                    )
+            
+            # Ghi log thêm mới
+            ProductChangeLog.objects.create(
+                product=product,
+                user=request.user,
+                action='create',
+                description='Tạo sản phẩm mới'
+            )
+            
+            messages.success(request, f'Đã thêm sản phẩm {product.name} thành công')
+            return redirect('dashboard:products')
+        else:
+            messages.error(request, 'Có lỗi xảy ra khi thêm sản phẩm')
+    else:
+        form = ProductForm()
+    
+    context = {
+        'form': form,
+        'title': 'Thêm sản phẩm mới'
+    }
+    
+    return render(request, 'dashboard/products/add.html', context)
+
+@staff_member_required
+def edit_product(request, product_id):
+    from dashboard.forms import ProductForm
+    
+    product = get_object_or_404(Product, id=product_id)
+    
+    if request.method == 'POST':
+        # Lưu lại dữ liệu cũ để so sánh
+        old_data = {
+            'name': product.name,
+            'price': product.price,
+            'stock': product.stock,
+            'is_active': product.is_active
+        }
+        
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            # Lưu sản phẩm
+            product = form.save()
+            
+            # Xử lý ảnh chính
+            if 'primary_image' in request.FILES:
+                # Xóa các ảnh chính cũ
+                ProductImage.objects.filter(product=product, is_primary=True).delete()
+                # Tạo ảnh chính mới
+                ProductImage.objects.create(
+                    product=product,
+                    image=request.FILES['primary_image'],
+                    is_primary=True
+                )
+            
+            # Xử lý nhiều ảnh sản phẩm
+            if 'additional_images' in request.FILES:
+                for image in request.FILES.getlist('additional_images'):
+                    ProductImage.objects.create(
+                        product=product,
+                        image=image,
+                        is_primary=False
+                    )
+            
+            # Ghi log thay đổi
+            changes = []
+            if old_data['name'] != product.name:
+                changes.append(f"Tên: {old_data['name']} -> {product.name}")
+            if old_data['price'] != product.price:
+                changes.append(f"Giá: {old_data['price']} -> {product.price}")
+            if old_data['stock'] != product.stock:
+                changes.append(f"Tồn kho: {old_data['stock']} -> {product.stock}")
+            if old_data['is_active'] != product.is_active:
+                changes.append(f"Trạng thái: {'Hoạt động' if old_data['is_active'] else 'Tạm ngưng'} -> {'Hoạt động' if product.is_active else 'Tạm ngưng'}")
+            
+            if changes:
+                ProductChangeLog.objects.create(
+                    product=product,
+                    user=request.user,
+                    action='update',
+                    description='Cập nhật: ' + ', '.join(changes)
+                )
+            
+            messages.success(request, f'Đã cập nhật sản phẩm {product.name} thành công')
+            return redirect('dashboard:products')
+        else:
+            messages.error(request, 'Có lỗi xảy ra khi cập nhật sản phẩm')
+    else:
+        form = ProductForm(instance=product)
+    
+    # Lấy các ảnh hiện tại của sản phẩm
+    product_images = ProductImage.objects.filter(product=product)
+    
+    context = {
+        'form': form,
+        'product': product,
+        'product_images': product_images,
+        'title': f'Chỉnh sửa sản phẩm: {product.name}'
+    }
+    
+    return render(request, 'dashboard/products/edit.html', context)
+
+@staff_member_required
+def brands(request):
+    """Quản lý thương hiệu sản phẩm"""
+    if request.method == 'POST':
+        # Kiểm tra loại form
+        form_type = request.POST.get('form_type', '')
+        
+        if form_type == 'brand':
+            # Xử lý thêm thương hiệu mới
+            name = request.POST.get('name', '')
+            slug = request.POST.get('slug', '')
+            description = request.POST.get('description', '')
+            is_active = request.POST.get('is_active') == 'on'
+            
+            # Tạo thương hiệu mới
+            brand = Brand(
+                name=name,
+                slug=slug,
+                description=description,
+                is_active=is_active
+            )
+            
+            # Xử lý logo nếu có
+            if 'logo' in request.FILES:
+                brand.logo = request.FILES['logo']
+                
+            brand.save()
+            messages.success(request, f'Đã thêm thương hiệu {name} thành công')
+            return redirect('dashboard:brands')
+            
+        else:
+            # Form không xác định
+            messages.error(request, 'Form không hợp lệ')
+    
+    # Lấy danh sách thương hiệu
+    brands = Brand.objects.all().order_by('name')
+    
+    context = {
+        'brands': brands,
+        'title': 'Quản lý thương hiệu',
+        'active_tab': 'products'
+    }
+    
+    return render(request, 'dashboard/products/brands.html', context)
+
+@staff_member_required
+def edit_brand(request, brand_id):
+    """Chỉnh sửa thương hiệu"""
+    brand = get_object_or_404(Brand, id=brand_id)
+    
+    if request.method == 'POST':
+        # Cập nhật thông tin
+        brand.name = request.POST.get('name', brand.name)
+        brand.description = request.POST.get('description', brand.description)
+        brand.is_active = request.POST.get('is_active') == 'on'
+        
+        # Cập nhật slug nếu được cung cấp
+        slug = request.POST.get('slug', '')
+        if slug:
+            brand.slug = slug
+            
+        # Cập nhật logo nếu có
+        if 'logo' in request.FILES:
+            brand.logo = request.FILES['logo']
+            
+        brand.save()
+        messages.success(request, f'Đã cập nhật thương hiệu {brand.name} thành công')
+        return redirect('dashboard:brands')
+    
+    context = {
+        'brand': brand,
+        'title': f'Chỉnh sửa thương hiệu: {brand.name}',
+        'active_tab': 'products'
+    }
+    
+    return render(request, 'dashboard/products/edit_brand.html', context)
+
+@staff_member_required
+def delete_brand(request, brand_id):
+    """Xóa thương hiệu"""
+    brand = get_object_or_404(Brand, id=brand_id)
+    
+    if request.method == 'POST':
+        brand_name = brand.name
+        brand.delete()
+        messages.success(request, f'Đã xóa thương hiệu {brand_name} thành công')
+        return redirect('dashboard:brands')
+    
+    context = {
+        'brand': brand,
+        'title': f'Xác nhận xóa thương hiệu: {brand.name}',
+        'active_tab': 'products'
+    }
+    
+    return render(request, 'dashboard/products/delete_brand.html', context) 

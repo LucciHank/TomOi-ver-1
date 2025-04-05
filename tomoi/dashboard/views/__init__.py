@@ -27,6 +27,10 @@ from .chatbot import *
 from .source import *
 from .messaging import messaging
 from .warranty import *
+from .subscription import *
+from .user_views import *
+from . import chat  # Import module chat
+from . import api  # Import module api
 from .user import (
     user_list,
     user_detail,
@@ -43,7 +47,6 @@ from .user import (
     user_report,
     user_stats
 )
-from .user_views import *
 from .user import *
 from .source import *
 from .discount import *
@@ -68,7 +71,9 @@ from .product import (
     set_primary_image,
     product_detail,
     product_history,
-    get_product
+    get_product,
+    add_product as product_add_product,
+    edit_product as product_edit_product
 )
 
 # Nhập các view từ order_views
@@ -184,117 +189,12 @@ def product_list(request):
 # 2. Thêm sản phẩm
 @staff_member_required
 def add_product(request):
-    from dashboard.forms import ProductForm
-    
-    if request.method == 'POST':
-        form = ProductForm(request.POST, request.FILES)
-        if form.is_valid():
-            product = form.save()
-            
-            # Xử lý ảnh chính
-            if 'image' in request.FILES:
-                ProductImage.objects.create(
-                    product=product,
-                    image=request.FILES['image'],
-                    is_primary=True
-                )
-            
-            # Xử lý nhiều ảnh sản phẩm
-            for image in request.FILES.getlist('additional_images'):
-                ProductImage.objects.create(
-                    product=product,
-                    image=image,
-                    is_primary=False
-                )
-            
-            # Ghi log thêm mới
-            ProductChangeLog.objects.create(
-                product=product,
-                user=request.user,
-                action='create',
-                description='Tạo sản phẩm mới'
-            )
-            
-            messages.success(request, f'Đã thêm sản phẩm {product.name} thành công')
-            return redirect('dashboard:products')
-        else:
-            messages.error(request, 'Có lỗi xảy ra khi thêm sản phẩm')
-    else:
-        form = ProductForm()
-    
-    context = {
-        'form': form,
-        'title': 'Thêm sản phẩm mới'
-    }
-    
-    return render(request, 'dashboard/products/add.html', context)
+    return product_add_product(request)
 
 # 3. Sửa sản phẩm
 @staff_member_required
 def edit_product(request, product_id):
-    from dashboard.forms import ProductForm
-    
-    product = get_object_or_404(Product, id=product_id)
-    
-    if request.method == 'POST':
-        # Lưu lại dữ liệu cũ để so sánh
-        old_data = {
-            'name': product.name,
-            'price': product.price,
-            'stock': product.stock,
-            'is_active': product.is_active
-        }
-        
-        form = ProductForm(request.POST, request.FILES, instance=product)
-        if form.is_valid():
-            # Lưu sản phẩm
-            product = form.save()
-            
-            # Xử lý nhiều ảnh sản phẩm
-            for image in request.FILES.getlist('additional_images'):
-                ProductImage.objects.create(
-                    product=product,
-                    image=image,
-                    is_primary=False
-                )
-            
-            # Ghi log thay đổi
-            changes = []
-            if old_data['name'] != product.name:
-                changes.append(f"Tên: {old_data['name']} -> {product.name}")
-            if old_data['price'] != product.price:
-                changes.append(f"Giá: {old_data['price']} -> {product.price}")
-            if old_data['stock'] != product.stock:
-                changes.append(f"Tồn kho: {old_data['stock']} -> {product.stock}")
-            if old_data['is_active'] != product.is_active:
-                changes.append(f"Trạng thái: {'Hoạt động' if old_data['is_active'] else 'Tạm ngưng'} -> {'Hoạt động' if product.is_active else 'Tạm ngưng'}")
-            
-            if changes:
-                ProductChangeLog.objects.create(
-                    product=product,
-                    user=request.user,
-                    action='update',
-                    description='Cập nhật: ' + ', '.join(changes)
-                )
-            
-            messages.success(request, f'Đã cập nhật sản phẩm {product.name} thành công')
-            return redirect('dashboard:products')
-        else:
-            messages.error(request, 'Có lỗi xảy ra khi cập nhật sản phẩm')
-    else:
-        form = ProductForm(instance=product)
-    
-    # Lấy các ảnh hiện tại của sản phẩm
-    product_images = ProductImage.objects.filter(product=product)
-    
-    context = {
-        'form': form,
-        'product': product,
-        'product_images': product_images,
-        'title': f'Chỉnh sửa sản phẩm: {product.name}'
-    }
-    
-    return render(request, 'dashboard/products/edit.html', context)
+    return product_edit_product(request, product_id)
 
 # 4. Xóa sản phẩm
 @staff_member_required
@@ -444,6 +344,10 @@ from .chatbot import *
 from .source import *
 from .messaging import messaging
 from .calendar import *
+from .subscription import *
+from .user_views import *
+from . import chat  # Import module chat
+from . import api  # Import module api
 try:
     from ..order_views import order_management, order_detail, update_order_status, export_orders
 except ImportError:

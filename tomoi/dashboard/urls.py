@@ -245,6 +245,13 @@ urlpatterns = [
     path('chat/sessions/', chat_sessions, name='chat_sessions'),
     path('chat/history/', chat_sessions, name='chat_history'),  # Alias for chat_sessions
     
+    # Thêm URLs mới cho hệ thống chat
+    path('chat/', views.chat.admin_chat_dashboard, name='admin_chat'),
+    path('chat/send-message/', views.chat.send_message, name='admin_send_message'),
+    path('chat/update-read-status/', views.chat.update_read_status, name='update_read_status'),
+    path('chat/get-unread-count/', views.chat.get_unread_count, name='get_unread_count'),
+    path('chat/history/<int:user_id>/', views.chat.user_chat_history, name='user_chat_history'),
+    
     # Marketing
     path('marketing/', marketing, name='marketing'),  # URL pattern cho marketing
     path('marketing/dashboard/', marketing_dashboard, name='marketing_dashboard'),  # URL pattern cho marketing dashboard
@@ -292,6 +299,10 @@ urlpatterns = [
     path('chatbot/logs/', logs, name='chatbot_logs'),
     path('chatbot/responses/', responses, name='chatbot_responses'),
     
+    # Chat API
+    path('api/user-orders/', views.api.get_user_orders, name='get_user_orders'),
+    path('api/search-orders/', views.api.search_orders, name='search_orders'),
+    
     # System Settings
     path('settings/', settings_view, name='settings'),
     path('settings/update-general/', update_general_settings, name='update_general_settings'),
@@ -324,6 +335,12 @@ urlpatterns = [
     
     # API cho lịch sử trò chuyện
     path('api/chatbot/logs/<str:chat_id>/detail/', views.api.get_chat_detail, name='api_chat_detail'),
+
+    # Thêm các url pattern mới cho quản lý thương hiệu
+    # Brands
+    path('products/brands/', views.product.brands, name='brands'),
+    path('products/brands/<int:brand_id>/edit/', views.product.edit_brand, name='edit_brand'),
+    path('products/brands/<int:brand_id>/delete/', views.product.delete_brand, name='delete_brand'),
 ]
 
 if settings.DEBUG:

@@ -101,50 +101,53 @@ class APILoggingMiddleware:
 
         # Lấy API key từ header
         api_key = request.headers.get('X-API-Key')
-        if not api_key:
-            return JsonResponse({'error': 'API key is required'}, status=401)
+        
+        # Kiểm tra API key
+        if api_key:
+            try:
+                api_key_obj = APIKey.objects.get(key=api_key, is_active=True)
+            except APIKey.DoesNotExist:
+                return JsonResponse({'error': 'Invalid API key'}, status=401)
 
-        try:
-            api_key_obj = APIKey.objects.get(key=api_key, is_active=True)
-        except APIKey.DoesNotExist:
-            return JsonResponse({'error': 'Invalid API key'}, status=401)
+            # Lưu request data
+            try:
+                request_data = json.loads(request.body) if request.body else None
+            except json.JSONDecodeError:
+                request_data = None
 
-        # Lưu request data
-        try:
-            request_data = json.loads(request.body) if request.body else None
-        except json.JSONDecodeError:
-            request_data = None
+            start_time = timezone.now()
+            response = self.get_response(request)
+            end_time = timezone.now()
 
-        start_time = timezone.now()
-        response = self.get_response(request)
-        end_time = timezone.now()
+            # Tính thời gian xử lý
+            response_time = (end_time - start_time).total_seconds() * 1000  # ms
 
-        # Tính thời gian xử lý
-        response_time = (end_time - start_time).total_seconds() * 1000  # ms
+            # Lưu response data
+            try:
+                response_data = json.loads(response.content) if response.content else None
+            except json.JSONDecodeError:
+                response_data = None
 
-        # Lưu response data
-        try:
-            response_data = json.loads(response.content) if response.content else None
-        except json.JSONDecodeError:
-            response_data = None
+            # Tạo log
+            APILog.objects.create(
+                api_key=api_key_obj,
+                endpoint=request.path,
+                method=request.method,
+                request_data=request_data,
+                response_data=response_data,
+                status_code=response.status_code,
+                ip_address=request.META.get('REMOTE_ADDR'),
+                response_time=response_time
+            )
 
-        # Tạo log
-        APILog.objects.create(
-            api_key=api_key_obj,
-            endpoint=request.path,
-            method=request.method,
-            request_data=request_data,
-            response_data=response_data,
-            status_code=response.status_code,
-            ip_address=request.META.get('REMOTE_ADDR'),
-            response_time=response_time
-        )
+            # Cập nhật last_used cho API key
+            api_key_obj.last_used = timezone.now()
+            api_key_obj.save()
 
-        # Cập nhật last_used cho API key
-        api_key_obj.last_used = timezone.now()
-        api_key_obj.save()
-
-        return response 
+            return response
+        else:
+            # Nếu không có API key, chỉ trả về response mà không log
+            return self.get_response(request)
 
 class APIRateLimitMiddleware:
     def __init__(self, get_response):
@@ -225,31 +228,49 @@ class VisitorTrackingMiddleware:
         return None 
 
 class APIAuthMiddleware:
-    """Middleware xác thực API"""
+    """Middleware kiểm tra xác thực API key cho các request API"""
+    
     def __init__(self, get_response):
         self.get_response = get_response
-
+        
     def __call__(self, request):
-        # Bỏ qua nếu không phải request API
-        if not request.path.startswith('/api/'):
-            return self.get_response(request)
+        # Kiểm tra xem yêu cầu có phải API không
+        if request.path.startswith('/api/'):
+            # Kiểm tra và xác thực API key
+            api_key = request.headers.get('X-API-Key')
 
-        # Kiểm tra API key trong header
-        api_key = request.headers.get('X-API-Key')
-        if not api_key:
-            return JsonResponse({'error': 'API key is required'}, status=401)
+            # Nếu API key không được cung cấp, cho phép truy cập vào /api/cart/ không cần xác thực
+            if request.path.startswith('/api/cart/') and not api_key:
+                return self.get_response(request)
 
-        # Kiểm tra API key có hợp lệ không
-        try:
-            api_key_obj = APIKey.objects.get(key=api_key, is_active=True)
-        except APIKey.DoesNotExist:
-            return JsonResponse({'error': 'Invalid API key'}, status=401)
+            # Nếu API key được cung cấp, kiểm tra tính hợp lệ
+            if api_key:
+                try:
+                    api_key_obj = APIKey.objects.get(key=api_key, is_active=True)
 
-        # Lưu API key vào request để sử dụng sau này
-        request.api_key = api_key_obj
+                    # Gắn thông tin API key cho request
+                    request.api_key = api_key_obj
+                    
+                    # Đặt flag API request
+                    request.is_api_request = True
 
-        # Tiếp tục xử lý request
-        return self.get_response(request) 
+                    # Tiếp tục xử lý request
+                    return self.get_response(request)
+                except APIKey.DoesNotExist:
+                    # API key không hợp lệ
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Invalid API key'
+                    }, status=401)
+            else:
+                # Không cung cấp API key cho các endpoint API khác
+                return JsonResponse({
+                    'success': False,
+                    'message': 'API key required'
+                }, status=401)
+        
+        # Nếu không phải API request, xử lý như bình thường
+        return self.get_response(request)
 
 class SubscriptionExpiryMiddleware:
     """

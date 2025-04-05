@@ -13,16 +13,32 @@ class VnPay:
         self.vnp_Url = settings.VNPAY_PAYMENT_URL
         self.requestData = {}
 
-    def get_payment_url(self, payment_url, return_url):
+    def get_payment_url(self, payment_url, hash_secret, is_deposit=False):
         # Thêm các tham số bắt buộc
         self.requestData['vnp_Version'] = self.vnp_Version
         self.requestData['vnp_Command'] = self.vnp_Command
         self.requestData['vnp_TmnCode'] = self.vnp_TmnCode
-        self.requestData['vnp_ReturnUrl'] = return_url
-        self.requestData['vnp_CreateDate'] = datetime.now().strftime('%Y%m%d%H%M%S')
-        self.requestData['vnp_CurrCode'] = 'VND'
-        self.requestData['vnp_IpAddr'] = '127.0.0.1'
-        self.requestData['vnp_Locale'] = 'vn'
+        
+        # Chọn URL return phù hợp dựa vào loại giao dịch
+        if 'vnp_ReturnUrl' not in self.requestData:
+            if is_deposit:
+                self.requestData['vnp_ReturnUrl'] = settings.VNPAY_DEPOSIT_RETURN_URL
+            elif self.requestData.get('vnp_OrderType') == 'order':
+                self.requestData['vnp_ReturnUrl'] = settings.VNPAY_ORDER_RETURN_URL
+            else:
+                self.requestData['vnp_ReturnUrl'] = settings.VNPAY_RETURN_URL
+            
+        # Đảm bảo có ngày tạo nếu chưa có
+        if 'vnp_CreateDate' not in self.requestData:
+            self.requestData['vnp_CreateDate'] = datetime.now().strftime('%Y%m%d%H%M%S')
+            
+        # Đảm bảo có các trường bắt buộc
+        if 'vnp_CurrCode' not in self.requestData:
+            self.requestData['vnp_CurrCode'] = 'VND'
+        if 'vnp_IpAddr' not in self.requestData:
+            self.requestData['vnp_IpAddr'] = '127.0.0.1'
+        if 'vnp_Locale' not in self.requestData:
+            self.requestData['vnp_Locale'] = 'vn'
 
         # Sắp xếp các tham số theo thứ tự a-z
         input_data = sorted(self.requestData.items())
@@ -38,7 +54,7 @@ class VnPay:
                 query_string = key + '=' + urllib.parse.quote_plus(str(val))
 
         # Tạo chữ ký
-        hash_value = self._hmacsha512(self.vnp_HashSecret, query_string)
+        hash_value = self._hmacsha512(hash_secret, query_string)
         
         # Trả về URL thanh toán hoàn chỉnh
         return payment_url + "?" + query_string + '&vnp_SecureHash=' + hash_value

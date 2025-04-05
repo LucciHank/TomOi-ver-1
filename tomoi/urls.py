@@ -16,6 +16,8 @@ from store.views import (
     log_chat_message, rate_chat_message, send_chat_feedback  # thêm các view cho chatbot
 )
 
+from payment.views import vnpay_ipn
+
 urlpatterns = [
     # Admin
     path('admin/', admin.site.urls),
@@ -57,6 +59,9 @@ urlpatterns = [
     # Chatbot API endpoints
     path('accounts/api/public/chatbot-config/', public_chatbot_config, name='public_chatbot_config'),
     path('accounts/api/public/chatbot-process/', public_chatbot_process, name='public_chatbot_process'),
+    
+    # Thêm URL pattern cho IPN endpoint của VNPAY
+    path('payment/vnpay-ipn/', vnpay_ipn, name='vnpay_ipn'),
 ]
 
 if settings.DEBUG:

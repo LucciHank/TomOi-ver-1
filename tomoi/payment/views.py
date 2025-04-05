@@ -394,27 +394,29 @@ def vnpay_payment(request):
                 payment_method='vnpay',
                 transaction_id=transaction_id,
                 status='pending',
-                transaction_type='deposit'  # Đánh dấu là nạp tiền
+                transaction_type='deposit',  # Đánh dấu là nạp tiền
+                expired_at=timezone.now() + timedelta(minutes=15)  # Thêm thời gian hết hạn
             )
 
             # Tạo URL thanh toán VNPAY
             vnp = VnPay()
-            vnp_params = {
+            vnp.requestData = {
                 'vnp_Version': '2.1.0',
                 'vnp_Command': 'pay',
                 'vnp_TmnCode': settings.VNPAY_TMN_CODE,
                 'vnp_Amount': str(int(Decimal(amount) * 100)),
                 'vnp_CreateDate': datetime.now().strftime('%Y%m%d%H%M%S'),
+                'vnp_ExpireDate': (datetime.now() + timedelta(minutes=15)).strftime('%Y%m%d%H%M%S'),
                 'vnp_CurrCode': 'VND',
                 'vnp_IpAddr': get_client_ip(request),
                 'vnp_Locale': 'vn',
                 'vnp_OrderInfo': f'Nap tien {transaction_id}',
-                'vnp_OrderType': 'deposit',  # Đánh dấu là nạp tiền
-                'vnp_ReturnUrl': settings.VNPAY_DEPOSIT_RETURN_URL,  # URL return riêng cho nạp tiền
+                'vnp_OrderType': 'billpayment',  # Thay đổi loại giao dịch
+                'vnp_ReturnUrl': settings.VNPAY_DEPOSIT_RETURN_URL,
                 'vnp_TxnRef': transaction_id,
             }
 
-            payment_url = vnp.get_payment_url(settings.VNPAY_PAYMENT_URL, vnp_params)
+            payment_url = vnp.get_payment_url(settings.VNPAY_PAYMENT_URL, settings.VNPAY_HASH_SECRET_KEY, is_deposit=True)
             return JsonResponse({
                 'success': True,
                 'payment_url': payment_url
@@ -430,6 +432,101 @@ def vnpay_payment(request):
     return JsonResponse({
         'success': False,
         'message': 'Phương thức không được hỗ trợ'
+    })
+
+# Thêm hàm xử lý IPN từ VNPAY
+@csrf_exempt
+def vnpay_ipn(request):
+    """Xử lý thông báo thanh toán từ VNPAY (IPN URL)"""
+    if request.method == 'GET':
+        # Lấy các tham số từ request
+        input_data = request.GET
+        
+        if not input_data:
+            return JsonResponse({
+                'RspCode': '99',
+                'Message': 'Invalid request'
+            })
+            
+        # Khởi tạo VnPay và validate dữ liệu
+        vnp = VnPay()
+        vnp_TxnRef = input_data.get('vnp_TxnRef')
+        vnp_ResponseCode = input_data.get('vnp_ResponseCode')
+        vnp_TransactionStatus = input_data.get('vnp_TransactionStatus')
+        vnp_SecureHash = input_data.get('vnp_SecureHash')
+        
+        # Tạo data để kiểm tra chữ ký
+        vnp_data = {}
+        for key, value in input_data.items():
+            if key != 'vnp_SecureHash':
+                vnp_data[key] = value
+                
+        # Kiểm tra chữ ký
+        is_valid = vnp.validate_response(vnp_data)
+        
+        if not is_valid:
+            return JsonResponse({
+                'RspCode': '97',
+                'Message': 'Invalid signature'
+            })
+            
+        # Tìm giao dịch trong database
+        try:
+            transaction = Transaction.objects.get(transaction_id=vnp_TxnRef)
+        except Transaction.DoesNotExist:
+            return JsonResponse({
+                'RspCode': '01',
+                'Message': 'Order not found'
+            })
+            
+        # Giao dịch đã được cập nhật trước đó
+        if transaction.status in ['completed', 'failed', 'cancelled']:
+            return JsonResponse({
+                'RspCode': '02',
+                'Message': 'Order already updated'
+            })
+            
+        # Kiểm tra mã trả về từ VNPAY
+        if vnp_ResponseCode == '00' and vnp_TransactionStatus == '00':
+            try:
+                # Cập nhật trạng thái giao dịch
+                transaction.status = 'completed'
+                transaction.save()
+                
+                # Xử lý giao dịch thành công
+                if transaction.transaction_type == 'deposit':
+                    # Nạp tiền vào tài khoản người dùng
+                    user = transaction.user
+                    user.balance += transaction.amount
+                    user.save()
+                elif transaction.transaction_type == 'order':
+                    # Xử lý đơn hàng
+                    process_successful_payment(transaction)
+                
+                return JsonResponse({
+                    'RspCode': '00',
+                    'Message': 'Confirm Success'
+                })
+            except Exception as e:
+                logger.error(f"Error processing IPN: {str(e)}")
+                return JsonResponse({
+                    'RspCode': '99',
+                    'Message': 'Error processing transaction'
+                })
+        else:
+            # Cập nhật trạng thái thất bại
+            transaction.status = 'failed'
+            transaction.error_message = f'VNPAY Response Code: {vnp_ResponseCode}'
+            transaction.save()
+            
+            return JsonResponse({
+                'RspCode': '00',
+                'Message': 'Confirm Success'
+            })
+                
+    return JsonResponse({
+        'RspCode': '99',
+        'Message': 'Invalid request'
     })
 
 @login_required
@@ -481,7 +578,7 @@ def vnpay_order_payment(request):
                 'vnp_TxnRef': transaction_id,
             }
 
-            payment_url = vnp.get_payment_url(settings.VNPAY_PAYMENT_URL, settings.VNPAY_ORDER_RETURN_URL)
+            payment_url = vnp.get_payment_url(settings.VNPAY_PAYMENT_URL, settings.VNPAY_HASH_SECRET_KEY)
 
             return JsonResponse({
                 'code': '00',

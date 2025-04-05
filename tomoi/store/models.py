@@ -302,6 +302,7 @@ class Order(models.Model):
     )
     
     user = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE, related_name='store_orders')
+    order_number = models.CharField(max_length=50, unique=True, blank=True, null=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, null=True, blank=True)
@@ -311,6 +312,27 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order {self.id} - {self.user.username}"
+
+    def save(self, *args, **kwargs):
+        # Tạo order_number nếu chưa có
+        if not self.order_number:
+            # Format: ORD-YYMMDDxxxx
+            prefix = "ORD-"
+            date_str = timezone.now().strftime('%y%m%d')
+            
+            # Lấy số đơn hàng trong ngày
+            last_order = Order.objects.filter(order_number__startswith=f"{prefix}{date_str}").order_by('-order_number').first()
+            
+            if last_order:
+                # Lấy số cuối cùng và tăng lên 1
+                last_number = int(last_order.order_number[-4:])
+                new_number = last_number + 1
+            else:
+                new_number = 1
+                
+            self.order_number = f"{prefix}{date_str}{new_number:04d}"
+            
+        super().save(*args, **kwargs)
 
 
 # Mô hình tài khoản đã mua (PurchasedAccount)

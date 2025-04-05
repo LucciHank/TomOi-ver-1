@@ -14,7 +14,7 @@ class APIConfig(models.Model):
         ('gemini-1.5-flash-8b', 'Gemini 1.5 Flash-8B - Cho tác vụ đơn giản'),
         ('gemini-1.5-pro', 'Gemini 1.5 Pro - Suy luận phức tạp'),
         ('imagen-3.0-generate-002', 'Imagen 3 - Tạo hình ảnh')
-    ], default='gemini-1.5-flash')
+    ], default='gemini-2.0-flash')
     temperature = models.FloatField(default=0.7)
     max_tokens = models.IntegerField(default=2048)
     endpoint = models.CharField(max_length=255, default='https://generativelanguage.googleapis.com/v1beta', blank=True, null=True)

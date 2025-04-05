@@ -156,11 +156,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 addMessage('bot', data.error || 'Xin lỗi, tôi không thể xử lý yêu cầu của bạn lúc này.');
             }
         })
-        .catch(error => {
-            console.error('Error:', error);
-            removeTypingIndicator();
-            addMessage('bot', 'Xin lỗi, đã xảy ra lỗi khi xử lý yêu cầu của bạn.');
-        });
     }
     
     function addMessage(type, content) {

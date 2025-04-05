@@ -1,0 +1,20 @@
+            <!-- Messaging -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'messaging' %}">
+                    <i class="fas fa-envelope fa-fw"></i>
+                    <span>Tin nhắn</span>
+                </a>
+            </li>
+            
+            <!-- Chat -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'admin_chat' %}">
+                    <i class="fas fa-comments fa-fw"></i>
+                    <span>Chat với người dùng</span>
+                    <span class="badge badge-danger badge-counter" id="chat-badge" {% if not total_unread or total_unread <= 0 %}style="display:none"{% endif %}>
+                        {{ total_unread|default:0 }}
+                    </span>
+                </a>
+            </li>
+
+            <!-- Divider --> 

@@ -1,0 +1,359 @@
+{% extends "store/base.html" %}
+{% load static %}
+
+{% block title %}Tin nhắn{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chat-container {
+        display: flex;
+        height: calc(100vh - 150px);
+        background-color: #f8f9fc;
+        border-radius: 0.35rem;
+        overflow: hidden;
+        margin: 20px 0;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    }
+    
+    .chat-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background-color: #fff;
+    }
+    
+    .chat-header {
+        padding: 15px;
+        border-bottom: 1px solid #e3e6f0;
+        display: flex;
+        align-items: center;
+        background-color: #f8f9fc;
+    }
+    
+    .chat-messages {
+        flex: 1;
+        padding: 15px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .message {
+        max-width: 70%;
+        padding: 10px 15px;
+        border-radius: 18px;
+        margin-bottom: 15px;
+        position: relative;
+        word-wrap: break-word;
+    }
+    
+    .message.admin {
+        align-self: flex-start;
+        background-color: #f1f3f9;
+    }
+    
+    .message.user {
+        align-self: flex-end;
+        background-color: #4e73df;
+        color: white;
+    }
+    
+    .message-time {
+        font-size: 0.7rem;
+        color: #858796;
+        margin-top: 5px;
+        text-align: right;
+    }
+    
+    .message.user .message-time {
+        color: #e3e6f0;
+    }
+    
+    .chat-input {
+        padding: 15px;
+        border-top: 1px solid #e3e6f0;
+        background-color: #f8f9fc;
+    }
+    
+    .input-group {
+        display: flex;
+    }
+    
+    .input-group .form-control {
+        border-radius: 30px;
+        padding: 10px 20px;
+    }
+    
+    .input-actions {
+        display: flex;
+        padding: 10px 0;
+    }
+    
+    .action-button {
+        margin-right: 10px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #4e73df;
+    }
+    
+    .message-image {
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: 8px;
+        margin-top: 5px;
+    }
+    
+    .order-card {
+        background-color: #f8f9fc;
+        border-radius: 8px;
+        padding: 10px;
+        margin-top: 5px;
+    }
+    
+    .admin-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 15px;
+        background-color: #4e73df;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+    }
+    
+    .admin-info {
+        flex: 1;
+    }
+    
+    .admin-name {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="my-4">Tin nhắn hỗ trợ</h1>
+            
+            <div class="chat-container">
+                <div class="chat-content">
+                    <div class="chat-header">
+                        <div class="admin-avatar">
+                            {% if selected_conversation and selected_conversation.admin and selected_conversation.admin.avatar %}
+                                <img src="{{ selected_conversation.admin.avatar.url }}" alt="{{ selected_conversation.admin.username }}" class="img-fluid">
+                            {% else %}
+                                <i class="fas fa-headset"></i>
+                            {% endif %}
+                        </div>
+                        <div class="admin-info">
+                            <div class="admin-name">
+                                {% if selected_conversation and selected_conversation.admin %}
+                                    {{ selected_conversation.admin.username }}
+                                {% else %}
+                                    Hỗ trợ viên
+                                {% endif %}
+                            </div>
+                            <small>Luôn sẵn sàng hỗ trợ bạn</small>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-messages" id="chat-messages">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="message {% if message.sender == request.user %}user{% else %}admin{% endif %}" data-id="{{ message.id }}">
+                                    {% if message.message_type == 'image' %}
+                                        <img src="{{ message.content }}" alt="Image" class="message-image">
+                                    {% elif message.message_type == 'order' %}
+                                        <div>{{ message.content }}</div>
+                                        <div class="order-card">
+                                            <strong>Đơn hàng: {{ message.order_data.code }}</strong>
+                                            <p>Tổng: {{ message.order_data.total }}</p>
+                                            <p>Trạng thái: {{ message.order_data.status }}</p>
+                                            <p>Ngày: {{ message.order_data.created_at }}</p>
+                                        </div>
+                                    {% else %}
+                                        {{ message.content }}
+                                    {% endif %}
+                                    <div class="message-time">{{ message.sent_at|time:"H:i" }}</div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center my-5">
+                                <i class="fas fa-comments fa-3x mb-3 text-muted"></i>
+                                <p>Chào mừng bạn đến với dịch vụ hỗ trợ. Hãy gửi tin nhắn để bắt đầu cuộc trò chuyện.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="chat-input">
+                        <div class="input-actions">
+                            <button class="action-button" id="upload-image"><i class="fas fa-image"></i></button>
+                        </div>
+                        <form id="message-form">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="message-input" placeholder="Nhập tin nhắn...">
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="submit"><i class="fas fa-paper-plane"></i></button>
+                                </div>
+                            </div>
+                            <input type="hidden" id="conversation-id" value="{{ selected_conversation.id|default:'0' }}">
+                            <input type="hidden" id="message-type" value="text">
+                            <input type="file" id="image-upload" style="display: none;" accept="image/*">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Scroll to bottom of messages
+        scrollToBottom();
+        
+        // Handle message form submission
+        $('#message-form').submit(function(e) {
+            e.preventDefault();
+            sendMessage();
+        });
+        
+        // Handle image upload
+        $('#upload-image').click(function() {
+            $('#image-upload').click();
+        });
+        
+        $('#image-upload').change(function() {
+            if (this.files && this.files[0]) {
+                $('#message-type').val('image');
+                sendMessage(this.files[0]);
+            }
+        });
+        
+        // Mark messages as read
+        markMessagesAsRead();
+        
+        // Auto-update unread count
+        setInterval(updateUnreadCount, 30000);
+    });
+    
+    function scrollToBottom() {
+        const messagesContainer = document.getElementById('chat-messages');
+        if (messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+    }
+    
+    function sendMessage(file = null) {
+        const conversationId = $('#conversation-id').val();
+        const messageType = $('#message-type').val();
+        const messageInput = $('#message-input');
+        const message = messageInput.val();
+        
+        if (!conversationId || conversationId === '0') {
+            alert('Bạn cần tạo một cuộc trò chuyện mới!');
+            return;
+        }
+        
+        if (!message && messageType === 'text') return;
+        
+        const formData = new FormData();
+        formData.append('conversation_id', conversationId);
+        formData.append('message_type', messageType);
+        
+        if (messageType === 'text') {
+            formData.append('message', message);
+        } else if (messageType === 'image' && file) {
+            formData.append('image', file);
+            formData.append('message', 'Hình ảnh');
+        }
+        
+        $.ajax({
+            url: '{% url "store:user_send_message" %}',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.status === 'success') {
+                    addMessageToChat(response.message, true);
+                    messageInput.val('');
+                    $('#message-type').val('text');
+                    scrollToBottom();
+                }
+            },
+            error: function(error) {
+                console.error('Error sending message:', error);
+                alert('Có lỗi xảy ra khi gửi tin nhắn');
+            }
+        });
+    }
+    
+    function addMessageToChat(message, isUser) {
+        const messagesContainer = $('#chat-messages');
+        const messageHtml = `
+            <div class="message ${isUser ? 'user' : 'admin'}" data-id="${message.id}">
+                ${message.type === 'image' 
+                    ? `<img src="${message.content}" alt="Image" class="message-image">`
+                    : message.type === 'order'
+                        ? `<div>${message.content}</div>
+                           <div class="order-card">
+                               <strong>Đơn hàng: ${message.order_data.code}</strong>
+                               <p>Tổng: ${message.order_data.total}</p>
+                               <p>Trạng thái: ${message.order_data.status}</p>
+                               <p>Ngày: ${message.order_data.created_at}</p>
+                           </div>`
+                        : message.content}
+                <div class="message-time">${message.sent_at}</div>
+            </div>
+        `;
+        messagesContainer.append(messageHtml);
+    }
+    
+    function markMessagesAsRead() {
+        const messageIds = [];
+        $('.message.admin').each(function() {
+            const messageId = $(this).data('id');
+            if (messageId) {
+                messageIds.push(messageId);
+            }
+        });
+        
+        if (messageIds.length > 0) {
+            $.ajax({
+                url: '{% url "store:update_read_status" %}',
+                method: 'POST',
+                data: JSON.stringify({ message_ids: messageIds }),
+                contentType: 'application/json',
+                success: function(response) {
+                    // Messages marked as read
+                    console.log('Đã đánh dấu đã đọc: ' + response.updated + ' tin nhắn');
+                }
+            });
+        }
+    }
+    
+    function updateUnreadCount() {
+        $.ajax({
+            url: '{% url "store:get_unread_count" %}',
+            method: 'GET',
+            success: function(response) {
+                // Update header badge if needed
+                if (response.unread_count > 0) {
+                    $('#chat-badge').text(response.unread_count).show();
+                } else {
+                    $('#chat-badge').hide();
+                }
+            }
+        });
+    }
+</script>
+{% endblock %} 

@@ -3,6 +3,49 @@
 
 {% block title %}Thuộc tính sản phẩm{% endblock %}
 
+{% block extra_css %}
+<style>
+    .attribute-card {
+        margin-bottom: 1.5rem;
+        transition: all 0.2s;
+    }
+    .attribute-card:hover {
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+    }
+    .attribute-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .attribute-value {
+        padding: 8px 15px;
+        margin: 5px;
+        background-color: #f8f9fc;
+        border-radius: 30px;
+        display: inline-block;
+        font-size: 0.85rem;
+    }
+    .attribute-value:hover {
+        background-color: #eaecf4;
+    }
+    .edit-value-form {
+        display: none;
+    }
+    .attribute-value-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+    .attribute-value-item .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    .add-attribute-form label {
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
     <h1 class="h3 mb-2 text-gray-800">Quản lý thuộc tính sản phẩm</h1>
@@ -10,22 +53,512 @@
 
     <!-- Thêm thuộc tính mới -->
     <div class="card shadow mb-4">
-        <div class="card-header py-3">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold text-primary">Thêm thuộc tính mới</h6>
+            <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#addAttributeForm" aria-expanded="false" aria-controls="addAttributeForm">
+                <i class="fas fa-plus"></i> Tạo mới
+            </button>
         </div>
-        <div class="card-body">
-            <p>Chức năng đang được phát triển. Sẽ có sẵn trong phiên bản tới.</p>
+        <div class="card-body collapse" id="addAttributeForm">
+            <form class="add-attribute-form" id="attributeForm" method="post" action="{% url 'dashboard:attributes' %}">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="attribute_name">Tên thuộc tính</label>
+                            <input type="text" class="form-control" id="attribute_name" name="name" required placeholder="VD: Màu sắc, Kích thước,...">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="attribute_slug">Slug</label>
+                            <input type="text" class="form-control" id="attribute_slug" name="slug" placeholder="VD: mau-sac, kich-thuoc,...">
+                            <small class="form-text text-muted">Để trống sẽ tự động tạo từ tên thuộc tính</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="attribute_desc">Mô tả</label>
+                    <textarea class="form-control" id="attribute_desc" name="description" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="attribute_values">Giá trị thuộc tính</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="attribute_values" placeholder="Nhập giá trị rồi nhấn 'Thêm'">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" id="addValueBtn">Thêm</button>
+                        </div>
+                    </div>
+                    <small class="form-text text-muted">VD: Đỏ, Xanh, Vàng hoặc S, M, L, XL,...</small>
+                </div>
+                <div id="valuesList" class="mb-3"></div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Lưu thuộc tính
+                </button>
+            </form>
         </div>
     </div>
 
     <!-- Danh sách thuộc tính -->
     <div class="card shadow mb-4">
-        <div class="card-header py-3">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold text-primary">Danh sách thuộc tính</h6>
+            <div class="input-group input-group-sm" style="width: 250px;">
+                <input type="text" class="form-control" placeholder="Tìm thuộc tính..." id="attributeSearch">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
         </div>
         <div class="card-body">
-            <p>Chưa có thuộc tính nào.</p>
+            <div class="row attribute-list">
+                <!-- Color Attribute -->
+                <div class="col-lg-4 col-md-6 attribute-card">
+                    <div class="card">
+                        <div class="card-header attribute-header">
+                            <h6 class="m-0 font-weight-bold">Màu sắc</h6>
+                            <div>
+                                <button class="btn btn-sm btn-primary edit-attribute-btn" data-id="1">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger delete-attribute-btn" data-id="1">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small">Màu sắc sản phẩm</p>
+                            <div class="attribute-values">
+                                <span class="attribute-value">Đỏ</span>
+                                <span class="attribute-value">Xanh</span>
+                                <span class="attribute-value">Vàng</span>
+                                <span class="attribute-value">Đen</span>
+                                <span class="attribute-value">Trắng</span>
+                            </div>
+                            <div class="mt-2">
+                                <button class="btn btn-sm btn-outline-primary add-value-btn" data-id="1">
+                                    <i class="fas fa-plus"></i> Thêm giá trị
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Size Attribute -->
+                <div class="col-lg-4 col-md-6 attribute-card">
+                    <div class="card">
+                        <div class="card-header attribute-header">
+                            <h6 class="m-0 font-weight-bold">Kích thước</h6>
+                            <div>
+                                <button class="btn btn-sm btn-primary edit-attribute-btn" data-id="2">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger delete-attribute-btn" data-id="2">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small">Kích thước sản phẩm</p>
+                            <div class="attribute-values">
+                                <span class="attribute-value">S</span>
+                                <span class="attribute-value">M</span>
+                                <span class="attribute-value">L</span>
+                                <span class="attribute-value">XL</span>
+                                <span class="attribute-value">XXL</span>
+                            </div>
+                            <div class="mt-2">
+                                <button class="btn btn-sm btn-outline-primary add-value-btn" data-id="2">
+                                    <i class="fas fa-plus"></i> Thêm giá trị
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Material Attribute -->
+                <div class="col-lg-4 col-md-6 attribute-card">
+                    <div class="card">
+                        <div class="card-header attribute-header">
+                            <h6 class="m-0 font-weight-bold">Chất liệu</h6>
+                            <div>
+                                <button class="btn btn-sm btn-primary edit-attribute-btn" data-id="3">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger delete-attribute-btn" data-id="3">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small">Chất liệu sản phẩm</p>
+                            <div class="attribute-values">
+                                <span class="attribute-value">Cotton</span>
+                                <span class="attribute-value">Polyester</span>
+                                <span class="attribute-value">Nylon</span>
+                                <span class="attribute-value">Len</span>
+                            </div>
+                            <div class="mt-2">
+                                <button class="btn btn-sm btn-outline-primary add-value-btn" data-id="3">
+                                    <i class="fas fa-plus"></i> Thêm giá trị
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quản lý thương hiệu -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Quản lý thương hiệu</h6>
+            <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#addBrandForm" aria-expanded="false" aria-controls="addBrandForm">
+                <i class="fas fa-plus"></i> Thêm thương hiệu
+            </button>
+        </div>
+        <div class="card-body collapse" id="addBrandForm">
+            <form class="add-brand-form" id="brandForm" method="post" action="{% url 'dashboard:brands' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="brand">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="brand_name">Tên thương hiệu</label>
+                            <input type="text" class="form-control" id="brand_name" name="name" required placeholder="VD: Apple, Samsung,...">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="brand_slug">Slug</label>
+                            <input type="text" class="form-control" id="brand_slug" name="slug" placeholder="VD: apple, samsung,...">
+                            <small class="form-text text-muted">Để trống sẽ tự động tạo từ tên thương hiệu</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="brand_desc">Mô tả</label>
+                    <textarea class="form-control" id="brand_desc" name="description" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="brand_logo">Logo</label>
+                    <input type="file" class="form-control" id="brand_logo" name="logo">
+                    <small class="form-text text-muted">Logo thương hiệu (định dạng ảnh)</small>
+                </div>
+                <div class="form-check mb-3">
+                    <input type="checkbox" class="form-check-input" id="brand_active" name="is_active" checked>
+                    <label class="form-check-label" for="brand_active">Kích hoạt</label>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Lưu thương hiệu
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Danh sách thương hiệu -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách thương hiệu</h6>
+            <div class="input-group input-group-sm" style="width: 250px;">
+                <input type="text" class="form-control" placeholder="Tìm thương hiệu..." id="brandSearch">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="brandTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Logo</th>
+                            <th>Tên thương hiệu</th>
+                            <th>Slug</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for brand in brands %}
+                        <tr>
+                            <td>{{ brand.id }}</td>
+                            <td>
+                                {% if brand.logo %}
+                                <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" style="height: 40px;">
+                                {% else %}
+                                <span class="text-muted">Không có logo</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ brand.name }}</td>
+                            <td>{{ brand.slug }}</td>
+                            <td>
+                                {% if brand.is_active %}
+                                <span class="badge bg-success text-white">Hoạt động</span>
+                                {% else %}
+                                <span class="badge bg-secondary text-white">Vô hiệu</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-primary edit-brand-btn" data-id="{{ brand.id }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger delete-brand-btn" data-id="{{ brand.id }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">Chưa có thương hiệu nào</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Modals -->
+<div class="modal fade" id="editAttributeModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chỉnh sửa thuộc tính</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editAttributeForm">
+                    <input type="hidden" id="edit_attribute_id" name="id">
+                    <div class="form-group">
+                        <label for="edit_attribute_name">Tên thuộc tính</label>
+                        <input type="text" class="form-control" id="edit_attribute_name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_attribute_desc">Mô tả</label>
+                        <textarea class="form-control" id="edit_attribute_desc" name="description" rows="2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="saveAttributeBtn">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addValueModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm giá trị thuộc tính</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addValueForm">
+                    <input type="hidden" id="value_attribute_id" name="attribute_id">
+                    <div class="form-group">
+                        <label for="attribute_value">Giá trị mới</label>
+                        <input type="text" class="form-control" id="attribute_value" name="value" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="saveValueBtn">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận xóa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa thuộc tính này?</p>
+                <p class="text-danger">Lưu ý: Thao tác này không thể hoàn tác và có thể ảnh hưởng đến sản phẩm đang sử dụng thuộc tính này.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Xử lý thêm giá trị thuộc tính mới trong form tạo mới
+    $("#addValueBtn").click(function() {
+        const value = $("#attribute_values").val().trim();
+        if (value) {
+            const valueItem = `
+                <div class="attribute-value-item">
+                    <input type="hidden" name="values[]" value="${value}">
+                    <span class="mr-2">${value}</span>
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-value-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            $("#valuesList").append(valueItem);
+            $("#attribute_values").val('').focus();
+        }
+    });
+    
+    // Xử lý xóa giá trị trong form tạo mới
+    $(document).on("click", ".remove-value-btn", function() {
+        $(this).parent().remove();
+    });
+    
+    // Tự động tạo slug từ tên thuộc tính
+    $("#attribute_name").on("input", function() {
+        const name = $(this).val();
+        if ($("#attribute_slug").val() === "") {
+            const slug = name.toLowerCase()
+                .replace(/đ/g, 'd')
+                .replace(/[áàảãạăắằẳẵặâấầẩẫậ]/g, 'a')
+                .replace(/[éèẻẽẹêếềểễệ]/g, 'e')
+                .replace(/[íìỉĩị]/g, 'i')
+                .replace(/[óòỏõọôốồổỗộơớờởỡợ]/g, 'o')
+                .replace(/[úùủũụưứừửữự]/g, 'u')
+                .replace(/[ýỳỷỹỵ]/g, 'y')
+                .replace(/\s+/g, '-')
+                .replace(/[^\w\-]+/g, '')
+                .replace(/\-\-+/g, '-')
+                .replace(/^-+/, '')
+                .replace(/-+$/, '');
+            $("#attribute_slug").val(slug);
+        }
+    });
+    
+    // Xử lý mở modal sửa thuộc tính
+    $(".edit-attribute-btn").click(function() {
+        const attributeId = $(this).data("id");
+        const attributeName = $(this).closest(".attribute-card").find(".card-header h6").text();
+        const attributeDesc = $(this).closest(".attribute-card").find(".card-body p").text();
+        
+        $("#edit_attribute_id").val(attributeId);
+        $("#edit_attribute_name").val(attributeName);
+        $("#edit_attribute_desc").val(attributeDesc);
+        
+        $("#editAttributeModal").modal("show");
+    });
+    
+    // Xử lý mở modal thêm giá trị
+    $(".add-value-btn").click(function() {
+        const attributeId = $(this).data("id");
+        $("#value_attribute_id").val(attributeId);
+        $("#addValueModal").modal("show");
+    });
+    
+    // Xử lý mở modal xác nhận xóa
+    $(".delete-attribute-btn").click(function() {
+        const attributeId = $(this).data("id");
+        $("#confirmDeleteBtn").data("id", attributeId);
+        $("#confirmDeleteModal").modal("show");
+    });
+    
+    // Xử lý tìm kiếm thuộc tính
+    $("#attributeSearch").on("input", function() {
+        const searchText = $(this).val().toLowerCase();
+        $(".attribute-card").each(function() {
+            const attributeName = $(this).find(".card-header h6").text().toLowerCase();
+            const attributeDesc = $(this).find(".card-body p").text().toLowerCase();
+            const attributeValues = $(this).find(".attribute-values").text().toLowerCase();
+            
+            if (attributeName.includes(searchText) || attributeDesc.includes(searchText) || attributeValues.includes(searchText)) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
+    
+    // Giả lập lưu thuộc tính (sẽ thay bằng AJAX thực khi API sẵn sàng)
+    $("#saveAttributeBtn").click(function() {
+        // Sẽ gọi API lưu thuộc tính ở đây
+        $("#editAttributeModal").modal("hide");
+        
+        // Hiện thông báo thành công
+        Swal.fire({
+            icon: 'success',
+            title: 'Đã lưu!',
+            text: 'Thuộc tính đã được cập nhật thành công.',
+            showConfirmButton: false,
+            timer: 1500
+        });
+    });
+    
+    // Giả lập thêm giá trị thuộc tính (sẽ thay bằng AJAX thực khi API sẵn sàng)
+    $("#saveValueBtn").click(function() {
+        const value = $("#attribute_value").val().trim();
+        const attributeId = $("#value_attribute_id").val();
+        
+        if (value) {
+            // Sẽ gọi API thêm giá trị ở đây
+            
+            // Tạm thời thêm giá trị vào giao diện
+            const card = $(`.attribute-card .edit-attribute-btn[data-id="${attributeId}"]`).closest(".attribute-card");
+            const valuesContainer = card.find(".attribute-values");
+            valuesContainer.append(`<span class="attribute-value">${value}</span>`);
+            
+            $("#addValueModal").modal("hide");
+            $("#attribute_value").val('');
+            
+            // Hiện thông báo thành công
+            Swal.fire({
+                icon: 'success',
+                title: 'Đã thêm!',
+                text: 'Giá trị thuộc tính đã được thêm thành công.',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        }
+    });
+    
+    // Giả lập xóa thuộc tính (sẽ thay bằng AJAX thực khi API sẵn sàng)
+    $("#confirmDeleteBtn").click(function() {
+        const attributeId = $(this).data("id");
+        
+        // Sẽ gọi API xóa thuộc tính ở đây
+        
+        // Tạm thời xóa card khỏi giao diện
+        $(`.attribute-card .delete-attribute-btn[data-id="${attributeId}"]`).closest(".attribute-card").fadeOut(300, function() {
+            $(this).remove();
+        });
+        
+        $("#confirmDeleteModal").modal("hide");
+        
+        // Hiện thông báo thành công
+        Swal.fire({
+            icon: 'success',
+            title: 'Đã xóa!',
+            text: 'Thuộc tính đã được xóa thành công.',
+            showConfirmButton: false,
+            timer: 1500
+        });
+    });
+});
+</script>
 {% endblock %} 

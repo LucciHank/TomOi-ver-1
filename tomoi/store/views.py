@@ -36,6 +36,15 @@ from django.core.cache import cache
 import pyotp
 from django.templatetags.static import static
 from dashboard.models.chatbot import ChatLog, ChatFeedback
+from django.views.decorators.http import require_http_methods, require_POST
+from django.core.exceptions import ObjectDoesNotExist
+from django.utils.html import escape
+from django.utils import timezone
+from django.utils.text import slugify
+import uuid
+import os
+from dashboard.models.conversation import Conversation, Message, UserNotification
+from django.contrib.auth.models import User
 
 
 def dashboard(request):
@@ -1113,3 +1122,222 @@ def send_chat_feedback(request):
             'success': False,
             'message': f'Lỗi: {str(e)}'
         }, status=500)
+
+# Thêm các hàm liên quan đến chat
+@login_required
+def user_chat_dashboard(request):
+    """Trang chat cho người dùng"""
+    # Import các model cần thiết
+    from dashboard.models.conversation import Conversation, Message
+    from django.utils import timezone
+    from django.shortcuts import get_object_or_404
+    
+    # Lấy cuộc trò chuyện của người dùng với admin
+    conversations = Conversation.objects.filter(user=request.user).order_by('-last_message_time')
+    
+    # Nếu chưa có cuộc trò chuyện nào, tạo mới với admin mặc định
+    if not conversations.exists():
+        # Lấy admin mặc định (ví dụ: superuser đầu tiên)
+        try:
+            default_admin = User.objects.filter(is_superuser=True).first()
+            if default_admin:
+                conversation = Conversation.objects.create(
+                    admin=default_admin,
+                    user=request.user,
+                    last_message_time=timezone.now()
+                )
+                conversation.save()
+                
+                # Thêm tin nhắn chào mừng
+                welcome_message = Message.objects.create(
+                    conversation=conversation,
+                    sender=default_admin,
+                    receiver=request.user,
+                    content="Xin chào! Tôi là hỗ trợ viên của TomOi. Bạn cần giúp đỡ gì?",
+                    message_type="text"
+                )
+                welcome_message.save()
+                
+                conversations = [conversation]
+            else:
+                # Không có admin, tạo cuộc trò chuyện không có admin
+                conversation = Conversation.objects.create(
+                    user=request.user,
+                    last_message_time=timezone.now()
+                )
+                conversation.save()
+                conversations = [conversation]
+        except Exception as e:
+            # Ghi log lỗi
+            print(f"Error creating default conversation: {str(e)}")
+            conversations = []
+    
+    # Lấy tin nhắn của cuộc trò chuyện đầu tiên (hoặc được chọn)
+    conversation_id = request.GET.get('conversation_id')
+    if conversation_id:
+        selected_conversation = get_object_or_404(Conversation, id=conversation_id, user=request.user)
+    else:
+        selected_conversation = conversations.first() if conversations else None
+    
+    messages_list = []
+    if selected_conversation:
+        messages_list = Message.objects.filter(conversation=selected_conversation).order_by('sent_at')
+        
+        # Đánh dấu tin nhắn đã đọc
+        unread_messages = messages_list.filter(receiver=request.user, is_read=False)
+        for msg in unread_messages:
+            msg.mark_as_read()
+    
+    # Lấy tổng số tin nhắn chưa đọc
+    unread_count = Message.objects.filter(
+        conversation__user=request.user,
+        receiver=request.user,
+        is_read=False
+    ).count()
+    
+    context = {
+        'conversations': conversations,
+        'selected_conversation': selected_conversation,
+        'messages': messages_list,
+        'unread_count': unread_count
+    }
+    
+    return render(request, 'store/chat/dashboard.html', context)
+
+@login_required
+def user_send_message(request):
+    """API gửi tin nhắn từ người dùng đến admin"""
+    # Import các model cần thiết
+    from dashboard.models.conversation import Conversation, Message, UserNotification
+    from django.http import JsonResponse
+    import json
+    import os
+    from datetime import datetime
+    
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Yêu cầu không hợp lệ'}, status=400)
+    
+    # Lấy dữ liệu
+    conversation_id = request.POST.get('conversation_id')
+    message_content = request.POST.get('message')
+    message_type = request.POST.get('message_type', 'text')
+    
+    if not conversation_id or not message_content:
+        return JsonResponse({'status': 'error', 'message': 'Thiếu thông tin cuộc trò chuyện hoặc nội dung tin nhắn'}, status=400)
+    
+    # Lấy cuộc trò chuyện
+    try:
+        conversation = Conversation.objects.get(id=conversation_id, user=request.user)
+    except Conversation.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Không tìm thấy cuộc trò chuyện'}, status=404)
+    
+    # Lấy admin của cuộc trò chuyện
+    admin = conversation.admin
+    if not admin:
+        # Nếu chưa có admin, gán admin mặc định
+        admin = User.objects.filter(is_superuser=True).first()
+        if not admin:
+            return JsonResponse({'status': 'error', 'message': 'Không có quản trị viên nào để gán cho cuộc trò chuyện'}, status=400)
+        
+        conversation.admin = admin
+        conversation.save()
+    
+    # Xử lý ảnh nếu có
+    image_url = None
+    if message_type == 'image' and request.FILES.get('image'):
+        image = request.FILES['image']
+        from django.core.files.storage import default_storage
+        from django.core.files.base import ContentFile
+        
+        # Tạo thư mục lưu trữ nếu chưa tồn tại
+        upload_path = f'chat_images/{datetime.now().strftime("%Y/%m/%d")}/'
+        if not os.path.exists(f'media/{upload_path}'):
+            os.makedirs(f'media/{upload_path}', exist_ok=True)
+        
+        # Lưu file
+        file_path = f'{upload_path}{image.name}'
+        path = default_storage.save(file_path, ContentFile(image.read()))
+        image_url = default_storage.url(path)
+        
+        # Cập nhật nội dung tin nhắn với URL ảnh
+        message_content = image_url
+    
+    # Tạo tin nhắn mới
+    message = Message.objects.create(
+        conversation=conversation,
+        sender=request.user,
+        receiver=admin,
+        message_type=message_type,
+        content=message_content
+    )
+    
+    # Cập nhật thời gian tin nhắn cuối cùng
+    conversation.last_message_time = timezone.now()
+    conversation.save()
+    
+    # Tạo thông báo cho admin
+    UserNotification.objects.create(
+        user=admin,
+        message=message
+    )
+    
+    # Trả về thông tin tin nhắn
+    return JsonResponse({
+        'status': 'success',
+        'message': {
+            'id': message.id,
+            'content': message.content,
+            'type': message.message_type,
+            'sent_at': message.sent_at.strftime('%H:%M'),
+            'is_user': True
+        }
+    })
+
+@require_POST
+@csrf_exempt
+def update_read_status(request):
+    """Cập nhật trạng thái đã đọc tin nhắn cho người dùng"""
+    from dashboard.models.conversation import Message
+    from django.http import JsonResponse
+    import json
+    
+    try:
+        data = json.loads(request.body)
+        message_ids = data.get('message_ids', [])
+        
+        if not message_ids:
+            return JsonResponse({'status': 'error', 'message': 'Không có ID tin nhắn nào được cung cấp'})
+        
+        # Chỉ cập nhật các tin nhắn mà người này là người nhận
+        messages = Message.objects.filter(
+            id__in=message_ids,
+            receiver=request.user,
+            is_read=False
+        )
+        
+        for message in messages:
+            message.mark_as_read()
+            
+        return JsonResponse({'status': 'success', 'updated': len(messages)})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
+@login_required
+def get_unread_count(request):
+    """Lấy số tin nhắn chưa đọc cho người dùng"""
+    from dashboard.models.conversation import Message
+    from django.http import JsonResponse
+    
+    try:
+        unread_count = Message.objects.filter(
+            conversation__user=request.user,
+            receiver=request.user,
+            is_read=False
+        ).count()
+        
+        return JsonResponse({
+            'status': 'success',
+            'unread_count': unread_count
+        })
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})

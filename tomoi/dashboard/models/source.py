@@ -30,6 +30,7 @@ class Source(models.Model):
     availability_rate = models.IntegerField(default=100, verbose_name="Tỷ lệ có hàng (%)")
     priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2, verbose_name="Mức độ ưu tiên")
     notes = models.TextField(blank=True, verbose_name="Ghi chú")
+    is_active = models.BooleanField(default=True, verbose_name="Đang hoạt động")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

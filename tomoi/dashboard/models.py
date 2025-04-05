@@ -493,16 +493,18 @@ class Event(models.Model):
 class APIConfig(models.Model):
     """Model lưu trữ cấu hình API cho các dịch vụ bên ngoài"""
     name = models.CharField(max_length=100, verbose_name="Tên cấu hình")
-    api_type = models.CharField(max_length=50, verbose_name="Loại API", 
-                               choices=[('gemini', 'Google Gemini'), 
-                                        ('openai', 'OpenAI'), 
-                                        ('azure', 'Azure AI')])
-    api_key = models.CharField(max_length=255, verbose_name="API Key")
-    model = models.CharField(max_length=100, verbose_name="Model", default="gemini-2.0-flash")
-    endpoint = models.URLField(verbose_name="Endpoint URL", blank=True, null=True)
-    temperature = models.FloatField(verbose_name="Temperature", default=0.7)
-    max_tokens = models.IntegerField(verbose_name="Max Tokens", default=2048)
-    active = models.BooleanField(default=True, verbose_name="Đang hoạt động")
+    api_type = models.CharField(max_length=20, choices=[
+        ('gemini', 'Google Gemini AI'),
+    ], default='gemini')
+    api_key = models.CharField(max_length=255)
+    model = models.CharField(max_length=100, choices=[
+        ('gemini-2.0-flash', 'Gemini 2.0 Flash'),
+        # Các lựa chọn khác...
+    ], default='gemini-2.0-flash')
+    temperature = models.FloatField(default=0.7)
+    max_tokens = models.IntegerField(default=2048)
+    endpoint = models.CharField(max_length=255, default='https://generativelanguage.googleapis.com/v1beta', blank=True, null=True)
+    is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -515,8 +517,8 @@ class APIConfig(models.Model):
         
     def save(self, *args, **kwargs):
         # Nếu cấu hình này được kích hoạt, vô hiệu hóa các cấu hình khác cùng loại
-        if self.active:
-            APIConfig.objects.filter(api_type=self.api_type).exclude(pk=self.pk).update(active=False)
+        if self.is_active:
+            APIConfig.objects.filter(api_type=self.api_type).exclude(pk=self.pk).update(is_active=False)
         super().save(*args, **kwargs)
         
 class ChatbotConfig(models.Model):
@@ -754,3 +756,79 @@ class DiscountBackup(models.Model):
             return len(data.get('discounts', []))
         except:
             return 0 
+
+# Nguồn cung cấp
+class Source(models.Model):
+    PLATFORM_CHOICES = (
+        ('shopee', 'Shopee'),
+        ('lazada', 'Lazada'),
+        ('tiki', 'Tiki'),
+        ('other', 'Khác'),
+    )
+    
+    PRIORITY_CHOICES = (
+        (1, 'Cao'),
+        (2, 'Trung bình'),
+        (3, 'Thấp'),
+    )
+    
+    name = models.CharField(max_length=255)
+    url = models.URLField()
+    platform = models.CharField(max_length=20, choices=PLATFORM_CHOICES)
+    product_type = models.CharField(max_length=100)
+    base_price = models.DecimalField(max_digits=10, decimal_places=2)
+    availability_rate = models.IntegerField(default=100)
+    priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2)
+    notes = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Nguồn cung cấp'
+        verbose_name_plural = 'Nguồn cung cấp'
+
+# Mã giảm giá (có thể kết nối với store.Product)
+class DiscountCode(models.Model):
+    code = models.CharField(max_length=50, unique=True)
+    description = models.TextField(blank=True)
+    discount_type = models.CharField(max_length=10, choices=[
+        ('percent', 'Phần trăm'),
+        ('fixed', 'Cố định')
+    ])
+    amount = models.DecimalField(max_digits=10, decimal_places=0)
+    valid_from = models.DateTimeField()
+    valid_to = models.DateTimeField()
+    is_active = models.BooleanField(default=True)
+    usage_limit = models.IntegerField(default=0)  # 0 = không giới hạn
+    usage_count = models.IntegerField(default=0)
+    
+    # Kết nối với sản phẩm (nếu giảm giá cụ thể sản phẩm)
+    products = models.ManyToManyField('store.Product', blank=True, related_name='discount_codes')
+    
+    # Kết nối với danh mục (nếu giảm giá theo danh mục)
+    categories = models.ManyToManyField('store.Category', blank=True, related_name='discount_codes')
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
+    
+    class Meta:
+        verbose_name = 'Mã giảm giá'
+        verbose_name_plural = 'Mã giảm giá'
+
+# Bảng tổng hợp Dashboard
+class DashboardSummary(models.Model):
+    date = models.DateField(unique=True)
+    total_users = models.IntegerField(default=0) 
+    active_users = models.IntegerField(default=0)
+    new_users = models.IntegerField(default=0)
+    total_orders = models.IntegerField(default=0)
+    completed_orders = models.IntegerField(default=0)
+    total_revenue = models.DecimalField(max_digits=15, decimal_places=0, default=0)
+    total_tcoin = models.IntegerField(default=0)
+    warranty_requests = models.IntegerField(default=0)
+    last_updated = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Thống kê hệ thống'
+        verbose_name_plural = 'Thống kê hệ thống' 

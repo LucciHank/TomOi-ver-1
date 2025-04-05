@@ -257,4 +257,83 @@ def get_chat_detail(request, chat_id):
         
     except Exception as e:
         print(f"Lỗi khi lấy chi tiết trò chuyện: {str(e)}")
-        return JsonResponse({'success': False, 'message': f'Lỗi: {str(e)}'}, status=500) 
+        return JsonResponse({'success': False, 'message': f'Lỗi: {str(e)}'}, status=500)
+
+@login_required
+def get_user_orders(request):
+    """
+    API để lấy danh sách đơn hàng của người dùng cho hệ thống chat
+    """
+    from store.models import Order
+    
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'Không có quyền truy cập'}, status=403)
+    
+    try:
+        user_id = request.GET.get('user_id')
+        
+        if not user_id:
+            return JsonResponse({'success': False, 'message': 'Thiếu thông tin người dùng'}, status=400)
+        
+        # Lấy 10 đơn hàng gần nhất của người dùng
+        orders = Order.objects.filter(user_id=user_id).order_by('-created_at')[:10]
+        
+        result = []
+        for order in orders:
+            result.append({
+                'id': order.id,
+                'order_number': order.order_number or f'#ORD-{order.id}',
+                'total': float(order.total_amount),
+                'status': order.status,
+                'created_at': order.created_at.strftime('%d/%m/%Y'),
+                'items_count': order.items.count() if hasattr(order, 'items') else 0
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'orders': result
+        })
+    
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+@login_required
+def search_orders(request):
+    """
+    API để tìm kiếm đơn hàng cho hệ thống chat
+    """
+    from store.models import Order
+    
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'Không có quyền truy cập'}, status=403)
+    
+    try:
+        query = request.GET.get('query', '')
+        
+        if not query:
+            return JsonResponse({'success': False, 'message': 'Thiếu từ khóa tìm kiếm'}, status=400)
+        
+        # Tìm kiếm đơn hàng
+        orders = Order.objects.filter(
+            order_number__icontains=query
+        ).order_by('-created_at')[:10]
+        
+        result = []
+        for order in orders:
+            result.append({
+                'id': order.id,
+                'order_number': order.order_number or f'#ORD-{order.id}',
+                'total': float(order.total_amount),
+                'status': order.status,
+                'created_at': order.created_at.strftime('%d/%m/%Y'),
+                'customer_name': order.user.get_full_name() if order.user else 'Khách vãng lai',
+                'items_count': order.items.count() if hasattr(order, 'items') else 0
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'orders': result
+        })
+    
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500) 

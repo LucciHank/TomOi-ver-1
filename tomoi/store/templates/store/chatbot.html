@@ -29,6 +29,7 @@
                 <div class="chat-status">Đang hoạt động</div>
             </div>
             <div class="chat-actions">
+                <button class="chatbot-reset" id="btn-reset" title="Xóa lịch sử"><i class="fas fa-trash"></i></button>
                 <button class="btn-minimize" id="btn-minimize"><i class="fas fa-minus"></i></button>
                 <button class="btn-close" id="btn-close"><i class="fas fa-times"></i></button>
             </div>
@@ -749,7 +750,7 @@ function addBotMessage(message) {
     
     // Loại bỏ các pattern không mong muốn
     message = message.replace(/chat log \(not sent\):.+/gi, '');
-    message = message.replace(/API key is required/gi, '');
+
     
     // Giới hạn nội dung hiển thị về các tài khoản premium
     if (message.toLowerCase().includes('netflix') || 

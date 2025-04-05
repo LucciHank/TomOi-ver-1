@@ -126,7 +126,7 @@ class CustomUserAdmin(UserAdmin):
         }),
     )
 
-    readonly_fields = ('join_date', 'last_login', 'last_login_ip', 'failed_login_attempts', 'tcoin_balance')
+    readonly_fields = ('join_date', 'last_login', 'last_login_ip', 'failed_login_attempts', 'tcoin')
     actions = ['activate_users', 'deactivate_users', 'add_balance', 'subtract_balance', 'make_active', 'make_pending', 'make_suspended']
 
     def full_name(self, obj):
@@ -278,7 +278,8 @@ class CustomUserAdmin(UserAdmin):
             TCoinHistory.objects.create(
                 user=obj,
                 amount=tcoin_change,
-                activity_type='admin',
+                transaction_type='adjustment',
+                balance_after=obj.tcoin,
                 description=description
             )
             

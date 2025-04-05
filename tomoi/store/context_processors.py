@@ -1,6 +1,7 @@
 from django.utils.timezone import now
-from .models import Banner, Category, Wishlist
+from .models import Banner, Category, Wishlist, CartItem
 from django.utils import timezone
+from dashboard.models.conversation import Message
 # Thay đổi import để phù hợp với cấu trúc thực tế của app dashboard
 # Có thể class ChatbotConfig nằm trong một submodule cụ thể
 try:
@@ -80,4 +81,44 @@ def chatbot_config(request):
         return {
             'config': config,
             'current_time': timezone.now().strftime('%H:%M')
-        } 
+        }
+
+def cart_processor(request):
+    """Context processor để đếm số sản phẩm trong giỏ hàng"""
+    if request.user.is_authenticated:
+        # Sử dụng trực tiếp CartItem thay vì thông qua Cart
+        cart_count = CartItem.objects.filter(user=request.user).count()
+    else:
+        # Trường hợp khách chưa đăng nhập, lấy từ session
+        cart_count = 0
+        session_key = request.session.session_key
+        if session_key:
+            cart_count = CartItem.objects.filter(session_key=session_key).count()
+    
+    return {'cart_count': cart_count}
+
+def wishlist_count(request):
+    """Context processor để đếm số sản phẩm trong wishlist"""
+    if request.user.is_authenticated:
+        wishlist_count = Wishlist.objects.filter(user=request.user).count()
+    else:
+        wishlist_count = 0
+    
+    return {'wishlist_count': wishlist_count}
+
+def categories_processor(request):
+    """Context processor để lấy danh sách các danh mục sản phẩm"""
+    categories = Category.objects.all()
+    return {'categories': categories}
+
+def unread_messages_count(request):
+    """Context processor để đếm số tin nhắn chưa đọc"""
+    if request.user.is_authenticated:
+        unread_count = Message.objects.filter(
+            receiver=request.user,
+            is_read=False
+        ).count()
+    else:
+        unread_count = 0
+    
+    return {'unread_messages_count': unread_count} 

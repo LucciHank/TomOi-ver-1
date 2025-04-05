@@ -21,6 +21,18 @@ TRANSACTION_TYPES = (
     ('other', 'Khác')
 )
 
+# Thêm định nghĩa ACTIVITY_TYPES
+ACTIVITY_TYPES = (
+    ('login', 'Đăng nhập'),
+    ('order', 'Đặt hàng'),
+    ('checkin', 'Điểm danh'),
+    ('referral', 'Giới thiệu'), 
+    ('promotion', 'Khuyến mãi'),
+    ('system', 'Hệ thống'),
+    ('admin', 'Quản trị viên'),
+    ('other', 'Khác')
+)
+
 class CustomUserManager(BaseUserManager):
     def create_user(self, username, email, password=None, **extra_fields):
         if not email:
@@ -171,7 +183,7 @@ class CustomUser(AbstractUser):
     require_2fa_password = models.BooleanField(default=False)
     require_2fa_profile = models.BooleanField(default=False)
 
-    tcoin_balance = models.IntegerField(default=0)
+    tcoin = models.IntegerField(default=0)
 
     # Thêm các field mới
     ACCOUNT_TYPE_CHOICES = [
@@ -406,6 +418,7 @@ class TCoinHistory(models.Model):
     balance_after = models.IntegerField(default=0, verbose_name="Số dư sau giao dịch")
     description = models.CharField(max_length=255, verbose_name="Mô tả", default="Điều chỉnh số dư")
     transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPES, default='adjustment', verbose_name="Loại giao dịch")
+    activity_type = models.CharField(max_length=20, choices=ACTIVITY_TYPES, default='other', verbose_name="Loại hoạt động")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Thời gian")
     
     class Meta:
