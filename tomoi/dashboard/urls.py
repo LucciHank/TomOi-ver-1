@@ -28,6 +28,8 @@ from .views import settings as app_settings, logs, responses
 from .views.user import user_dashboard
 from .views.chatbot import (dashboard as chatbot_dashboard, 
                            chatbot_test_api, settings as chatbot_settings)
+from .views.product_attribute import (attribute_list, add_attribute, edit_attribute, delete_attribute, 
+                            attribute_values, add_attribute_value, edit_attribute_value, delete_attribute_value)
 
 # Import các chức năng marketing từ module marketing
 from .views.marketing import (
@@ -37,6 +39,10 @@ from .views.marketing import (
     affiliate, remarketing, automation, marketing_chart_data,
     remarketing_campaign
 )
+
+# Brand management
+# Import directly from views.py instead of the views package
+from . import views
 
 from .views.compare import compare_sources  # Import compare_sources từ module compare chứ không phải source
 from .views.product_source import add_source_product  # Import add_source_product từ module product_source
@@ -53,6 +59,7 @@ from .views import (
     category_list,
     add_category,
     edit_category,
+    delete_category,
     import_products
 )
 
@@ -66,6 +73,9 @@ from .views import (
 from .views import subscription_management, subscription_plans
 from .views.subscription import check_expired_subscriptions_ajax
 from .views import source_dashboard, source_list, source_add, source_edit, source_delete, source_log_list, source_analytics
+
+# Supplier URLs
+from .views.supplier import supplier_list, supplier_add, supplier_detail, supplier_edit, supplier_delete
 
 app_name = 'dashboard'
 
@@ -170,16 +180,47 @@ urlpatterns = [
     path('products/images/<int:image_id>/delete/', delete_product_image, name='delete_product_image'),
     path('products/images/<int:image_id>/set-primary/', set_primary_image, name='set_primary_image'),
     path('products/<int:product_id>/history/', product_history, name='product_history'),
-    path('products/check-sku/', product_detail, name='check_sku'),  # Tạm thời dùng product_detail
-    path('products/upload-image/', upload_banner_image, name='upload_editor_image'),  # Tạm thời dùng upload_banner_image
+    path('products/check-sku/', product_detail, name='check_sku'),  # Tạm thởi dùng product_detail
+    path('products/upload-image/', upload_banner_image, name='upload_editor_image'),  # Tạm thởi dùng upload_banner_image
+    path('products/upload-product-image/', upload_banner_image, name='upload_product_image'),  # Tạo URL cho upload_product_image
     
     # Categories
     path('products/categories/', category_list, name='categories'),
     path('products/categories/add/', add_category, name='add_category'),
     path('products/categories/<int:category_id>/edit/', edit_category, name='edit_category'),
+    path('products/categories/<int:category_id>/delete/', views.product.delete_category, name='delete_category'),
+    
+    # Variants and Options
+    path('products/<int:product_id>/variants/', views.product.manage_product_variants, name='manage_product_variants'),
+    path('products/<int:product_id>/variants/add/', views.product.add_product_variant, name='add_product_variant'),
+    path('products/variants/<int:variant_id>/edit/', views.product.edit_product_variant, name='edit_product_variant'),
+    path('products/variants/<int:variant_id>/delete/', views.product.delete_product_variant, name='delete_product_variant'),
+    path('products/variants/<int:variant_id>/options/', views.product.manage_variant_options, name='manage_variant_options'),
+    path('products/variants/<int:variant_id>/options/add/', views.product.add_variant_option, name='add_variant_option'),
+    path('products/options/<int:option_id>/edit/', views.product.edit_variant_option, name='edit_variant_option'),
+    path('products/options/<int:option_id>/delete/', views.product.delete_variant_option, name='delete_variant_option'),
+    
+    # Brands
+    path('products/brands/', views.product.brands, name='brand_list'),
+    path('products/brands/add/', views.product.add_brand, name='add_brand'),
+    path('products/brands/<int:brand_id>/edit/', views.product.edit_brand, name='edit_brand'),
+    path('products/brands/<int:brand_id>/delete/', views.product.delete_brand, name='delete_brand'),
+    
+    # Product Durations
+    path('products/durations/', views.product_duration.product_durations, name='product_durations'),
+    path('products/durations/add/', views.product_duration.add_product_duration, name='add_product_duration'),
+    path('products/durations/<int:duration_id>/edit/', views.product_duration.edit_product_duration, name='edit_product_duration'),
+    path('products/durations/<int:duration_id>/delete/', views.product_duration.delete_product_duration, name='delete_product_duration'),
     
     # Attributes (added to fix NoReverseMatch error)
-    path('products/attributes/', product_attributes, name='attributes'),
+    path('products/attributes/', attribute_list, name='attribute_list'),
+    path('products/attributes/add/', add_attribute, name='add_attribute'),
+    path('products/attributes/edit/<int:attribute_id>/', edit_attribute, name='edit_attribute'),
+    path('products/attributes/delete/<int:attribute_id>/', delete_attribute, name='delete_attribute'),
+    path('products/attributes/<int:attribute_id>/values/', attribute_values, name='attribute_values'),
+    path('products/attributes/<int:attribute_id>/values/add/', add_attribute_value, name='add_attribute_value'),
+    path('products/attributes/values/edit/<int:value_id>/', edit_attribute_value, name='edit_attribute_value'),
+    path('products/attributes/values/delete/<int:value_id>/', delete_attribute_value, name='delete_attribute_value'),
     
     # Product Reviews (added to fix NoReverseMatch error)
     path('products/reviews/', product_reviews, name='product_reviews'),
@@ -314,14 +355,14 @@ urlpatterns = [
     
     # Blog Management
     path('posts/categories/delete/', delete_post_category, name='delete_post_category'),
-    path('blogs/', marketing, name='blogs'),  # Tạm thời trỏ đến trang marketing
+    path('blogs/', marketing, name='blogs'),  # Tạm thởi trỏ đến trang marketing
     
     # Content Management
-    path('content/', marketing, name='content'),  # Tạm thời trỏ đến trang marketing
+    path('content/', marketing, name='content'),  # Tạm thởi trỏ đến trang marketing
     
     # Analytics
-    path('analytics/', views.analytics, name='analytics'),  # Tạm thời trỏ đến hàm analytics trong views/__init__.py
-    path('analytics/chart-data/', views.analytics, name='chart_data'),  # Tạm thời trỏ đến hàm analytics
+    path('analytics/', views.analytics, name='analytics'),  # Tạm thởi trỏ đến hàm analytics trong views/__init__.py
+    path('analytics/chart-data/', views.analytics, name='chart_data'),  # Tạm thởi trỏ đến hàm analytics
     
     # Calendar API endpoints
     path('api/events/', views.api.get_events, name='api_events'),
@@ -336,11 +377,12 @@ urlpatterns = [
     # API cho lịch sử trò chuyện
     path('api/chatbot/logs/<str:chat_id>/detail/', views.api.get_chat_detail, name='api_chat_detail'),
 
-    # Thêm các url pattern mới cho quản lý thương hiệu
-    # Brands
-    path('products/brands/', views.product.brands, name='brands'),
-    path('products/brands/<int:brand_id>/edit/', views.product.edit_brand, name='edit_brand'),
-    path('products/brands/<int:brand_id>/delete/', views.product.delete_brand, name='delete_brand'),
+    # Supplier URLs
+    path('suppliers/', supplier_list, name='supplier_list'),
+    path('suppliers/add/', supplier_add, name='supplier_add'),
+    path('suppliers/<int:supplier_id>/', supplier_detail, name='supplier_detail'),
+    path('suppliers/<int:supplier_id>/edit/', supplier_edit, name='supplier_edit'),
+    path('suppliers/<int:supplier_id>/delete/', supplier_delete, name='supplier_delete'),
 ]
 
 if settings.DEBUG:

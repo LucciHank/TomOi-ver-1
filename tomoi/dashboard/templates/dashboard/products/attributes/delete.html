@@ -1,0 +1,84 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">{{ title }}</h1>
+        <a href="{% url 'dashboard:edit_attribute' attribute.id %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title m-0 text-danger">Xác nhận xóa thuộc tính</h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i> Bạn sắp xóa thuộc tính <strong>"{{ attribute.name }}"</strong> và tất cả các giá trị của nó.
+            </div>
+            
+            <div class="mb-4">
+                <h6 class="font-weight-bold">Thông tin thuộc tính:</h6>
+                <div class="table-responsive">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th style="width: 30%">Tên thuộc tính:</th>
+                                <td>{{ attribute.name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Mô tả:</th>
+                                <td>{{ attribute.description|default:"Không có mô tả" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Số giá trị:</th>
+                                <td>{{ attribute_values_count }}</td>
+                            </tr>
+                            <tr>
+                                <th>Trạng thái:</th>
+                                <td>
+                                    {% if attribute.is_active %}
+                                    <span class="badge bg-success">Hoạt động</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">Không hoạt động</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            {% if attribute_values_count > 0 %}
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle"></i> <strong>Cảnh báo:</strong> Thuộc tính này có {{ attribute_values_count }} giá trị. Tất cả các giá trị này sẽ bị xóa cùng với thuộc tính.
+            </div>
+            {% endif %}
+            
+            {% if products_count > 0 %}
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle"></i> <strong>Cảnh báo:</strong> Có {{ products_count }} sản phẩm đang sử dụng thuộc tính này. Xóa có thể ảnh hưởng đến các sản phẩm này.
+            </div>
+            {% endif %}
+            
+            <form method="post" action="{% url 'dashboard:delete_attribute' attribute.id %}">
+                {% csrf_token %}
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'dashboard:edit_attribute' attribute.id %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Hủy
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Xác nhận xóa
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 
+ 
+ 

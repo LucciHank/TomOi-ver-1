@@ -1,0 +1,678 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mẫu Thư Quà Tặng - TomOi{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f9f9fb;
+        background-image: radial-gradient(#df262615 1px, transparent 1px);
+        background-size: 30px 30px;
+    }
+    
+    .gift-demo-page {
+        min-height: 100vh;
+        padding: 40px 0;
+    }
+    
+    .gift-demo-container {
+        max-width: 1000px;
+        margin: 30px auto;
+        text-align: center;
+        padding: 40px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: rgba(255, 255, 255, 0.9);
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+    }
+    
+    .demo-title {
+        margin-bottom: 40px;
+        color: #333;
+        position: relative;
+        padding-bottom: 15px;
+    }
+    
+    .demo-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, #df2626, transparent);
+    }
+    
+    .demo-title h2 {
+        font-size: 32px;
+        margin-bottom: 15px;
+        color: #df2626;
+        font-weight: 700;
+        text-shadow: 1px 1px 0 rgba(0,0,0,0.1);
+    }
+    
+    .demo-title p {
+        font-size: 17px;
+        color: #555;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .envelope-container {
+        width: 350px;
+        height: 220px;
+        margin: 30px auto 50px;
+        position: relative;
+        cursor: pointer;
+        perspective: 1200px;
+    }
+    
+    .envelope {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    
+    .envelope.opened {
+        transform: rotateX(180deg);
+    }
+    
+    .envelope-front, .envelope-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+    }
+    
+    .envelope-front {
+        background-color: #df2626;
+        background-image: linear-gradient(135deg, #df2626, #c02020);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        transform: rotateX(0deg);
+        overflow: hidden;
+    }
+    
+    .envelope-pattern {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.1) 0px, rgba(255,255,255,0.1) 2px, transparent 2px, transparent 10px);
+        opacity: 0.3;
+    }
+    
+    .envelope-back {
+        background-color: #c02020;
+        background-image: linear-gradient(45deg, #b91d1d, #c02020);
+        border-radius: 15px;
+        transform: rotateX(180deg);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    }
+    
+    .envelope-flap {
+        position: absolute;
+        top: -30px;
+        left: 0;
+        width: 100%;
+        height: 80px;
+        background-color: #df2626;
+        background-image: linear-gradient(to bottom, #df2626, #c02020);
+        clip-path: polygon(0 100%, 50% 20%, 100% 100%);
+        transform-origin: top;
+        transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        z-index: 2;
+    }
+    
+    .envelope.opened .envelope-flap {
+        transform: rotateX(180deg);
+    }
+    
+    .envelope-seal {
+        position: absolute;
+        top: 25px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(45deg, #ffcc00, #ffd700);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #df2626;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        z-index: 3;
+        font-size: 18px;
+        border: 2px solid rgba(255,255,255,0.5);
+    }
+    
+    .envelope-front::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 40px;
+        background-color: rgba(0,0,0,0.1);
+    }
+    
+    .envelope-text {
+        font-size: 22px;
+        font-weight: bold;
+        color: white;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+        position: relative;
+        z-index: 2;
+    }
+    
+    .card-container {
+        position: absolute;
+        width: 300px;
+        height: 200px;
+        top: 10px;
+        left: 25px;
+        perspective: 1800px;
+        visibility: hidden;
+        opacity: 0;
+        transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transform: translateY(0) scale(0.5);
+        transform-origin: center bottom;
+    }
+    
+    .envelope.opened + .card-container {
+        visibility: visible;
+        opacity: 1;
+        transform: translateY(-120px) scale(1.2);
+        transition: transform 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.7s, 
+                    opacity 0.7s ease 0.7s, 
+                    visibility 0s linear 0s;
+    }
+    
+    .card {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        border-radius: 15px;
+        animation: cardFloat 2.5s ease-in-out infinite alternate;
+    }
+    
+    @keyframes cardFloat {
+        0% {
+            transform: translateY(0) rotate(0deg);
+        }
+        100% {
+            transform: translateY(-15px) rotate(2deg);
+        }
+    }
+    
+    .card:hover {
+        transform: rotateY(180deg);
+        animation: none;
+    }
+    
+    .card-front, .card-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        border-radius: 15px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        padding: 25px;
+    }
+    
+    .card-front {
+        background: linear-gradient(135deg, #ffffff, #f0f0f0);
+        transform: rotateY(0deg);
+        box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
+    }
+    
+    .card-logo {
+        width: 80%;
+        max-width: 200px;
+        position: relative;
+    }
+    
+    .card-logo::after {
+        content: 'TomOi.vn';
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 18px;
+        font-weight: bold;
+        color: #df2626;
+    }
+    
+    .card-back {
+        background: linear-gradient(135deg, #ffffff, #f8f8f8);
+        color: #333;
+        transform: rotateY(180deg);
+        text-align: center;
+        justify-content: flex-start;
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+        overflow-y: auto;
+    }
+    
+    .card-title {
+        font-size: 20px;
+        margin-bottom: 15px;
+        color: #df2626;
+        font-weight: bold;
+        position: relative;
+        padding-bottom: 10px;
+    }
+    
+    .card-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50px;
+        height: 2px;
+        background-color: #df2626;
+    }
+    
+    .card-sender {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #444;
+    }
+    
+    .card-message {
+        font-size: 15px;
+        line-height: 1.5;
+        margin-bottom: 15px;
+        color: #555;
+        font-style: italic;
+        background-color: #f9f9f9;
+        padding: 12px;
+        border-radius: 8px;
+        border-left: 3px solid #df2626;
+        max-height: 70px;
+        overflow-y: auto;
+    }
+    
+    .card-product {
+        font-weight: bold;
+        color: #333;
+        margin: 15px 0;
+        padding: 8px 15px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        border: 1px dashed #df2626;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+    }
+    
+    .card-footer {
+        font-size: 13px;
+        color: #777;
+        margin-top: auto;
+        position: relative;
+        padding-top: 12px;
+    }
+    
+    .card-footer::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 30px;
+        height: 1px;
+        background-color: #ddd;
+    }
+    
+    .instructions {
+        margin-top: 80px;
+        padding: 30px;
+        background-color: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+        position: relative;
+    }
+    
+    .instructions::before {
+        content: '';
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 30px;
+        height: 30px;
+        background-color: white;
+        border-radius: 50%;
+        box-shadow: 0 -3px 5px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .instructions h3 {
+        color: #df2626;
+        margin-bottom: 20px;
+        font-size: 22px;
+        position: relative;
+        display: inline-block;
+    }
+    
+    .instructions h3::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: #df2626;
+    }
+    
+    .instructions p {
+        margin-bottom: 12px;
+        color: #555;
+        font-size: 15px;
+        line-height: 1.6;
+    }
+    
+    .instructions ul {
+        text-align: left;
+        margin: 15px 0;
+        padding-left: 20px;
+    }
+    
+    .instructions li {
+        margin-bottom: 10px;
+        color: #555;
+    }
+    
+    .gift-animation-helper {
+        position: absolute;
+        top: -50px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 26px;
+        color: #df2626;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .envelope-container:hover .gift-animation-helper {
+        opacity: 1;
+        animation: bounce 1s infinite;
+    }
+    
+    @keyframes bounce {
+        0%, 100% {
+            transform: translateX(-50%) translateY(0);
+        }
+        50% {
+            transform: translateX(-50%) translateY(-10px);
+        }
+    }
+    
+    @keyframes sparkle {
+        0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+        50% {
+            opacity: 0.6;
+            transform: scale(0.8);
+        }
+    }
+    
+    .sparkle {
+        position: absolute;
+        font-size: 20px;
+        animation: sparkle 1.5s infinite;
+        color: #FFD700;
+        text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+    }
+    
+    .sparkle:nth-child(1) {
+        top: 10px;
+        right: 10px;
+        animation-delay: 0s;
+    }
+    
+    .sparkle:nth-child(2) {
+        bottom: 10px;
+        left: 10px;
+        animation-delay: 0.3s;
+    }
+    
+    .sparkle:nth-child(3) {
+        top: 40%;
+        left: 15px;
+        animation-delay: 0.7s;
+    }
+    
+    .sparkle:nth-child(4) {
+        bottom: 30%;
+        right: 15px;
+        animation-delay: 1s;
+    }
+    
+    .hearts {
+        position: absolute;
+        font-size: 18px;
+        color: #df2626;
+        animation: float 4s infinite;
+        opacity: 0;
+    }
+    
+    @keyframes float {
+        0% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 0;
+        }
+        10% {
+            opacity: 1;
+        }
+        90% {
+            opacity: 0.3;
+        }
+        100% {
+            transform: translateY(-100px) rotate(20deg);
+            opacity: 0;
+        }
+    }
+    
+    .heart1 { animation-delay: 0s; right: 10%; }
+    .heart2 { animation-delay: 1s; left: 10%; }
+    .heart3 { animation-delay: 2s; right: 20%; }
+    
+    .footer-note {
+        margin-top: 30px;
+        color: #777;
+        font-size: 14px;
+    }
+    
+    @media (max-width: 768px) {
+        .gift-demo-container {
+            padding: 25px 15px;
+        }
+        
+        .demo-title h2 {
+            font-size: 26px;
+        }
+        
+        .envelope-container {
+            width: 300px;
+            height: 180px;
+        }
+        
+        .card-container {
+            width: 260px;
+            height: 170px;
+            left: 20px;
+        }
+        
+        .envelope.opened + .card-container {
+            transform: translateY(-80px) scale(1.1);
+        }
+        
+        .card-title {
+            font-size: 18px;
+        }
+        
+        .card-message {
+            font-size: 14px;
+            max-height: 60px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .gift-demo-container {
+            padding: 20px 10px;
+        }
+        
+        .envelope-container {
+            width: 260px;
+            height: 160px;
+        }
+        
+        .card-container {
+            width: 220px;
+            height: 150px;
+            left: 20px;
+        }
+        
+        .envelope.opened + .card-container {
+            transform: translateY(-70px) scale(1);
+        }
+    }
+</style>
+
+<div class="gift-demo-page">
+    <div class="gift-demo-container">
+        <div class="demo-title">
+            <h2>Mẫu Thư Quà Tặng TomOi</h2>
+            <p>Nhấn vào bức thư bên dưới để mở. Sau đó di chuột qua tấm thiệp để xem thông tin quà tặng.</p>
+        </div>
+        
+        <div class="envelope-container" id="envelope-container">
+            <div class="gift-animation-helper">
+                <i class="fas fa-hand-point-down"></i>
+            </div>
+            <div class="envelope" id="envelope">
+                <div class="envelope-flap"></div>
+                <div class="envelope-seal">TO</div>
+                <div class="envelope-front">
+                    <div class="envelope-pattern"></div>
+                    <div class="envelope-text">Nhấn để mở</div>
+                </div>
+                <div class="envelope-back"></div>
+            </div>
+            
+            <div class="card-container" id="card-container">
+                <div class="card" id="gift-card">
+                    <div class="card-front">
+                        <img src="{% static 'store/images/logo.png' %}" alt="TomOi Logo" class="card-logo">
+                    </div>
+                    <div class="card-back">
+                        <span class="sparkle">✨</span>
+                        <span class="sparkle">✨</span>
+                        <span class="sparkle">✨</span>
+                        <span class="sparkle">✨</span>
+                        
+                        <div class="card-title">Bạn nhận được một món quà!</div>
+                        <div class="card-sender">{{ username }} có gửi tặng bạn một món quà</div>
+                        <div class="card-product">{{ product_name }}</div>
+                        <div class="card-message">"{{ gift_message }}"</div>
+                        <div class="card-footer">Được gửi tới: {{ recipient_email }}</div>
+                    </div>
+                </div>
+                
+                <div class="hearts heart1">❤️</div>
+                <div class="hearts heart2">❤️</div>
+                <div class="hearts heart3">❤️</div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>Hướng dẫn</h3>
+            <p>Khi bạn mua sản phẩm để tặng người khác, chúng tôi sẽ gửi một email chứa thiệp điện tử tương tự như bạn vừa xem.</p>
+            
+            <ul>
+                <li>Người nhận có thể mở email và nhấn vào bức thư để xem món quà bạn đã tặng họ.</li>
+                <li>Thông tin chi tiết về sản phẩm và cách sử dụng cũng sẽ được gửi kèm trong email.</li>
+                <li>Bạn có thể viết lời nhắn cá nhân (tối đa 200 ký tự) để gửi kèm với món quà.</li>
+            </ul>
+            
+            <p>Đây là cách tuyệt vời để gửi tặng những người thân yêu của bạn những sản phẩm premium từ TomOi!</p>
+        </div>
+        
+        <div class="footer-note">
+            © TomOi.vn - Tạo niềm vui từ những món quà ý nghĩa
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const envelope = document.getElementById('envelope');
+        const envelopeContainer = document.getElementById('envelope-container');
+        const cardContainer = document.getElementById('card-container');
+        const giftCard = document.getElementById('gift-card');
+        
+        // Xử lý sự kiện click để mở bức thư
+        envelopeContainer.addEventListener('click', function() {
+            envelope.classList.toggle('opened');
+            
+            // Hiệu ứng trái tim bay lên khi thư mở
+            if (envelope.classList.contains('opened')) {
+                // Kích hoạt các animation cho trái tim
+                document.querySelectorAll('.hearts').forEach(heart => {
+                    heart.style.animation = 'none';
+                    setTimeout(() => {
+                        heart.style.animation = 'float 4s infinite';
+                    }, 10);
+                });
+            }
+        });
+        
+        // Tự động mở bức thư sau 1.5 giây
+        setTimeout(function() {
+            if (envelope) {
+                envelope.classList.add('opened');
+                
+                // Kích hoạt hiệu ứng trái tim bay lên
+                document.querySelectorAll('.hearts').forEach(heart => {
+                    heart.style.animation = 'none';
+                    setTimeout(() => {
+                        heart.style.animation = 'float 4s infinite';
+                    }, 10);
+                });
+            }
+        }, 1500);
+        
+        // Thêm hiệu ứng lấp lánh ngẫu nhiên cho các ngôi sao
+        const sparkles = document.querySelectorAll('.sparkle');
+        sparkles.forEach(sparkle => {
+            const delay = Math.random() * 2; // Tạo độ trễ ngẫu nhiên
+            sparkle.style.animationDelay = `${delay}s`;
+        });
+    });
+</script>
+{% endblock %} 

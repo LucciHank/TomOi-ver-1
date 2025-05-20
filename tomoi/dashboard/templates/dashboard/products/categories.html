@@ -36,7 +36,7 @@
                                 <td>{{ category.id }}</td>
                                 <td>
                                     {% if category.image %}
-                                    <img src="{{ category.image.url }}" alt="{{ category.name }}" class="thumbnail" width="40">
+                                    <img src="{{ category.image.url }}" alt="{{ category.name }}" class="thumbnail" width="40" height="40" style="object-fit: cover; border-radius: 4px;">
                                     {% else %}
                                     <span class="text-muted"><i class="fas fa-image"></i></span>
                                     {% endif %}
@@ -46,7 +46,7 @@
                                 <td>{{ category.products.count }}</td>
                                 <td>
                                     <div class="btn-group">
-                                        <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editCategoryModal" data-category-id="{{ category.id }}">
+                                        <a href="{% url 'dashboard:edit_category' category.id %}" class="btn btn-sm btn-primary">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <a href="#" class="btn btn-sm btn-danger" onclick="deleteCategory({{ category.id }})">
@@ -115,7 +115,10 @@
                     </div>
                     <div class="mb-3">
                         <label for="image" class="form-label">Hình ảnh</label>
-                        <input type="file" class="form-control" id="image" name="image">
+                        <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                        <div class="mt-2" id="addImagePreview" style="display:none;">
+                            <img src="#" alt="Xem trước ảnh" class="img-thumbnail" style="max-height: 100px;">
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -159,6 +162,10 @@
                         <input type="file" class="form-control" id="editImage" name="image">
                         <div class="form-text">Để trống nếu không muốn thay đổi hình ảnh.</div>
                     </div>
+                    <div class="mt-2">
+                        <label for="editImagePreview" class="form-label">Ảnh hiện tại</label>
+                        <div id="editImagePreview" class="img-thumbnail" style="max-height: 100px"></div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
@@ -181,16 +188,62 @@
             }
         });
         
+        // Xem trước ảnh khi thêm mới
+        $('#image').change(function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#addImagePreview img').attr('src', e.target.result);
+                    $('#addImagePreview').show();
+                }
+                reader.readAsDataURL(file);
+            } else {
+                $('#addImagePreview').hide();
+            }
+        });
+        
+        // Xem trước ảnh khi chỉnh sửa
+        $('#editImage').change(function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#editImagePreview').html(`<img src="${e.target.result}" class="img-thumbnail" style="max-height: 100px">`).show();
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+        
         // Modal edit category
         $(document).on('click', '[data-bs-target="#editCategoryModal"]', function() {
             const categoryId = $(this).data('category-id');
             
-            $.get(`/dashboard/api/categories/${categoryId}/`, function(data) {
-                const modal = $('#editCategoryModal');
-                modal.find('#editName').val(data.name);
-                modal.find('#editParent').val(data.parent_id || '');
-                modal.find('#editDescription').val(data.description);
-                modal.find('#editCategoryForm').attr('action', `/dashboard/products/categories/${categoryId}/edit/`);
+            // Sử dụng Ajax để lấy thông tin danh mục
+            $.ajax({
+                url: `/dashboard/products/categories/${categoryId}/edit/`,
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    $('#editName').val(data.name);
+                    $('#editParent').val(data.parent_id || '');
+                    $('#editDescription').val(data.description);
+                    
+                    // Cập nhật action của form
+                    $('#editCategoryForm').attr('action', `/dashboard/products/categories/${categoryId}/edit/`);
+                    
+                    // Hiển thị ảnh hiện tại nếu có
+                    if (data.image_url) {
+                        const imagePreview = `<img src="${data.image_url}" class="img-thumbnail" style="max-height: 100px">`;
+                        $('#editImagePreview').html(imagePreview).show();
+                    } else {
+                        $('#editImagePreview').html('').hide();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Lỗi khi lấy thông tin danh mục:', error);
+                    alert('Có lỗi xảy ra khi lấy thông tin danh mục. Vui lòng thử lại.');
+                }
             });
         });
     });

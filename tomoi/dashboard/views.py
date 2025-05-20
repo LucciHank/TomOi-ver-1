@@ -15,12 +15,13 @@ import json
 import csv
 import datetime
 from accounts.models import CustomUser, BalanceHistory, TCoinHistory
-from store.models import Product, Category, Order, ProductVariant, VariantOption, Banner
+from store.models import Product, Category, Order, ProductVariant, VariantOption, Banner, Brand, ProductImage, ProductLabel
 
 # Thay đổi import models từ cấu trúc mới
 from .models.base import (SupportTicket, TicketReply, EmailTemplate, 
                          ReferralProgram, ReferralCode, ReferralTransaction, 
                          APIKey, APILog, Campaign)
+from .models.product import ProductChangeLog
 from .models.discount import Discount, UserDiscount, DiscountUsage
 from .models.subscription import SubscriptionPlan, UserSubscription, SubscriptionTransaction
 from .models.warranty import WarrantyTicket, WarrantyHistory
@@ -42,7 +43,7 @@ from django.template.loader import render_to_string
 from .models.source import Source, SourceProduct, SourceLog
 
 # Thêm import forms
-from .forms import SourceForm, SourceLogForm, SourceProductForm
+from .forms import SourceForm, SourceLogForm, SourceProductForm, ProductForm, BrandForm
 
 from django.db import models
 from django.urls import reverse
@@ -164,7 +165,8 @@ def product_list(request):
         'brands': brands,
         'query': query,
         'category_id': category_id,
-        'brand_id': brand_id
+        'brand_id': brand_id,
+        'duration_choices': Product.DURATION_CHOICES  # Thêm lựa chọn thời hạn cho modal add product
     }
     
     return render(request, 'dashboard/products/list.html', context)
@@ -175,23 +177,44 @@ def add_product(request):
         # Xử lý thêm sản phẩm
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
-            product = form.save()
+            # Lưu sản phẩm trước mà không commit để có thể chỉnh sửa trước khi lưu
+            product = form.save(commit=False)
             
-            # Xử lý nhiều ảnh sản phẩm
-            for image in request.FILES.getlist('additional_images'):
-                ProductImage.objects.create(
-                    product=product,
-                    image=image,
-                    is_primary=False
-                )
+            # Xử lý tính năng (features)
+            features_text = form.cleaned_data.get('features', '')
+            if features_text:
+                # Chuyển đổi text thành list
+                features_list = [feature.strip() for feature in features_text.split('\n') if feature.strip()]
+                product.features = features_list
                 
+            # Lưu sản phẩm sau khi đã xử lý các trường
+            product.save()
+            
             # Xử lý ảnh chính nếu được chọn
             if 'primary_image' in request.FILES:
-                ProductImage.objects.create(
-                    product=product,
-                    image=request.FILES['primary_image'],
-                    is_primary=True
-                )
+                # Kiểm tra xem đã có ảnh chính chưa
+                existing_primary = ProductImage.objects.filter(product=product, is_primary=True).first()
+                if existing_primary:
+                    # Nếu đã có, cập nhật ảnh chính
+                    existing_primary.image = request.FILES['primary_image']
+                    existing_primary.save()
+                else:
+                    # Nếu chưa có, tạo mới
+                    ProductImage.objects.create(
+                        product=product,
+                        image=request.FILES['primary_image'],
+                        is_primary=True
+                    )
+                    
+            # Xử lý các ảnh phụ (nếu có)
+            # Sử dụng getlist để lấy tất cả các file ảnh được tải lên
+            if 'additional_images' in request.FILES:
+                for image in request.FILES.getlist('additional_images'):
+                    ProductImage.objects.create(
+                        product=product,
+                        image=image,
+                        is_primary=False
+                    )
             
             # Ghi log lịch sử thay đổi
             ProductChangeLog.objects.create(
@@ -214,14 +237,15 @@ def add_product(request):
     categories = Category.objects.all()
     brands = Brand.objects.all()
     labels = ProductLabel.objects.all()
-    sources = Source.objects.all()
+    # Removed the sources reference as it's not needed for product creation
+    
+    # Update context to match the template expectations
     
     context = {
         'form': form,
         'categories': categories,
         'brands': brands, 
         'labels': labels,
-        'sources': sources,
         'duration_choices': Product.DURATION_CHOICES
     }
     
@@ -2075,7 +2099,7 @@ def export_pdf(data):
     title = Paragraph("DANH SÁCH NGƯỜI DÙNG", title_style)
     elements.append(title)
     
-    # Chuẩn bị dữ liệu cho bảng
+    # Chuẩn bị dữ liệu bảng
     df = pd.DataFrame(data)
     
     # Chọn các cột quan trọng cho PDF
@@ -2564,6 +2588,90 @@ def subscription_management(request):
     
     return render(request, 'dashboard/subscriptions/management.html', context)
 
+# Brands Management
+@staff_member_required
+def brand_list(request):
+    """Brand list view"""
+    brands = Brand.objects.all().order_by('name')
+    
+    context = {
+        'brands': brands,
+        'title': 'Quản lý thương hiệu',
+        'active_tab': 'brands'
+    }
+    
+    return render(request, 'dashboard/brands/list.html', context)
+
+@staff_member_required
+def add_brand(request):
+    """Add new brand"""
+    if request.method == 'POST':
+        form = BrandForm(request.POST, request.FILES)
+        if form.is_valid():
+            brand = form.save()
+            messages.success(request, f'Đã thêm thương hiệu {brand.name}')
+            return redirect('dashboard:brand_list')
+        else:
+            messages.error(request, 'Có lỗi xảy ra. Vui lòng kiểm tra lại form.')
+    else:
+        form = BrandForm()
+    
+    context = {
+        'form': form,
+        'title': 'Thêm thương hiệu mới',
+        'active_tab': 'brands'
+    }
+    
+    return render(request, 'dashboard/brands/add.html', context)
+
+@staff_member_required
+def edit_brand(request, brand_id):
+    """Edit brand"""
+    brand = get_object_or_404(Brand, id=brand_id)
+    
+    if request.method == 'POST':
+        form = BrandForm(request.POST, request.FILES, instance=brand)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Đã cập nhật thương hiệu {brand.name}')
+            return redirect('dashboard:brand_list')
+        else:
+            messages.error(request, 'Có lỗi xảy ra. Vui lòng kiểm tra lại form.')
+    else:
+        form = BrandForm(instance=brand)
+    
+    context = {
+        'form': form,
+        'brand': brand,
+        'title': f'Chỉnh sửa thương hiệu: {brand.name}',
+        'active_tab': 'brands'
+    }
+    
+    return render(request, 'dashboard/brands/edit.html', context)
+
+@staff_member_required
+def delete_brand(request, brand_id):
+    """Delete brand"""
+    brand = get_object_or_404(Brand, id=brand_id)
+    
+    if request.method == 'POST':
+        try:
+            brand_name = brand.name
+            brand.delete()
+            messages.success(request, f'Đã xóa thương hiệu {brand_name}')
+        except Exception as e:
+            messages.error(request, f'Không thể xóa thương hiệu này: {str(e)}')
+        
+        return redirect('dashboard:brand_list')
+    
+    context = {
+        'brand': brand,
+        'title': f'Xác nhận xóa thương hiệu: {brand.name}',
+        'active_tab': 'brands'
+    }
+    
+    return render(request, 'dashboard/brands/delete.html', context)
+
 # Thêm vào cuối file dashboard/views.py để import các functions từ views/source.py
 @staff_member_required
 def source_list(request):
@@ -2800,7 +2908,7 @@ def source_analytics(request):
     # Lấy top nguồn hiệu quả nhất
     top_sources = []
     for source in sources[:10]:  # Lấy 10 nguồn đầu tiên
-        # Tính toán hiệu quả dựa trên các yếu tố: tỉ lệ có hàng, thời gian phản hồi, tỉ lệ lỗi và giá
+        # Tính toán hiệu quả dựa trên các yếu tố: tỉ lệ có hàng, thởi gian phản hồi, tỉ lệ lỗi và giá
         source_logs = logs.filter(source=source)
         source_products = SourceProduct.objects.filter(source=source)
         
@@ -2881,7 +2989,7 @@ def source_analytics(request):
             'message': f"Nguồn '{high_error_sources[0]['name']}' có tỉ lệ lỗi cao ({high_error_sources[0]['error_rate']:.1f}%). Cân nhắc kiểm tra lại chất lượng."
         })
     
-    # Kiểm tra nguồn nào có thời gian phản hồi chậm
+    # Kiểm tra nguồn nào có thởi gian phản hồi chậm
     slow_response_sources = [source for source in top_sources if source['avg_processing_time'] > 60]
     if slow_response_sources:
         insights.append({
@@ -2946,18 +3054,13 @@ def share_report(request):
             # và gửi link tới báo cáo này
             
             # Chuẩn bị nội dung email
-            subject = f'Báo cáo {report_type} từ hệ thống quản lý'
-            message = f'Chào bạn,\n\nBạn nhận được báo cáo {report_type} từ hệ thống quản lý.\n\n'
+            subject = f"Báo cáo {report_type} từ hệ thống quản lý"
+            context = {
+                'report': report_params,
+                'site_url': settings.SITE_URL if hasattr(settings, 'SITE_URL') else '',
+            }
             
-            if note:
-                message += f'Ghi chú: {note}\n\n'
-            
-            message += f'Link truy cập báo cáo: {settings.BASE_URL}/reports/{report_id}\n\n'
-            
-            if password_protected:
-                message += f'Mật khẩu: {password}\n\n'
-            
-            message += 'Trân trọng,\nHệ thống quản lý TomOi'
+            message = render_to_string('dashboard/emails/share_report.html', context)
             
             # Gửi email (disabled để tránh lỗi khi chưa có cấu hình email)
             # send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
@@ -3568,14 +3671,14 @@ def popular_products(request):
 
 @staff_member_required
 def processing_time(request):
-    """Báo cáo thời gian xử lý"""
-    # Tạo dữ liệu mẫu cho thời gian xử lý
+    """Báo cáo thởi gian xử lý"""
+    # Tạo dữ liệu mẫu cho thởi gian xử lý
     processing_data = {
         'labels': ['<15 phút', '15-60 phút', '1-3 giờ', '3-12 giờ', '>12 giờ'],
         'data': [60, 25, 10, 4, 1],
     }
     
-    # Dữ liệu chi tiết thời gian xử lý theo nguồn
+    # Dữ liệu chi tiết thởi gian xử lý theo nguồn
     source_processing = [
         {'name': 'Facebook của A', 'platform': 'Facebook', 'avg_time': '10 phút', 'percentage': '<15 phút', 'status': 'Rất nhanh'},
         {'name': 'Zalo của B', 'platform': 'Zalo', 'avg_time': '45 phút', 'percentage': '15-60 phút', 'status': 'Nhanh'},
@@ -3680,7 +3783,7 @@ def update_tcoin_balance_after():
     users = CustomUser.objects.all()
     
     for user in users:
-        # Lấy lịch sử TCoin của người dùng, sắp xếp theo thời gian tăng dần
+        # Lấy lịch sử TCoin của người dùng, sắp xếp theo thởi gian tăng dần
         histories = TCoinHistory.objects.filter(user=user).order_by('created_at')
         
         # Tính toán lại balance_after cho từng giao dịch
@@ -3729,7 +3832,7 @@ def update_product_status(request, product_id):
 # Product Attributes
 @staff_member_required
 def product_attributes(request):
-    # Tạm thời tạo một view đơn giản
+    # Tạm thởi tạo một view đơn giản
     return render(request, 'dashboard/products/attributes.html', {
         'title': 'Thuộc tính sản phẩm',
         'active_tab': 'products'

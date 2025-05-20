@@ -250,9 +250,10 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="id_additional_images">Thêm ảnh phụ</label>
-                                    <input type="file" name="additional_images" class="form-control" id="id_additional_images" multiple>
+                                    <label for="additional_images">Thêm ảnh phụ</label>
+                                    <input type="file" name="additional_images" class="form-control" id="additional_images" multiple>
                                     <small class="form-text text-muted">Có thể chọn nhiều ảnh cùng lúc</small>
+                                    <div id="additional-images-preview" class="mt-2"></div>
                                 </div>
                             </div>
                         </div>
@@ -289,6 +290,20 @@
                                 <span class="text-muted">Lưu sản phẩm trước khi quản lý nhiều ảnh</span>
                                 {% endif %}
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="id_suppliers">Nhà cung cấp</label>
+                            <select name="suppliers" multiple class="form-control select2" id="id_suppliers">
+                                {% for supplier in suppliers %}
+                                    <option value="{{ supplier.id }}" {% if supplier in product.suppliers.all %}selected{% endif %}>{{ supplier.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="form-text text-muted">Có thể chọn nhiều nhà cung cấp</small>
                         </div>
                     </div>
                 </div>
@@ -417,6 +432,25 @@
         $('#{{ form.primary_image.id_for_label }}').change(function() {
             var previewContainer = $('<div>').insertAfter($(this));
             readURL(this, previewContainer);
+        });
+        
+        // Xử lý xem trước nhiều ảnh
+        $('#additional_images').change(function() {
+            var files = this.files;
+            var preview = $('#additional-images-preview');
+            preview.empty();
+            
+            if (files) {
+                for (var i = 0; i < files.length; i++) {
+                    (function(file) {
+                        var reader = new FileReader();
+                        reader.onload = function(e) {
+                            preview.append('<img src="' + e.target.result + '" class="img-preview me-2">');
+                        }
+                        reader.readAsDataURL(file);
+                    })(files[i]);
+                }
+            }
         });
         
         // Hiện/ẩn các trường liên quan đến bán kèm

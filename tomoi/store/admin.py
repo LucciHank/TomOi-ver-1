@@ -5,6 +5,7 @@ from .models import (
     Category, Product, ProductImage, ProductVariant, 
     VariantOption, Order, Banner, ProductLabel, BlogPost, SearchHistory
 )
+from .forms import ProductAdminForm
 from django.utils.text import slugify
 
 @admin.register(Category)
@@ -27,16 +28,20 @@ class ProductVariantInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
+    form = ProductAdminForm
     list_display = ['name', 'brand', 'duration', 'price', 'is_active']
     list_filter = ['brand', 'duration', 'is_active']
     search_fields = ['name', 'description']
     inlines = [ProductImageInline, ProductVariantInline]
     fieldsets = (
         ('Thông tin cơ bản', {
-            'fields': ('name', 'category', 'price', 'old_price', 'stock', 'description')
+            'fields': ('name', 'slug', 'brand', 'category', 'price', 'old_price', 'cost_price', 'stock', 'duration')
+        }),
+        ('Mô tả sản phẩm', {
+            'fields': ('description', 'short_description', 'features_text')
         }),
         ('Tùy chọn nâng cao', {
-            'fields': ('is_featured', 'label', 'is_cross_sale', 'cross_sale_products', 'cross_sale_discount')
+            'fields': ('is_featured', 'label_type', 'is_cross_sale', 'cross_sale_products', 'cross_sale_discount')
         }),
         ('Yêu cầu thông tin khách hàng', {
             'fields': (
@@ -45,8 +50,13 @@ class ProductAdmin(admin.ModelAdmin):
             ),
             'description': 'Chọn loại thông tin cần yêu cầu từ khách hàng'
         }),
+        ('SEO', {
+            'fields': ('meta_title', 'meta_description', 'meta_keywords'),
+            'classes': ('collapse',)
+        })
     )
     filter_horizontal = ('cross_sale_products',)
+    prepopulated_fields = {'slug': ('name',)}
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         field = super().formfield_for_dbfield(db_field, **kwargs)
@@ -56,27 +66,19 @@ class ProductAdmin(admin.ModelAdmin):
             field.label = 'Yêu cầu Tài khoản & Mật khẩu'
         return field
 
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
-        form.base_fields['features'].help_text = 'Nhập danh sách tính năng, mỗi dòng một tính năng'
-        return form
-
-    def save_model(self, request, obj, form, change):
-        # Xử lý features từ text thành list
-        if isinstance(obj.features, str):
-            obj.features = [f.strip() for f in obj.features.split('\n') if f.strip()]
-        super().save_model(request, obj, form, change)
-
     class Media:
         css = {
             'all': [
                 'django_ckeditor_5/dist/styles.css',
             ]
         }
+        js = [
+            'django_ckeditor_5/dist/bundle.js',
+        ]
 
 @admin.register(ProductVariant)
 class ProductVariantAdmin(admin.ModelAdmin):
-    list_display = ('name', 'product', 'is_active', 'order')
+    list_display = ('name', 'product', 'is_active')
     list_filter = ('product', 'is_active')
     inlines = [VariantOptionInline]
 

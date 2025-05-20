@@ -1,0 +1,67 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Xóa biến thể</h1>
+    </div>
+
+    <!-- Back to variants list -->
+    <div class="mb-4">
+        <a href="{% url 'dashboard:manage_product_variants' product.id %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left"></i> Quay lại danh sách biến thể
+        </a>
+    </div>
+
+    <!-- Delete Variant Confirmation -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Xác nhận xóa biến thể</h6>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i> Bạn có chắc chắn muốn xóa biến thể <strong>{{ variant.name }}</strong>?
+                <p class="mt-2">Hành động này không thể hoàn tác và sẽ xóa tất cả tùy chọn thời hạn liên quan.</p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Thông tin biến thể:</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Tên biến thể
+                            <span>{{ variant.name }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Giá cơ bản
+                            <span>{{ variant.base_price|floatformat:0 }}đ</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Số lượng tùy chọn
+                            <span class="badge badge-primary badge-pill">{{ variant.options.count }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <form method="post" action="{% url 'dashboard:delete_product_variant' variant.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Xác nhận xóa
+                    </button>
+                    <a href="{% url 'dashboard:manage_product_variants' product.id %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Hủy
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
+ 
+ 

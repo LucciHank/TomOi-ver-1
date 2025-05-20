@@ -1,1 +1,157 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Nạp tiền vào ví{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Nạp tiền vào ví</h4>
+                </div>
+                <div class="card-body">
+                    <form id="rechargeForm" method="post" action="{% url 'recharge' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="amount">Số tiền nạp</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="amount" name="amount" min="10000" step="1000" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text">VNĐ</span>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">Số tiền tối thiểu: 10.000đ</small>
+                        </div>
+
+                        <div class="payment-methods mt-4">
+                            <h5>Phương thức thanh toán</h5>
+                            <div class="payment-options">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="radio" name="payment_method" id="vnpay" value="vnpay" checked>
+                                    <label class="form-check-label" for="vnpay">
+                                        <img src="{% static 'store/images/vnpay-logo.png' %}" alt="VNPay" height="30">
+                                        Thanh toán qua VNPay
+                                    </label>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="radio" name="payment_method" id="acb" value="acb">
+                                    <label class="form-check-label" for="acb">
+                                        <img src="{% static 'store/images/acb-logo.png' %}" alt="ACB" height="30">
+                                        Chuyển khoản ngân hàng ACB
+                                    </label>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="radio" name="payment_method" id="card" value="card">
+                                    <label class="form-check-label" for="card">
+                                        <i class="fas fa-credit-card"></i>
+                                        Nạp thẻ cào
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bank-details mt-4" id="acbDetails" style="display: none;">
+                            <h5>Thông tin chuyển khoản ACB</h5>
+                            <div class="alert alert-info">
+                                <p><strong>Ngân hàng:</strong> ACB</p>
+                                <p><strong>Số tài khoản:</strong> <span id="acbAccount">123456789</span></p>
+                                <p><strong>Chủ tài khoản:</strong> <span id="acbName">NGUYEN VAN A</span></p>
+                                <p><strong>Nội dung:</strong> <span id="acbContent">NAP {{ username }}</span></p>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary" onclick="copyBankDetails()">
+                                <i class="fas fa-copy"></i> Sao chép thông tin
+                            </button>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">Nạp tiền</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Lưu username để sử dụng khi cần
+const username = "{{ username }}";
+
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentMethods = document.querySelectorAll('input[name="payment_method"]');
+    const acbDetails = document.getElementById('acbDetails');
+    
+    paymentMethods.forEach(method => {
+        method.addEventListener('change', function() {
+            if (this.value === 'acb') {
+                acbDetails.style.display = 'block';
+            } else {
+                acbDetails.style.display = 'none';
+            }
+        });
+    });
+});
+
+function copyBankDetails() {
+    const account = document.getElementById('acbAccount').textContent;
+    const name = document.getElementById('acbName').textContent;
+    const content = document.getElementById('acbContent').textContent;
+    
+    const text = `Ngân hàng: ACB\nSố tài khoản: ${account}\nChủ tài khoản: ${name}\nNội dung: ${content}`;
+    
+    navigator.clipboard.writeText(text).then(() => {
+        Swal.fire({
+            icon: 'success',
+            title: 'Đã sao chép!',
+            text: 'Thông tin chuyển khoản đã được sao chép vào clipboard',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+        });
+    });
+}
+
+document.getElementById('rechargeForm').addEventListener('submit', function(e) {
+    const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+    const amount = document.getElementById('amount').value;
+    
+    // Nếu là ACB, để form submit bình thường
+    if (paymentMethod === 'acb') {
+        return true;
+    }
+    
+    // Ngăn form submit cho các phương thức khác
+    e.preventDefault();
+    
+    if (paymentMethod === 'vnpay') {
+        // Xử lý thanh toán VNPAY
+        // ...
+    } else if (paymentMethod === 'card') {
+        // Xử lý nạp thẻ cào
+        // ...
+    }
+});
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}
 <p>hello</p>

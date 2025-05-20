@@ -8,6 +8,206 @@
 
 <!-- Home CSS -->
 <link rel="stylesheet" href="{% static 'store/css/home.css' %}">
+
+<style>
+    /* Card sản phẩm mới */
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .product-card {
+        background: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        min-height: 350px;
+        max-height: none;
+    }
+    
+    .product-image-wrapper {
+        position: relative;
+        padding-top: 33%; /* Giảm chiều cao xuống còn 33% thay vì 50% */
+        overflow: hidden;
+        background-color: #f9f9f9;
+    }
+    
+    .product-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain; /* Thay đổi từ cover thành contain để hiển thị đầy đủ nội dung */
+        transition: transform 0.5s ease;
+        background-color: #f9f9f9; /* Thêm nền để ảnh trắng không bị mất */
+    }
+    
+    .product-card:hover .product-image {
+        transform: scale(1.05);
+    }
+    
+    /* Di chuyển phần nhãn giảm giá xuống dưới ảnh */
+    .product-discount-badge {
+        position: relative; /* Thay đổi từ absolute thành relative */
+        display: inline-block;
+        background-color: #df2626;
+        color: white;
+        padding: 3px 8px;
+        border-radius: 15px;
+        font-weight: bold;
+        font-size: 12px;
+        margin-right: 5px;
+        margin-bottom: 0;
+    }
+    
+    /* Di chuyển nhãn loại sản phẩm xuống dưới ảnh */
+    .product-label-type {
+        position: relative; /* Thay đổi từ absolute thành relative */
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 15px;
+        font-weight: bold;
+        font-size: 11px;
+        background-color: #3498db;
+        color: white;
+    }
+    
+    .product-label-type.upgrade {
+        background-color: #27ae60;
+    }
+    
+    /* Thêm div bao quanh nhãn */
+    .product-labels {
+        padding: 5px 10px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    
+    .product-info {
+        padding: 10px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .product-title {
+        margin: 0 0 2px;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.3;
+        max-height: 40px;
+    }
+    
+    .product-title a {
+        color: #333;
+        text-decoration: none;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .price-wrapper {
+        margin-top: 0;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 10px;
+        margin-bottom: 3px;
+    }
+    
+    .old-price {
+        color: #999;
+        font-size: 12px;
+        text-decoration: line-through;
+        margin-bottom: 0;
+        margin-left: auto;
+        order: 2;
+    }
+    
+    .current-price {
+        color: #df2626;
+        font-weight: bold;
+        font-size: 16px;
+        order: 1;
+    }
+    
+    .product-sales {
+        color: #666;
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+    
+    .add-to-cart-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: #5e3bee;
+        color: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: absolute;
+        right: 10px;
+        bottom: 10px;
+    }
+    
+    .add-to-cart-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(94, 59, 238, 0.4);
+    }
+    
+    /* Rating stars */
+    .rating-stars {
+        display: flex;
+        align-items: center;
+        margin-top: auto;
+        margin-bottom: 4px;
+    }
+    
+    .rating-stars .star {
+        color: #ddd;
+        font-size: 9px;
+        margin-right: 0px;
+    }
+    
+    .rating-stars .star-filled {
+        color: #ffb800;
+    }
+    
+    .rating-stars .star-half {
+        position: relative;
+    }
+    
+    .rating-stars .star-half:after {
+        content: "\f089"; /* Font Awesome half star */
+        position: absolute;
+        left: 0;
+        top: 0;
+        color: #ffb800;
+        overflow: hidden;
+        width: 50%;
+    }
+    
+    .rating-count {
+        font-size: 10px; /* Thu nhỏ kích thước text */
+        color: #777;
+        margin-left: 3px;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -133,10 +333,17 @@
 
             <!-- Featured Products -->
             <section class="featured-products-section">
+                <div class="section-header">
                 <h2>Sản phẩm nổi bật</h2>
+                    <div class="header-right">
+                        <a href="{% url 'store:featured_products' %}" class="btn-link">
+                            Xem thêm<i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
                 <div class="featured-products">
                     <div class="products-grid">
-                        {% for product in products %}
+                        {% for product in featured_products %}
                         <div class="product-card" data-product-id="{{ product.id }}">
                             <div class="product-image-wrapper">
                                 <a href="{% url 'store:product_detail' product.id %}">
@@ -149,36 +356,229 @@
                                     {% endif %}
                                 </a>
                             </div>
-                            {% if product.label %}
-                            <div class="product-label" style="--label-color: {{ product.label.color }}">
-                                {{ product.label.name }}
+                            <div class="product-labels">
+                                {% if product.get_discount_percentage > 0 %}
+                                <div class="product-discount-badge">-{{ product.get_discount_percentage }}%</div>
+                                {% endif %}
+                                {% if product.label_type %}
+                                <div class="product-label-type {% if product.label_type == 'upgrade' %}upgrade{% endif %}">
+                                    {{ product.get_label_type_display }}
+                                </div>
+                                {% endif %}
                             </div>
-                            {% endif %}
                             <div class="product-info">
                                 <h3 class="product-title">
                                     <a href="{% url 'store:product_detail' product.id %}" class="product-link">{{ product.name }}</a>
                                 </h3>
                                 <div class="price-wrapper">
-                                    <div class="price-row">
-                                        {% if product.old_price %}
-                                            <span class="old-price">{{ product.old_price|format_price }}</span>
-                                            <span class="discount-badge">
-                                                -{{ product.get_discount_percentage }}%
-                                            </span>
-                                        {% endif %}
-                                    </div>
-                                    <div class="price-row">
-                                        <span class="current-price">{{ product.price|format_price }}</span>
-                                        <button class="wishlist-btn {% if product in user.wishlist_products.all %}active{% endif %}"
-                                                data-product-id="{{ product.id }}"
-                                                onclick="toggleWishlist(this, event)">
-                                            <i class="wishlist-icon far fa-heart"></i>
-                                        </button>
-                                    </div>
+                                    <span class="current-price">{{ product.price|format_price }}</span>
+                                    {% if product.old_price %}
+                                        <span class="old-price">{{ product.old_price|format_price }}</span>
+                                    {% endif %}
                                 </div>
+                                <div class="product-sales">{{ product.sold_count }} đã bán</div>
+                                <div class="rating-stars">
+                                    {% with ''|center:5 as range %}
+                                    {% for _ in range %}
+                                        {% if forloop.counter <= product.average_rating|default:0|floatformat:0|add:0 %}
+                                            <i class="fas fa-star star star-filled"></i>
+                                        {% elif forloop.counter|add:"-0.5" <= product.average_rating|default:0 %}
+                                            <i class="fas fa-star-half-alt star star-filled"></i>
+                                        {% else %}
+                                            <i class="far fa-star star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% endwith %}
+                                    <span class="rating-count">({{ product.average_rating|default:0|floatformat:1 }})</span>
+                                </div>
+                                <button class="add-to-cart-btn" onclick="addToCart({{ product.id }})">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </button>
                             </div>
                         </div>
                         {% endfor %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bestseller Products -->
+            <section class="bestseller-products-section">
+                <div class="section-header">
+                    <h2>Sản phẩm bán chạy</h2>
+                    <div class="header-right">
+                        <a href="{% url 'store:bestsellers' %}" class="btn-link">
+                            Xem thêm<i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="bestseller-products">
+                    <div class="products-grid">
+                        {% for product in bestseller_products %}
+                        <div class="product-card" data-product-id="{{ product.id }}">
+                            <div class="product-image-wrapper">
+                                <a href="{% url 'store:product_detail' product.id %}">
+                                    {% if product.get_primary_image %}
+                                        <img src="{{ product.get_primary_image.url }}" alt="{{ product.name }}" class="product-image">
+                                    {% else %}
+                                        <div class="product-placeholder">
+                                            <i class="fas fa-image"></i>
+                                        </div>
+                                    {% endif %}
+                                </a>
+                            </div>
+                            <div class="product-labels">
+                                {% if product.get_discount_percentage > 0 %}
+                                <div class="product-discount-badge">-{{ product.get_discount_percentage }}%</div>
+                                {% endif %}
+                                {% if product.label_type %}
+                                <div class="product-label-type {% if product.label_type == 'upgrade' %}upgrade{% endif %}">
+                                    {{ product.get_label_type_display }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">
+                                    <a href="{% url 'store:product_detail' product.id %}" class="product-link">{{ product.name }}</a>
+                                </h3>
+                                <div class="price-wrapper">
+                                    <span class="current-price">{{ product.price|format_price }}</span>
+                                    {% if product.old_price %}
+                                        <span class="old-price">{{ product.old_price|format_price }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="product-sales">{{ product.sold_count }} đã bán</div>
+                                <div class="rating-stars">
+                                    {% with ''|center:5 as range %}
+                                    {% for _ in range %}
+                                        {% if forloop.counter <= product.average_rating|default:0|floatformat:0|add:0 %}
+                                            <i class="fas fa-star star star-filled"></i>
+                                        {% elif forloop.counter|add:"-0.5" <= product.average_rating|default:0 %}
+                                            <i class="fas fa-star-half-alt star star-filled"></i>
+                                        {% else %}
+                                            <i class="far fa-star star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% endwith %}
+                                    <span class="rating-count">({{ product.average_rating|default:0|floatformat:1 }})</span>
+                                </div>
+                                <button class="add-to-cart-btn" onclick="addToCart({{ product.id }})">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Sản phẩm mới về -->
+            <section class="new-products-section">
+                <div class="section-header">
+                    <h2>Sản phẩm mới về</h2>
+                    <div class="header-right">
+                        <a href="{% url 'store:newest_products' %}" class="btn-link">
+                            Xem thêm<i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="new-products">
+                    <div class="products-grid">
+                        {% for product in new_products %}
+                        <div class="product-card" data-product-id="{{ product.id }}">
+                            <div class="product-image-wrapper">
+                                <a href="{% url 'store:product_detail' product.id %}">
+                                    {% if product.get_primary_image %}
+                                        <img src="{{ product.get_primary_image.url }}" alt="{{ product.name }}" class="product-image">
+                                    {% else %}
+                                        <div class="product-placeholder">
+                                            <i class="fas fa-image"></i>
+                                        </div>
+                                    {% endif %}
+                                </a>
+                            </div>
+                            <div class="product-labels">
+                                {% if product.get_discount_percentage > 0 %}
+                                <div class="product-discount-badge">-{{ product.get_discount_percentage }}%</div>
+                                {% endif %}
+                                {% if product.label_type %}
+                                <div class="product-label-type {% if product.label_type == 'upgrade' %}upgrade{% endif %}">
+                                    {{ product.get_label_type_display }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">
+                                    <a href="{% url 'store:product_detail' product.id %}" class="product-link">{{ product.name }}</a>
+                                </h3>
+                                <div class="price-wrapper">
+                                    <span class="current-price">{{ product.price|format_price }}</span>
+                                    {% if product.old_price %}
+                                        <span class="old-price">{{ product.old_price|format_price }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="product-sales">{{ product.sold_count }} đã bán</div>
+                                <div class="rating-stars">
+                                    {% with ''|center:5 as range %}
+                                    {% for _ in range %}
+                                        {% if forloop.counter <= product.average_rating|default:0|floatformat:0|add:0 %}
+                                            <i class="fas fa-star star star-filled"></i>
+                                        {% elif forloop.counter|add:"-0.5" <= product.average_rating|default:0 %}
+                                            <i class="fas fa-star-half-alt star star-filled"></i>
+                                        {% else %}
+                                            <i class="far fa-star star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% endwith %}
+                                    <span class="rating-count">({{ product.average_rating|default:0|floatformat:1 }})</span>
+                                </div>
+                                <button class="add-to-cart-btn" onclick="addToCart({{ product.id }})">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Khối uy tín -->
+            <section class="trust-blocks">
+                <div class="trust-grid">
+                    <div class="trust-block">
+                        <div class="trust-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="trust-content">
+                            <h3>UY TÍN</h3>
+                            <p>TẤT CẢ SẢN PHẨM ĐỀU ĐƯỢC KIỂM TRA VÀ BẢO ĐẢM CHO QUÁ TRÌNH SỬ DỤNG ỔN ĐỊNH.</p>
+                        </div>
+                    </div>
+                    <div class="trust-block">
+                        <div class="trust-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <div class="trust-content">
+                            <h3>AN TOÀN</h3>
+                            <p>ĐẢM BẢO AN TOÀN THÔNG TIN KHÁCH HÀNG VÀ KHÔNG CHIA SẺ CHO BẤT KỲ BÊN THỨ BA NÀO.</p>
+                        </div>
+                    </div>
+                    <div class="trust-block">
+                        <div class="trust-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="trust-content">
+                            <h3>NHANH CHÓNG</h3>
+                            <p>THANH TOÁN VÀ NHẬN TÀI KHOẢN TỰ ĐỘNG CHỈ TRONG VÒNG VÀI GIÂY.</p>
+                        </div>
+                    </div>
+                    <div class="trust-block">
+                        <div class="trust-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <div class="trust-content">
+                            <h3>HỖ TRỢ</h3>
+                            <p>ĐỘI NGŨ CHĂM SÓC KHÁCH HÀNG LUÔN SẴN SÀNG HỖ TRỢ 24/7.</p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -202,6 +602,95 @@
 <!-- Sau đó load các file JS khác -->
 <script src="{% static 'store/js/home.js' %}"></script>
 <script>
+function addToCart(productId) {
+    if (!document.body.dataset.userAuthenticated) {
+        Swal.fire({
+            title: 'Yêu cầu đăng nhập',
+            text: 'Vui lòng đăng nhập để sử dụng tính năng này',
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: 'Đăng nhập',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $('#loginModal').modal('show');
+            }
+        });
+        return;
+    }
+
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    // Hiển thị loading
+    Swal.fire({
+        title: 'Đang xử lý',
+        text: 'Vui lòng đợi trong giây lát...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    fetch('{% url "store:add_to_cart" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            quantity: 1
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(text => {
+                throw new Error(text || 'Có lỗi xảy ra khi thêm vào giỏ hàng');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        Swal.fire({
+            title: 'Thành công!',
+            text: data.message || 'Đã thêm sản phẩm vào giỏ hàng',
+            icon: 'success',
+            confirmButtonText: 'Xem giỏ hàng',
+            showCancelButton: true,
+            cancelButtonText: 'Tiếp tục mua sắm'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '{% url "store:cart" %}';
+            }
+        });
+        
+        // Cập nhật số lượng giỏ hàng trên header (nếu có)
+        updateCartCount(data.cart_count);
+    })
+    .catch(error => {
+        Swal.fire({
+            title: 'Lỗi!',
+            text: error.message,
+            icon: 'error',
+            confirmButtonText: 'Đóng'
+        });
+    });
+}
+
+// Hàm để cập nhật số lượng giỏ hàng trên header
+function updateCartCount(count) {
+    const cartCountElement = document.querySelector('.cart-count');
+    if (cartCountElement) {
+        cartCountElement.textContent = count;
+        if (count > 0) {
+            cartCountElement.style.display = 'flex';
+        } else {
+            cartCountElement.style.display = 'none';
+        }
+    }
+}
+
 function toggleWishlist(button, event) {
     event.preventDefault();
     event.stopPropagation();
@@ -267,7 +756,7 @@ function toggleWishlist(button, event) {
     .catch(error => {
         console.error('Error:', error);
         Swal.fire({
-            text: 'Có lỗi xảy ra: ' + error.message,
+            text: error.message || 'Có lỗi xảy ra',
             icon: 'error',
             toast: true,
             position: 'top-end',

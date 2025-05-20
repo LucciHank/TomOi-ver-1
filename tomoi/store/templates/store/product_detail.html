@@ -1,894 +1,590 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 {% load store_filters %}
 
+{% block title %}{{ product.name }} - Tomoi{% endblock %}
+
 {% block page_css %}
-<!-- Swiper CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css"/>
-<!-- Product Detail CSS -->
 <link rel="stylesheet" href="{% static 'store/css/product_detail.css' %}">
-
-<style>
-.product-detail {
-    padding: 30px 0;
-}
-
-/* Tabs navigation */
-.product-tabs {
-    margin-bottom: 30px;
-    border-bottom: 1px solid #eee;
-}
-
-.product-tabs .nav-link {
-    color: #666;
-    font-weight: 500;
-    padding: 12px 24px;
-    border: none;
-    border-bottom: 2px solid transparent;
-}
-
-.product-tabs .nav-link.active {
-    color: #df2626;
-    border-bottom-color: #df2626;
-}
-
-/* Product images */
-.product-images {
-    margin-bottom: 30px;
-}
-
-.main-image {
-    width: 100%;
-    height: 400px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.main-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.thumbnail-container {
-    position: relative;
-    margin: 0 -5px;
-}
-
-.thumbnails-swiper {
-    padding: 0 5px;
-}
-
-.thumbnail {
-    width: 80px;
-    height: 80px;
-    border-radius: 4px;
-    overflow: hidden;
-    cursor: pointer;
-    border: 2px solid transparent;
-    transition: all 0.3s;
-}
-
-.thumbnail.active {
-    border-color: #df2626;
-}
-
-.thumbnail img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* Product info */
-.product-info {
-    padding-left: 30px;
-}
-
-.product-title {
-    font-size: 24px;
-    margin-bottom: 15px;
-}
-
-.price-info {
-    margin-bottom: 20px;
-}
-
-.old-price {
-    color: #999;
-    text-decoration: line-through;
-    font-size: 16px;
-}
-
-.discount-badge {
-    background: #fef2f2;
-    color: #df2626;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 14px;
-    margin-left: 8px;
-}
-
-.current-price {
-    color: #df2626;
-    font-size: 28px;
-    font-weight: 600;
-    display: block;
-    margin-top: 5px;
-}
-
-.product-options {
-    margin-bottom: 20px;
-}
-
-.option-label {
-    font-weight: 500;
-    margin-bottom: 8px;
-    display: block;
-}
-
-.option-select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    margin-bottom: 15px;
-}
-
-.account-inputs {
-    margin-bottom: 20px;
-}
-
-.account-input {
-    margin-bottom: 15px;
-}
-
-.account-input label {
-    font-weight: 500;
-    margin-bottom: 8px;
-    display: block;
-}
-
-.account-input input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-}
-
-.action-buttons {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 30px;
-}
-
-.btn-buy-now,
-.btn-add-cart {
-    flex: 1;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    font-weight: 500;
-    transition: all 0.3s;
-}
-
-.btn-buy-now {
-    background: #df2626;
-    color: white;
-}
-
-.btn-add-cart {
-    background: #f8f9fa;
-    color: #333;
-    border: 1px solid #ddd;
-}
-
-.btn-buy-now:hover {
-    background: #c41e1e;
-}
-
-.btn-add-cart:hover {
-    background: #e9ecef;
-}
-
-/* Affiliate section */
-.affiliate-section {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 30px;
-}
-
-.affiliate-link {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: white;
-    padding: 10px;
-    border-radius: 4px;
-    margin-top: 10px;
-}
-
-.affiliate-link input {
-    flex: 1;
-    border: none;
-    padding: 5px;
-}
-
-.btn-copy {
-    background: none;
-    border: none;
-    color: #2563eb;
-    cursor: pointer;
-}
-
-/* Product description */
-.product-description {
-    margin-bottom: 30px;
-}
-
-/* Related products */
-.related-products {
-    margin-top: 50px;
-}
-
-.related-products h3 {
-    margin-bottom: 20px;
-}
-
-.product-card {
-    background: white;
-    border-radius: 8px;
-    overflow: hidden;
-    transition: all 0.3s;
-}
-
-.product-card:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    transform: translateY(-5px);
-}
-
-/* Hiệu ứng mượt mà cho tabs */
-.product-tab-item {
-    transition: all 0.3s ease;
-}
-
-.wishlist-btn {
-    border: none;
-    background: transparent;
-    font-size: 24px;
-    color: #666;
-    cursor: pointer;
-    transition: all 0.3s;
-    margin-left: 10px;
-}
-
-.wishlist-btn:hover {
-    transform: scale(1.1);
-}
-
-.wishlist-btn.active {
-    color: #df2626;
-}
-</style>
 {% endblock %}
 
 {% block content %}
-<div class="product-detail">
+<!-- Ẩn dữ liệu sản phẩm cho JS sử dụng -->
+<div id="productData" data-product="{{ product_json|default:'{}' }}" data-product-id="{{ product.id }}" data-require-account-info="{{ product.requires_account_info|yesno:'true,false' }}" style="display: none;"></div>
+
+<div class="product-container">
     <div class="container">
-        <!-- Tabs Navigation -->
-        <div class="product-tabs">
-            <a href="#intro" class="product-tab-item active">Giới thiệu</a>
-            <a href="#details" class="product-tab-item">Chi tiết</a>
-            <a href="#reviews" class="product-tab-item">Đánh giá</a>
-            <a href="#posts" class="product-tab-item">Bài viết</a>
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'store:home' %}">Trang chủ</a></li>
+                    {% if product.category %}
+                    <li class="breadcrumb-item"><a href="{% url 'store:category_detail' product.category.slug %}">{{ product.category.name }}</a></li>
+                    {% endif %}
+                    <li class="breadcrumb-item active">{{ product.name }}</li>
+                </ol>
+            </nav>
         </div>
 
+        <!-- Product Detail -->
+        <div class="product-detail">
         <div class="row">
-            <!-- Left column - Images -->
-            <div class="col-md-6" id="intro">
-                <div class="product-images">
-                    <div class="main-image">
-                        <img src="{{ product.get_primary_image.url }}" alt="{{ product.name }}" id="mainImage">
+                <!-- Product Images -->
+                <div class="col-md-5">
+                    <div class="main-image" id="mainImage">
+                        {% if product.images.exists %}
+                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" id="currentImage">
+                        {% else %}
+                            <img src="{% static 'store/images/placeholder.png' %}" alt="{{ product.name }}">
+                        {% endif %}
                     </div>
                     
-                    <!-- Thumbnails Swiper -->
-                    <div class="thumbnail-container">
-                        <div class="swiper thumbnails-swiper">
-                            <div class="swiper-wrapper">
+                    <div class="product-labels">
+                        {% if product.label %}
+                            <span class="product-label {{ product.label|lower }}">{{ product.get_label_display }}</span>
+                        {% endif %}
+                        {% if product.discount_percentage > 0 %}
+                            <span class="product-label sale">-{{ product.discount_percentage }}%</span>
+                        {% endif %}
+                        {% if product.is_new %}
+                            <span class="product-label new">Mới</span>
+                        {% endif %}
+                        {% if product.stock <= 0 %}
+                            <span class="product-label out-of-stock">Hết hàng</span>
+                        {% endif %}
+                    </div>
+                    
+                    {% if product.images.count > 1 %}
+                    <div class="thumbnails-container">
+                        <div class="row">
                                 {% for image in product.images.all %}
-                                <div class="swiper-slide">
-                                    <div class="thumbnail {% if forloop.first %}active{% endif %}" 
-                                         onclick="changeMainImage(this, '{{ image.image.url }}')">
-                                        <img src="{{ image.image.url }}" alt="{{ product.name }}">
+                            <div class="col-3 mb-3">
+                                <div class="thumbnail {% if forloop.first %}active{% endif %}" data-image="{{ image.image.url }}">
+                                    <img src="{{ image.image.url }}" alt="{{ product.name }} - Ảnh {{ forloop.counter }}">
                                     </div>
                                 </div>
                                 {% endfor %}
                             </div>
-                            {% if product.images.count > 5 %}
-                            <div class="swiper-button-next"></div>
-                            <div class="swiper-button-prev"></div>
+                    </div>
                             {% endif %}
+                    
+                    <!-- Form nhập tài khoản và mật khẩu (dưới ảnh) -->
+                    <div class="account-info-form" id="accountInfoForm" style="display: {% if product.requires_account_info %}block{% else %}none{% endif %};">
+                        <h5><i class="fas fa-user-circle me-2"></i>Thông tin tài khoản</h5>
+                        <div class="form-group mb-2">
+                            <label for="accountUsername">Tài khoản</label>
+                            <input type="text" class="form-control" id="accountUsername" placeholder="Nhập tên đăng nhập hoặc email">
+                        </div>
+                        <div class="form-group mb-2">
+                            <label for="accountPassword">Mật khẩu</label>
+                            <input type="password" class="form-control" id="accountPassword" placeholder="Nhập mật khẩu">
+                        </div>
+                        <div class="form-group mb-2">
+                            <label for="accountEmail">Email</label>
+                            <input type="email" class="form-control" id="accountEmail" placeholder="Nhập email">
+                        </div>
+                    </div>
+                        </div>
+
+                <!-- Product Info -->
+                <div class="col-md-7">
+                    <div class="product-info">
+                        <h1 class="product-title">{{ product.name }}</h1>
+                        
+                        <div class="product-code">
+                            {% if product.sku %}
+                            <div>SKU: <span class="fw-medium">{{ product.sku }}</span></div>
+                            {% endif %}
+                            {% if product.brand %}
+                            <div>Thương hiệu: <span class="fw-medium">{{ product.brand.name }}</span></div>
+                            {% endif %}
+                            <div>Tình trạng: 
+                                {% if product.stock > 0 %}
+                                <span class="stock-status in-stock"><i class="fas fa-check-circle"></i> Còn hàng</span>
+                                {% else %}
+                                <span class="stock-status out-of-stock"><i class="fas fa-times-circle"></i> Hết hàng</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Product Rating Preview -->
+                        <div class="rating-preview">
+                            <div class="stars">
+                                {% for i in "12345" %}
+                                <i class="fas fa-star {% if i|add:"0" <= product.average_rating %}text-warning{% elif i|add:"0" <= product.average_rating|add:"0.5" %}fa-star-half-alt text-warning{% else %}text-muted{% endif %}"></i>
+                                {% endfor %}
+                            </div>
+                            <span class="rating-count">({% if product.reviews.exists %}{{ product.reviews.count }}{% else %}0{% endif %} đánh giá)</span>
+                            <span class="sold-count">| Đã bán: {{ product.sold_count|default:"0" }}</span>
+                        </div>
+
+                        <div class="price-container">
+                            <div class="current-price" id="currentPrice">
+                                {{ product.get_display_price|intcomma }} ₫
+                            </div>
+
+                            {% if product.old_price and product.old_price > product.price %}
+                            <div class="old-price" id="oldPrice">
+                                {{ product.old_price|intcomma }} ₫
+                            </div>
+                            <div class="discount-badge">
+                                -{{ product.get_discount_percentage }}%
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Trust Badges -->
+                        <div class="trust-badges">
+                            <div class="trust-badge">
+                                <i class="fas fa-shield-alt"></i>
+                                <div class="trust-badge-text">
+                                    <strong>Hàng chính hãng</strong>
+                                    <span>100% chính hãng</span>
+                                </div>
+                            </div>
+                            <div class="trust-badge">
+                                <i class="fas fa-box-open"></i>
+                                <div class="trust-badge-text">
+                                    <strong>Đóng gói an toàn</strong>
+                                    <span>Bảo vệ tối đa</span>
+                                </div>
+                            </div>
+                            <div class="trust-badge">
+                                <i class="fas fa-sync-alt"></i>
+                                <div class="trust-badge-text">
+                                    <strong>Đổi trả 7 ngày</strong>
+                                    <span>Nếu lỗi nhà sản xuất</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product Highlights / Lưu ý -->
+                        <div class="product-notes">
+                            <h3 class="notes-title"><i class="fas fa-exclamation-circle"></i> Lưu ý quan trọng</h3>
+                            <div class="notes-content">
+                                <ul>
+                                    <li>Đây là sản phẩm điện tử, vui lòng kiểm tra kỹ khi nhận hàng</li>
+                                    <li>Sản phẩm đã được kiểm tra kỹ càng trước khi giao cho đơn vị vận chuyển</li>
+                                    <li>Không tự ý tháo dỡ sản phẩm, sẽ mất quyền lợi bảo hành</li>
+                                    <li>Liên hệ ngay với Tomoi nếu phát hiện bất kỳ lỗi nào</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Product Options -->
+                        {% if product.has_variants %}
+                        <div class="option-group" id="variantOptions">
+                            <div class="option-title">Chọn phiên bản</div>
+                            <div class="option-items">
+                                {% for variant in product.variants.all %}
+                                <div class="option-item {% if forloop.first %}active{% endif %}" 
+                                     data-variant-id="{{ variant.id }}"
+                                     data-price="{{ variant.price }}"
+                                     data-old-price="{{ variant.old_price|default:0 }}">
+                                    {{ variant.name }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if product.durations.exists %}
+                        <div class="option-group" id="durationOptions">
+                            <div class="option-title">Thời hạn</div>
+                            <div class="option-items">
+                                {% for duration in product.durations.all %}
+                                <div class="option-item {% if forloop.first %}active{% endif %}" 
+                                     data-duration-id="{{ duration.id }}"
+                                     data-percentage="{{ duration.price_percentage }}">
+                                    {{ duration.name }} {% if duration.price_percentage != 100 %}(-{{ 100|add:"-"|add:duration.price_percentage }}%){% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Product Actions -->
+                        <div class="product-actions">
+                            <div class="main-actions">
+                                <button class="btn-add-to-cart" id="addToCartBtn">
+                                    <i class="fas fa-shopping-cart me-2"></i> Thêm vào giỏ hàng
+                                </button>
+                                <div class="action-icons">
+                                    <div class="action-icon wishlist-icon {% if is_in_wishlist %}active{% endif %}" id="wishlistBtn" data-product-id="{{ product.id }}" title="Thêm vào yêu thích">
+                                        <i class="fas fa-heart"></i>
+                                    </div>
+                                    <div class="action-icon notification-icon" id="notificationBtn" data-product-id="{{ product.id }}" title="Nhận thông báo về sản phẩm">
+                                        <i class="fas fa-bell"></i>
+                                    </div>
+                                    <div class="action-icon" data-bs-toggle="modal" data-bs-target="#shareModal" title="Chia sẻ sản phẩm">
+                                        <i class="fas fa-share-alt"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if product.is_affiliate %}
+                        <div class="affiliate-section">
+                            <h5><i class="fas fa-info-circle me-2"></i> Sản phẩm liên kết</h5>
+                            <p>Đây là sản phẩm liên kết từ đối tác của chúng tôi. Sau khi đặt hàng, bạn sẽ được chuyển đến trang đối tác để hoàn tất thanh toán.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Product Tabs -->
+        <div class="product-tabs">
+            <div class="tab-item active" data-tab="description">
+                <i class="fas fa-info-circle me-2"></i>Mô tả sản phẩm
+            </div>
+            {% if product.specifications %}
+            <div class="tab-item" data-tab="specifications">
+                <i class="fas fa-clipboard-list me-2"></i>Thông số kỹ thuật
+            </div>
+            {% endif %}
+            <div class="tab-item" data-tab="reviews">
+                <i class="fas fa-star me-2"></i>Đánh giá ({% if product.reviews.exists %}{{ product.reviews.count }}{% else %}0{% endif %})
+            </div>
+            <div class="tab-item" data-tab="related_articles">
+                <i class="fas fa-newspaper me-2"></i>Bài viết liên quan
+            </div>
+            <div class="tab-item" data-tab="warranty">
+                <i class="fas fa-shield-alt me-2"></i>Chính sách bảo hành
+            </div>
+            <div class="tab-item" data-tab="faq-tab">
+                <i class="fas fa-question-circle me-2"></i>Câu hỏi thường gặp
+            </div>
+            {% if product.guide %}
+            <div class="tab-item" data-tab="guide">
+                <i class="fas fa-book me-2"></i>Hướng dẫn sử dụng
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Tab Content -->
+        <div class="tab-content">
+            <div class="tab-pane active" id="description">
+                <div class="product-description">
+                    {{ product.description|safe }}
+                </div>
+            </div>
+
+            {% if product.specifications %}
+            <div class="tab-pane" id="specifications">
+                <div class="product-specifications">
+                    <table class="table">
+                        <tbody>
+                            {% for key, value in product.specifications.items %}
+                            <tr>
+                                <th>{{ key }}</th>
+                                <td>{{ value }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="tab-pane" id="reviews">
+                <div class="reviews-section">
+                    <div class="review-summary">
+                        <div class="rating-overview">
+                            <div class="average-rating">
+                                <div class="rating-value">{{ product.average_rating|floatformat:1 }}</div>
+                                <div class="rating-stars">
+                                    {% for i in "12345" %}
+                                    <i class="fas fa-star {% if i|add:"0" <= product.average_rating %}text-warning{% else %}text-muted{% endif %}"></i>
+                                    {% endfor %}
+                                </div>
+                                <div class="rating-count">{% if product.reviews.exists %}{{ product.reviews.count }}{% else %}0{% endif %} đánh giá</div>
+                            </div>
+                            
+                            <div class="rating-bars">
+                                {% for i in "54321" %}
+                                {% with count=product.get_rating_count|get_item:i|default:0 %}
+                                <div class="rating-bar-item">
+                                    <span class="rating-label">{{ i }} sao</span>
+                                    <div class="rating-bar">
+                                        <div class="rating-bar-fill" style="width: {% if product.reviews.exists %}{{ count|divide:product.reviews.count|multiply:100 }}{% else %}0{% endif %}%"></div>
+                                    </div>
+                                    <span class="rating-count-badge">{{ count }}</span>
+                                </div>
+                                {% endwith %}
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal">
+                                <i class="fas fa-pen me-1"></i> Viết đánh giá
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="review-list">
+                        {% if product.reviews.exists %}
+                            {% for review in product.reviews.all %}
+                            <div class="review-item p-3 mb-3">
+                                <div class="review-header">
+                                    <div class="review-user">
+                                        <div class="user-avatar">
+                                            {% if review.user.profile.avatar %}
+                                            <img src="{{ review.user.profile.avatar.url }}" alt="{{ review.user.get_full_name }}">
+                                            {% else %}
+                                            <div class="avatar-placeholder">
+                                                {{ review.user.get_initials }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <div class="user-name">{{ review.user.get_full_name }}</div>
+                                            <div class="review-date">{{ review.created_at|date:"d/m/Y" }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="review-rating">
+                                        {% for i in "12345" %}
+                                        <i class="fas fa-star {% if i|add:"0" <= review.rating %}text-warning{% else %}text-muted{% endif %}"></i>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="p-3">
+                                    {% if review.title %}
+                                    <div class="review-title">{{ review.title }}</div>
+                                    {% endif %}
+                                    <div class="review-content">{{ review.content }}</div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="no-reviews">
+                                <div class="no-reviews-icon">
+                                    <i class="fas fa-comment-slash fa-3x"></i>
+                                </div>
+                                <h4>Chưa có đánh giá nào</h4>
+                                <p>Hãy là người đầu tiên đánh giá sản phẩm này!</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-pane" id="related_articles">
+                <div class="related-articles">
+                    <h4 class="section-title">Bài viết liên quan đến {{ product.name }}</h4>
+                    <div class="articles-empty">
+                        <i class="fas fa-newspaper fa-3x mb-3"></i>
+                        <p>Chưa có bài viết nào liên quan đến sản phẩm này.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-pane" id="warranty">
+                <div class="warranty-policy">
+                    <h4 class="section-title">Chính sách bảo hành</h4>
+                    <div class="warranty-content">
+                        <div class="warranty-item">
+                            <h5><i class="fas fa-check-circle me-2 text-success"></i>Điều kiện bảo hành</h5>
+                            <ul>
+                                <li>Sản phẩm còn trong thời hạn bảo hành ({{ product.warranty_months|default:"12" }} tháng kể từ ngày mua)</li>
+                                <li>Sản phẩm lỗi do nhà sản xuất, không phải do người dùng</li>
+                                <li>Tem bảo hành và số serial còn nguyên vẹn</li>
+                            </ul>
+                        </div>
+                        <div class="warranty-item">
+                            <h5><i class="fas fa-times-circle me-2 text-danger"></i>Trường hợp không được bảo hành</h5>
+                            <ul>
+                                <li>Sản phẩm đã hết thời hạn bảo hành</li>
+                                <li>Sản phẩm bị lỗi do người dùng: rơi, vỡ, va đập, cháy, nổ, ngấm nước...</li>
+                                <li>Sản phẩm bị can thiệp phần cứng, phần mềm bởi đơn vị không được ủy quyền</li>
+                            </ul>
+                        </div>
+                        <div class="warranty-item">
+                            <h5><i class="fas fa-cogs me-2 text-primary"></i>Quy trình bảo hành</h5>
+                            <ol>
+                                <li>Liên hệ với TomOi.vn qua hotline hoặc email</li>
+                                <li>Gửi sản phẩm về trung tâm bảo hành</li>
+                                <li>Nhận thông báo tình trạng bảo hành</li>
+                                <li>Nhận sản phẩm đã được bảo hành</li>
+                            </ol>
                         </div>
                     </div>
                 </div>
-
-                <!-- Affiliate section -->
-                <div class="affiliate-section">
-                    <h5>Giới thiệu bạn bè</h5>
-                    <p>Giảm giá 5% cho bạn bè được giới thiệu.</p>
-                    <div class="affiliate-link">
-                        <input type="text" value="{{ request.build_absolute_uri }}" readonly>
-                        <button class="btn-copy" onclick="copyLink()">
-                            <i class="fas fa-copy"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Product description -->
-                <div class="product-description" id="details">
-                    <h4>Thông tin sản phẩm</h4>
-                    <div class="description-content">
-                        {{ product.description|safe }}
+            </div>
+            
+            <div class="tab-pane" id="faq-tab">
+                <div class="faq-section">
+                    <h4 class="section-title">Câu hỏi thường gặp</h4>
+                    <div class="faq-list">
+                        <div class="faq-item">
+                            <div class="faq-header">Sản phẩm có bảo hành không?</div>
+                            <div class="faq-content">
+                                <p>Có, sản phẩm được bảo hành chính hãng {{ product.warranty_months|default:"12" }} tháng.</p>
+                            </div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-header">Sản phẩm có được đổi trả không?</div>
+                            <div class="faq-content">
+                                <p>Sản phẩm được đổi trả trong vòng 7 ngày nếu có lỗi từ nhà sản xuất.</p>
+                            </div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-header">Khi nào tôi nhận được sản phẩm sau khi đặt hàng?</div>
+                            <div class="faq-content">
+                                <p>Thời gian giao hàng thông thường từ 1-3 ngày làm việc tùy thuộc vào khu vực của bạn.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Right column - Product info -->
-            <div class="col-md-6">
-                <div class="product-info">
-                    <h1 class="product-title">{{ product.name }}</h1>
-                    
-                    <div class="price-info">
-                        {% if product.old_price %}
-                        <span class="old-price">{{ product.old_price|format_price }}</span>
-                        <span class="discount-badge">-{{ product.get_discount_percentage }}%</span>
-                        {% endif %}
-                        <span class="current-price">{{ product.price|format_price }}</span>
-                    </div>
+            {% if product.guide %}
+            <div class="tab-pane" id="guide">
+                <div class="product-guide">
+                    {{ product.guide|safe }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
 
-                    <!-- Product Options -->
-                    <div class="product-options">
-                        <!-- Variants Selection -->
-                        <div class="variant-selection">
-                            <h4>Loại sản phẩm</h4>
-                            <div class="variant-options">
-                                {% for variant in product.variants.all %}
-                                    <button type="button" 
-                                            class="variant-option {% if forloop.first %}active{% endif %}" 
-                                            data-variant-id="{{ variant.id }}"
-                                            onclick="selectVariant(this)">
-                                        {{ variant.name }}
-                                    </button>
-                                {% endfor %}
-                            </div>
-                        </div>
-
-                        <!-- Duration Selection -->
-                        <div class="duration-selection">
-                            <h4>Thời hạn</h4>
-                            <div class="duration-options">
-                                {% for duration in product.get_all_durations %}
-                                    <button type="button"
-                                            class="duration-option"
-                                            data-duration="{{ duration }}"
-                                            onclick="selectDuration(this)">
-                                        {{ duration }} tháng
-                                    </button>
-                                {% endfor %}
-                            </div>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="product-actions">
-                            <div class="quantity-controls">
-                                <!-- ... existing quantity controls ... -->
-                            </div>
-                            
-                            <div class="action-buttons">
-                                <button id="addToCartBtn" class="btn btn-danger">
-                                    <i class="fas fa-shopping-cart me-2"></i> Thêm vào giỏ
-                                </button>
-                                
-                                {% if user.is_authenticated %}
-                                <button class="wishlist-btn {% if product.id in wishlist_products %}active{% endif %}" data-product-id="{{ product.id }}">
-                                    {% if product.id in wishlist_products %}
-                                    <i class="fas fa-heart"></i>
-                                    {% else %}
-                                    <i class="far fa-heart"></i>
-                                    {% endif %}
-                                </button>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <!-- Account Info Fields -->
-                        {% if product.requires_email or product.requires_account_password %}
-                        <div class="account-info-fields">
-                            <h4>Nhập thông tin tài khoản cần nâng cấp</h4>
-                            <div class="account-info-content">
-                                {% if product.requires_email %}
-                                <div class="form-group">
-                                    <label>Email của bạn</label>
-                                    <input type="email" class="form-control" name="account_email" required>
-                                    <small class="text-muted">Email dùng để nâng cấp tài khoản</small>
-                                </div>
-                                {% endif %}
-
-                                {% if product.requires_account_password %}
-                                <div class="form-group">
-                                    <label>Tài khoản cần nâng cấp</label>
-                                    <input type="text" class="form-control" name="account_username" required>
-                                    <small class="text-muted">Nhập chính xác tên tài khoản cần nâng cấp</small>
-                                </div>
-                                <div class="form-group">
-                                    <label>Mật khẩu</label>
-                                    <input type="password" class="form-control" name="account_password" required>
-                                    <small class="text-muted">Mật khẩu của tài khoản cần nâng cấp</small>
-                                </div>
-                                {% endif %}
-
-                                <p class="form-note">*Vui lòng kiểm tra kỹ lại thông tin chính xác</p>
-                            </div>
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Cross-sale Products -->
-                    {% if product.cross_sale_products.exists %}
+        <!-- Cross Sale Products -->
+        {% if cross_sale_products %}
                     <div class="cross-sale-section">
-                        <h4>Mua kèm giảm thêm {{ product.cross_sale_discount }}%</h4>
+            <h2 class="cross-sale-title">Sản phẩm liên quan</h2>
                         <div class="cross-sale-products">
-                            {% for cross_product in product.cross_sale_products.all %}
-                            <div class="cross-sale-item">
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input cross-sale-checkbox" 
-                                           id="cross_sale_{{ cross_product.id }}"
-                                           data-product-id="{{ cross_product.id }}"
-                                           data-price="{{ cross_product.price }}"
-                                           data-discount="{{ product.cross_sale_discount }}">
-                                    <label class="form-check-label" for="cross_sale_{{ cross_product.id }}">
-                                        <div class="cross-sale-content">
-                                            <img src="{{ cross_product.get_primary_image.url }}" alt="{{ cross_product.name }}">
-                                            <div class="cross-sale-info">
-                                                <h5>{{ cross_product.name }}</h5>
-                                                <p class="price">{{ cross_product.price|format_price }}</p>
-                                                <p class="discount">Giảm {{ product.cross_sale_discount }}%</p>
+                {% for p in cross_sale_products %}
+                <div class="product-card">
+                    <div class="product-card-image">
+                        {% if p.images.exists %}
+                        <a href="{% url 'store:product_detail' p.id %}">
+                            <img src="{{ p.images.first.image.url }}" alt="{{ p.name }}">
+                        </a>
+                        {% else %}
+                        <a href="{% url 'store:product_detail' p.id %}">
+                            <img src="{% static 'store/images/placeholder.png' %}" alt="{{ p.name }}">
+        {% endif %}
+
+                        {% if p.get_discount_percentage > 0 %}
+                        <div class="discount-tag">-{{ p.get_discount_percentage }}%</div>
+                        {% endif %}
                                             </div>
+                    <div class="product-card-body">
+                        <h3 class="product-card-title">
+                            <a href="{% url 'store:product_detail' p.id %}">{{ p.name }}</a>
+                        </h3>
+                        <div class="product-card-price">
+                            <div class="card-current-price">{{ p.get_display_price|intcomma }} ₫</div>
+                            {% if p.old_price and p.old_price > p.price %}
+                            <div class="card-old-price">{{ p.old_price|intcomma }} ₫</div>
+                            {% endif %}
                                         </div>
-                                    </label>
+                        <div class="product-card-actions">
+                            <a href="{% url 'store:product_detail' p.id %}" class="btn btn-sm btn-primary btn-view-product">Xem chi tiết</a>
+                        </div>
                                 </div>
                             </div>
                             {% endfor %}
                         </div>
                     </div>
                     {% endif %}
+            </div>
+        </div>
+
+<!-- Review Modal -->
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reviewModalLabel">Đánh giá sản phẩm</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+            <div class="modal-body">
+                <form id="reviewForm" method="post" action="{% url 'store:add_review' product.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3 text-center">
+                        <label class="form-label">Đánh giá của bạn</label>
+                        <div class="star-rating">
+                            <input type="radio" id="star5" name="rating" value="5" />
+                            <label for="star5"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="star4" name="rating" value="4" />
+                            <label for="star4"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="star3" name="rating" value="3" checked />
+                            <label for="star3"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="star2" name="rating" value="2" />
+                            <label for="star2"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="star1" name="rating" value="1" />
+                            <label for="star1"><i class="fas fa-star"></i></label>
             </div>
         </div>
-
-        <!-- Related products -->
-        {% if related_products %}
-        <div class="related-products">
-            <h3>Sản phẩm liên quan</h3>
-            <div class="products-grid">
-                {% for related in related_products %}
-                <div class="col-md-3">
-                    {% include 'store/includes/product_card.html' with product=related %}
-                </div>
-                {% endfor %}
+                    <div class="mb-3">
+                        <label for="reviewTitle" class="form-label">Tiêu đề</label>
+                        <input type="text" class="form-control" id="reviewTitle" name="title" placeholder="Nhập tiêu đề đánh giá">
+                    </div>
+                    <div class="mb-3">
+                        <label for="reviewContent" class="form-label">Nội dung</label>
+                        <textarea class="form-control" id="reviewContent" name="content" rows="4" placeholder="Nhập nội dung đánh giá" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="submitReviewBtn">Gửi đánh giá</button>
             </div>
         </div>
-        {% endif %}
-
-        <!-- Reviews section -->
-        <div class="reviews-section" id="reviews">
-            <h4>Đánh giá sản phẩm</h4>
-            <!-- Thêm nội dung phần đánh giá ở đây -->
-        </div>
-
-        <!-- Blog posts -->
-        {% if blog_posts %}
-        <div class="blog-posts mt-5" id="posts">
-            <h3>Bài viết chi tiết</h3>
-            <div class="row">
-                {% for post in blog_posts %}
-                <!-- Blog post card -->
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
     </div>
 </div>
+
+<!-- Share Modal -->
+<div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="shareModalLabel">Chia sẻ sản phẩm</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <img src="{{ product.images.first.image.url|default:'/static/store/images/placeholder.png' }}" 
+                         alt="{{ product.name }}" class="img-fluid rounded" style="max-height: 120px; margin-bottom: 15px;">
+                    <h6 class="product-name">{{ product.name }}</h6>
+                    <p class="product-price">{{ product.get_display_price|intcomma }} ₫</p>
+        </div>
+
+                <div class="share-buttons">
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="btn-facebook">
+                        <i class="fab fa-facebook-f"></i> Chia sẻ Facebook
+                    </a>
+                    <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ product.name }}" target="_blank" class="btn-twitter">
+                        <i class="fab fa-twitter"></i> Chia sẻ Twitter
+                    </a>
+                    <button class="btn-copy" id="copyLinkBtn" data-url="{{ request.build_absolute_uri }}">
+                        <i class="fas fa-link"></i> Sao chép liên kết
+                    </button>
+            </div>
+                
+                <div class="form-group mt-3">
+                    <div class="input-group">
+                        <input type="text" class="form-control" value="{{ request.build_absolute_uri }}" id="shareLink" readonly>
+                        <button class="btn btn-outline-secondary" type="button" onclick="document.getElementById('shareLink').select();document.execCommand('copy');showToast('Đã sao chép liên kết')">
+                            <i class="fas fa-copy"></i>
+                        </button>
+        </div>
+    </div>
+</div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container" class="position-fixed top-0 end-0 p-3" style="top: 120px !important; z-index: 9999;"></div>
+
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
-<script>
-// Initialize Swiper
-const thumbnailsSwiper = new Swiper('.thumbnails-swiper', {
-    slidesPerView: 5,
-    spaceBetween: 10,
-    navigation: {
-        nextEl: '.swiper-button-next',
-        prevEl: '.swiper-button-prev',
-    },
-    breakpoints: {
-        320: {
-            slidesPerView: 3,
-        },
-        480: {
-            slidesPerView: 4,
-        },
-        768: {
-            slidesPerView: 5,
-        }
-    }
-});
-
-// Thêm biến để lưu trữ mapping giữa variant và durations
-const variantDurations = {
-    {% for variant in product.variants.all %}
-        "{{ variant.id }}": [
-        {% for option in variant.options.all %}
-                {{ option.duration }},
-        {% endfor %}
-        ],
-{% endfor %}
-};
-
-function checkDurationAvailability(variantId, duration) {
-    // Kiểm tra xem duration có tồn tại trong variant không
-    const availableDurations = variantDurations[variantId] || [];
-    return availableDurations.includes(parseInt(duration));
-}
-
-function updateDurationOptions(variantId) {
-    const durationButtons = document.querySelectorAll('.duration-option');
-    let firstEnabled = true;
-
-    durationButtons.forEach(button => {
-        const duration = parseInt(button.dataset.duration);
-        const isAvailable = checkDurationAvailability(variantId, duration);
-        
-        if (isAvailable) {
-            button.classList.remove('disabled');
-            if (firstEnabled) {
-                button.click();
-                firstEnabled = false;
-            }
-        } else {
-            button.classList.add('disabled');
-            button.classList.remove('active');
-        }
-    });
-}
-
-// Xử lý chọn variant và duration
-document.addEventListener('DOMContentLoaded', function() {
-    // Variant selection
-    const variantButtons = document.querySelectorAll('.variant-option');
-    variantButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Bỏ active tất cả các variant khác
-            variantButtons.forEach(btn => btn.classList.remove('active'));
-            // Thêm active cho variant được chọn
-            this.classList.add('active');
-            
-            // Lấy variant ID
-            const variantId = this.dataset.variantId;
-            
-            // Cập nhật các duration options
-            updateDurationOptions(variantId);
-        });
-    });
-
-    // Duration selection
-    const durationButtons = document.querySelectorAll('.duration-option');
-    durationButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            if (!this.classList.contains('disabled')) {
-                // Bỏ active tất cả các duration khác
-                durationButtons.forEach(btn => btn.classList.remove('active'));
-                // Thêm active cho duration được chọn
-                this.classList.add('active');
-                
-                // Cập nhật giá
-                updatePrice();
-            }
-        });
-    });
-
-    // Chọn variant đầu tiên mặc định
-    const firstVariant = document.querySelector('.variant-option');
-    if (firstVariant) {
-        firstVariant.click();
-    }
-
-    // Thêm Intersection Observer để theo dõi các section
-    const sections = document.querySelectorAll('#intro, #details, #reviews, #posts');
-    const tabs = document.querySelectorAll('.product-tab-item');
-    
-    const observerOptions = {
-        root: null, // viewport
-        rootMargin: '-100px 0px -50% 0px', // Điều chỉnh vùng quan sát
-        threshold: 0
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                // Tìm và active tab tương ứng
-                const targetId = entry.target.id;
-                tabs.forEach(tab => {
-                    if (tab.getAttribute('href') === '#' + targetId) {
-                        tab.classList.add('active');
-                    } else {
-                        tab.classList.remove('active');
-                    }
-                });
-            }
-        });
-    }, observerOptions);
-
-    // Theo dõi tất cả các section
-    sections.forEach(section => {
-        observer.observe(section);
-    });
-});
-
-function updatePrice() {
-    const activeVariant = document.querySelector('.variant-option.active');
-    const activeDuration = document.querySelector('.duration-option.active');
-    
-    if (!activeVariant || !activeDuration) return;
-
-    const variantId = activeVariant.dataset.variantId;
-    const duration = activeDuration.dataset.duration;
-
-    // Gọi API để lấy giá
-    fetch(`/api/get-price/?variant_id=${variantId}&duration=${duration}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const priceElement = document.querySelector('.current-price');
-                const oldPriceElement = document.querySelector('.old-price');
-                const discountElement = document.querySelector('.discount-badge');
-
-                priceElement.textContent = formatPrice(data.price);
-                
-                if (data.old_price) {
-                    oldPriceElement.textContent = formatPrice(data.old_price);
-                    discountElement.textContent = `-${data.discount}%`;
-                    oldPriceElement.style.display = 'inline';
-                    discountElement.style.display = 'inline';
-                } else {
-                    oldPriceElement.style.display = 'none';
-                    discountElement.style.display = 'none';
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching price:', error);
-        });
-}
-
-// Thêm hàm format giá
-function formatPrice(price) {
-    return new Intl.NumberFormat('vi-VN', {
-        style: 'currency',
-        currency: 'VND'
-    }).format(price).replace('₫', 'đ');
-}
-
-// Change main image
-function changeMainImage(thumbnail, imageUrl) {
-    // Remove active class from all thumbnails
-    document.querySelectorAll('.thumbnail').forEach(thumb => {
-        thumb.classList.remove('active');
-    });
-    
-    // Add active class to clicked thumbnail
-    thumbnail.classList.add('active');
-    
-    // Update main image
-    document.getElementById('mainImage').src = imageUrl;
-}
-
-// Copy affiliate link
-function copyLink() {
-    const linkInput = document.querySelector('.affiliate-link input');
-    linkInput.select();
-    document.execCommand('copy');
-    
-    // Show notification
-    Swal.fire({
-        title: 'Đã sao chép!',
-        text: 'Đường dẫn đã được sao chép vào clipboard',
-        icon: 'success',
-        timer: 1500,
-        showConfirmButton: false
-    });
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    // Xử lý click vào các tab
-    document.querySelectorAll('.product-tab-item').forEach(tab => {
-        tab.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Remove active class from all tabs
-            document.querySelectorAll('.product-tab-item').forEach(t => {
-                t.classList.remove('active');
-            });
-            
-            // Add active class to clicked tab
-            this.classList.add('active');
-            
-            // Get the target section id
-            const targetId = this.getAttribute('href');
-            const targetSection = document.querySelector(targetId);
-            
-            if (targetSection) {
-                // Scroll to section with offset for fixed header
-                const headerOffset = 100; // Điều chỉnh offset tùy theo chiều cao header
-                const elementPosition = targetSection.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-                window.scrollTo({
-                    top: offsetPosition,
-                    behavior: 'smooth'
-                });
-            }
-        });
-    });
-});
-
-function addToCart() {
-    const activeVariant = document.querySelector('.variant-option.active');
-    const activeDuration = document.querySelector('.duration-option.active');
-    const emailInput = document.querySelector('input[name="account_email"]');
-    const accountInput = document.querySelector('input[name="account_username"]');
-    const passwordInput = document.querySelector('input[name="account_password"]');
-    
-    // Kiểm tra đã chọn variant và duration
-    if (!activeVariant || !activeDuration) {
-        Swal.fire({
-            title: 'Lỗi',
-            text: 'Vui lòng chọn loại tài khoản và thời hạn',
-            icon: 'error'
-        });
-        return;
-    }
-
-    // Kiểm tra yêu cầu email
-    if ({{ product.requires_email|yesno:"true,false" }} && (!emailInput || !emailInput.value)) {
-        Swal.fire({
-            title: 'Lỗi',
-            text: 'Vui lòng nhập email để nâng cấp tài khoản',
-            icon: 'error'
-        });
-        return;
-    }
-
-    // Kiểm tra yêu cầu tài khoản & mật khẩu
-    if ({{ product.requires_account_password|yesno:"true,false" }}) {
-        if (!accountInput || !accountInput.value) {
-            Swal.fire({
-                title: 'Lỗi',
-                text: 'Vui lòng nhập tài khoản cần nâng cấp',
-                icon: 'error'
-            });
-            return;
-        }
-        if (!passwordInput || !passwordInput.value) {
-            Swal.fire({
-                title: 'Lỗi',
-                text: 'Vui lòng nhập mật khẩu của tài khoản',
-                icon: 'error'
-            });
-            return;
-        }
-    }
-
-    const productData = {
-        product_id: {{ product.id }},
-        variant_id: parseInt(activeVariant.dataset.variantId),
-        duration: parseInt(activeDuration.dataset.duration),
-        upgrade_email: emailInput ? emailInput.value : null,
-        account_username: accountInput ? accountInput.value : null,
-        account_password: passwordInput ? passwordInput.value : null,
-        quantity: 1
-    };
-
-    // Lấy CSRF token từ cookie
-    const csrftoken = getCookie('csrftoken');
-
-    fetch('/cart/add/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken
-        },
-        body: JSON.stringify(productData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            updateCartDropdown(data.cart_items);
-            updateCartCount(data.total_items);
-            Swal.fire({
-                title: 'Thành công',
-                text: 'Đã thêm sản phẩm vào giỏ hàng',
-                icon: 'success',
-                timer: 1500,
-                showConfirmButton: false
-            });
-        } else {
-            Swal.fire({
-                title: 'Lỗi',
-                text: data.error || 'Có lỗi xảy ra',
-                icon: 'error'
-            });
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire({
-            title: 'Lỗi',
-            text: 'Có lỗi xảy ra khi thêm vào giỏ hàng',
-            icon: 'error'
-        });
-    });
-}
-
-// Hàm lấy CSRF token từ cookie
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-// Thêm các hàm này vào đầu phần script
-function selectVariant(button) {
-    // Bỏ active tất cả các variant khác
-    document.querySelectorAll('.variant-option').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    // Active variant được chọn
-    button.classList.add('active');
-    
-    // Lấy variant ID
-    const variantId = button.dataset.variantId;
-    
-    // Cập nhật các option duration cho variant này
-    updateDurationOptions(variantId);
-    
-    // Cập nhật giá
-    updatePrice();
-}
-
-function selectDuration(button) {
-    // Bỏ active tất cả các duration khác
-    document.querySelectorAll('.duration-option').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    // Active duration được chọn
-    button.classList.add('active');
-    
-    // Cập nhật giá
-    updatePrice();
-}
-</script>
+<script src="{% static 'store/js/product_detail.js' %}"></script>
 {% endblock %}
+

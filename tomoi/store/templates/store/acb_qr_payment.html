@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Thanh toán qua QR ACB - Tomoi{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center py-5">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-qrcode me-2"></i> Thanh toán bằng QR ACB</h4>
+                </div>
+                <div class="card-body">
+                    {% if error_message %}
+                    <div class="alert alert-danger mb-4">
+                        <i class="fas fa-exclamation-circle me-2"></i> {{ error_message }}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle me-2"></i> Quét mã QR bên dưới để thanh toán đơn hàng của bạn.
+                    </div>
+
+                    <div class="text-center mb-4">
+                        <div class="qr-container p-3 bg-light rounded d-inline-block">
+                            {% if qr_image_base64 %}
+                                <img src="data:image/png;base64,{{ qr_image_base64 }}" alt="QR Code" class="img-fluid" style="max-width: 300px;">
+                            {% else %}
+                                <div class="alert alert-warning">Không thể tạo mã QR. Vui lòng thử lại.</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="payment-details p-3 bg-light rounded mb-4">
+                        <h5 class="text-center mb-3">Thông tin thanh toán</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Mã đơn hàng:</strong> #{{ order.id }}</p>
+                                <p><strong>Phương thức:</strong> QR ACB</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Số tiền:</strong> {{ order.total|floatformat:0|safe }} đ</p>
+                                <p><strong>Thời gian:</strong> <span id="countdownTimer">--:--</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mb-4">
+                        <div class="payment-status">
+                            <h5>Trạng thái thanh toán</h5>
+                            <div id="paymentStatus" class="alert alert-secondary">
+                                <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                                    <span class="visually-hidden">Đang kiểm tra...</span>
+                                </div>
+                                Đang chờ thanh toán...
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="payment-actions d-flex justify-content-between">
+                        <a href="{{ cancel_url }}" class="btn btn-outline-danger">
+                            <i class="fas fa-times me-2"></i> Hủy thanh toán
+                        </a>
+                        <div>
+                            <button id="checkStatusBtn" class="btn btn-primary me-2">
+                                <i class="fas fa-sync-alt me-2"></i> Kiểm tra trạng thái
+                            </button>
+                            <a href="/orders" class="btn btn-success">
+                                <i class="fas fa-list me-2"></i> Lịch sử đơn hàng
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Biến lưu ID đơn hàng để kiểm tra trạng thái
+    const orderId = "{{ order.id }}";
+    const transactionId = "{{ transaction_id }}";
+    const timeLimit = {{ time_limit|default:"900" }}; // Thời gian chờ thanh toán (giây)
+    
+    // Bắt đầu đếm ngược thời gian
+    let timeRemaining = timeLimit;
+    const countdownTimer = document.getElementById('countdownTimer');
+    
+    function updateTimer() {
+        const minutes = Math.floor(timeRemaining / 60);
+        const seconds = timeRemaining % 60;
+        countdownTimer.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            document.getElementById('paymentStatus').className = 'alert alert-danger';
+            document.getElementById('paymentStatus').innerHTML = '<i class="fas fa-exclamation-circle me-2"></i> Hết thời gian thanh toán';
+            return;
+        }
+        
+        timeRemaining--;
+    }
+    
+    const timerInterval = setInterval(updateTimer, 1000);
+    updateTimer(); // Gọi ngay lần đầu để hiển thị thời gian
+    
+    // Thiết lập kiểm tra trạng thái tự động mỗi 10 giây
+    const autoCheckInterval = setInterval(checkPaymentStatus, 10000);
+    
+    // Xử lý sự kiện nút kiểm tra trạng thái
+    document.getElementById('checkStatusBtn').addEventListener('click', function() {
+        checkPaymentStatus(true);
+    });
+    
+    function checkPaymentStatus(isManualCheck = false) {
+        const statusElement = document.getElementById('paymentStatus');
+        
+        if (isManualCheck) {
+            statusElement.innerHTML = `
+                <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                    <span class="visually-hidden">Đang kiểm tra...</span>
+                </div>
+                Đang kiểm tra trạng thái...`;
+        }
+        
+        fetch(`/check-acb-payment/${transactionId}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    clearInterval(autoCheckInterval);
+                    clearInterval(timerInterval);
+                    
+                    statusElement.className = 'alert alert-success';
+                    statusElement.innerHTML = '<i class="fas fa-check-circle me-2"></i> Thanh toán thành công!';
+                    
+                    setTimeout(() => {
+                        window.location.href = data.redirect_url;
+                    }, 3000);
+                } else if (data.status === 'pending') {
+                    statusElement.className = 'alert alert-warning';
+                    statusElement.innerHTML = '<i class="fas fa-clock me-2"></i> Đang chờ thanh toán...';
+                } else {
+                    statusElement.className = 'alert alert-danger';
+                    statusElement.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i> ${data.message || 'Lỗi thanh toán'}`;
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi kiểm tra:', error);
+                statusElement.className = 'alert alert-danger';
+                statusElement.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i> Lỗi kiểm tra trạng thái';
+            });
+    }
+    
+    // Kiểm tra lần đầu sau khi tải trang
+    setTimeout(checkPaymentStatus, 3000);
+</script>
+{% endblock %} 
+ 
+ 

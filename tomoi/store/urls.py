@@ -14,6 +14,7 @@ urlpatterns = [
     path('', views.home, name='home'),  # Trang chủ
     path('list/', views.product_list, name='product_list'),
     path('product/<int:product_id>/', views.product_detail, name='product_detail'),
+    path('product/review/<int:product_id>/', views.add_review, name='add_review'),
     path('info/', views.user_info, name='user_info'),
     path('orders/', views.order_history, name='order_history'),
     path('recharge/', views.recharge, name='recharge'),
@@ -34,6 +35,12 @@ urlpatterns = [
     path('category/<slug:slug>/', views.category_detail, name='category_detail'),
     path('cart/check-stock/<int:product_id>/', views.check_stock, name='check_stock'),
     path('cart/count/', views.get_cart_count, name='cart_count'),
+    path('cart/apply-tcoin/', views.apply_tcoin, name='apply_tcoin'),
+    path('cart/apply-voucher/', views.apply_voucher, name='apply_voucher'),
+    path('cart/apply-referral/', views.apply_referral, name='apply_referral'),
+    path('cart/set-gift-recipient/', views.set_gift_recipient, name='set_gift_recipient'),
+    path('cart/set-gift-message/', views.set_gift_message, name='set_gift_message'),
+    path('gift-demo/', views.gift_demo, name='gift_demo'),
     path('api/get-price/', views.get_variant_price, name='get_variant_price'),
     path('blog/<slug:slug>/', views.blog_detail, name='blog_detail'),
     path('payment/success/', views.payment_success, name='payment_success'),
@@ -57,4 +64,17 @@ urlpatterns = [
         path('update-read-status/', views.update_read_status, name='update_read_status'),
         path('get-unread-count/', views.get_unread_count, name='get_unread_count'),
     ])),
+    
+    # URLs cho thanh toán ACB
+    path('acb-payment/<int:order_id>/', views.acb_qr_payment, name='acb_qr_payment'),
+    path('acb-payment-return/<int:order_id>/', views.acb_qr_return, name='acb_qr_return'),
+    path('acb-payment-cancel/<int:order_id>/', views.acb_qr_cancel, name='acb_qr_cancel'),
+    path('check-acb-payment/<int:transaction_id>/', views.check_acb_payment, name='check_acb_payment'),
+    path('bestsellers/', views.bestsellers, name='bestsellers'),
+    path('featured-products/', views.featured_products, name='featured_products'),
+    path('newest-products/', views.newest_products, name='newest_products'),
+    path('promotions/', views.promotions, name='promotions'),
+    path('buying-guide/', views.buying_guide, name='buying_guide'),
+    path('contact/', views.contact, name='contact'),
+    path('news/', views.news, name='news'),
 ] 

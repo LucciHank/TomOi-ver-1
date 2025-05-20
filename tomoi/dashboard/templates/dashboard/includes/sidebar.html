@@ -85,6 +85,44 @@
         Quản lý
     </div>
 
+    <!-- Nav Item - Products Collapse Menu -->
+    <li class="nav-item {% if 'products' in request.path %}active{% endif %}">
+        <a class="nav-link {% if 'products' in request.path %}{% else %}collapsed{% endif %}" href="#" data-bs-toggle="collapse" data-bs-target="#collapseProducts"
+            aria-expanded="{% if 'products' in request.path %}true{% else %}false{% endif %}" aria-controls="collapseProducts">
+            <i class="fas fa-fw fa-box"></i>
+            <span>Sản phẩm</span>
+        </a>
+        <div id="collapseProducts" class="collapse {% if 'products' in request.path %}show{% endif %}" aria-labelledby="headingProducts" data-bs-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Quản lý sản phẩm:</h6>
+                <a class="collapse-item {% if request.resolver_match.url_name == 'products' %}active{% endif %}" href="{% url 'dashboard:products' %}">
+                    <i class="fas fa-list fa-sm fa-fw mr-1"></i> Danh sách sản phẩm
+                </a>
+                <a class="collapse-item {% if request.resolver_match.url_name == 'add_product' %}active{% endif %}" href="{% url 'dashboard:add_product' %}">
+                    <i class="fas fa-plus fa-sm fa-fw mr-1"></i> Thêm sản phẩm mới
+                </a>
+                <a class="collapse-item {% if request.resolver_match.url_name == 'categories' %}active{% endif %}" href="{% url 'dashboard:categories' %}">
+                    <i class="fas fa-tags fa-sm fa-fw mr-1"></i> Danh mục
+                </a>
+                <a class="collapse-item {% if request.resolver_match.url_name == 'brand_list' %}active{% endif %}" href="{% url 'dashboard:brand_list' %}">
+                    <i class="fas fa-copyright fa-sm fa-fw mr-1"></i> Thương hiệu
+                </a>
+                <a class="collapse-item {% if request.resolver_match.url_name == 'attribute_list' %}active{% endif %}" href="{% url 'dashboard:attribute_list' %}">
+                    <i class="fas fa-sliders-h fa-sm fa-fw mr-1"></i> Thuộc tính
+                </a>
+                <a class="collapse-item {% if request.resolver_match.url_name == 'product_durations' %}active{% endif %}" href="{% url 'dashboard:product_durations' %}">
+                    <i class="fas fa-clock fa-sm fa-fw mr-1"></i> Thời hạn sản phẩm
+                </a>
+                <a class="collapse-item {% if request.resolver_match.url_name == 'import_products' %}active{% endif %}" href="{% url 'dashboard:import_products' %}">
+                    <i class="fas fa-file-import fa-sm fa-fw mr-1"></i> Nhập sản phẩm
+                </a>
+                <a class="collapse-item {% if request.resolver_match.url_name == 'product_export' %}active{% endif %}" href="{% url 'dashboard:product_export' %}">
+                    <i class="fas fa-file-export fa-sm fa-fw mr-1"></i> Xuất sản phẩm
+                </a>
+            </div>
+        </div>
+    </li>
+
     <!-- Quản lý nguồn nhập - tách riêng -->
     <li class="nav-item {% if 'sources' in request.path %}active{% endif %}">
         <a class="nav-link {% if 'sources' in request.path %}{% else %}collapsed{% endif %}" href="#" data-bs-toggle="collapse" data-bs-target="#collapseSource"

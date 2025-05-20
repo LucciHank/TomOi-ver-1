@@ -31,6 +31,7 @@ from .subscription import *
 from .user_views import *
 from . import chat  # Import module chat
 from . import api  # Import module api
+from . import product_duration  # Import module product_duration
 from .user import (
     user_list,
     user_detail,
@@ -87,6 +88,18 @@ from ..order_views import (
     order_list,
     order_history,
     customer_orders
+)
+
+# Import product_attribute views
+from .attribute import (
+    attribute_list,
+    add_attribute,
+    edit_attribute,
+    delete_attribute,
+    attribute_values,
+    add_attribute_value,
+    edit_attribute_value,
+    delete_attribute_value
 )
 
 # Định nghĩa hàm messaging
@@ -272,6 +285,16 @@ def edit_category(request, category_id):
             messages.error(request, 'Có lỗi xảy ra khi cập nhật danh mục')
     else:
         form = CategoryForm(instance=category)
+        # Xử lý request API nếu là AJAX request
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            data = {
+                'id': category.id,
+                'name': category.name,
+                'parent_id': category.parent.id if category.parent else '',
+                'description': category.description,
+                'image_url': category.image.url if category.image else '',
+            }
+            return JsonResponse(data)
     
     context = {
         'form': form,
@@ -280,6 +303,23 @@ def edit_category(request, category_id):
     }
     
     return render(request, 'dashboard/products/edit_category.html', context)
+
+# 7.1 Xóa danh mục
+@staff_member_required
+def delete_category(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+    
+    if request.method == 'POST':
+        category_name = category.name
+        category.delete()
+        messages.success(request, f'Đã xóa danh mục {category_name} thành công')
+        return redirect('dashboard:categories')
+    
+    context = {
+        'category': category
+    }
+    
+    return render(request, 'dashboard/products/delete_category_confirm.html', context)
 
 # 8. Import sản phẩm
 @staff_member_required
@@ -348,6 +388,8 @@ from .subscription import *
 from .user_views import *
 from . import chat  # Import module chat
 from . import api  # Import module api
+from . import attribute  # Thêm dòng này
+from . import product_attribute
 try:
     from ..order_views import order_management, order_detail, update_order_status, export_orders
 except ImportError:

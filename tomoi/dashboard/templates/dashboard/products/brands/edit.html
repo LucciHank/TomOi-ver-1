@@ -1,0 +1,119 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Chỉnh sửa thương hiệu{% endblock %}
+
+{% block content %}
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Chỉnh sửa thương hiệu: {{ brand.name }}</h1>
+    <a href="{% url 'dashboard:brand_list' %}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+        <i class="fas fa-arrow-left fa-sm text-white-50"></i> Quay lại danh sách
+    </a>
+</div>
+
+<!-- Content Row -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Thông tin thương hiệu</h6>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Tên thương hiệu -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="name" class="form-label">Tên thương hiệu <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                value="{{ brand.name }}" required>
+                            <small class="form-text text-muted">Tên hiển thị của thương hiệu</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Logo hiện tại -->
+                    {% if brand.logo %}
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Logo hiện tại</label>
+                            <div>
+                                <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" class="img-thumbnail" style="max-height: 100px;">
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Logo mới -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="logo" class="form-label">{{ brand.logo|yesno:"Thay đổi logo,Thêm logo" }}</label>
+                            <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+                            <small class="form-text text-muted">Để trống nếu không muốn thay đổi logo</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Mô tả -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="description" class="form-label">Mô tả</label>
+                            <textarea class="form-control" id="description" name="description" 
+                                rows="4">{{ brand.description }}</textarea>
+                            <small class="form-text text-muted">Mô tả chi tiết về thương hiệu</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Trạng thái -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active"
+                                    {% if brand.is_active %}checked{% endif %}>
+                                <label class="form-check-label" for="is_active">
+                                    Kích hoạt
+                                </label>
+                                <small class="form-text text-muted d-block">Thương hiệu có thể sử dụng nếu được kích hoạt</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Nút lưu -->
+                    <div class="row">
+                        <div class="col-md-12 text-end">
+                            <a href="{% url 'dashboard:brand_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Hủy
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Cập nhật thương hiệu
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Hiển thị xem trước logo khi chọn file
+        $('#logo').change(function() {
+            if (this.files && this.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    if ($('#logo-preview').length === 0) {
+                        $('#logo').after('<div class="mt-2"><img id="logo-preview" src="" alt="Logo preview" class="img-thumbnail" style="max-height: 100px;"></div>');
+                    }
+                    $('#logo-preview').attr('src', e.target.result);
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    });
+</script>
+{% endblock %} 

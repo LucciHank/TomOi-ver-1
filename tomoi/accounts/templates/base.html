@@ -30,6 +30,8 @@
   <link href="{% static 'css/style.css' %}?v=1.1" rel="stylesheet"/>
   <link href="{% static 'css/security.css' %}?v=1.1" rel="stylesheet"/>
   <link href="{% static 'store/css/home.css' %}?v=1.1" rel="stylesheet"/>
+  <!-- Custom improvements CSS -->
+  <link href="{% static 'css/custom-improvements.css' %}?v=1.0" rel="stylesheet"/>
   
 
   
@@ -162,56 +164,6 @@
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2328a745'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z'/%3E%3C/svg%3E");
     }
 
-    .toggle-password {
-        cursor: pointer;
-    }
-
-    .toggle-password:focus {
-        box-shadow: none;
-    }
-
-    /* Thêm class register-requirements để phân biệt */
-    .register-modal .password-requirements {
-        font-size: 0.85rem;
-        margin-top: 10px;
-        margin-bottom: 0 !important;
-    }
-
-    .register-modal .password-requirements p {
-        color: #666;
-    }
-
-    .register-modal .password-requirements ul {
-        list-style: none;
-        padding-left: 0;
-        margin-bottom: 0;
-    }
-
-    .register-modal .password-requirements li {
-        color: #666;
-        margin-bottom: 5px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .register-modal .password-requirements li::before {
-        content: '';
-        display: inline-block;
-        width: 16px;
-        height: 16px;
-        background-size: contain;
-        background-repeat: no-repeat;
-    }
-
-    .register-modal .password-requirements li.invalid::before {
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23dc3545'%3E%3Cpath d='M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z'/%3E%3C/svg%3E");
-    }
-
-    .register-modal .password-requirements li.valid::before {
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2328a745'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z'/%3E%3C/svg%3E");
-    }
-
     .language-selector {
         display: flex;
         align-items: center;
@@ -318,54 +270,6 @@
 <body data-user-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
   {% csrf_token %}
 
-<!-- Thanh thông tin nhỏ phía trên header -->
-<div class="top-info-bar">
-  <div class="container">
-    <div class="row">
-      <div class="col-12 info-section">
-        <a href="#"><i class="fas fa-info-circle"></i> Thông tin liên hệ</a>
-        <a href="#"><i class="fas fa-shopping-cart"></i> Hướng dẫn mua hàng</a>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Thêm style cho thanh thông tin -->
-<style>
-  .top-info-bar {
-    background-color: #f8f9fa;
-    padding: 6px 0;
-    font-size: 12px;
-    border-bottom: 1px solid #eee;
-  }
-  
-  .top-info-bar a {
-    color: #666;
-    text-decoration: none;
-    margin-left: 15px;
-    transition: color 0.3s;
-  }
-  
-  .top-info-bar a:hover {
-    color: #e50914;
-  }
-  
-  .top-info-bar i {
-    margin-right: 5px;
-  }
-  
-  .separator {
-    color: #ddd;
-    margin: 0 10px;
-  }
-  
-  .info-section {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-  }
-</style>
-
 <nav class="navbar navbar-expand-lg">
       <!-- Logo -->
       <a class="navbar-brand" href="{% url 'store:home' %}">
@@ -454,37 +358,18 @@
                   </div>
                 </div>
                 <div class="dropdown-footer" style="display: flex; justify-content: center; padding: 10px; border-top: 1px solid #eaeaea;">
-                  <a href="#" class="btn-text" style="color: #df2626; font-size: 13px; text-decoration: none;">Xem tất cả thông báo</a>
+                  <a href="#" class="btn-text" style="color: #df2626; font-size: 13px;">Xem tất cả thông báo</a>
                 </div>
               </div>
             </div>
 
             <!-- Shopping Cart - Thêm chữ "Giỏ hàng" -->
             <div class="navbar-action-item" style="position: relative; margin-left: 20px;">
-              <a href="{% url 'store:cart' %}" class="action-button" style="background: #000000; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; padding: 0 20px 0 15px; transition: all 0.2s ease; overflow: hidden; position: relative; border-radius: 25px; height: 45px; text-decoration: none;">
+              <a href="{% url 'store:cart' %}" class="action-button" style="background: #000000; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; padding: 0 20px 0 15px; transition: all 0.2s ease; overflow: visible; position: relative; border-radius: 25px; height: 45px; text-decoration: none;">
                 <i class="fas fa-shopping-cart" style="font-size: 20px; margin-right: 10px;"></i>
                 <span style="font-size: 14px; font-weight: 500;">Giỏ hàng</span>
-                <span class="cart-count-badge" style="position: absolute; top: -5px; right: -5px; background-color: #df2626; color: white; border-radius: 50%; font-size: 10px; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">{{ cart_count|default:"0" }}</span>
+                <span class="cart-count-badge" style="position: absolute; top: -5px; right: -5px; background-color: #ffeaa7; color: #333; border-radius: 50%; font-size: 10px; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; font-weight: bold; padding: 0; line-height: 1; text-align: center;">{{ cart_count|default:"0" }}</span>
               </a>
-              <div class="dropdown-content cart-dropdown" style="display: none; position: absolute; background-color: white; width: 320px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); border-radius: 8px; top: 100%; right: 0; margin-top: 10px; z-index: 1001; overflow: hidden; transform-origin: top right;">
-                <div class="dropdown-header" style="background-color: #f5f5f5; padding: 12px 15px; font-weight: 600; color: #333; border-bottom: 1px solid #eaeaea; display: flex; justify-content: space-between; align-items: center;">
-                  <span class="dropdown-title" style="font-size: 14px;">Giỏ hàng của bạn</span>
-                </div>
-                <div class="cart-items" style="max-height: 300px; overflow-y: auto;">
-                  <div class="empty-state" style="padding: 20px; text-align: center; color: #757575;">
-                    <i class="fas fa-shopping-cart" style="font-size: 32px; color: #bdbdbd; margin-bottom: 10px;"></i>
-                    <p style="margin: 0; font-size: 13px;">Giỏ hàng trống</p>
-                  </div>
-                </div>
-                <div class="cart-total" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; font-weight: 600; border-top: 1px solid #eaeaea;">
-                  <span>Tổng cộng:</span>
-                  <span class="total-amount">0đ</span>
-                </div>
-                <div class="cart-footer" style="display: flex; gap: 10px; padding: 15px; border-top: 1px solid #eaeaea;">
-                  <a href="{% url 'store:cart' %}" class="btn btn-outline-secondary" style="flex: 1; padding: 8px; font-size: 14px;">Xem giỏ hàng</a>
-                  <a href="{% url 'store:checkout' %}" class="btn btn-checkout" style="flex: 1; padding: 8px; font-size: 14px; background-color: #df2626; color: white; border: none; transition: all 0.2s ease; position: relative; overflow: hidden; text-decoration: none;">Thanh toán</a>
-                </div>
-              </div>
             </div>
         </ul>
     </div>
@@ -545,14 +430,7 @@
     list-style: none;
 }
 
-.nav-item {
-    flex: 0 0 20%;
-    text-align: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 80px;
-}
+
 
 .nav-link {
     display: flex;
@@ -568,10 +446,6 @@
     height: 100%;
 }
 
-.nav-link:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
-}
 
 .nav-link i {
     font-size: 1.8rem;
@@ -1019,7 +893,7 @@
     </div>
     <div class="footer-bottom">
       <hr>
-      <p>© Copyright 2024 <b>TomOi.vn</b> – All rights reserved.</p>
+      <p> 2024 <b>TomOi.vn</b> – All rights reserved.</p>
   </div>
   </footer>
 
@@ -1635,6 +1509,30 @@ function getCookie(name) {
   <script src="{% static 'store/js/search.js' %}"></script>
   {% include 'store/chatbot.html' %}
   <script src="{% static 'store/js/chatbot.js' %}"></script>
+  
+  <!-- Script to handle cart dropdown display -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Chỉ cập nhật badge số lượng giỏ hàng
+      function updateCartCount() {
+        fetch('/cart/api/')
+            .then(response => response.json())
+            .then(data => {
+            const cartCountBadge = document.querySelector('.cart-count-badge');
+            if (cartCountBadge) {
+              const count = data.total_items || 0;
+              cartCountBadge.textContent = count;
+              // Luôn hiển thị badge
+              cartCountBadge.style.display = 'flex';
+              }
+            })
+          .catch(error => console.error('Error updating cart badge:', error));
+      }
+      
+      // Cập nhật badge khi trang được tải
+      updateCartCount();
+    });
+  </script>
 
 <!-- Thêm script để xử lý hover và dropdown -->
 <script>
@@ -1702,6 +1600,27 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 </script>
+
+<style>
+/* Badge của Cart luôn hiển thị */
+.cart-count-badge {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 1002 !important;
+  background-color: #ffeaa7 !important;
+  color: #333 !important;
+  width: 18px !important;
+  height: 18px !important;
+  text-align: center !important;
+  line-height: 1 !important;
+  padding: 0 !important;
+  font-size: 10px !important;
+  font-weight: bold !important;
+}
+.action-button:hover .cart-count-badge {
+  background-color: #ffeaa7 !important;
+}
+</style>
 </body>
 </html>
-

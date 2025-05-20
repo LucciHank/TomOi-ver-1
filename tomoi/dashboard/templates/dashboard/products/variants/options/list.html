@@ -1,0 +1,125 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Tùy chọn thời hạn - {{ variant.name }}</h1>
+        <a href="{% url 'dashboard:add_variant_option' variant.id %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+            <i class="fas fa-plus fa-sm text-white-50"></i> Thêm tùy chọn
+        </a>
+    </div>
+
+    <!-- Breadcrumb navigation -->
+    <div class="mb-4">
+        <a href="{% url 'dashboard:product_detail' product.id %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-box"></i> {{ product.name }}
+        </a>
+        <i class="fas fa-angle-right mx-2"></i>
+        <a href="{% url 'dashboard:manage_product_variants' product.id %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-tags"></i> Biến thể
+        </a>
+        <i class="fas fa-angle-right mx-2"></i>
+        <span class="btn btn-outline-primary btn-sm active">
+            <i class="fas fa-list"></i> Tùy chọn thời hạn
+        </span>
+    </div>
+
+    <!-- Variant Info Card -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin biến thể</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Tên biến thể:</strong> {{ variant.name }}</p>
+                    <p><strong>Giá cơ bản:</strong> {{ variant.base_price|floatformat:0 }}đ</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Tồn kho:</strong> {{ variant.stock }}</p>
+                    <p>
+                        <strong>Trạng thái:</strong>
+                        {% if variant.is_active %}
+                        <span class="badge badge-success">Hoạt động</span>
+                        {% else %}
+                        <span class="badge badge-secondary">Vô hiệu</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Options List -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách tùy chọn thời hạn</h6>
+        </div>
+        <div class="card-body">
+            {% if options %}
+            <div class="table-responsive">
+                <table class="table table-bordered" id="optionsTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Thời hạn (tháng)</th>
+                            <th>Giá</th>
+                            <th>Tồn kho</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for option in options %}
+                        <tr>
+                            <td>{{ option.duration }} tháng</td>
+                            <td>{{ option.price|floatformat:0 }}đ</td>
+                            <td>{{ option.stock }}</td>
+                            <td>
+                                {% if option.is_active %}
+                                <span class="badge badge-success">Hoạt động</span>
+                                {% else %}
+                                <span class="badge badge-secondary">Vô hiệu</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'dashboard:edit_variant_option' option.id %}" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'dashboard:delete_variant_option' option.id %}" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                Biến thể này chưa có tùy chọn thời hạn nào. Hãy thêm tùy chọn mới.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        $('#optionsTable').DataTable({
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Vietnamese.json"
+            }
+        });
+    });
+</script>
+{% endblock %} 
+ 
+ 

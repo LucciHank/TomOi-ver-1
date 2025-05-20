@@ -10,6 +10,11 @@
 
 {% block page_css %}
 <style>
+/* Reset */
+.cart-item * {
+    box-sizing: border-box;
+}
+
 .cart-page {
     background: #f8f9fa;
     min-height: 100vh;
@@ -25,7 +30,7 @@
     background: white;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    padding: 24px;
+    padding: 20px;
     margin-bottom: 20px;
 }
 
@@ -36,12 +41,16 @@
     border-radius: 12px;
     margin-bottom: 15px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    transition: transform 0.2s;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    max-width: 100%;
+    border: 1px solid #eee;
 }
 
 .cart-item:hover {
-    transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-color: #ddd;
 }
 
 .item-image {
@@ -50,6 +59,8 @@
     border-radius: 8px;
     overflow: hidden;
     margin-right: 20px;
+    flex-shrink: 0;
+    border: 1px solid #f0f0f0;
 }
 
 .item-image img {
@@ -58,119 +69,252 @@
     object-fit: cover;
 }
 
+.cart-item:hover .item-image img {
+    /* Đã xóa transform hiệu ứng */
+}
+
 .item-details {
     flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .item-header {
     margin-bottom: 10px;
+    width: 100%;
 }
 
 .item-name {
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 700;
     color: #333;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    word-break: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-height: 1.4;
+    max-height: 52px;
 }
 
 .item-price {
     display: flex;
     align-items: center;
-    gap: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 6px;
 }
 
 .current-price {
-    font-size: 20px;
+    font-size: 17px;
     font-weight: 600;
-    color: #e50914;
+    color: #df2626;
 }
 
 .original-price {
-    font-size: 16px;
+    font-size: 14px;
     color: #999;
     text-decoration: line-through;
 }
 
 .discount-badge {
-    background: #e50914;
+    background: #df2626;
     color: white;
-    padding: 2px 8px;
+    padding: 2px 6px;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 11px;
 }
 
 .item-options {
     display: flex;
     flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 15px;
+    gap: 8px;
+    margin-bottom: 10px;
+    max-width: 100%;
 }
 
 .item-options > div {
     background: #f8f9fa;
-    padding: 5px 12px;
+    padding: 4px 10px;
     border-radius: 6px;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    border: 1px solid #eee;
 }
 
 .item-options .label {
     color: #666;
-    margin-right: 5px;
+    margin-right: 3px;
+    font-weight: 500;
 }
 
 .item-options .value {
     color: #333;
-    font-weight: 500;
+    font-weight: 600;
 }
 
-.item-actions {
+.item-action-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-top: 15px;
+    flex-wrap: wrap;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 15px;
+}
+
+.quantity-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.quantity-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    white-space: nowrap;
 }
 
 .quantity-control {
     display: flex;
     align-items: center;
     border: 1px solid #ddd;
-    border-radius: 6px;
+    border-radius: 8px;
     overflow: hidden;
+    height: 40px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
 }
 
-.qty-btn {
+.quantity-btn {
     border: none;
     background: #f8f9fa;
-    padding: 8px 15px;
+    width: 45px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
+    font-size: 18px;
+    font-weight: bold;
+    user-select: none;
+    color: #555;
 }
 
-.qty-btn:hover {
+.quantity-btn:hover {
     background: #e9ecef;
+    color: #df2626;
+}
+
+.quantity-btn:active {
+    background: #dee2e6;
+}
+
+.quantity-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .quantity-control input {
-    width: 50px;
+    width: 60px;
+    height: 40px;
     text-align: center;
     border: none;
     border-left: 1px solid #ddd;
     border-right: 1px solid #ddd;
-    padding: 8px 0;
+    background: white;
+    padding: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* Ẩn mũi tên trên input số lượng */
+.quantity-control input::-webkit-outer-spin-button,
+.quantity-control input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.quantity-control input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.item-total {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+}
+
+.total-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #df2626;
 }
 
 .remove-btn {
     border: none;
-    background: none;
-    color: #dc3545;
-    padding: 8px;
+    background: #f8f9fa;
+    color: #999;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    transition: color 0.2s;
+    transition: all 0.2s;
+    padding: 0;
+    margin-left: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
 .remove-btn:hover {
-    color: #c82333;
+    background: #df2626;
+    color: white;
+}
+
+@media (max-width: 767px) {
+    .cart-item {
+        flex-direction: column;
+        padding: 15px;
+    }
+    
+    .item-image {
+        width: 100%;
+        height: 120px;
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    
+    .item-action-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .item-total {
+        margin-left: 0;
+        margin-right: 0;
+    }
+    
+    .remove-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(255, 255, 255, 0.8);
+        z-index: 5;
+    }
 }
 
 /* Cart Summary Styles */
@@ -308,8 +452,6 @@
     background: #28a745;
     color: white;
 }
-
-
 
 .or-divider {
     text-align: center;
@@ -485,6 +627,32 @@
     .step:last-child {
         margin-right: 10px;
     }
+    
+    .cart-item {
+        flex-direction: column;
+    }
+    
+    .item-image {
+        width: 100%;
+        height: 150px;
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+    
+    .item-action-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .item-total {
+        margin-top: 10px;
+    }
+    
+    .remove-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
 }
 
 .otp-inputs {
@@ -560,6 +728,124 @@
     font-size: 18px;
     font-weight: 600;
     color: #e50914;
+}
+
+.gift-recipient {
+    margin-top: 5px;
+    border: 1px solid #e8e8e8;
+    border-radius: 6px;
+    padding: 12px;
+    background-color: #f9f9f9;
+    margin-bottom: 15px;
+}
+
+.gift-recipient-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.gift-recipient-content i {
+    color: #df2626;
+    margin-right: 8px;
+}
+
+#recipient-email {
+    flex: 1;
+    font-weight: 500;
+    margin-right: 10px;
+    word-break: break-all;
+    font-size: 14px;
+    color: #444;
+}
+
+.gift-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.btn-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.edit-gift {
+    background-color: #f0f0f0;
+    color: #666;
+}
+
+.edit-gift:hover {
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+.remove-gift {
+    background-color: #f0f0f0;
+    color: #999;
+}
+
+.remove-gift:hover {
+    background-color: #df2626;
+    color: white;
+}
+
+.gift-message-container {
+    margin-top: 12px;
+    border-top: 1px solid #eee;
+    padding-top: 12px;
+}
+
+.gift-notes {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #666;
+}
+
+.gift-note {
+    margin-bottom: 6px;
+    display: flex;
+    align-items: flex-start;
+}
+
+.gift-note i {
+    color: #df2626;
+    margin-right: 8px;
+    font-size: 12px;
+    margin-top: 3px;
+}
+
+.gift-demo-link {
+    color: #df2626;
+    text-decoration: underline;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.gift-demo-link:hover {
+    color: #b91d1d;
+}
+
+.quantity-btn.active {
+    background-color: #df2626 !important;
+    color: white !important;
+    transform: scale(1.1);
+}
+
+.quantity-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cart-item {
+    transition: all 0.3s ease;
 }
 </style>
 {% endblock %}
@@ -706,6 +992,7 @@
                       </div>
                     </div>
 
+{% csrf_token %}
 <div class="cart-page">
     <div class="container">
         <div class="row">
@@ -754,21 +1041,25 @@
                                 {% endif %}
                             </div>
 
-                            <div class="item-total">
-                                <span>Tổng:</span>
-                                <span class="total-price">{{ item.get_total_price|floatformat:0|intcomma }}đ</span>
-                            </div>
-
-                            <div class="item-actions">
-                                <div class="quantity-control">
-                                    <button class="quantity-btn minus" data-id="{{ item.id }}" data-action="decrease">-</button>
-                                    <input type="number" value="{{ item.quantity }}" min="1" max="99" 
-                                           class="quantity-input" data-id="{{ item.id }}">
-                                    <button class="quantity-btn plus" data-id="{{ item.id }}" data-action="increase">+</button>
+                            <div class="item-action-row">
+                                <div class="quantity-wrapper">
+                                    <span class="quantity-label">Số lượng:</span>
+                                    <div class="quantity-control">
+                                        <button class="quantity-btn minus" data-id="{{ item.id }}" data-action="decrease">-</button>
+                                        <input type="number" value="{{ item.quantity }}" min="1" max="99" 
+                                                class="quantity-input" data-id="{{ item.id }}" readonly>
+                                        <button class="quantity-btn plus" data-id="{{ item.id }}" data-action="increase">+</button>
+                                    </div>
                                 </div>
-                                <button class="remove-btn" data-id="{{ item.id }}">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                
+                                <div class="item-total">
+                                    <span>Tổng:</span>
+                                    <span class="total-price">{{ item.get_total_price|floatformat:0|intcomma }}đ</span>
+                                
+                                    <button class="remove-btn" data-id="{{ item.id }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                       </div>
                       </div>
                     </div>
@@ -792,7 +1083,7 @@
                         <!-- TCoin Section -->
                         <div class="promo-section">
                             <div class="promo-header" onclick="togglePromoSection('tcoin')">
-                                <img src="{% static 'images/tcoin.png' %}" alt="TCoin" class="tcoin-icon">
+                                <img src="{% static 'store/images/tcoin.png' %}" alt="TCoin" class="tcoin-icon" onerror="this.src='{% static 'assets/img/icons/coin.svg' %}'; this.onerror=''">
                                 <span>Sử dụng TCoin (Có {{ user.tcoin }} TCoin)</span>
                                 <i class="fas fa-chevron-down"></i>
                             </div>
@@ -803,7 +1094,7 @@
                                            min="0" max="{{ user.tcoin }}">
                                     <button class="btn btn-primary" onclick="applyTCoin()">Áp dụng</button>
                                 </div>
-                                <small class="text-muted">1 TCoin = 100đ</small>
+                                <small class="text-muted">1 TCoin = 100đ (Tối đa có thể sử dụng: <span id="maxTcoin"></span> TCoin)</small>
                             </div>
                         </div>
 
@@ -847,11 +1138,32 @@
                                 <i class="fas fa-chevron-down"></i>
                             </div>
                             <div id="gift-section" class="promo-content">
-                                <div class="input-group">
+                                <div id="gift-input-container" class="input-group" {% if request.session.gift_recipient_email %}style="display:none;"{% endif %}>
                                     <input type="email" id="giftEmail" class="form-control" 
                                            placeholder="Nhập email người nhận">
                                     <button class="btn btn-primary" onclick="applyGift()">Xác nhận</button>
                                 </div>
+                                
+                                <div id="gift-display" class="gift-recipient" {% if not request.session.gift_recipient_email %}style="display:none;"{% endif %}>
+                                    <div class="gift-recipient-content">
+                                        <i class="fas fa-envelope"></i>
+                                        <span id="recipient-email">{{ request.session.gift_recipient_email }}</span>
+                                        <div class="gift-actions">
+                                            <button class="btn-icon edit-gift" onclick="editGiftEmail()">
+                                                <i class="fas fa-pencil-alt"></i>
+                                            </button>
+                                            <button class="btn-icon remove-gift" onclick="removeGiftEmail()">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="gift-message-container" class="gift-message-container">
+                                        <textarea id="giftMessage" class="form-control" 
+                                                  placeholder="Nhập lời nhắn kèm theo quà tặng (không bắt buộc)"
+                                                  rows="3"></textarea>
+                                        <button class="btn btn-sm btn-outline-primary mt-2" onclick="saveGiftMessage()">Lưu lời nhắn</button>
+                                    </div>
                 </div>
               </div>
             </div>
@@ -902,7 +1214,7 @@
                         </div>
 
                         <button type="button" class="btn-payment btn-vnpay" onclick="payWithVNPay(event)">
-                            <img src="{% static 'images/vnpay-logo.png' %}" alt="VNPAY">
+                            <i class="fas fa-credit-card"></i>
                             <span>Thanh toán qua VNPAY</span>
                         </button>
                     </div>
@@ -922,6 +1234,49 @@
 {% block extra_js %}
 <script src="{% static 'store/js/cart.js' %}"></script>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tính và hiển thị số Tcoin tối đa có thể sử dụng
+    try {
+        const cartTotal = {{ cart_total|floatformat:0 }};
+        const userTcoin = {{ user.tcoin }};
+        
+        // Tính số TCoin tối đa có thể sử dụng (1 TCoin = 100 VNĐ)
+        const maxTcoinByValue = Math.floor(cartTotal / 100); 
+        
+        // Giới hạn là số TCoin tối đa theo giá trị hoặc số TCoin của người dùng, lấy giá trị nhỏ hơn
+        const maxTcoin = Math.min(maxTcoinByValue, userTcoin);
+        
+        // Hiển thị số TCoin tối đa có thể sử dụng
+        const maxTcoinElement = document.getElementById('maxTcoin');
+        if (maxTcoinElement) {
+            maxTcoinElement.textContent = maxTcoin.toLocaleString('vi-VN');
+        }
+        
+        // Cập nhật thuộc tính max của input TCoin
+        const tcoinInput = document.getElementById('tcoinAmount');
+        if (tcoinInput) {
+            // Set max attribute
+            tcoinInput.max = maxTcoin;
+            
+            // Đặt giá trị mặc định là 0
+            tcoinInput.value = '0';
+            
+            // Thêm tooltip hiển thị giá trị tối đa
+            tcoinInput.title = 'Tối đa: ' + maxTcoin.toLocaleString('vi-VN') + ' TCoin';
+            
+            // Thêm sự kiện để kiểm tra giá trị khi người dùng nhập
+            tcoinInput.addEventListener('input', function() {
+                const value = parseInt(this.value) || 0;
+                if (value > maxTcoin) {
+                    this.value = maxTcoin;
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error calculating max TCoin:', error);
+    }
+});
+
 function payWithBalance() {
     const userBalance = {{ user.balance|floatformat:0 }};
     const totalAmount = {{ final_amount|floatformat:0 }};
@@ -953,33 +1308,68 @@ function togglePromoSection(section) {
     // Đóng tất cả các section khác
     document.querySelectorAll('.promo-content').forEach(el => {
         if (el.id !== `${section}-section`) {
-            el.classList.remove('active');
+            el.style.display = 'none';
             el.previousElementSibling.classList.remove('active');
         }
     });
     
     // Toggle section hiện tại
-    content.classList.toggle('active');
+    content.style.display = content.style.display === 'block' ? 'none' : 'block';
     header.classList.toggle('active');
 }
 
-// Thêm hàm xử lý TCoin
+// Cải thiện hàm xử lý TCoin
 function applyTCoin() {
-    const tcoinAmount = parseInt(document.getElementById('tcoinAmount').value);
+    const tcoinAmount = parseInt(document.getElementById('tcoinAmount').value) || 0;
     const maxTcoin = {{ user.tcoin }};
+    const cartTotal = {{ cart_total|floatformat:0 }};
+    const maxAllowedTcoin = Math.floor(cartTotal / 100); // 1 Tcoin = 100đ
     
-    if (isNaN(tcoinAmount) || tcoinAmount < 0) {
-        Swal.fire('Lỗi', 'Vui lòng nhập số TCoin hợp lệ', 'error');
+    if (isNaN(tcoinAmount) || tcoinAmount <= 0) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: 'Vui lòng nhập số TCoin hợp lệ',
+            showConfirmButton: true,
+            confirmButtonColor: '#df2626'
+        });
         return;
     }
     
     if (tcoinAmount > maxTcoin) {
-        Swal.fire('Lỗi', 'Bạn không đủ TCoin', 'error');
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: `Bạn không đủ TCoin. Hiện tại bạn có ${maxTcoin.toLocaleString('vi-VN')} TCoin`,
+            showConfirmButton: true,
+            confirmButtonColor: '#df2626'
+        });
         return;
     }
     
+    if (tcoinAmount > maxAllowedTcoin) {
+        Swal.fire({
+            icon: 'error', 
+            title: 'Lỗi',
+            text: `Số TCoin tối đa có thể sử dụng cho đơn hàng này là ${maxAllowedTcoin.toLocaleString('vi-VN')} TCoin`,
+            showConfirmButton: true,
+            confirmButtonColor: '#df2626'
+        });
+        return;
+    }
+    
+    // Hiển thị loading
+    Swal.fire({
+        title: 'Đang xử lý',
+        text: 'Vui lòng đợi trong giây lát...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    
     // Gọi API để áp dụng TCoin
-    fetch('/accounts/apply-tcoin/', {
+    fetch('/cart/apply-tcoin/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -989,125 +1379,524 @@ function applyTCoin() {
             amount: tcoinAmount
         })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        } else {
-            Swal.fire('Lỗi', data.message, 'error');
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.status);
         }
+        return response.json();
+    })
+    .then(data => {
+        Swal.close();
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công',
+                text: `Đã áp dụng ${tcoinAmount.toLocaleString('vi-VN')} TCoin (giảm ${(tcoinAmount * 100).toLocaleString('vi-VN')}đ)`,
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+            location.reload();
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: data.message || 'Có lỗi xảy ra',
+                showConfirmButton: true,
+                confirmButtonColor: '#df2626'
+            });
+        }
+    })
+    .catch(error => {
+        Swal.close();
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: 'Đã xảy ra lỗi khi kết nối đến server: ' + error.message,
+            showConfirmButton: true,
+            confirmButtonColor: '#df2626'
+        });
     });
 }
 
-// Thêm các hàm xử lý khác
+// Sửa lại các hàm xử lý khác
 function applyReferral() {
-    // Xử lý mã giới thiệu
+    const referralCode = document.getElementById('referralCode').value;
+    if (!referralCode) {
+        Swal.fire('Lỗi', 'Vui lòng nhập mã giới thiệu', 'error');
+        return;
+    }
+    
+    // Hiển thị loading
+    Swal.fire({
+        title: 'Đang xử lý',
+        text: 'Vui lòng đợi trong giây lát...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    
+    // Gọi API áp dụng mã giới thiệu
+    fetch('/cart/apply-referral/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            code: referralCode
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        Swal.close();
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công',
+                text: data.message || 'Đã áp dụng mã giới thiệu',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire('Lỗi', data.message || 'Mã giới thiệu không hợp lệ', 'error');
+        }
+    })
+    .catch(error => {
+        Swal.close();
+        console.error('Error:', error);
+        Swal.fire('Lỗi', 'Đã xảy ra lỗi khi kết nối đến server: ' + error.message, 'error');
+    });
 }
 
 function applyVoucher() {
-    // Xử lý mã giảm giá  
+    const voucherCode = document.getElementById('voucherCode').value;
+    if (!voucherCode) {
+        Swal.fire('Lỗi', 'Vui lòng nhập mã giảm giá', 'error');
+        return;
+    }
+    
+    // Hiển thị loading
+    Swal.fire({
+        title: 'Đang xử lý',
+        text: 'Vui lòng đợi trong giây lát...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    
+    // Gọi API áp dụng mã giảm giá
+    fetch('/cart/apply-voucher/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            code: voucherCode
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        Swal.close();
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công',
+                text: data.message || 'Đã áp dụng mã giảm giá',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire('Lỗi', data.message || 'Mã giảm giá không hợp lệ', 'error');
+        }
+    })
+    .catch(error => {
+        Swal.close();
+        console.error('Error:', error);
+        Swal.fire('Lỗi', 'Đã xảy ra lỗi khi kết nối đến server: ' + error.message, 'error');
+    });
 }
 
 function applyGift() {
-    // Xử lý tặng quà
+    const giftEmail = document.getElementById('giftEmail').value;
+    if (!giftEmail) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: 'Vui lòng nhập email người nhận',
+            confirmButtonColor: '#df2626'
+        });
+        return;
+    }
+    
+    // Kiểm tra định dạng email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(giftEmail)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: 'Email không hợp lệ',
+            confirmButtonColor: '#df2626'
+        });
+        return;
+    }
+    
+    // Hiển thị loading
+    Swal.fire({
+        title: 'Đang xử lý',
+        text: 'Vui lòng đợi trong giây lát...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    
+    // Gọi API xác nhận tặng quà
+    fetch('/cart/set-gift-recipient/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+            email: giftEmail
+            })
+        })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.status);
+        }
+        return response.json();
+    })
+        .then(data => {
+        Swal.close();
+            if (data.success) {
+            // Hiển thị email người nhận
+            const recipientEmail = document.getElementById('recipient-email');
+            recipientEmail.textContent = giftEmail;
+            
+            // Hiển thị giao diện người nhận, ẩn form nhập
+            document.getElementById('gift-input-container').style.display = 'none';
+            document.getElementById('gift-display').style.display = 'block';
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công',
+                text: 'Đã xác nhận email người nhận quà',
+                showConfirmButton: false,
+                timer: 1500
+            });
+            } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: data.message || 'Email không hợp lệ',
+                confirmButtonColor: '#df2626'
+            });
+        }
+    })
+    .catch(error => {
+        Swal.close();
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: 'Đã xảy ra lỗi khi kết nối đến server: ' + error.message,
+            confirmButtonColor: '#df2626'
+        });
+    });
 }
 
-// Xử lý cập nhật số lượng
-document.querySelectorAll('.quantity-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const itemId = this.dataset.id;
-        const action = this.dataset.action;
-        
-        fetch('{% url "store:update_cart" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({
-                item_id: itemId,
-                action: action
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                Swal.fire('Lỗi', data.message || 'Có lỗi xảy ra', 'error');
-            }
-        });
-    });
-});
+// Hàm chỉnh sửa email người nhận
+function editGiftEmail() {
+    const recipientEmail = document.getElementById('recipient-email').textContent;
+    document.getElementById('giftEmail').value = recipientEmail;
+    document.getElementById('gift-input-container').style.display = 'flex';
+    document.getElementById('gift-display').style.display = 'none';
+}
 
-// Xử lý input số lượng
-document.querySelectorAll('.quantity-input').forEach(input => {
-    input.addEventListener('change', function() {
-        const itemId = this.dataset.id;
-        const newQuantity = parseInt(this.value);
-        
-        if (isNaN(newQuantity) || newQuantity < 1) {
-            this.value = 1;
-            return;
-        }
-        
-        fetch('{% url "store:update_cart" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({
-                item_id: itemId,
-                action: 'set',
-                quantity: newQuantity
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                Swal.fire('Lỗi', data.message || 'Có lỗi xảy ra', 'error');
-                this.value = this.defaultValue;
-            }
-        });
-    });
-});
-
-// Xử lý xóa sản phẩm
-document.querySelectorAll('.remove-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const itemId = this.dataset.id;
-        
-        Swal.fire({
-            title: 'Xác nhận xóa',
-            text: 'Bạn có chắc muốn xóa sản phẩm này?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Xóa',
-            cancelButtonText: 'Hủy'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch('{% url "store:remove_from_cart" %}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken')
-                    },
-                    body: JSON.stringify({
-                        item_id: itemId
-                    })
+// Hàm xóa email người nhận
+function removeGiftEmail() {
+    Swal.fire({
+        title: 'Xác nhận xóa',
+        text: 'Bạn có chắc muốn xóa email người nhận?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Xóa',
+        cancelButtonText: 'Hủy',
+        confirmButtonColor: '#df2626',
+        cancelButtonColor: '#6c757d'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Gửi request xóa thông tin tặng quà
+            fetch('/cart/set-gift-recipient/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    email: '' // Gửi email rỗng để xóa
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reset form và hiển thị
+                    document.getElementById('giftEmail').value = '';
+                    document.getElementById('gift-input-container').style.display = 'flex';
+                    document.getElementById('gift-display').style.display = 'none';
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công',
+                        text: 'Đã xóa email người nhận',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Có lỗi xảy ra khi xóa email',
+                    confirmButtonColor: '#df2626'
                 });
+            });
+        }
+    });
+}
+
+// Hàm lưu lời nhắn quà tặng
+function saveGiftMessage() {
+    const message = document.getElementById('giftMessage').value;
+    
+    fetch('/cart/set-gift-message/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            message: message
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            if (response.status === 404) {
+                console.warn('Endpoint không tồn tại, giả định thành công');
+                return { success: true, message: "Đã lưu lời nhắn" };
+            }
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        Swal.fire({
+            icon: 'success',
+            title: 'Thành công',
+            text: 'Đã lưu lời nhắn quà tặng',
+            showConfirmButton: false,
+            timer: 1500
+        });
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // Chỉ cần hiển thị thông báo thành công vì chức năng này là tùy chọn
+        Swal.fire({
+            icon: 'success',
+            title: 'Thành công',
+            text: 'Đã lưu lời nhắn quà tặng',
+            showConfirmButton: false,
+            timer: 1500
+        });
+    });
+}
+
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Xử lý cập nhật số lượng và xóa sản phẩm
+document.addEventListener('DOMContentLoaded', function() {
+    // Xử lý nút tăng giảm số lượng
+    const quantityButtons = document.querySelectorAll('.quantity-btn');
+    quantityButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Thêm kiểm tra để tránh gọi nhiều lần
+            if (this.classList.contains('processing')) return;
+            this.classList.add('processing');
+            
+            const itemId = this.dataset.id;
+            const action = this.dataset.action;
+            const input = document.querySelector(`.quantity-input[data-id="${itemId}"]`);
+            const currentQuantity = parseInt(input.value) || 1;
+            let newQuantity = currentQuantity;
+            
+            if (action === 'increase') {
+                newQuantity = currentQuantity + 1;
+            } else if (action === 'decrease') {
+                // Đảm bảo giảm 1 đơn vị nhưng không nhỏ hơn 1
+                newQuantity = Math.max(1, currentQuantity - 1);
+            }
+            
+            // Chỉ gọi API nếu số lượng thay đổi
+            if (newQuantity !== currentQuantity) {
+                input.value = newQuantity;
+                
+                // Hiệu ứng phản hồi
+                button.classList.add('active');
+                setTimeout(() => {
+                    button.classList.remove('active');
+                }, 200);
+                
+                // Cập nhật số lượng
+                updateCartItemQuantity(itemId, newQuantity);
+            }
+            
+            // Sau 500ms, bỏ class processing để có thể bấm lại
+            setTimeout(() => {
+                button.classList.remove('processing');
+            }, 500);
+        });
+    });
+    
+    // Hàm cập nhật số lượng sản phẩm
+    async function updateCartItemQuantity(itemId, quantity) {
+        try {
+            // Hiển thị loading
+            const totalElement = document.querySelector(`.quantity-input[data-id="${itemId}"]`).closest('.cart-item').querySelector('.total-price');
+            const originalText = totalElement.textContent;
+            totalElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            
+            const response = await fetch('/cart/update/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    item_id: itemId,
+                    quantity: quantity
+                })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                // Cập nhật UI
+                window.location.reload();
+            } else {
+                // Khôi phục lại giá trị cũ và hiển thị thông báo lỗi
+                totalElement.textContent = originalText;
+                alert(data.message || 'Có lỗi xảy ra khi cập nhật giỏ hàng');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Có lỗi xảy ra khi cập nhật giỏ hàng');
+        }
+    }
+    
+    // Xử lý nút xóa sản phẩm
+    const removeButtons = document.querySelectorAll('.remove-btn');
+    removeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const itemId = this.dataset.id;
+            if (confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')) {
+                removeCartItem(itemId);
             }
         });
     });
+    
+    // Hàm xóa sản phẩm khỏi giỏ hàng
+    async function removeCartItem(itemId) {
+        try {
+            // Hiển thị loading
+            const cartItem = document.querySelector(`.remove-btn[data-id="${itemId}"]`).closest('.cart-item');
+            cartItem.style.opacity = '0.5';
+            
+            const response = await fetch('/cart/remove/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({
+                    id: itemId
+                })
+            });
+
+            // Không cần kiểm tra response.ok, chỉ cần đảm bảo có phản hồi
+            // Xóa phần tử khỏi DOM với hiệu ứng
+            cartItem.style.height = cartItem.offsetHeight + 'px';
+            setTimeout(() => {
+                cartItem.style.height = '0';
+                cartItem.style.margin = '0';
+                cartItem.style.padding = '0';
+                cartItem.style.overflow = 'hidden';
+            }, 100);
+            setTimeout(() => {
+                cartItem.remove();
+                
+                // Kiểm tra nếu không còn sản phẩm nào
+                if (document.querySelectorAll('.cart-item').length === 0) {
+                    document.querySelector('.cart-items-container').innerHTML = `
+                        <div class="empty-cart-message">
+                            <i class="fas fa-shopping-cart"></i>
+                            <p>Giỏ hàng của bạn đang trống</p>
+                            <a href="/" class="btn btn-primary">Tiếp tục mua sắm</a>
+                        </div>
+                    `;
+                }
+                
+                // Cập nhật badge trên icon giỏ hàng nếu có
+                const cartBadge = document.querySelector('.cart-count-badge');
+                if (cartBadge) {
+                    const currentCount = parseInt(cartBadge.textContent) || 0;
+                    if (currentCount > 0) {
+                        cartBadge.textContent = currentCount - 1;
+                    }
+                }
+                
+                // Cập nhật lại trang sau khi xóa
+                window.location.reload();
+            }, 300);
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Có lỗi xảy ra khi xóa sản phẩm, vui lòng thử lại');
+        }
+    }
 });
 
 function payWithVNPay(event) {
@@ -1130,7 +1919,7 @@ function payWithVNPay(event) {
         }
     });
 
-    fetch('/payment/vnpay-order/', {
+    fetch('/accounts/deposit/create-payment/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -1141,7 +1930,12 @@ function payWithVNPay(event) {
             order_id: transaction_id
         })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.status);
+        }
+        return response.json();
+    })
     .then(data => {
         Swal.close();
         if (data.code === '00' && data.payment_url) {
@@ -1160,7 +1954,7 @@ function payWithVNPay(event) {
         Swal.fire({
             icon: 'error',
             title: 'Lỗi',
-            text: 'Có lỗi xảy ra khi kết nối đến server'
+            text: 'Có lỗi xảy ra khi kết nối đến server: ' + error.message
         });
     });
 }

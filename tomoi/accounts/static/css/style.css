@@ -128,12 +128,9 @@ body .navbar-brand img {
 }
 
 body .nav-link {
-  width: 45px;
-  height: 45px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.2);
   color: white !important;
   text-decoration: none;
   border-radius: 50px;
@@ -954,16 +951,6 @@ body .nav-link {
   position: relative;
 }
 
-.nav-item .nav-link {
-  width: 45px;
-  height: 45px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 50%;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
 
 .nav-link:focus,
 .nav-link:hover {

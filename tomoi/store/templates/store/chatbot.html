@@ -411,21 +411,24 @@ async function processSendMessage(message) {
     // Tạo request body phù hợp với ngữ cảnh
     const requestContents = [];
     
-    // Thêm prompt hệ thống nếu có
+    // KHÔNG sử dụng system role với Gemini vì không hỗ trợ
+    // Thay vào đó, gộp contextualPrompt vào tin nhắn người dùng đầu tiên
     if (contextualPrompt) {
-        requestContents.push({
-            role: "system",
-            parts: [{ text: contextualPrompt }]
+        // Thêm tin nhắn người dùng với contextualPrompt
+        const firstMessage = {
+            role: "user",
+            parts: [{ text: contextualPrompt + "\n\nNgười dùng: " + message }]
+        };
+        requestContents.push(firstMessage);
+    } else {
+        // Thêm lịch sử hội thoại
+        messageHistory.forEach(msg => {
+            requestContents.push({
+                role: msg.role,
+                parts: [{ text: msg.content }]
+            });
         });
     }
-    
-    // Thêm lịch sử hội thoại
-    messageHistory.forEach(msg => {
-        requestContents.push({
-            role: msg.role,
-            parts: [{ text: msg.content }]
-        });
-    });
     
     // Gọi API trực tiếp
     fetch(apiEndpoint, {
@@ -1674,8 +1677,7 @@ document.addEventListener('DOMContentLoaded', initChat);
 
 .rating-stars {
     display: flex;
-    justify-content: center;
-    margin: 10px 0;
+    margin-left: -5px;
 }
 
 .star {

@@ -1,0 +1,105 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Quản lý thương hiệu{% endblock %}
+
+{% block content %}
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Quản lý thương hiệu</h1>
+    <a href="{% url 'dashboard:add_brand' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+        <i class="fas fa-plus fa-sm text-white-50"></i> Thêm thương hiệu mới
+    </a>
+</div>
+
+<!-- Content Row -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Danh sách thương hiệu</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                        <div class="dropdown-header">Thao tác:</div>
+                        <a class="dropdown-item" href="{% url 'dashboard:add_brand' %}">Thêm thương hiệu mới</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url 'dashboard:product_list' %}">Quay lại sản phẩm</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if brands %}
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Logo</th>
+                                <th>Tên thương hiệu</th>
+                                <th>Slug</th>
+                                <th>Trạng thái</th>
+                                <th>Thời gian tạo</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for brand in brands %}
+                            <tr>
+                                <td>{{ brand.id }}</td>
+                                <td>
+                                    {% if brand.logo %}
+                                    <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" style="max-width: 50px; max-height: 50px;">
+                                    {% else %}
+                                    <span class="text-muted">Không có logo</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ brand.name }}</td>
+                                <td>{{ brand.slug }}</td>
+                                <td>
+                                    {% if brand.is_active %}
+                                    <span class="badge bg-success">Hoạt động</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">Không hoạt động</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ brand.created_at|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    <a href="{% url 'dashboard:edit_brand' brand.id %}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-edit"></i> Sửa
+                                    </a>
+                                    <a href="{% url 'dashboard:delete_brand' brand.id %}" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash-alt"></i> Xóa
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <p class="mb-0">Chưa có thương hiệu nào. <a href="{% url 'dashboard:add_brand' %}">Thêm thương hiệu mới</a></p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        $('#dataTable').DataTable({
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json"
+            }
+        });
+    });
+</script>
+{% endblock %} 
+ 
+ 

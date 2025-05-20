@@ -1,0 +1,134 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Chỉnh sửa biến thể</h1>
+    </div>
+
+    <!-- Back to variants list -->
+    <div class="mb-4">
+        <a href="{% url 'dashboard:manage_product_variants' product.id %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left"></i> Quay lại danh sách biến thể
+        </a>
+    </div>
+
+    <!-- Edit Variant Form -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Chỉnh sửa biến thể: {{ variant.name }}</h6>
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% url 'dashboard:edit_product_variant' variant.id %}">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.name.id_for_label }}">Tên biến thể:</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <div class="invalid-feedback d-block">{{ form.name.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.order.id_for_label }}">Thứ tự hiển thị:</label>
+                        {{ form.order }}
+                        {% if form.order.errors %}
+                        <div class="invalid-feedback d-block">{{ form.order.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.base_price.id_for_label }}">Giá cơ bản:</label>
+                        {{ form.base_price }}
+                        {% if form.base_price.errors %}
+                        <div class="invalid-feedback d-block">{{ form.base_price.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.original_price.id_for_label }}">Giá gốc (nếu có):</label>
+                        {{ form.original_price }}
+                        {% if form.original_price.errors %}
+                        <div class="invalid-feedback d-block">{{ form.original_price.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.price.id_for_label }}">Giá biến thể:</label>
+                        {{ form.price }}
+                        {% if form.price.errors %}
+                        <div class="invalid-feedback d-block">{{ form.price.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.old_price.id_for_label }}">Giá cũ:</label>
+                        {{ form.old_price }}
+                        <small class="form-text text-muted">Giá trước khi khuyến mãi (để trống nếu không có)</small>
+                        {% if form.old_price.errors %}
+                        <div class="invalid-feedback d-block">{{ form.old_price.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.cost_price.id_for_label }}">Giá vốn:</label>
+                        {{ form.cost_price }}
+                        <small class="form-text text-muted">Giá vốn của biến thể (chỉ hiển thị trong dashboard)</small>
+                        {% if form.cost_price.errors %}
+                        <div class="invalid-feedback d-block">{{ form.cost_price.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.stock.id_for_label }}">Tồn kho:</label>
+                        {{ form.stock }}
+                        {% if form.stock.errors %}
+                        <div class="invalid-feedback d-block">{{ form.stock.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.shared_stock_id.id_for_label }}">ID nhóm dùng chung kho:</label>
+                        {{ form.shared_stock_id }}
+                        <small class="form-text text-muted">Để trống nếu không dùng chung kho với biến thể khác</small>
+                        {% if form.shared_stock_id.errors %}
+                        <div class="invalid-feedback d-block">{{ form.shared_stock_id.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check mt-4">
+                            {{ form.is_active }}
+                            <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                Kích hoạt biến thể
+                            </label>
+                            {% if form.is_active.errors %}
+                            <div class="invalid-feedback d-block">{{ form.is_active.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Lưu thay đổi
+                    </button>
+                    <a href="{% url 'dashboard:manage_product_variants' product.id %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Hủy
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 
+ 
+ 

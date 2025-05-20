@@ -1,4 +1,4 @@
-DEBUG = True
+DEBUG = False
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -85,3 +85,6 @@ TEMPLATES = [
         },
     },
 ] 
+
+# Thêm cấu hình LOGIN_URL
+LOGIN_URL = 'accounts:login' 

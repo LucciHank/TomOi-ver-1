@@ -1,0 +1,83 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Xóa tùy chọn thời hạn</h1>
+    </div>
+
+    <!-- Breadcrumb navigation -->
+    <div class="mb-4">
+        <a href="{% url 'dashboard:product_detail' product.id %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-box"></i> {{ product.name }}
+        </a>
+        <i class="fas fa-angle-right mx-2"></i>
+        <a href="{% url 'dashboard:manage_product_variants' product.id %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-tags"></i> Biến thể
+        </a>
+        <i class="fas fa-angle-right mx-2"></i>
+        <a href="{% url 'dashboard:manage_variant_options' variant.id %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-list"></i> Tùy chọn
+        </a>
+        <i class="fas fa-angle-right mx-2"></i>
+        <span class="btn btn-outline-danger btn-sm active">
+            <i class="fas fa-trash"></i> Xóa
+        </span>
+    </div>
+
+    <!-- Delete Option Confirmation -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Xác nhận xóa tùy chọn</h6>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i> Bạn có chắc chắn muốn xóa tùy chọn thời hạn <strong>{{ option.duration }} tháng</strong>?
+                <p class="mt-2">Hành động này không thể hoàn tác. Các đơn hàng hiện tại sử dụng tùy chọn này sẽ không bị ảnh hưởng.</p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Thông tin tùy chọn:</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Biến thể
+                            <span>{{ variant.name }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Thời hạn
+                            <span>{{ option.duration }} tháng</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Giá
+                            <span>{{ option.price|floatformat:0 }}đ</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Tồn kho
+                            <span>{{ option.stock }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <form method="post" action="{% url 'dashboard:delete_variant_option' option.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Xác nhận xóa
+                    </button>
+                    <a href="{% url 'dashboard:manage_variant_options' variant.id %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Hủy
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
+ 
+ 

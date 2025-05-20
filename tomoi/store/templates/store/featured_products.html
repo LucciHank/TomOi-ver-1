@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load store_filters %}
+
+{% block title %}{{ title|default:"Sản phẩm nổi bật" }} - Tomoi{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'store:home' %}">Trang chủ</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ breadcrumb_title|default:"Sản phẩm nổi bật" }}</li>
+                </ol>
+            </nav>
+            
+            <h1 class="mb-4">{{ breadcrumb_title|default:"Sản phẩm nổi bật" }}</h1>
+            
+            <!-- Filter và Sort Options -->
+            <div class="filter-sort-bar d-flex justify-content-between align-items-center mb-4">
+                <div class="total-products">
+                    <span>Hiển thị {{ products.count }} sản phẩm</span>
+                </div>
+                <div class="sort-options">
+                    <select class="form-select">
+                        <option>Mới nhất</option>
+                        <option>Giá: Thấp đến cao</option>
+                        <option>Giá: Cao đến thấp</option>
+                        <option>Tên: A-Z</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        {% for product in products %}
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="product-card" data-product-id="{{ product.id }}">
+                <div class="product-image-wrapper">
+                    <a href="{% url 'store:product_detail' product.id %}">
+                        {% if product.get_primary_image %}
+                            <img src="{{ product.get_primary_image.url }}" alt="{{ product.name }}" class="product-image">
+                        {% else %}
+                            <div class="product-placeholder">
+                                <i class="fas fa-image"></i>
+                            </div>
+                        {% endif %}
+                    </a>
+                </div>
+                {% if product.label_type %}
+                <div class="product-label" style="--label-color: #df2626;">
+                    {{ product.get_label_type_display }}
+                </div>
+                {% endif %}
+                <div class="product-info">
+                    <h3 class="product-title">
+                        <a href="{% url 'store:product_detail' product.id %}" class="product-link">{{ product.name }}</a>
+                    </h3>
+                    <div class="price-wrapper">
+                        <div class="price-row">
+                            {% if product.old_price %}
+                                <span class="old-price">{{ product.old_price|format_price }}</span>
+                                <span class="discount-badge">
+                                    -{{ product.get_discount_percentage }}%
+                                </span>
+                            {% endif %}
+                        </div>
+                        <div class="price-row">
+                            <span class="current-price">{{ product.price|format_price }}</span>
+                            <button class="wishlist-btn {% if product in user.wishlist_products.all %}active{% endif %}"
+                                    data-product-id="{{ product.id }}"
+                                    onclick="toggleWishlist(this, event)">
+                                <i class="wishlist-icon far fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="empty-state text-center py-5">
+                <i class="fas fa-box-open fa-3x mb-3 text-muted"></i>
+                <h3>Không có sản phẩm nổi bật</h3>
+                <p class="text-muted">Hãy quay lại sau, chúng tôi sẽ cập nhật thêm sản phẩm.</p>
+                <a href="{% url 'store:home' %}" class="btn btn-primary mt-3">Quay lại trang chủ</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if products.has_other_pages %}
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mt-4">
+                    {% if products.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.previous_page_number }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link" aria-hidden="true">&laquo;</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% for i in products.paginator.page_range %}
+                        {% if products.number == i %}
+                        <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                        {% else %}
+                        <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if products.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.next_page_number }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link" aria-hidden="true">&raquo;</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 
+ 
+ 

@@ -80,68 +80,68 @@ class Product(models.Model):
         ('6_MONTHS', '6 tháng'),
         ('12_MONTHS', '1 năm'),
     ]
-
-    BRAND_CHOICES = [
-        ('netflix', 'Netflix'),
-        ('spotify', 'Spotify'),
-        ('youtube', 'YouTube'),
-        ('disney', 'Disney+'),
-        ('apple', 'Apple TV+'),
-        ('hbo', 'HBO GO'),
+    
+    LABEL_CHOICES = [
+        ('new_account', 'Tài khoản cấp'),
+        ('upgrade', 'Nâng cấp chính chủ'),
     ]
 
     name = models.CharField(max_length=255)
+    sku = models.CharField(max_length=50, unique=True, blank=True, null=True)
     brand = models.ForeignKey('Brand', on_delete=models.SET_NULL, null=True, blank=True)
     duration = models.CharField(max_length=20, choices=DURATION_CHOICES)
-    description = CKEditor5Field(
-        'Mô tả', 
-        config_name='default',
-        blank=True
-    )
+    description = CKEditor5Field('Mô tả', config_name='default', blank=True)
+    short_description = models.TextField(blank=True, null=True, verbose_name="Mô tả ngắn")
     price = models.DecimalField(max_digits=10, decimal_places=2)
     old_price = models.DecimalField(max_digits=10, decimal_places=0, null=True, blank=True)
-    label = models.ForeignKey(ProductLabel, on_delete=models.SET_NULL, null=True, blank=True)
-    category = models.ForeignKey(Category, related_name="products", on_delete=models.CASCADE, null=True, blank=True)
+    cost_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="Giá gốc")
+    label_type = models.CharField(max_length=20, choices=LABEL_CHOICES, null=True, blank=True, verbose_name="Loại nhãn")
+    category = models.ForeignKey('Category', related_name="products", on_delete=models.CASCADE, null=True, blank=True)
     stock = models.PositiveIntegerField(default=0)
-    features = models.JSONField(default=list)  # Lưu danh sách tính năng
+    sold_count = models.PositiveIntegerField(default=0, verbose_name="Số lượng đã bán")
+    features = models.JSONField(default=list)
+    specifications = models.JSONField(default=dict, blank=True)
     is_featured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    requires_email = models.BooleanField(
-        default=False,
-        verbose_name="Yêu cầu Email",
-        help_text="Khách hàng cần cung cấp email để nâng cấp"
-    )
-    requires_account_password = models.BooleanField(
-        default=False,
-        verbose_name="Yêu cầu Tài khoản & Mật khẩu",
-        help_text="Khách hàng cần cung cấp tài khoản và mật khẩu để nâng cấp"
-    )
+    requires_email = models.BooleanField(default=False, verbose_name="Yêu cầu Email")
+    requires_account_password = models.BooleanField(default=False, verbose_name="Yêu cầu Tài khoản & Mật khẩu")
     is_cross_sale = models.BooleanField(default=False)
     cross_sale_products = models.ManyToManyField('self', blank=True)
     cross_sale_discount = models.IntegerField(default=0, help_text="Phần trăm giảm giá khi mua kèm")
     is_active = models.BooleanField(default=True)
-    product_code = models.CharField(max_length=50, blank=True, null=True)
+    suppliers = models.ManyToManyField('dashboard.Supplier', blank=True, related_name='products', verbose_name="Nhà cung cấp")
+    
+    # SEO fields
+    meta_title = models.CharField(max_length=100, blank=True, null=True, verbose_name="Tiêu đề SEO")
+    meta_description = models.TextField(blank=True, null=True, verbose_name="Mô tả SEO")
+    meta_keywords = models.CharField(max_length=255, blank=True, null=True, verbose_name="Từ khóa SEO")
+    slug = models.SlugField(max_length=255, unique=True, blank=True, null=True)
 
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse('store:product_detail', args=[self.id])
+
     def get_primary_image(self):
-        """Lấy ảnh chính của sản phẩm"""
-        primary_image = self.images.filter(is_primary=True).first()
-        if primary_image:
-            return primary_image.image
-        # Nếu không có ảnh chính, lấy ảnh đầu tiên
+        primary = self.images.filter(is_primary=True).first()
+        if primary:
+            return primary.image
+        # Trả về ảnh đầu tiên hoặc None
         first_image = self.images.first()
         if first_image:
             return first_image.image
         return None
 
+    def get_display_price(self):
+        """Trả về giá hiển thị của sản phẩm"""
+        return self.price
+    
     def get_discount_percentage(self):
-        """Tính phần trăm giảm giá"""
-        if self.old_price and self.price:
-            discount = ((self.old_price - self.price) / self.old_price) * 100
-            return round(discount)
+        """Tính phần trăm giảm giá của sản phẩm"""
+        if self.old_price and self.old_price > self.price:
+            return int(((self.old_price - self.price) / self.old_price) * 100)
         return 0
 
     def format_price(self):
@@ -154,7 +154,7 @@ class Product(models.Model):
 
     def get_variants_with_options(self):
         """Lấy tất cả variants và options của sản phẩm"""
-        variants = self.variants.filter(is_active=True).order_by('order')
+        variants = self.variants.filter(is_active=True)
         result = []
         for variant in variants:
             options = variant.options.filter(is_active=True).order_by('duration')
@@ -166,7 +166,7 @@ class Product(models.Model):
         return result
 
     def get_all_durations(self):
-        """Lấy tất cả các thời hạn không trùng lặp"""
+        """Lấy tất cả các thời hạn có sẵn từ các tùy chọn biến thể"""
         durations = set()
         for variant in self.variants.all():
             for option in variant.options.all():
@@ -174,9 +174,14 @@ class Product(models.Model):
         return sorted(list(durations))
 
     def save(self, *args, **kwargs):
-        if not self.product_code:
-            # Tạo mã sản phẩm tự động nếu chưa có
-            self.product_code = f"PRD-{uuid.uuid4().hex[:8].upper()}"
+        # Tạo slug từ tên nếu chưa có
+        if not self.slug:
+            self.slug = slugify(self.name)
+        
+        # Sử dụng sku thay cho product_code
+        if not self.sku:
+            self.sku = f"SKU-{uuid.uuid4().hex[:8].upper()}"
+            
         super().save(*args, **kwargs)
 
     def get_main_image_url(self):
@@ -201,6 +206,21 @@ class Product(models.Model):
             return int(((self.old_price - self.price) / self.old_price) * 100)
         return None
 
+    def get_rating_count(self):
+        """Đếm số lượng đánh giá cho từng mức điểm"""
+        result = {}
+        for i in range(1, 6):
+            result[str(i)] = self.reviews.filter(rating=i).count()
+        return result
+
+    @property
+    def average_rating(self):
+        """Tính điểm đánh giá trung bình"""
+        reviews = self.reviews.all()
+        if not reviews:
+            return 0
+        return sum(review.rating for review in reviews) / reviews.count()
+
 
 # Mô hình hình ảnh sản phẩm (ProductImage)
 class ProductImage(models.Model):
@@ -217,21 +237,47 @@ class ProductImage(models.Model):
         return f"{self.product.name} Image"
 
 
-# Mô hình biến thể sản phẩm (Variant)
+# Mô hình biến thể sản phẩm
 class ProductVariant(models.Model):
-    product = models.ForeignKey(Product, related_name='variants', on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
-    base_price = models.DecimalField(max_digits=10, decimal_places=2)
-    original_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    price_3_months = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    price_6_months = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    price_12_months = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='variants')
+    name = models.CharField(max_length=255)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    old_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    cost_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     stock = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
-    order = models.IntegerField(default=0)
+    sku = models.CharField(max_length=50, blank=True, null=True)
+    shared_stock_id = models.CharField(max_length=50, blank=True, null=True, help_text="ID để nhóm các biến thể sử dụng chung kho")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.product.name} - {self.name}"
+    
+    def save(self, *args, **kwargs):
+        if not self.sku:
+            self.sku = f"{self.product.sku}-{uuid.uuid4().hex[:4].upper()}"
+        super().save(*args, **kwargs)
+    
+    def get_discount_percentage(self):
+        """Tính phần trăm giảm giá của biến thể"""
+        if self.old_price and self.old_price > self.price:
+            discount = ((self.old_price - self.price) / self.old_price) * 100
+            return round(discount)
+        return 0
+
+
+# Mô hình giá trị thuộc tính cho biến thể
+class VariantAttributeValue(models.Model):
+    variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, related_name='attribute_values')
+    attribute = models.ForeignKey('dashboard.ProductAttribute', on_delete=models.CASCADE)
+    value = models.ForeignKey('dashboard.AttributeValue', on_delete=models.CASCADE)
 
     class Meta:
-        ordering = ['order']
+        unique_together = ('variant', 'attribute')
+    
+    def __str__(self):
+        return f"{self.variant.name} - {self.attribute.name}: {self.value.value}"
 
 
 # Mô hình tùy chọn sản phẩm (Option)
@@ -239,40 +285,28 @@ class VariantOption(models.Model):
     variant = models.ForeignKey(ProductVariant, related_name='options', on_delete=models.CASCADE)
     duration = models.IntegerField()  # Số tháng
     price = models.DecimalField(max_digits=10, decimal_places=0)
+    old_price = models.DecimalField(max_digits=10, decimal_places=0, null=True, blank=True)
+    cost_price = models.DecimalField(max_digits=10, decimal_places=0, null=True, blank=True)
     stock = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
+    shared_stock_id = models.CharField(max_length=50, blank=True, null=True, help_text="ID để nhóm các tùy chọn sử dụng chung kho")
 
     class Meta:
         ordering = ['duration']
-
-
-# Form quản lý hình ảnh sản phẩm (ProductImageForm)
-class ProductImageForm(forms.ModelForm):
-    class Meta:
-        model = ProductImage
-        fields = ["image", "is_primary"]
-
-    def clean(self):
-        cleaned_data = super().clean()
-        is_primary = cleaned_data.get("is_primary")
-        product = self.instance.product
-        if is_primary and product.images.filter(is_primary=True).exclude(pk=self.instance.pk).exists():
-            raise forms.ValidationError("Only one primary image is allowed per product.")
-        return cleaned_data
+    
+    def __str__(self):
+        return f"{self.variant.name} - {self.duration} tháng"
+    
+    def get_discount_percentage(self):
+        """Tính phần trăm giảm giá của tùy chọn"""
+        if self.old_price and self.old_price > self.price:
+            discount = ((self.old_price - self.price) / self.old_price) * 100
+            return round(discount)
+        return 0
 
 
 # # Mô hình người dùng (CustomUser)
 # class CustomUser(AbstractUser):
-#     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
-#     phone_number = models.CharField(max_length=15, null=True, blank=True)
-#     birth_date = models.DateField(null=True, blank=True)
-#     customer_type = models.CharField(max_length=50, choices=[('retail', 'Khách lẻ'), ('wholesale', 'Khách sỉ'), ('supplier', 'Nhà cung cấp')], default='retail')
-#     balance = models.DecimalField(max_digits=10, decimal_places=0, default=0)
-#     join_date = models.DateField(auto_now_add=True)
-#     groups = models.ManyToManyField(Group, related_name="accounts_customuser_set", blank=True)
-#     user_permissions = models.ManyToManyField(Permission, related_name="accounts_customuser_permissions_set", blank=True)
-#     groups = models.ManyToManyField(Group, related_name="accounts_customuser_set", blank=True,help_text="The groups this user belongs to.",related_query_name="user")
-#     user_permissions = models.ManyToManyField(Permission, related_name="accounts_customuser_permissions_set", blank=True,help_text="Specific permissions for this user.",related_query_name="user")
 
 
 # Mô hình đơn hàng (Order)
@@ -299,6 +333,7 @@ class Order(models.Model):
         ('momo', 'MoMo'),
         ('zalopay', 'ZaloPay'),
         ('balance', 'Số dư tài khoản'),
+        ('acb_qr', 'QR ACB'),
     )
     
     user = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE, related_name='store_orders')
@@ -569,3 +604,21 @@ class DiscountUsage(models.Model):
         
     def __str__(self):
         return f"{self.user.username} - {self.discount.code} - {self.amount}"
+
+class Review(models.Model):
+    """Đánh giá sản phẩm"""
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])
+    title = models.CharField(max_length=255, null=True, blank=True)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Đánh giá sản phẩm'
+        verbose_name_plural = 'Đánh giá sản phẩm'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Đánh giá {self.rating}/5 cho {self.product.name} bởi {self.user.username}"

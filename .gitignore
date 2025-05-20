@@ -4,9 +4,10 @@ client_secret.json
 .env.local
 .env.development
 .env.production
+chatbot_settings.json
 
 # Môi trường ảo Python
-.venv
+.venv/
 venv/
 env/
 ENV/
@@ -32,6 +33,7 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
 # Thư mục logs và cơ sở dữ liệu
 *.log
@@ -46,3 +48,49 @@ logs/
 *.swo
 *~
 .DS_Store
+
+# Media và static file compilations 
+media/
+static/collected/
+staticfiles/
+
+# Local development settings
+local_settings.py
+
+# Coverage reports
+.coverage
+htmlcov/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log.?
+local_settings.py
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# Node.js dependencies
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Python artifacts
+.pytest_cache/
+.pytest_cache
+pytest.ini
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Error files
+error.txt
+debug.log

@@ -296,14 +296,21 @@ CART_SESSION_ID = 'cart'
 # Thêm cấu hình cho CKEditor 5
 CKEDITOR_5_CONFIGS = {
     'default': {
-        'toolbar': ['heading', '|', 'bold', 'italic', 'link',
-                   'bulletedList', 'numberedList', 'blockQuote', 'imageUpload', ],
-        'height': '300px',
+        'toolbar': ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'imageUpload'],
+        'heading': {
+            'options': [
+                {'model': 'paragraph', 'title': 'Paragraph', 'class': 'ck-heading_paragraph'},
+                {'model': 'heading1', 'view': 'h1', 'title': 'Heading 1', 'class': 'ck-heading_heading1'},
+                {'model': 'heading2', 'view': 'h2', 'title': 'Heading 2', 'class': 'ck-heading_heading2'},
+                {'model': 'heading3', 'view': 'h3', 'title': 'Heading 3', 'class': 'ck-heading_heading3'}
+            ]
+        }
     },
 }
 
-CKEDITOR_5_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
-CKEDITOR_5_UPLOAD_PATH = "uploads/"
+# Thư mục lưu trữ file upload từ CKEditor 5
+CKEDITOR_5_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+CKEDITOR_5_UPLOAD_PATH = 'uploads/ckeditor/'
 
 # Thêm đường dẫn cho favicon
 FAVICON_PATH = STATIC_URL + 'images/favicon.ico'

@@ -1,0 +1,195 @@
+/* Custom CSS improvements */
+
+/* 1. Header Navigation improvements - make items display in one row evenly */
+.nav-list {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    border-radius: 4px;
+}
+
+.nav-list .nav-item {
+    text-align: center;
+    white-space: nowrap;
+    margin: 0;
+}
+
+.nav-list .nav-link {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 10px;
+    color: #333;
+    transition: background-color 0.2s ease;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.nav-list .nav-link i {
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+.nav-list .nav-link:hover {
+    background-color: #e9ecef;
+    color: #df2626;
+}
+
+/* 2. Dashboard Filter section improvements */
+.filter-card {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 0.15rem 1rem rgba(0, 0, 0, 0.1);
+    border: 1px solid #e3e6f0;
+}
+
+.filter-header {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e3e6f0;
+    padding-bottom: 15px;
+}
+
+.filter-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #4e73df;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+}
+
+.filter-title i {
+    margin-right: 10px;
+}
+
+.filter-form .form-group {
+    margin-bottom: 15px;
+}
+
+.filter-form label {
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    display: block;
+}
+
+.filter-form .form-control {
+    border-radius: 6px;
+    border: 1px solid #d1d3e2;
+    padding: 10px 15px;
+    font-size: 0.9rem;
+    box-shadow: none;
+    background-color: #f8f9fc;
+    transition: all 0.2s ease;
+}
+
+.filter-form .form-control:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+    background-color: #fff;
+}
+
+.filter-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    padding-top: 15px;
+    border-top: 1px solid #e3e6f0;
+}
+
+.filter-buttons .btn {
+    padding: 8px 20px;
+    font-weight: 600;
+    border-radius: 6px;
+}
+
+/* Improve search field */
+.search-wrapper {
+    position: relative;
+}
+
+.search-wrapper .form-control {
+    padding-left: 40px;
+    border-radius: 25px;
+    height: 45px;
+}
+
+.search-wrapper i {
+    position: absolute;
+    left: 15px;
+    top: 14px;
+    color: #888;
+}
+
+/* 3. Remove the hover up effect on cards */
+.card {
+    transition: box-shadow 0.2s ease;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+}
+
+.card:hover {
+    transform: none !important; /* Remove the translateY effect */
+    box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.15);
+}
+
+/* Additional improvements for product management list */
+.product-table {
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0.15rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.product-table th {
+    background-color: #f8f9fc;
+    color: #4e73df;
+    font-weight: 700;
+    border-top: none;
+    padding: 15px;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+}
+
+.product-table td {
+    padding: 15px;
+    vertical-align: middle;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0.15rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.empty-state i {
+    color: #e3e6f0;
+}
+
+.empty-state h3 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #5a5c69;
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    color: #858796;
+    margin-bottom: 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 1.1rem;
+}

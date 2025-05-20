@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Chuyển khoản ACB{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Thanh toán qua ACB</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 text-center mb-4">
+                            <h5>Quét mã QR để thanh toán</h5>
+                            <div class="qr-container mt-3 mb-3">
+                                <img src="{{ qr_url }}" alt="QR Code" class="img-fluid" style="max-width: 250px;">
+                            </div>
+                            <p class="text-muted">Sử dụng ứng dụng ngân hàng để quét mã</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Hoặc chuyển khoản thủ công</h5>
+                            <div class="bank-info mt-3">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <tr>
+                                            <th>Ngân hàng:</th>
+                                            <td>{{ bank_info.name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Số tài khoản:</th>
+                                            <td>{{ bank_info.account_number }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Chủ tài khoản:</th>
+                                            <td>{{ bank_info.account_name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Số tiền:</th>
+                                            <td>{{ amount|floatformat:0 }} VNĐ</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Nội dung CK:</th>
+                                            <td>{{ bank_info.content }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <button class="btn btn-outline-primary mt-2" id="copyBtn">
+                                    <i class="fas fa-copy"></i> Sao chép thông tin
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-4">
+                        <p class="mb-2"><strong>Lưu ý:</strong></p>
+                        <p>- Vui lòng chuyển đúng số tiền và nội dung chuyển khoản</p>
+                        <p>- Hệ thống sẽ tự động cập nhật sau khi nhận được tiền (5-15 phút)</p>
+                        <p>- Nếu sau 30 phút chưa được cập nhật, vui lòng liên hệ hỗ trợ</p>
+                    </div>
+                    <div class="text-center mt-4">
+                        <a href="{% url 'recharge' %}" class="btn btn-secondary mr-2">Quay lại</a>
+                        <a href="{% url 'store:payment_success' %}" id="confirmBtn" class="btn btn-success">Đã thanh toán</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('copyBtn').addEventListener('click', function() {
+    const bankInfo = `
+Ngân hàng: {{ bank_info.name }}
+Số tài khoản: {{ bank_info.account_number }}
+Chủ tài khoản: {{ bank_info.account_name }}
+Số tiền: {{ amount|floatformat:0 }} VNĐ
+Nội dung: {{ bank_info.content }}
+    `.trim();
+    
+    navigator.clipboard.writeText(bankInfo).then(() => {
+        Swal.fire({
+            icon: 'success',
+            title: 'Đã sao chép!',
+            text: 'Thông tin chuyển khoản đã được sao chép vào clipboard',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+        });
+    });
+});
+
+document.getElementById('confirmBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    
+    Swal.fire({
+        title: 'Xác nhận thanh toán',
+        text: 'Bạn đã hoàn tất chuyển khoản?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Đã chuyển khoản',
+        cancelButtonText: 'Chưa'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Gửi thông báo đến hệ thống
+            fetch('/api/confirm-deposit/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    transaction_id: '{{ transaction.id }}',
+                    payment_method: 'acb',
+                    status: 'pending_verification'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '{% url "store:payment_success" %}';
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: data.message || 'Có lỗi xảy ra, vui lòng thử lại sau'
+                    });
+                }
+            });
+        }
+    });
+});
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %} 
+ 
+ 

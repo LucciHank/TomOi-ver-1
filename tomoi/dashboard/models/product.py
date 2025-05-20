@@ -132,7 +132,7 @@ class Category(models.Model):
 
 class Brand(models.Model):
     name = models.CharField(max_length=100)
-    slug = models.SlugField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=100, unique=True, null=True, blank=True)
     description = models.TextField(blank=True, null=True)
     logo = models.ImageField(upload_to='brands/', blank=True, null=True)
     is_active = models.BooleanField(default=True)

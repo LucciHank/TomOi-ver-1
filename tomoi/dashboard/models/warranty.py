@@ -8,6 +8,7 @@ from store.models import Product, Order
 from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.exceptions import ValidationError
 
 class WarrantyTicket(models.Model):
     """Vé bảo hành sản phẩm"""
@@ -123,83 +124,47 @@ class WarrantyService(models.Model):
         return self.name
 
 class WarrantyRequest(models.Model):
-    """
-    Mô hình lưu trữ các yêu cầu bảo hành
-    """
-    STATUS_CHOICES = (
-        ('pending', _('Đang chờ xử lý')),
-        ('processing', _('Đang xử lý')),
-        ('completed', _('Đã hoàn thành')),
-        ('rejected', _('Đã từ chối')),
-    )
+    STATUS_CHOICES = [
+        ('pending', 'Chờ xử lý'),
+        ('processing', 'Đang xử lý'),
+        ('completed', 'Hoàn thành'),
+        ('rejected', 'Từ chối'),
+        ('cancelled', 'Đã hủy')
+    ]
     
-    PLATFORM_CHOICES = (
-        ('facebook', _('Facebook')),
-        ('telegram', _('Telegram')),
-        ('zalo', _('Zalo')),
-        ('email', _('Email')),
-        ('phone', _('Điện thoại')),
-        ('other', _('Khác')),
-    )
+    PLATFORM_CHOICES = [
+        ('netflix', 'Netflix'),
+        ('spotify', 'Spotify'),
+        ('youtube', 'YouTube'),
+        ('disney', 'Disney+'),
+        ('apple', 'Apple TV+'),
+        ('hbo', 'HBO GO')
+    ]
     
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, 
-        on_delete=models.CASCADE,
-        related_name='warranty_requests',
-        verbose_name=_('Người dùng')
-    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    order = models.ForeignKey('store.Order', on_delete=models.CASCADE)
+    product = models.ForeignKey('store.Product', on_delete=models.CASCADE)
+    account_username = models.CharField(max_length=255)
+    account_password = models.CharField(max_length=255)
+    account_type = models.CharField(max_length=50)
+    reason = models.ForeignKey('WarrantyReason', on_delete=models.SET_NULL, null=True)
+    custom_reason = models.TextField(blank=True, null=True)
+    error_screenshot = models.ImageField(upload_to='warranty/screenshots/', null=True, blank=True)
+    notes = models.TextField(blank=True, null=True)
+    platform = models.CharField(max_length=20, choices=PLATFORM_CHOICES)
+    source = models.ForeignKey('dashboard.Source', on_delete=models.SET_NULL, null=True, blank=True)
+    is_self_registered = models.BooleanField(default=False)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
-    order = models.ForeignKey(
-        'store.Order',
-        on_delete=models.SET_NULL,
-        null=True, blank=True,
-        related_name='warranty_requests',
-        verbose_name=_('Đơn hàng')
-    )
-    
-    reason = models.ForeignKey(
-        WarrantyReason,
-        on_delete=models.SET_NULL,
-        null=True, blank=True,
-        related_name='warranty_requests',
-        verbose_name=_('Lý do')
-    )
-    
-    custom_reason = models.TextField(_('Lý do khác'), blank=True, null=True)
-    account_username = models.CharField(_('Tên đăng nhập tài khoản'), max_length=255)
-    account_password = models.CharField(_('Mật khẩu tài khoản'), max_length=255)
-    account_type = models.CharField(_('Loại tài khoản'), max_length=255)
-    error_screenshot = models.ImageField(_('Ảnh chụp lỗi'), upload_to='warranty_screenshots/')
-    
-    platform = models.CharField(
-        _('Nền tảng liên hệ'),
-        max_length=20,
-        choices=PLATFORM_CHOICES,
-        default='other'
-    )
-    
-    notes = models.TextField(_('Ghi chú'), blank=True, null=True)
-    status = models.CharField(_('Trạng thái'), max_length=20, choices=STATUS_CHOICES, default='pending')
-    
-    source = models.ForeignKey(
-        'dashboard.Source',
-        on_delete=models.SET_NULL,
-        null=True, blank=True,
-        related_name='warranty_requests',
-        verbose_name=_('Nguồn')
-    )
-    
-    is_self_registered = models.BooleanField(_('Tự đăng ký'), default=False)
-    created_at = models.DateTimeField(_('Ngày tạo'), auto_now_add=True)
-    updated_at = models.DateTimeField(_('Ngày cập nhật'), auto_now=True)
-
     class Meta:
-        verbose_name = _('Yêu cầu bảo hành')
-        verbose_name_plural = _('Yêu cầu bảo hành')
         ordering = ['-created_at']
-
+        verbose_name = 'Yêu cầu bảo hành'
+        verbose_name_plural = 'Yêu cầu bảo hành'
+    
     def __str__(self):
-        return f"Yêu cầu bảo hành #{self.id} - {self.account_username}"
+        return f"Bảo hành - {self.user.username} - {self.product.name}"
 
 class WarrantyRequestHistory(models.Model):
     """

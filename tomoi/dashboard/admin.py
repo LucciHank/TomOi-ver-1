@@ -9,6 +9,7 @@ from .models.base import (
 from .models.discount import Discount, UserDiscount, DiscountUsage
 from .models.subscription import SubscriptionPlan, UserSubscription, SubscriptionTransaction
 from .models.warranty import WarrantyTicket, WarrantyHistory
+from .models.product_attribute import ProductAttribute, AttributeValue, ProductAttributeValue
 
 # Đăng ký models
 admin.site.register(ChatSession)
@@ -26,4 +27,9 @@ admin.site.register(SubscriptionPlan)
 admin.site.register(UserSubscription)
 admin.site.register(SubscriptionTransaction)
 admin.site.register(WarrantyTicket)
-admin.site.register(WarrantyHistory) 
+admin.site.register(WarrantyHistory)
+
+# Đăng ký models thuộc tính sản phẩm
+admin.site.register(ProductAttribute)
+admin.site.register(AttributeValue)
+admin.site.register(ProductAttributeValue) 

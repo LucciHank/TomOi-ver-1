@@ -575,7 +575,7 @@ if (typeof baseJsLoaded === 'undefined') {
                             </div>
                             <div class="cart-footer">
                                 <a href="/cart/" class="btn btn-primary">Xem giỏ hàng</a>
-                                <a href="#" class="btn btn-checkout">Thanh toán ngay</a>
+                                <a href="/cart/" class="btn btn-checkout">Thanh toán ngay</a>
                             </div>
                         `;
                         cartDropdown.innerHTML = emptyCartHTML;

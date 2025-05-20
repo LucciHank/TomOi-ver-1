@@ -1,0 +1,108 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Thêm thương hiệu mới{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Thêm thương hiệu mới</h1>
+        <a href="{% url 'dashboard:brand_list' %}" class="btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Quay lại danh sách
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin thương hiệu</h6>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Tên thương hiệu <span class="text-danger">*</span></label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="id_name" name="name" required placeholder="Nhập tên thương hiệu">
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Slug</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="id_slug" name="slug" placeholder="Slug sẽ được tạo tự động từ tên">
+                        <small class="form-text text-muted">Để trống sẽ tự động tạo từ tên thương hiệu</small>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Mô tả</label>
+                    <div class="col-sm-10">
+                        <textarea class="form-control" id="id_description" name="description" rows="3" placeholder="Nhập mô tả thương hiệu"></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Logo thương hiệu</label>
+                    <div class="col-sm-10">
+                        <input type="file" class="form-control" id="id_logo" name="logo" accept="image/*">
+                        <small class="form-text text-muted">Hình ảnh logo của thương hiệu (không bắt buộc)</small>
+                        <div class="mt-2">
+                            <img id="logo-preview" src="#" alt="Logo preview" style="max-height: 100px; max-width: 100%; display: none;">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Trạng thái</label>
+                    <div class="col-sm-10">
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="id_is_active" name="is_active" checked>
+                            <label class="custom-control-label" for="id_is_active">Kích hoạt</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <div class="col-sm-10 offset-sm-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save mr-1"></i> Lưu thương hiệu
+                        </button>
+                        <a href="{% url 'dashboard:brand_list' %}" class="btn btn-secondary">
+                            Hủy
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Tự động tạo slug từ tên thương hiệu
+        $('#id_name').on('keyup', function() {
+            var name = $(this).val();
+            var slug = name.toLowerCase()
+                .replace(/[^\w ]+/g, '')
+                .replace(/ +/g, '-');
+            $('#id_slug').val(slug);
+        });
+        
+        // Preview hình ảnh khi chọn file
+        $('#id_logo').change(function() {
+            var file = this.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#logo-preview').attr('src', e.target.result).show();
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    });
+</script>
+{% endblock %}

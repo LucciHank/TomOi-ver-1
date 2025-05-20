@@ -3,7 +3,6 @@ from django.utils import timezone
 from django.conf import settings
 import uuid
 from django.contrib.auth import get_user_model
-from store.models import Discount as StoreDiscount
 import json
 
 User = get_user_model()
@@ -45,7 +44,7 @@ class Discount(models.Model):
 class UserDiscount(models.Model):
     """Discount assigned to specific users"""
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    discount = models.ForeignKey(StoreDiscount, on_delete=models.CASCADE)
+    discount = models.ForeignKey('store.Discount', on_delete=models.CASCADE)
     assigned_at = models.DateTimeField(auto_now_add=True)
     is_used = models.BooleanField(default=False)
     used_at = models.DateTimeField(null=True, blank=True)
@@ -55,7 +54,7 @@ class UserDiscount(models.Model):
 
 class DiscountUsage(models.Model):
     """Detailed record of discount usage"""
-    discount = models.ForeignKey(StoreDiscount, on_delete=models.CASCADE, related_name='dashboard_usages')
+    discount = models.ForeignKey('store.Discount', on_delete=models.CASCADE, related_name='dashboard_usages')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     order = models.ForeignKey('store.Order', on_delete=models.SET_NULL, null=True)
     used_at = models.DateTimeField(auto_now_add=True)

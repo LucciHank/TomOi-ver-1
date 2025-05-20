@@ -4,193 +4,116 @@
 {% block title %}Thêm sản phẩm mới{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'vendor/select2/css/select2.min.css' %}" rel="stylesheet">
-<link href="{% static 'vendor/summernote/summernote-bs4.min.css' %}" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.css">
 <style>
-    .preview-image {
-        width: 100px;
-        height: 100px;
-        object-fit: cover;
-        margin-right: 10px;
-        margin-bottom: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        transition: transform 0.2s;
-    }
-    .preview-image:hover {
-        transform: scale(1.05);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    .image-preview-container {
-        display: flex;
-        flex-wrap: wrap;
-        margin-top: 10px;
-        gap: 12px;
-    }
-    .nav-tabs .nav-link {
+  .nav-tabs .nav-link {
+    color: #5a5c69;
+  }
+  .nav-tabs .nav-link.active {
+    color: #4e73df;
+    font-weight: bold;
+  }
+  .dropzone {
+    border: 2px dashed #4e73df;
+    border-radius: 5px;
+    padding: 20px;
+    min-height: 200px;
+  }
+  .attribute-box {
         border: 1px solid #e3e6f0;
-        margin-right: 5px;
-        color: #4e73df;
-        font-weight: 500;
-        border-radius: 0.5rem 0.5rem 0 0;
-        padding: 12px 20px;
-        transition: all 0.2s;
-    }
-    .nav-tabs .nav-link:hover {
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+  .attribute-value-badge {
         background-color: #f8f9fc;
-    }
-    .nav-tabs .nav-link.active {
+    border-radius: 16px;
+    padding: 5px 10px;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    display: inline-block;
+    cursor: pointer;
+  }
+  .attribute-value-badge.selected {
         background-color: #4e73df;
         color: white;
-        border-color: #4e73df;
-        box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
-    }
-    .tab-content {
-        padding: 20px;
-        border: 1px solid #e3e6f0;
-        border-top: none;
-        border-radius: 0 0 0.5rem 0.5rem;
-        background-color: #fff;
-    }
-    .form-group.row {
-        margin-bottom: 1.5rem;
-        align-items: center;
-    }
-    .col-form-label {
-        font-weight: 500;
-        color: #5a5c69;
-    }
-    .text-danger {
-        margin-left: 4px;
-    }
-    .form-control, .custom-select, .select2-container--default .select2-selection--single {
-        border-radius: 0.35rem;
-        border: 1px solid #d1d3e2;
-        padding: 0.375rem 0.75rem;
-        height: calc(1.5em + 0.75rem + 2px);
-        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-        transition: all 0.2s;
-    }
-    .form-control:focus, .custom-select:focus, .select2-container--default.select2-container--focus .select2-selection--single {
-        border-color: #b7c1ec;
-        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
-    }
-    .custom-file-label {
-        border-radius: 0.35rem;
-        border: 1px solid #d1d3e2;
-    }
-    .custom-file-input:focus ~ .custom-file-label {
-        border-color: #b7c1ec;
-        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
-    }
-    .select2-container--default .select2-selection--multiple {
-        border: 1px solid #d1d3e2;
-        border-radius: 0.35rem;
-        min-height: calc(1.5em + 0.75rem + 2px);
-    }
-    .select2-container--default .select2-selection--multiple .select2-selection__choice {
-        background-color: #4e73df;
-        border: 1px solid #4e73df;
-        color: white;
-        border-radius: 20px;
-        padding: 2px 10px;
-    }
-    .card-footer {
-        background-color: #f8f9fc;
-        border-top: 1px solid #e3e6f0;
-        padding: 1.25rem;
-        text-align: right;
-    }
-    .btn-submit {
-        padding: 10px 25px;
-        font-weight: 500;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .custom-control-label {
-        cursor: pointer;
-    }
-    .custom-switch .custom-control-label::before {
-        width: 2.5rem;
-    }
-    .custom-switch .custom-control-label::after {
-        transform: translateX(1.3rem);
-    }
-    .custom-switch .custom-control-input:checked ~ .custom-control-label::after {
-        transform: translateX(1.3rem);
+  }
+  .variant-row {
+    background-color: #f8f9fc;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <h1 class="h3 mb-2 text-gray-800">Thêm sản phẩm mới</h1>
-    <p class="mb-4">Nhập thông tin chi tiết cho sản phẩm mới.</p>
+<div class="container-fluid my-4">
+    <div class="d-flex justify-content-between mb-3">
+        <h3>Thêm sản phẩm mới</h3>
+        <div>
+            <a href="{% url 'dashboard:products' %}" class="btn btn-outline-primary"><i class="fas fa-arrow-left"></i> Quay lại</a>
+        </div>
+    </div>
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
+    <form method="post" enctype="multipart/form-data" id="productForm">
+        {% csrf_token %}
+        <div class="card shadow">
+            <div class="card-header">
             <ul class="nav nav-tabs card-header-tabs" id="productTabs" role="tablist">
-                <li class="nav-item">
-                    <a class="nav-link active" id="info-tab" data-bs-toggle="tab" href="#info" role="tab" aria-controls="info" aria-selected="true">
-                        <i class="fas fa-info-circle mr-1"></i> Thông tin cơ bản
-                    </a>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" id="basic-tab" data-bs-toggle="tab" href="#basic" role="tab" aria-controls="basic" aria-selected="true">Thông tin cơ bản</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="price-tab" data-bs-toggle="tab" href="#price" role="tab" aria-controls="price" aria-selected="false">Giá & Tồn kho</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="attributes-tab" data-bs-toggle="tab" href="#attributes" role="tab" aria-controls="attributes" aria-selected="false">Thuộc tính</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="variants-tab" data-bs-toggle="tab" href="#variants" role="tab" aria-controls="variants" aria-selected="false">Biến thể</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="images-tab" data-bs-toggle="tab" href="#images" role="tab" aria-controls="images" aria-selected="false">Hình ảnh</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="description-tab" data-bs-toggle="tab" href="#description" role="tab" aria-controls="description" aria-selected="false">Mô tả</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="pricing-tab" data-bs-toggle="tab" href="#pricing" role="tab" aria-controls="pricing" aria-selected="false">
-                        <i class="fas fa-tag mr-1"></i> Giá & Tồn kho
-                    </a>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="specifications-tab" data-bs-toggle="tab" href="#specifications" role="tab" aria-controls="specifications" aria-selected="false">Thông số kỹ thuật</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="images-tab" data-bs-toggle="tab" href="#images" role="tab" aria-controls="images" aria-selected="false">
-                        <i class="fas fa-images mr-1"></i> Hình ảnh
-                    </a>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="crosssale-tab" data-bs-toggle="tab" href="#crosssale" role="tab" aria-controls="crosssale" aria-selected="false">Cross-Sale</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="attributes-tab" data-bs-toggle="tab" href="#attributes" role="tab" aria-controls="attributes" aria-selected="false">
-                        <i class="fas fa-list-ul mr-1"></i> Thuộc tính
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="related-tab" data-bs-toggle="tab" href="#related" role="tab" aria-controls="related" aria-selected="false">
-                        <i class="fas fa-project-diagram mr-1"></i> Sản phẩm liên quan
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="seo-tab" data-bs-toggle="tab" href="#seo" role="tab" aria-controls="seo" aria-selected="false">
-                        <i class="fas fa-search mr-1"></i> SEO
-                    </a>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="seo-tab" data-bs-toggle="tab" href="#seo" role="tab" aria-controls="seo" aria-selected="false">SEO</a>
                 </li>
             </ul>
         </div>
-        <div class="card-body p-0">
-            <form method="post" enctype="multipart/form-data" id="product-form">
-                {% csrf_token %}
-                
-                <div class="tab-content" id="productTabContent">
-                    <!-- Thông tin cơ bản -->
-                    <div class="tab-pane fade show active" id="info" role="tabpanel">
-                        <div class="form-group row">
-                            <label for="name" class="col-sm-2 col-form-label">Tên sản phẩm <span class="text-danger">*</span></label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="name" name="name" required>
+            <div class="card-body">
+                <div class="tab-content" id="productTabsContent">
+                    <!-- Tab thông tin cơ bản -->
+                    <div class="tab-pane fade show active" id="basic" role="tabpanel" aria-labelledby="basic-tab">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_name">Tên sản phẩm <span class="text-danger">*</span></label>
+                                    <input type="text" name="name" class="form-control" id="id_name" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_sku">Mã SKU</label>
+                                    <input type="text" name="sku" class="form-control" id="id_sku" placeholder="Để trống sẽ được tạo tự động">
+                        </div>
                             </div>
                         </div>
-                        
-                        <div class="form-group row">
-                            <label for="sku" class="col-sm-2 col-form-label">Mã SKU</label>
-                            <div class="col-sm-4">
-                                <input type="text" class="form-control" id="sku" name="sku" placeholder="VD: SP-001">
-                                <small class="text-muted">Mã sản phẩm duy nhất trong hệ thống</small>
-                            </div>
-                            <label for="barcode" class="col-sm-2 col-form-label">Mã vạch</label>
-                            <div class="col-sm-4">
-                                <input type="text" class="form-control" id="barcode" name="barcode">
-                            </div>
-                        </div>
-                        
-                        <div class="form-group row">
-                            <label for="category" class="col-sm-2 col-form-label">Danh mục</label>
-                            <div class="col-sm-10">
-                                <select class="form-control select2" id="category" name="category">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_category">Danh mục</label>
+                                    <select name="category" class="form-control" id="id_category">
                                     <option value="">-- Chọn danh mục --</option>
                                     {% for category in categories %}
                                     <option value="{{ category.id }}">{{ category.name }}</option>
@@ -198,438 +121,576 @@
                                 </select>
                             </div>
                         </div>
-                        
-                        <div class="form-group row">
-                            <label for="brand" class="col-sm-2 col-form-label">Thương hiệu</label>
-                            <div class="col-sm-10">
-                                <select class="form-control select2" id="brand" name="brand">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_brand">Thương hiệu</label>
+                                    <select name="brand" class="form-control" id="id_brand">
                                     <option value="">-- Chọn thương hiệu --</option>
                                     {% for brand in brands %}
                                     <option value="{{ brand.id }}">{{ brand.name }}</option>
                                     {% endfor %}
                                 </select>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group row">
-                            <label for="short_description" class="col-sm-2 col-form-label">Mô tả ngắn</label>
-                            <div class="col-sm-10">
-                                <textarea class="form-control" id="short_description" name="short_description" rows="3"></textarea>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group row">
-                            <label for="description" class="col-sm-2 col-form-label">Mô tả chi tiết</label>
-                            <div class="col-sm-10">
-                                <textarea class="form-control summernote" id="description" name="description"></textarea>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group row">
-                            <label class="col-sm-2 col-form-label">Trạng thái</label>
-                            <div class="col-sm-10">
-                                <div class="custom-control custom-switch">
-                                    <input type="checkbox" class="custom-control-input" id="is_active" name="is_active" checked>
-                                    <label class="custom-control-label" for="is_active">Kích hoạt</label>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- Giá & Tồn kho -->
-                    <div class="tab-pane fade" id="pricing" role="tabpanel">
-                        <div class="form-group row">
-                            <label for="price" class="col-sm-2 col-form-label">Giá bán <span class="text-danger">*</span></label>
-                            <div class="col-sm-4">
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="price" name="price" step="0.01" required>
-                                    <div class="input-group-append">
-                                        <span class="input-group-text">₫</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <label for="original_price" class="col-sm-2 col-form-label">Giá gốc</label>
-                            <div class="col-sm-4">
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="original_price" name="original_price" step="0.01">
-                                    <div class="input-group-append">
-                                        <span class="input-group-text">₫</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group row">
-                            <label for="cost_price" class="col-sm-2 col-form-label">Giá nhập</label>
-                            <div class="col-sm-4">
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="cost_price" name="cost_price" step="0.01">
-                                    <div class="input-group-append">
-                                        <span class="input-group-text">₫</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <label for="wholesale_price" class="col-sm-2 col-form-label">Giá sỉ</label>
-                            <div class="col-sm-4">
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="wholesale_price" name="wholesale_price" step="0.01">
-                                    <div class="input-group-append">
-                                        <span class="input-group-text">₫</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group row">
-                            <label for="stock" class="col-sm-2 col-form-label">Tồn kho</label>
-                            <div class="col-sm-4">
-                                <input type="number" class="form-control" id="stock" name="stock" value="0">
-                            </div>
-                            <label for="min_stock" class="col-sm-2 col-form-label">Tồn kho tối thiểu</label>
-                            <div class="col-sm-4">
-                                <input type="number" class="form-control" id="min_stock" name="min_stock" value="0">
-                            </div>
-                        </div>
-                        
-                        <div class="form-group row">
-                            <label for="weight" class="col-sm-2 col-form-label">Khối lượng</label>
-                            <div class="col-sm-4">
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="weight" name="weight" step="0.01">
-                                    <div class="input-group-append">
-                                        <span class="input-group-text">gram</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <label for="unit" class="col-sm-2 col-form-label">Đơn vị</label>
-                            <div class="col-sm-4">
-                                <input type="text" class="form-control" id="unit" name="unit" placeholder="VD: Cái, Chiếc, Hộp">
-                            </div>
-                        </div>
-                        
-                        <div class="form-group row">
-                            <label class="col-sm-2 col-form-label">Quản lý tồn kho</label>
-                            <div class="col-sm-10">
-                                <div class="custom-control custom-switch">
-                                    <input type="checkbox" class="custom-control-input" id="manage_stock" name="manage_stock" checked>
-                                    <label class="custom-control-label" for="manage_stock">Theo dõi tồn kho</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Hình ảnh -->
-                    <div class="tab-pane fade" id="images" role="tabpanel">
-                        <div class="form-group row">
-                            <label class="col-sm-2 col-form-label">Hình ảnh sản phẩm</label>
-                            <div class="col-sm-10">
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="images" name="images" multiple onchange="previewImages(this)">
-                                    <label class="custom-file-label" for="images">Chọn ảnh...</label>
-                                </div>
-                                <small class="form-text text-muted">Bạn có thể chọn nhiều ảnh cùng lúc (tối đa 5 ảnh)</small>
-                                
-                                <div class="image-preview-container mt-3" id="image-preview">
-                                    <!-- Ảnh sẽ được hiển thị ở đây -->
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group row">
-                            <label class="col-sm-2 col-form-label">Ảnh chính</label>
-                            <div class="col-sm-10">
-                                <input type="file" name="primary_image" class="form-control" id="id_primary_image">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label class="col-sm-2 col-form-label">Ảnh phụ</label>
-                            <div class="col-sm-10">
-                                <input type="file" name="additional_images" class="form-control" id="id_additional_images" multiple>
-                                <small class="form-text text-muted">Có thể chọn nhiều ảnh cùng lúc</small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Thuộc tính -->
-                    <div class="tab-pane fade" id="attributes" role="tabpanel">
-                        <div class="form-group row">
-                            <label for="tags" class="col-sm-2 col-form-label">Tags</label>
-                            <div class="col-sm-10">
-                                <select class="form-control select2-tags" id="tags" name="tags[]" multiple>
-                                    {% for tag in tags %}
-                                    <option value="{{ tag.id }}">{{ tag.name }}</option>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_duration">Thời hạn</label>
+                                    <select name="duration" class="form-control" id="id_duration">
+                                    <option value="">-- Chọn thời hạn --</option>
+                                        {% for duration in durations %}
+                                            <option value="{{ duration.0 }}">{{ duration.1 }}</option>
                                     {% endfor %}
                                 </select>
-                                <small class="form-text text-muted">Nhập và nhấn Enter để thêm tag mới</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_label_type">Loại nhãn</label>
+                                    <select name="label_type" class="form-control" id="id_label_type">
+                                        <option value="">-- Không chọn nhãn --</option>
+                                        <option value="new_account">Tài khoản cấp</option>
+                                        <option value="upgrade">Nâng cấp chính chủ</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                        
-                        <div class="form-group row">
-                            <label for="features" class="col-sm-2 col-form-label">Tính năng nổi bật</label>
-                            <div class="col-sm-10">
-                                <textarea class="form-control" id="features" name="features" rows="3" placeholder="Mỗi tính năng nhập trên một dòng"></textarea>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_is_active">Trạng thái</label>
+                                    <select name="is_active" class="form-control" id="id_is_active">
+                                        <option value="True" selected>Hoạt động</option>
+                                        <option value="False">Không hoạt động</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_short_description">Mô tả ngắn</label>
+                                    <textarea name="short_description" class="form-control" id="id_short_description" rows="3"></textarea>
+                                </div>
                             </div>
                         </div>
-                        
-                        <div class="form-group row">
-                            <label for="specifications" class="col-sm-2 col-form-label">Thông số kỹ thuật</label>
-                            <div class="col-sm-10">
-                                <div id="specs-container">
-                                    <div class="row spec-row mb-2">
-                                        <div class="col-5">
-                                            <input type="text" class="form-control" name="spec_names[]" placeholder="Tên thông số">
-                                        </div>
-                                        <div class="col-6">
-                                            <input type="text" class="form-control" name="spec_values[]" placeholder="Giá trị">
-                                        </div>
-                                        <div class="col-1">
-                                            <button type="button" class="btn btn-danger btn-sm" onclick="removeSpec(this)"><i class="fas fa-times"></i></button>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group form-check">
+                                    <input type="checkbox" name="requires_email" class="form-check-input" id="id_requires_email">
+                                    <label class="form-check-label" for="id_requires_email">Yêu cầu Email</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group form-check">
+                                    <input type="checkbox" name="requires_account_password" class="form-check-input" id="id_requires_account_password">
+                                    <label class="form-check-label" for="id_requires_account_password">Yêu cầu Tài khoản & Mật khẩu</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab giá & tồn kho -->
+                    <div class="tab-pane fade" id="price" role="tabpanel" aria-labelledby="price-tab">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_price">Giá bán <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="number" name="price" class="form-control" id="id_price" min="0" step="0.01" required>
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">VNĐ</span>
                                         </div>
                                     </div>
                                 </div>
-                                <button type="button" class="btn btn-sm btn-info mt-2" onclick="addSpec()">
-                                    <i class="fas fa-plus"></i> Thêm thông số
-                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_old_price">Giá gốc</label>
+                                <div class="input-group">
+                                        <input type="number" name="old_price" class="form-control" id="id_old_price" min="0" step="0.01">
+                                    <div class="input-group-append">
+                                            <span class="input-group-text">VNĐ</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_cost_price">Giá vốn <small class="text-muted">(chỉ hiển thị trong dashboard)</small></label>
+                                <div class="input-group">
+                                        <input type="number" name="cost_price" class="form-control" id="id_cost_price" min="0" step="0.01">
+                                    <div class="input-group-append">
+                                            <span class="input-group-text">VNĐ</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_stock">Tồn kho</label>
+                                    <input type="number" name="stock" class="form-control" id="id_stock" min="0" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_suppliers">Nhà cung cấp</label>
+                                    <select name="suppliers" multiple class="form-control select2" id="id_suppliers">
+                                        {% for supplier in suppliers %}
+                                            <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <small class="form-text text-muted">Có thể chọn nhiều nhà cung cấp</small>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Sản phẩm liên quan -->
-                    <div class="tab-pane fade" id="related" role="tabpanel">
-                        <div class="form-group row">
-                            <label for="related_products" class="col-sm-2 col-form-label">Cross-sell</label>
-                            <div class="col-sm-10">
-                                <select class="form-control select2" id="related_products" name="related_products[]" multiple>
-                                    {% for product in products %}
-                                    <option value="{{ product.id }}">{{ product.name }}</option>
-                                    {% endfor %}
-                                </select>
-                                <small class="form-text text-muted">Sản phẩm sẽ hiển thị ở mục "Có thể bạn cũng thích"</small>
-                            </div>
+                    <!-- Tab thuộc tính -->
+                    <div class="tab-pane fade" id="attributes" role="tabpanel" aria-labelledby="attributes-tab">
+                        <div class="mb-3">
+                            <h5>Chọn thuộc tính sản phẩm</h5>
+                            <p class="text-muted">Thuộc tính sẽ được sử dụng để tạo biến thể sản phẩm</p>
                         </div>
-                        
-                        <div class="form-group row">
-                            <label for="upsell_products" class="col-sm-2 col-form-label">Up-sell</label>
-                            <div class="col-sm-10">
-                                <select class="form-control select2" id="upsell_products" name="upsell_products[]" multiple>
-                                    {% for product in products %}
-                                    <option value="{{ product.id }}">{{ product.name }}</option>
-                                    {% endfor %}
-                                </select>
-                                <small class="form-text text-muted">Sản phẩm sẽ hiển thị ở mục "Sản phẩm nâng cấp"</small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- SEO -->
-                    <div class="tab-pane fade" id="seo" role="tabpanel">
-                        <div class="form-group row">
-                            <label for="meta_title" class="col-sm-2 col-form-label">Meta Title</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="meta_title" name="meta_title">
-                            </div>
-                        </div>
-                        
-                        <div class="form-group row">
-                            <label for="meta_description" class="col-sm-2 col-form-label">Meta Description</label>
-                            <div class="col-sm-10">
-                                <textarea class="form-control" id="meta_description" name="meta_description" rows="3"></textarea>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group row">
-                            <label for="meta_keywords" class="col-sm-2 col-form-label">Meta Keywords</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="meta_keywords" name="meta_keywords">
-                                <small class="form-text text-muted">Các từ khóa cách nhau bởi dấu phẩy</small>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group row">
-                            <label for="slug" class="col-sm-2 col-form-label">Slug URL</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="slug" name="slug">
-                                <small class="form-text text-muted">URL thân thiện, để trống sẽ tự động tạo từ tên sản phẩm</small>
-                            </div>
+                        <div id="attributes-container">
+                            {% if attributes %}
+                                {% for attribute in attributes %}
+                                    <div class="card mb-3">
+                                        <div class="card-header">
+                                            <div class="form-check">
+                                                <input class="form-check-input attribute-checkbox" type="checkbox" value="{{ attribute.id }}" id="attribute_{{ attribute.id }}" name="selected_attributes">
+                                                <label class="form-check-label" for="attribute_{{ attribute.id }}">
+                                                    {{ attribute.name }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="card-body attribute-values" style="display: none;">
+                                            <div class="form-group">
+                                                <label>Giá trị thuộc tính</label>
+                                                <div class="attribute-values-container">
+                                                    {% for value in attribute.attribute_values.all %}
+                                                        <div class="form-check">
+                                                            <input class="form-check-input attribute-value-checkbox" type="checkbox" value="{{ value.id }}" id="value_{{ value.id }}" name="attribute_{{ attribute.id }}_values">
+                                                            <label class="form-check-label" for="value_{{ value.id }}">
+                                                                {{ value.value }}
+                                                            </label>
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="alert alert-info">
+                                    Chưa có thuộc tính nào. <a href="{% url 'dashboard:add_attribute' %}">Thêm thuộc tính mới</a>.
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
-                </div>
-                
-                <div class="card-footer">
-                    <div class="col-sm-10 offset-sm-2">
-                        <button type="submit" class="btn btn-primary btn-submit">
-                            <i class="fas fa-save mr-2"></i>Lưu sản phẩm
-                        </button>
-                        <a href="{% url 'dashboard:products' %}" class="btn btn-secondary">Hủy</a>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-{% endblock %}
 
-{% block extra_js %}
-<script src="{% static 'vendor/select2/js/select2.min.js' %}"></script>
-<script src="{% static 'vendor/summernote/summernote-bs4.min.js' %}"></script>
+                    <!-- Tab biến thể -->
+                    <div class="tab-pane fade" id="variants" role="tabpanel" aria-labelledby="variants-tab">
+                        <div class="mb-3">
+                            <h5>Biến thể sản phẩm</h5>
+                            <p class="text-muted">Quản lý giá và tồn kho cho từng biến thể</p>
+                            <button type="button" id="generate-variants" class="btn btn-primary">Tạo biến thể từ thuộc tính</button>
+                        </div>
+                        <div id="variants-container" class="mt-4">
+                            <div class="alert alert-info" id="no-variants-message">
+                                Chưa có biến thể nào. Hãy chọn thuộc tính và nhấn "Tạo biến thể từ thuộc tính".
+                            </div>
+                            <table class="table table-bordered table-hover" id="variants-table" style="display: none;">
+                                <thead>
+                                    <tr>
+                                        <th>Biến thể</th>
+                                        <th>Giá</th>
+                                        <th>Tồn kho</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="variants-list">
+                                    <!-- Các biến thể sẽ được thêm vào đây bằng JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab hình ảnh -->
+                    <div class="tab-pane fade" id="images" role="tabpanel" aria-labelledby="images-tab">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_primary_image">Ảnh chính <span class="text-danger">*</span></label>
+                                    <div class="custom-file">
+                                        <input type="file" name="primary_image" class="custom-file-input" id="id_primary_image" accept="image/*" required>
+                                        <label class="custom-file-label" for="id_primary_image">Chọn ảnh...</label>
+                                    </div>
+                                    <div class="mt-2" id="primary-image-preview"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Ảnh bổ sung</label>
+                            <div id="additional-images-dropzone" class="dropzone">
+                                <div class="dz-message needsclick">
+                                    Kéo và thả hình ảnh vào đây<br>
+                                    <span class="note needsclick">(Hoặc click để chọn)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab mô tả -->
+                    <div class="tab-pane fade" id="description" role="tabpanel" aria-labelledby="description-tab">
+                        <div class="form-group">
+                            <label for="id_description">Mô tả chi tiết</label>
+                            <textarea name="description" id="id_description" class="form-control summernote"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Tab thông số kỹ thuật -->
+                    <div class="tab-pane fade" id="specifications" role="tabpanel" aria-labelledby="specifications-tab">
+                        <div class="mb-3">
+                            <h5>Thông số kỹ thuật</h5>
+                            <button type="button" class="btn btn-sm btn-primary" id="add-specification">
+                                <i class="fas fa-plus"></i> Thêm thông số
+                            </button>
+                        </div>
+                        <div id="specifications-container">
+                            <div class="alert alert-info" id="no-specs-message">
+                                Chưa có thông số kỹ thuật nào. Nhấn "Thêm thông số" để bắt đầu.
+                            </div>
+                            <table class="table table-bordered" id="specs-table" style="display: none;">
+                                <thead>
+                                    <tr>
+                                        <th>Tên thông số</th>
+                                        <th>Giá trị</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="specs-list">
+                                    <!-- Thông số kỹ thuật sẽ được thêm vào đây -->
+                                </tbody>
+                            </table>
+                            </div>
+                        </div>
+                        
+                    <!-- Tab Cross-Sale -->
+                    <div class="tab-pane fade" id="crosssale" role="tabpanel" aria-labelledby="crosssale-tab">
+                        <div class="form-group form-check mb-3">
+                            <input type="checkbox" name="is_cross_sale" class="form-check-input" id="id_is_cross_sale">
+                            <label class="form-check-label" for="id_is_cross_sale">Bật tính năng Cross-Sale</label>
+                        </div>
+                        <div id="cross-sale-options" style="display: none;">
+                            <div class="form-group">
+                                <label for="id_cross_sale_discount">Phần trăm giảm giá khi mua kèm (%)</label>
+                                <input type="number" name="cross_sale_discount" class="form-control" id="id_cross_sale_discount" min="0" max="100" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Sản phẩm Cross-Sale</label>
+                                <select name="cross_sale_products" class="form-control select2" id="id_cross_sale_products" multiple>
+                                    {% for product in all_products %}
+                                        <option value="{{ product.id }}">{{ product.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <small class="form-text text-muted">Chọn các sản phẩm sẽ hiển thị trong phần sản phẩm kèm theo</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    <!-- Tab SEO -->
+                    <div class="tab-pane fade" id="seo" role="tabpanel" aria-labelledby="seo-tab">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_meta_title">Tiêu đề SEO</label>
+                                    <input type="text" name="meta_title" class="form-control" id="id_meta_title">
+                                    <small class="form-text text-muted">Để trống sẽ sử dụng tên sản phẩm</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_slug">Slug URL</label>
+                                    <input type="text" name="slug" class="form-control" id="id_slug">
+                                    <small class="form-text text-muted">Để trống sẽ được tạo tự động từ tên sản phẩm</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_meta_description">Mô tả SEO</label>
+                            <textarea name="meta_description" class="form-control" id="id_meta_description" rows="3"></textarea>
+                            <small class="form-text text-muted">Để trống sẽ sử dụng mô tả ngắn</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_meta_keywords">Từ khóa SEO</label>
+                            <input type="text" name="meta_keywords" class="form-control" id="id_meta_keywords">
+                            <small class="form-text text-muted">Các từ khóa cách nhau bằng dấu phẩy</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <div class="card-footer">
+                <button type="submit" class="btn btn-primary">Lưu sản phẩm</button>
+                <a href="{% url 'dashboard:products' %}" class="btn btn-secondary">Hủy</a>
+                </div>
+        </div>
+    </form>
+</div>
+
+{% endblock content %}
+
+{% block extrajs %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
 <script>
-$(document).ready(function() {
-    // Fix tab switching issue - Bootstrap 5 version
-    $('.nav-tabs .nav-link').on('click', function(e) {
-        e.preventDefault();
-        
-        // Deactivate all tabs and tab contents
-        $('.nav-tabs .nav-link').removeClass('active').attr('aria-selected', 'false');
-        $('.tab-pane').removeClass('show active');
-        
-        // Activate the clicked tab
-        $(this).addClass('active').attr('aria-selected', 'true');
-        var targetId = $(this).attr('href');
-        $(targetId).addClass('show active');
-    });
-    
-    // Khởi tạo Select2
-    $('.select2').select2({
-        placeholder: "Chọn...",
-        allowClear: true,
-        width: '100%'
-    });
-    
-    $('.select2-tags').select2({
-        tags: true,
-        tokenSeparators: [','],
-        placeholder: "Nhập tags...",
-        width: '100%'
-    });
-    
     // Khởi tạo Summernote
-    $('.summernote').summernote({
-        height: 300,
-        toolbar: [
-            ['style', ['style']],
-            ['font', ['bold', 'italic', 'underline', 'clear']],
-            ['fontname', ['fontname']],
-            ['color', ['color']],
-            ['para', ['ul', 'ol', 'paragraph']],
-            ['table', ['table']],
-            ['insert', ['link', 'picture']],
-            ['view', ['fullscreen', 'codeview', 'help']]
-        ],
-        callbacks: {
-            onImageUpload: function(files) {
-                // Xử lý upload ảnh vào editor
-                for(let i = 0; i < files.length; i++) {
-                    uploadImage(files[i], this);
+    $(document).ready(function() {
+        // Đảm bảo Bootstrap 5 tab hoạt động đúng
+        var triggerTabList = [].slice.call(document.querySelectorAll('#productTabs a'));
+        triggerTabList.forEach(function (triggerEl) {
+            var tabTrigger = new bootstrap.Tab(triggerEl);
+            triggerEl.addEventListener('click', function (event) {
+                event.preventDefault();
+                tabTrigger.show();
+            });
+        });
+
+        $('.summernote').summernote({
+            height: 300,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ],
+            lang: 'vi-VN'
+        });
+
+        // Xử lý chọn ảnh chính
+        $('#id_primary_image').on('change', function() {
+            var file = this.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#primary-image-preview').html('<img src="' + e.target.result + '" class="img-thumbnail" style="max-height: 200px;">');
                 }
+                reader.readAsDataURL(file);
+                $('.custom-file-label').text(file.name);
             }
-        }
-    });
-    
-    // Tự động sinh slug
-    $('#name').on('keyup', function() {
-        if ($('#slug').val() === '') {
-            let slug = $(this).val()
-                .toLowerCase()
-                .replace(/\s+/g, '-')
-                .replace(/[^\w\-]+/g, '')
-                .replace(/\-\-+/g, '-')
-                .replace(/^-+/, '')
-                .replace(/-+$/, '');
-            $('#slug').val(slug);
-        }
-    });
-    
-    // Kiểm tra trùng SKU
-    $('#sku').on('blur', function() {
-        let sku = $(this).val();
-        if (sku !== '') {
-            $.get('{% url "dashboard:check_sku" %}', {sku: sku})
-            .done(function(data) {
-                if (data.exists) {
-                    alert('Mã SKU này đã tồn tại. Vui lòng chọn mã khác.');
-                    $('#sku').val('');
+        });
+
+        // Xử lý DropZone cho ảnh bổ sung
+        Dropzone.autoDiscover = false;
+        var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        var myDropzone = new Dropzone("#additional-images-dropzone", {
+            url: "/dashboard/upload-temp/",
+            paramName: "file",
+            maxFilesize: 2, // MB
+            acceptedFiles: "image/*",
+            addRemoveLinks: true,
+            dictRemoveFile: "Xóa",
+            dictDefaultMessage: "Kéo và thả hình ảnh vào đây hoặc click để chọn",
+            autoProcessQueue: true,
+            uploadMultiple: false,
+            headers: {
+                'X-CSRFToken': csrftoken
+            },
+            init: function() {
+                var myDropzone = this;
+                this.on("success", function(file, response) {
+                    // Thêm input ẩn để lưu tên file khi submit form
+                    var input = $('<input>', {
+                        type: 'hidden',
+                        name: 'additional_images[]',
+                        value: response.filename
+                    });
+                    $('#productForm').append(input);
+                    file.serverFileName = response.filename;
+                });
+                this.on("removedfile", function(file) {
+                    // Xóa input ẩn khi xóa file
+                    $('input[name="additional_images[]"][value="' + file.serverFileName + '"]').remove();
+                });
+                this.on("error", function(file, errorMessage) {
+                    console.error("Dropzone error:", errorMessage);
+                });
+            }
+        });
+
+        // Xử lý chọn thuộc tính
+        $('.attribute-checkbox').on('change', function() {
+            var attributeId = $(this).val();
+            if ($(this).is(':checked')) {
+                $(this).closest('.card').find('.attribute-values').slideDown();
+            } else {
+                $(this).closest('.card').find('.attribute-values').slideUp();
+                $(this).closest('.card').find('.attribute-value-checkbox').prop('checked', false);
+            }
+        });
+
+        // Tạo biến thể từ thuộc tính đã chọn - Sửa lại để đảm bảo sự kiện được kích hoạt
+        $(document).on('click', '#generate-variants', function() {
+            console.log("Nút tạo biến thể được nhấn");
+            var selectedAttributes = [];
+            var selectedAttributeValues = {};
+            
+            // Thu thập thuộc tính và giá trị đã chọn
+            $('.attribute-checkbox:checked').each(function() {
+                var attributeId = $(this).val();
+                var attributeName = $(this).closest('.card').find('.form-check-label').text().trim();
+                selectedAttributes.push({ id: attributeId, name: attributeName });
+                
+                var selectedValues = [];
+                $(this).closest('.card').find('.attribute-value-checkbox:checked').each(function() {
+                    var valueId = $(this).val();
+                    var valueName = $(this).closest('.form-check').find('.form-check-label').text().trim();
+                    selectedValues.push({ id: valueId, name: valueName });
+                });
+                
+                if (selectedValues.length > 0) {
+                    selectedAttributeValues[attributeId] = selectedValues;
                 }
             });
-        }
-    });
-    
-    // Sự kiện submit form
-    $('#product-form').on('submit', function() {
-        // Thêm logic kiểm tra nếu cần
-        return true;
-    });
-});
-
-// Xử lý preview hình ảnh
-function previewImages(input) {
-    if (input.files) {
-        $('#image-preview').empty();
-        $('#main_image').empty().append('<option value="">Chọn ảnh chính</option>');
-        
-        for (var i = 0; i < Math.min(input.files.length, 5); i++) {
-            var reader = new FileReader();
             
-            reader.onload = function(e) {
-                var imageId = 'img_' + Date.now() + Math.floor(Math.random() * 1000);
-                var imgElement = $('<img class="preview-image" src="' + e.target.result + '" data-id="' + imageId + '">');
-                $('#image-preview').append(imgElement);
+            // Kiểm tra xem có thuộc tính được chọn không
+            if (Object.keys(selectedAttributeValues).length === 0) {
+                alert('Vui lòng chọn ít nhất một thuộc tính và giá trị thuộc tính.');
+                return;
+            }
+            
+            // Tạo tất cả tổ hợp có thể từ các giá trị thuộc tính
+            function generateCombinations(attributes, currentIndex, currentCombination, allCombinations) {
+                if (currentIndex === attributes.length) {
+                    allCombinations.push([...currentCombination]);
+                    return;
+                }
                 
-                $('#main_image').append('<option value="' + imageId + '">Ảnh ' + ($('#main_image option').length) + '</option>');
+                var attributeId = attributes[currentIndex].id;
+                var values = selectedAttributeValues[attributeId] || [];
                 
-                if ($('#main_image option').length === 2) {
-                    $('#main_image option:last').prop('selected', true);
+                if (values.length === 0) {
+                    generateCombinations(attributes, currentIndex + 1, currentCombination, allCombinations);
+                } else {
+                    for (var i = 0; i < values.length; i++) {
+                        currentCombination.push({
+                            attributeId: attributeId,
+                            attributeName: attributes[currentIndex].name,
+                            valueId: values[i].id,
+                            valueName: values[i].name
+                        });
+                        generateCombinations(attributes, currentIndex + 1, currentCombination, allCombinations);
+                        currentCombination.pop();
+                    }
                 }
             }
             
-            reader.readAsDataURL(input.files[i]);
-        }
-    }
-}
-
-// Xử lý thông số kỹ thuật
-function addSpec() {
-    var newRow = `
-        <div class="row spec-row mb-2">
-            <div class="col-5">
-                <input type="text" class="form-control" name="spec_names[]" placeholder="Tên thông số">
-            </div>
-            <div class="col-6">
-                <input type="text" class="form-control" name="spec_values[]" placeholder="Giá trị">
-            </div>
-            <div class="col-1">
-                <button type="button" class="btn btn-danger btn-sm" onclick="removeSpec(this)"><i class="fas fa-times"></i></button>
-            </div>
-        </div>
-    `;
-    $('#specs-container').append(newRow);
-}
-
-function removeSpec(btn) {
-    $(btn).closest('.spec-row').remove();
-}
-
-// Xử lý upload ảnh vào editor
-function uploadImage(file, editor) {
-    var data = new FormData();
-    data.append("image", file);
-    data.append("csrfmiddlewaretoken", '{{ csrf_token }}');
-    
-    $.ajax({
-        url: '{% url "dashboard:upload_editor_image" %}',
-        data: data,
-        type: "POST",
-        cache: false,
-        contentType: false,
-        processData: false,
-        success: function(data) {
-            if (data.location) {
-                $(editor).summernote('insertImage', data.location);
+            var combinations = [];
+            generateCombinations(selectedAttributes, 0, [], combinations);
+            
+            // Hiển thị biến thể
+            if (combinations.length > 0) {
+                var basePrice = parseFloat($('#id_price').val()) || 0;
+                var baseStock = parseInt($('#id_stock').val()) || 0;
+                
+                $('#variants-list').empty();
+                
+                combinations.forEach(function(combination, index) {
+                    var variantName = combination.map(function(item) {
+                        return item.attributeName + ': ' + item.valueName;
+                    }).join(' / ');
+                    
+                    var variantInputs = combination.map(function(item) {
+                        return '<input type="hidden" name="variant_attribute_' + index + '[]" value="' + item.attributeId + '">' +
+                               '<input type="hidden" name="variant_value_' + index + '[]" value="' + item.valueId + '">';
+                    }).join('');
+                    
+                    var row = `
+                        <tr>
+                            <td>
+                                ${variantName}
+                                <input type="hidden" name="variant_name[]" value="${variantName}">
+                                ${variantInputs}
+                            </td>
+                            <td>
+                                <input type="number" name="variant_price[]" class="form-control" value="${basePrice}" min="0" step="0.01">
+                            </td>
+                            <td>
+                                <input type="number" name="variant_stock[]" class="form-control" value="${baseStock}" min="0">
+                            </td>
+                            <td>
+                                <select name="variant_active[]" class="form-control">
+                                    <option value="True" selected>Hoạt động</option>
+                                    <option value="False">Không hoạt động</option>
+                                </select>
+                            </td>
+                        </tr>
+                    `;
+                    
+                    $('#variants-list').append(row);
+                });
+                
+                $('#no-variants-message').hide();
+                $('#variants-table').show();
+            } else {
+                $('#no-variants-message').show();
+                $('#variants-table').hide();
             }
-        },
-        error: function(error) {
-            console.error("Lỗi upload ảnh:", error);
-        }
+        });
+
+        // Xử lý thêm thông số kỹ thuật - Sửa lại để đảm bảo sự kiện được kích hoạt
+        $(document).on('click', '#add-specification', function() {
+            console.log("Nút thêm thông số được nhấn");
+            var specCount = $('#specs-list tr').length;
+            var newRow = `
+                <tr>
+                    <td>
+                        <input type="text" name="spec_name[]" class="form-control" required>
+                    </td>
+                    <td>
+                        <input type="text" name="spec_value[]" class="form-control" required>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-danger remove-spec">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            $('#specs-list').append(newRow);
+            $('#no-specs-message').hide();
+            $('#specs-table').show();
+        });
+
+        // Xử lý xóa thông số kỹ thuật
+        $(document).on('click', '.remove-spec', function() {
+            $(this).closest('tr').remove();
+            if ($('#specs-list tr').length === 0) {
+                $('#no-specs-message').show();
+                $('#specs-table').hide();
+            }
+        });
+
+        // Xử lý tính năng Cross-Sale
+        $('#id_is_cross_sale').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#cross-sale-options').slideDown();
+            } else {
+                $('#cross-sale-options').slideUp();
+            }
+        });
+
+        // Khởi tạo Select2 cho cross-sale products
+        $('#id_cross_sale_products').select2({
+            placeholder: 'Chọn sản phẩm Cross-Sale',
+            allowClear: true
+        });
     });
-}
 </script>
-{% endblock %} 
+{% endblock extrajs %}

@@ -12,6 +12,9 @@ from django.core.mail import EmailMultiAlternatives
 import logging
 import json
 
+# Configure logger for this module
+logger = logging.getLogger(__name__)
+
 from dashboard.models import (
     WarrantyRequest, WarrantyReason, 
     WarrantyService, Source, WarrantyRequestHistory

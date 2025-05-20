@@ -29,6 +29,26 @@
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
+                            <label class="form-label">Thương hiệu</label>
+                            <select class="form-select" name="brand">
+                                <option value="">-- Chọn thương hiệu --</option>
+                                {% for brand in brands %}
+                                <option value="{{ brand.id }}">{{ brand.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Thời hạn</label>
+                            <select class="form-select" name="duration" required>
+                                {% for value, label in duration_choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
                             <label class="form-label">Giá bán</label>
                             <div class="input-group">
                                 <input type="number" class="form-control" name="price" required>
@@ -39,14 +59,28 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
+                            <label class="form-label">Giá cũ (nếu có)</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" name="old_price">
+                                <span class="input-group-text">đ</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
                             <label class="form-label">Số lượng</label>
-                            <input type="number" class="form-control" name="quantity" required>
+                            <input type="number" class="form-control" name="stock" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Mã sản phẩm</label>
+                            <input type="text" class="form-control" name="product_code" placeholder="Để trống để tự động tạo mã">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Trạng thái</label>
-                            <select class="form-select" name="status">
-                                <option value="active">Đang bán</option>
-                                <option value="inactive">Ngừng bán</option>
+                            <select class="form-select" name="is_active">
+                                <option value="1" selected>Đang bán</option>
+                                <option value="0">Ngừng bán</option>
                             </select>
                         </div>
                     </div>
@@ -57,14 +91,33 @@
                     </div>
 
                     <div class="mb-3">
+                        <label class="form-label">Tính năng</label>
+                        <textarea class="form-control" name="features" rows="3" placeholder="Nhập mỗi tính năng một dòng"></textarea>
+                    </div>
+
+                    <div class="mb-3">
                         <label class="form-label">Hình ảnh</label>
-                        <input type="file" class="form-control" name="image" accept="image/*">
+                        <input type="file" class="form-control" name="primary_image" accept="image/*">
                     </div>
 
                     <div class="mb-3">
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" name="featured" id="featuredProduct">
+                            <input class="form-check-input" type="checkbox" name="is_featured" id="featuredProduct">
                             <label class="form-check-label" for="featuredProduct">Sản phẩm nổi bật</label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="requires_email" id="requiresEmail">
+                            <label class="form-check-label" for="requiresEmail">Yêu cầu Email</label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="requires_account_password" id="requiresAccount">
+                            <label class="form-check-label" for="requiresAccount">Yêu cầu tài khoản & mật khẩu</label>
                         </div>
                     </div>
                 </div>

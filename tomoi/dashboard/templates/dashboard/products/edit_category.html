@@ -1,0 +1,154 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Chỉnh sửa danh mục: {{ category.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-sm-flex align-items-center justify-content-between">
+                <h1 class="h3 mb-0 text-gray-800">{{ title }}</h1>
+                <a href="{% url 'dashboard:categories' %}" class="btn btn-sm btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i> Quay lại danh sách
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-xl-8">
+            <div class="card border-0 shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Thông tin danh mục</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_name" class="form-label">Tên danh mục</label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.name.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_parent" class="form-label">Danh mục cha</label>
+                            {{ form.parent }}
+                            {% if form.parent.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.parent.errors }}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">Chọn 'Không có' nếu đây là danh mục cấp cao nhất.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_description" class="form-label">Mô tả</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.description.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_image" class="form-label">Hình ảnh</label>
+                            {% if category.image %}
+                            <div class="mb-3">
+                                <img src="{{ category.image.url }}" alt="{{ category.name }}" class="img-thumbnail" style="max-height: 150px;">
+                            </div>
+                            {% endif %}
+                            {{ form.image }}
+                            {% if form.image.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.image.errors }}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">Để trống nếu không muốn thay đổi hình ảnh hiện tại.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_slug" class="form-label">Slug</label>
+                            {{ form.slug }}
+                            {% if form.slug.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.slug.errors }}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">Để trống để tự động tạo từ tên danh mục.</div>
+                        </div>
+                        
+                        <div class="mt-4 d-flex justify-content-between">
+                            <a href="{% url 'dashboard:categories' %}" class="btn btn-secondary">Hủy bỏ</a>
+                            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thông tin bổ sung</h6>
+                </div>
+                <div class="card-body">
+                    <p>ID: <strong>{{ category.id }}</strong></p>
+                    <p>Số sản phẩm: <strong>{{ category.products.count }}</strong></p>
+                    {% if category.parent %}
+                    <p>Danh mục cha: <strong>{{ category.parent.name }}</strong></p>
+                    {% endif %}
+                    <hr>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'dashboard:delete_category' category.id %}" class="btn btn-danger">
+                            <i class="fas fa-trash-alt me-2"></i> Xóa danh mục này
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Thêm class cho form inputs để styling
+    $('#id_name').addClass('form-control');
+    $('#id_parent').addClass('form-select');
+    $('#id_description').addClass('form-control');
+    $('#id_image').addClass('form-control');
+    $('#id_slug').addClass('form-control');
+    
+    // Image preview khi thay đổi
+    $('#id_image').change(function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = $('<img>').attr({
+                    'src': e.target.result,
+                    'class': 'img-thumbnail mt-2',
+                    'style': 'max-height: 150px'
+                });
+                
+                // Xóa preview cũ nếu có
+                $('.img-preview').remove();
+                
+                // Thêm preview mới
+                $('<div>').addClass('img-preview mb-3').append(img).insertAfter('#id_image');
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+});
+</script>
+{% endblock %} 
+ 
+ 

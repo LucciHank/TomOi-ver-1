@@ -1,0 +1,101 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Quản lý biến thể - {{ product.name }}</h1>
+        <a href="{% url 'dashboard:add_product_variant' product.id %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+            <i class="fas fa-plus fa-sm text-white-50"></i> Thêm biến thể
+        </a>
+    </div>
+
+    <!-- Back to product link -->
+    <div class="mb-4">
+        <a href="{% url 'dashboard:product_detail' product.id %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left"></i> Quay lại thông tin sản phẩm
+        </a>
+    </div>
+
+    <!-- Variants List -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách biến thể</h6>
+        </div>
+        <div class="card-body">
+            {% if variants %}
+            <div class="table-responsive">
+                <table class="table table-bordered" id="variantsTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Tên biến thể</th>
+                            <th>Giá cơ bản</th>
+                            <th>Giá gốc</th>
+                            <th>Tồn kho</th>
+                            <th>Trạng thái</th>
+                            <th>Thứ tự</th>
+                            <th>Tùy chọn thời hạn</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for variant in variants %}
+                        <tr>
+                            <td>{{ variant.name }}</td>
+                            <td>{{ variant.base_price|floatformat:0 }}đ</td>
+                            <td>{% if variant.original_price %}{{ variant.original_price|floatformat:0 }}đ{% else %}-{% endif %}</td>
+                            <td>{{ variant.stock }}</td>
+                            <td>
+                                {% if variant.is_active %}
+                                <span class="badge badge-success">Hoạt động</span>
+                                {% else %}
+                                <span class="badge badge-secondary">Vô hiệu</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ variant.order }}</td>
+                            <td>
+                                <a href="{% url 'dashboard:manage_variant_options' variant.id %}" class="btn btn-info btn-sm">
+                                    <i class="fas fa-list"></i> Quản lý tùy chọn
+                                </a>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'dashboard:edit_product_variant' variant.id %}" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'dashboard:delete_product_variant' variant.id %}" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                Sản phẩm này chưa có biến thể nào. Hãy thêm biến thể mới.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        $('#variantsTable').DataTable({
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Vietnamese.json"
+            }
+        });
+    });
+</script>
+{% endblock %} 
+ 
+ 

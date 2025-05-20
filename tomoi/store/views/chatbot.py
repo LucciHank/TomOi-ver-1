@@ -42,7 +42,8 @@ except ImportError:
         def create(cls, *args, **kwargs):
             pass
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+User = get_user_model()
 from ..models import Product, Category
 
 def get_active_api_config():

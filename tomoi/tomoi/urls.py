@@ -30,6 +30,7 @@ urlpatterns = [
     path('blogs/', blog_redirect, name='blogs'),
     path('banners/', banner_redirect, name='banners'),
     path('chart-data/', chart_data_redirect, name='chart_data'),
+    path('ckeditor5/', include('django_ckeditor_5.urls')),
 ]
 
 if settings.DEBUG:

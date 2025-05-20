@@ -13,7 +13,8 @@ from store.views import (
     product_list, product_detail, add_to_cart, cart, update_cart, 
     checkout, search_products, category_products,
     api_search_products, api_category_products,
-    log_chat_message, rate_chat_message, send_chat_feedback  # thêm các view cho chatbot
+    log_chat_message, rate_chat_message, send_chat_feedback,
+    recharge, confirm_deposit  # thêm các view cho chatbot
 )
 
 from payment.views import vnpay_ipn
@@ -48,6 +49,10 @@ urlpatterns = [
     path('cart/add/<int:product_id>/', add_to_cart, name='add_to_cart'),
     path('cart/update/', update_cart, name='update_cart'),
     path('checkout/', checkout, name='checkout'),
+    
+    # Recharge
+    path('recharge/', recharge, name='recharge'),
+    path('api/confirm-deposit/', confirm_deposit, name='confirm_deposit'),
     
     # API
     path('api/products/search/', api_search_products, name='api_search_products'),

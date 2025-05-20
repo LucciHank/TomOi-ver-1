@@ -8,7 +8,9 @@ from django.conf import settings
 import requests
 from ..models import Product, Category
 from django.utils import timezone
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 # Giả định model để lưu trữ lịch sử cuộc trò chuyện
 class ChatbotConversation:

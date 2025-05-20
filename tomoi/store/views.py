@@ -3,7 +3,7 @@ from django.conf import settings
 from .models import (
     Order, OrderItem, PurchasedAccount, Product, ProductImage, 
     Category, Banner, CartItem, BlogPost, ProductVariant, 
-    VariantOption, Wishlist, SearchHistory
+    VariantOption, Wishlist, SearchHistory, Review
 )
 from accounts.models import CustomUser
 from django.contrib.auth.decorators import login_required
@@ -44,8 +44,20 @@ from django.utils.text import slugify
 import uuid
 import os
 from dashboard.models.conversation import Conversation, Message, UserNotification
-from django.contrib.auth.models import User
+import requests
+import hmac
+import hashlib
+import logging
 
+# Cấu hình logger
+logger = logging.getLogger(__name__)
+
+def format_price(value):
+    """Format giá tiền theo định dạng Việt Nam"""
+    try:
+        return f"{int(value):,}đ".replace(',', '.')
+    except (ValueError, TypeError):
+        return value
 
 def dashboard(request):
     return render(request, 'store/index.html')
@@ -57,8 +69,10 @@ def home(request):
         'side2_banners': Banner.objects.filter(location='side2', is_active=True),
         'left_banners': Banner.objects.filter(location='left', is_active=True),
         'right_banners': Banner.objects.filter(location='right', is_active=True),
-        'categories': Category.objects.all(),
-        'products': Product.objects.filter(is_featured=True),
+        'categories': Category.objects.filter(parent=None).distinct(),
+        'featured_products': Product.objects.filter(is_featured=True, is_active=True)[:8],
+        'bestseller_products': Product.objects.filter(is_active=True).order_by('-sold_count')[:8],
+        'new_products': Product.objects.filter(is_active=True).order_by('-created_at')[:8],
     }
     return render(request, 'store/home.html', context)
 
@@ -80,16 +94,37 @@ def add_images_to_product(request, product_id):
     return render(request, 'store/add_images', {'form': form, 'product': product})
 
 def product_detail(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
-    
-    context = {
-        'product': product,
-        'related_products': Product.objects.filter(category=product.category).exclude(id=product.id)[:4],
-        'cross_sale_products': product.cross_sale_products.all(),
-        'blog_posts': BlogPost.objects.filter(products=product),
-    }
-    
-    return render(request, 'store/product_detail.html', context)
+    """Chi tiết sản phẩm"""
+    try:
+        # Lấy sản phẩm theo ID
+        product = get_object_or_404(Product, id=product_id)
+        logger.info(f"Đang xem sản phẩm {product.name} (ID: {product.id})")
+        
+        # Khởi tạo các biến mặc định
+        context = {
+            'product': product,
+            'is_in_wishlist': False
+        }
+        
+        # Lấy danh sách sản phẩm yêu thích nếu user đã đăng nhập
+        if request.user.is_authenticated:
+            wishlist_item = Wishlist.objects.filter(user=request.user, product=product).exists()
+            context['is_in_wishlist'] = wishlist_item
+            logger.info(f"Sản phẩm trong wishlist: {wishlist_item}")
+        
+        # Lấy sản phẩm cross-sale
+        cross_sale_products = []
+        if product.cross_sale_products.exists():
+            cross_sale_products = product.cross_sale_products.filter(is_active=True)
+            context['cross_sale_products'] = cross_sale_products
+            logger.info(f"Đã lấy {cross_sale_products.count()} sản phẩm cross-sale")
+        
+        return render(request, 'store/product_detail.html', context)
+        
+    except Exception as e:
+        logger.error(f"Lỗi khi hiển thị chi tiết sản phẩm ID {product_id}: {str(e)}")
+        messages.error(request, f"Có lỗi xảy ra khi tải thông tin sản phẩm: {str(e)}")
+        return redirect('store:home')
 
 @login_required
 def add_balance(request, amount):
@@ -107,8 +142,77 @@ def user_profile(request):
 def user_info(request):
     return render(request, 'store/user_info.html')
 
+@login_required
 def recharge(request):
-    return render(request, 'store/recharge.html')
+    if request.method == 'POST':
+        try:
+            amount = int(request.POST.get('amount', 0))
+            payment_method = request.POST.get('payment_method')
+            
+            if amount < 10000:
+                messages.error(request, 'Số tiền nạp tối thiểu là 10.000đ')
+                return redirect('store:recharge')
+            
+            if payment_method == 'acb':
+                transaction = Transaction.objects.create(
+                    user=request.user,
+                    amount=amount,
+                    payment_method='acb',
+                    status='pending'
+                )
+                
+                bank_info = {
+                    'bank_name': 'Ngân hàng TMCP Á Châu (ACB)',
+                    'account_number': '123456789',  # Thay bằng số tài khoản thật
+                    'account_holder': 'NGUYEN VAN A',  # Thay bằng tên chủ tài khoản thật
+                    'amount': amount,
+                    'content': f'TOM{transaction.id}',
+                    'transaction_id': transaction.id
+                }
+                
+                return render(request, 'store/acb_transfer.html', {
+                    'bank_info': bank_info
+                })
+            elif payment_method == 'vnpay':
+                # Xử lý thanh toán VNPay
+                pass
+            elif payment_method == 'card':
+                # Xử lý nạp thẻ cào
+                pass
+                
+        except ValueError:
+            messages.error(request, 'Số tiền không hợp lệ')
+            return redirect('store:recharge')
+            
+    return render(request, 'store/recharge.html', {
+        'username': request.user.username
+    })
+
+@login_required
+def confirm_deposit(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        amount = data.get('amount')
+        payment_method = data.get('payment_method')
+        
+        if payment_method == 'acb':
+            # Tạo giao dịch mới
+            transaction = Transaction.objects.create(
+                user=request.user,
+                amount=amount,
+                payment_method='acb',
+                status='pending'
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Yêu cầu nạp tiền đã được gửi. Vui lòng chờ xác nhận.'
+            })
+            
+    return JsonResponse({
+        'success': False,
+        'message': 'Có lỗi xảy ra, vui lòng thử lại sau.'
+    })
 
 @login_required
 def buy_premium_account(request, account_type, price, duration_days):
@@ -194,6 +298,8 @@ def add_to_cart(request):
         duration = data.get('duration')
         upgrade_email = data.get('upgrade_email')
         account_username = data.get('account_username')
+        # Chỉ nhận account_password nhưng không lưu vào model
+        account_password = data.get('account_password')
 
         # Kiểm tra sản phẩm tồn tại
         product = get_object_or_404(Product, id=product_id)
@@ -234,17 +340,41 @@ def add_to_cart(request):
         if not created:
             cart_item.quantity += quantity
             cart_item.save()
+            
+        # Lấy thông tin giỏ hàng cập nhật để trả về cho client
+        if request.user.is_authenticated:
+            cart_items = CartItem.objects.filter(user=request.user)
+        else:
+            cart_items = CartItem.objects.filter(session_key=request.session.session_key)
+        
+        # Tạo JSON cho cart items
+        cart_items_json = [{
+            'id': item.id,
+            'product_id': item.product.id,
+            'name': item.product.name,
+            'price': format_price(float(item.get_total_price())),
+            'quantity': item.quantity,
+            'image_url': item.product.get_primary_image().url if item.product.get_primary_image() else None,
+            'variant_name': item.variant.name if item.variant else None,
+            'duration': item.duration if item.duration else None
+        } for item in cart_items]
+        
+        # Tính tổng số item trong giỏ
+        total_items = sum(item.quantity for item in cart_items)
 
         return JsonResponse({
             'success': True,
-            'message': 'Đã thêm vào giỏ hàng'
+            'message': 'Đã thêm vào giỏ hàng',
+            'cart_items': cart_items_json,
+            'total_items': total_items
         })
 
     except Exception as e:
         logger.error(f"Error in add_to_cart: {str(e)}")
         return JsonResponse({
             'success': False,
-            'message': 'Có lỗi xảy ra khi thêm vào giỏ hàng'
+            'message': 'Có lỗi xảy ra khi thêm vào giỏ hàng',
+            'error': str(e)
         })
 
 # Update context in view
@@ -544,13 +674,6 @@ def check_stock(request, product_id):
         return JsonResponse({'stock': product.stock})
     except Product.DoesNotExist:
         return JsonResponse({'error': 'Product not found'}, status=404)
-
-def format_price(value):
-    """Format giá tiền theo định dạng Việt Nam"""
-    try:
-        return f"{int(value):,}đ".replace(',', '.')
-    except (ValueError, TypeError):
-        return value
 
 @require_http_methods(["GET"])
 def get_variant_price(request):
@@ -1139,7 +1262,7 @@ def user_chat_dashboard(request):
     if not conversations.exists():
         # Lấy admin mặc định (ví dụ: superuser đầu tiên)
         try:
-            default_admin = User.objects.filter(is_superuser=True).first()
+            default_admin = CustomUser.objects.filter(is_superuser=True).first()
             if default_admin:
                 conversation = Conversation.objects.create(
                     admin=default_admin,
@@ -1158,7 +1281,8 @@ def user_chat_dashboard(request):
                 )
                 welcome_message.save()
                 
-                conversations = [conversation]
+                # Gán lại conversations là QuerySet thay vì list
+                conversations = Conversation.objects.filter(user=request.user).order_by('-last_message_time') 
             else:
                 # Không có admin, tạo cuộc trò chuyện không có admin
                 conversation = Conversation.objects.create(
@@ -1166,10 +1290,11 @@ def user_chat_dashboard(request):
                     last_message_time=timezone.now()
                 )
                 conversation.save()
-                conversations = [conversation]
+                # Gán lại conversations là QuerySet thay vì list
+                conversations = Conversation.objects.filter(user=request.user).order_by('-last_message_time')
         except Exception as e:
             # Ghi log lỗi
-            print(f"Error creating default conversation: {str(e)}")
+            logger.error(f"Error creating default conversation: {str(e)}")
             conversations = []
     
     # Lấy tin nhắn của cuộc trò chuyện đầu tiên (hoặc được chọn)
@@ -1235,7 +1360,7 @@ def user_send_message(request):
     admin = conversation.admin
     if not admin:
         # Nếu chưa có admin, gán admin mặc định
-        admin = User.objects.filter(is_superuser=True).first()
+        admin = CustomUser.objects.filter(is_superuser=True).first()
         if not admin:
             return JsonResponse({'status': 'error', 'message': 'Không có quản trị viên nào để gán cho cuộc trò chuyện'}, status=400)
         
@@ -1341,3 +1466,581 @@ def get_unread_count(request):
         })
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)})
+
+def acb_qr_payment(request, order_id):
+    try:
+        order = Order.objects.get(id=order_id, user=request.user)
+    except Order.DoesNotExist:
+        messages.error(request, 'Đơn hàng không tồn tại')
+        return redirect('store:order_list')
+
+    if order.payment_status == 'paid':
+        messages.info(request, 'Đơn hàng đã được thanh toán')
+        return redirect('store:order_detail', order_id=order.id)
+
+    # Tạo transaction mới
+    transaction = Transaction.objects.create(
+        user=request.user,
+        order=order,
+        amount=order.total_amount,
+        payment_method='acb_qr',
+        status='pending'
+    )
+
+    # Gọi API ACB để lấy QR code
+    try:
+        # Thay thế bằng thông tin thực tế của ACB
+        acb_api_url = settings.ACB_API_URL
+        acb_merchant_id = settings.ACB_MERCHANT_ID
+        acb_secret_key = settings.ACB_SECRET_KEY
+
+        # Tạo payload cho API ACB
+        payload = {
+            'merchantId': acb_merchant_id,
+            'orderId': str(transaction.id),
+            'amount': int(order.total_amount),
+            'currency': 'VND',
+            'description': f'Thanh toan don hang #{order.id}',
+            'returnUrl': request.build_absolute_uri(reverse('store:acb_qr_return')),
+            'cancelUrl': request.build_absolute_uri(reverse('store:acb_qr_cancel')),
+        }
+
+        # Ký payload với secret key
+        signature = create_acb_signature(payload, acb_secret_key)
+        payload['signature'] = signature
+
+        # Gọi API ACB
+        response = requests.post(acb_api_url, json=payload)
+        response_data = response.json()
+
+        if response.status_code == 200 and response_data.get('code') == '00':
+            # Lưu thông tin QR code
+            transaction.payment_data = {
+                'qr_code': response_data.get('qrCode'),
+                'qr_content': response_data.get('qrContent'),
+                'expire_time': response_data.get('expireTime')
+            }
+            transaction.save()
+
+            return render(request, 'store/payment/acb_qr.html', {
+                'transaction': transaction,
+                'qr_code': response_data.get('qrCode'),
+                'qr_content': response_data.get('qrContent'),
+                'expire_time': response_data.get('expireTime')
+            })
+        else:
+            transaction.status = 'failed'
+            transaction.save()
+            messages.error(request, 'Không thể tạo mã QR. Vui lòng thử lại sau.')
+            return redirect('store:checkout', order_id=order.id)
+
+    except Exception as e:
+        transaction.status = 'failed'
+        transaction.save()
+        messages.error(request, f'Lỗi khi tạo mã QR: {str(e)}')
+        return redirect('store:checkout', order_id=order.id)
+
+def acb_qr_return(request):
+    transaction_id = request.GET.get('transactionId')
+    try:
+        transaction = Transaction.objects.get(id=transaction_id)
+        if transaction.status == 'pending':
+            # Kiểm tra trạng thái thanh toán với ACB
+            payment_status = check_acb_payment_status(transaction)
+            if payment_status == 'success':
+                transaction.status = 'completed'
+                transaction.save()
+                transaction.order.payment_status = 'paid'
+                transaction.order.save()
+                messages.success(request, 'Thanh toán thành công')
+                return redirect('store:order_detail', order_id=transaction.order.id)
+            else:
+                transaction.status = 'failed'
+                transaction.save()
+                messages.error(request, 'Thanh toán thất bại')
+                return redirect('store:checkout', order_id=transaction.order.id)
+    except Transaction.DoesNotExist:
+        messages.error(request, 'Giao dịch không tồn tại')
+    return redirect('store:order_list')
+
+def acb_qr_cancel(request):
+    transaction_id = request.GET.get('transactionId')
+    try:
+        transaction = Transaction.objects.get(id=transaction_id)
+        transaction.status = 'cancelled'
+        transaction.save()
+        messages.info(request, 'Đã hủy thanh toán')
+    except Transaction.DoesNotExist:
+        messages.error(request, 'Giao dịch không tồn tại')
+    return redirect('store:order_list')
+
+def create_acb_signature(payload, secret_key):
+    # Tạo chuỗi để ký
+    string_to_sign = '&'.join([f"{k}={v}" for k, v in sorted(payload.items())])
+    # Ký với secret key
+    signature = hmac.new(
+        secret_key.encode('utf-8'),
+        string_to_sign.encode('utf-8'),
+        hashlib.sha256
+    ).hexdigest()
+    return signature
+
+def check_acb_payment_status(transaction):
+    try:
+        # Thay thế bằng thông tin thực tế của ACB
+        acb_api_url = settings.ACB_API_URL
+        acb_merchant_id = settings.ACB_MERCHANT_ID
+        acb_secret_key = settings.ACB_SECRET_KEY
+
+        payload = {
+            'merchantId': acb_merchant_id,
+            'orderId': str(transaction.id)
+        }
+
+        signature = create_acb_signature(payload, acb_secret_key)
+        payload['signature'] = signature
+
+        response = requests.post(f"{acb_api_url}/check-status", json=payload)
+        response_data = response.json()
+
+        if response.status_code == 200 and response_data.get('code') == '00':
+            return 'success' if response_data.get('status') == 'PAID' else 'failed'
+        return 'failed'
+    except Exception:
+        return 'failed'
+
+def bestsellers(request):
+    """Hiển thị trang các sản phẩm bán chạy nhất"""
+    products = Product.objects.filter(is_active=True).order_by('-sold_count')
+    context = {
+        'products': products,
+        'title': 'Sản phẩm bán chạy',
+        'breadcrumb_title': 'Sản phẩm bán chạy'
+    }
+    return render(request, 'store/featured_products.html', context)
+
+def featured_products(request):
+    """Hiển thị trang các sản phẩm nổi bật"""
+    products = Product.objects.filter(is_featured=True, is_active=True)
+    context = {
+        'products': products,
+        'title': 'Sản phẩm nổi bật',
+        'breadcrumb_title': 'Sản phẩm nổi bật'
+    }
+    return render(request, 'store/featured_products.html', context)
+
+def newest_products(request):
+    """Hiển thị trang các sản phẩm mới nhất"""
+    products = Product.objects.filter(is_active=True).order_by('-created_at')
+    context = {
+        'products': products,
+        'title': 'Sản phẩm mới',
+        'breadcrumb_title': 'Sản phẩm mới'
+    }
+    return render(request, 'store/featured_products.html', context)
+
+def promotions(request):
+    """Hiển thị trang các sản phẩm đang khuyến mãi"""
+    products = Product.objects.filter(old_price__isnull=False, is_active=True).exclude(old_price=0)
+    return render(request, 'store/promotions.html', {
+        'products': products
+    })
+
+def buying_guide(request):
+    """Hiển thị trang hướng dẫn mua hàng"""
+    return render(request, 'store/buying_guide.html')
+
+def contact(request):
+    """Hiển thị trang liên hệ"""
+    return render(request, 'store/contact.html')
+
+def news(request):
+    """Hiển thị trang tin tức"""
+    posts = BlogPost.objects.filter(is_active=True).order_by('-created_at')
+    return render(request, 'store/news.html', {
+        'posts': posts
+    })
+
+@login_required
+def check_acb_payment(request, transaction_id):
+    """
+    Kiểm tra trạng thái thanh toán ACB QR
+    """
+    try:
+        # Lấy thông tin giao dịch
+        transaction = Transaction.objects.get(id=transaction_id)
+        
+        # Kiểm tra xem transaction có thuộc về user hiện tại không
+        if transaction.user != request.user:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Bạn không có quyền truy cập giao dịch này'
+            })
+        
+        # Nếu giao dịch đã thành công, trả về kết quả luôn
+        if transaction.status == 'success':
+            # Chuyển hướng đến trang chi tiết đơn hàng nếu có
+            redirect_url = '/orders'
+            if transaction.order:
+                redirect_url = f'/orders/{transaction.order.id}'
+                
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Thanh toán đã được xác nhận',
+                'redirect_url': redirect_url
+            })
+        
+        # Kiểm tra trạng thái thanh toán từ ACB
+        acb_status = check_acb_payment_status(transaction)
+        
+        if acb_status == 'success':
+            # Cập nhật trạng thái giao dịch
+            transaction.status = 'success'
+            transaction.save()
+            
+            # Cập nhật trạng thái đơn hàng nếu có
+            if transaction.order:
+                transaction.order.payment_status = 'paid'
+                transaction.order.save()
+            
+            # Chuyển hướng đến trang chi tiết đơn hàng nếu có
+            redirect_url = '/orders'
+            if transaction.order:
+                redirect_url = f'/orders/{transaction.order.id}'
+                
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Thanh toán thành công',
+                'redirect_url': redirect_url
+            })
+        elif acb_status == 'failed':
+            # Cập nhật trạng thái giao dịch
+            transaction.status = 'failed'
+            transaction.save()
+            
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Thanh toán thất bại'
+            })
+        else:
+            # Trạng thái pending
+            return JsonResponse({
+                'status': 'pending',
+                'message': 'Đang chờ thanh toán'
+            })
+            
+    except Transaction.DoesNotExist:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Không tìm thấy giao dịch'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': f'Lỗi: {str(e)}'
+        })
+
+@login_required
+def add_review(request, product_id):
+    """Thêm đánh giá sản phẩm"""
+    if request.method == 'POST':
+        product = get_object_or_404(Product, id=product_id)
+        
+        try:
+            # Lấy dữ liệu từ form
+            rating = int(request.POST.get('rating', 5))
+            title = request.POST.get('title', '')
+            content = request.POST.get('content', '')
+            
+            # Kiểm tra nếu người dùng đã đánh giá sản phẩm này chưa
+            existing_review = Review.objects.filter(product=product, user=request.user).first()
+            
+            if existing_review:
+                # Cập nhật đánh giá hiện có
+                existing_review.rating = rating
+                existing_review.title = title
+                existing_review.content = content
+                existing_review.save()
+                messages.success(request, "Đánh giá của bạn đã được cập nhật!")
+            else:
+                # Tạo đánh giá mới
+                Review.objects.create(
+                    product=product,
+                    user=request.user,
+                    rating=rating,
+                    title=title,
+                    content=content
+                )
+                messages.success(request, "Cảm ơn bạn đã đánh giá sản phẩm!")
+            
+            return redirect('store:product_detail', product_id=product_id)
+            
+        except Exception as e:
+            logger.error(f"Lỗi khi thêm đánh giá: {str(e)}")
+            messages.error(request, "Có lỗi xảy ra khi gửi đánh giá. Vui lòng thử lại sau.")
+    
+    return redirect('store:product_detail', product_id=product_id)
+
+@login_required
+@require_POST
+def apply_tcoin(request):
+    try:
+        data = json.loads(request.body)
+        amount = data.get('amount', 0)
+        
+        if not amount or int(amount) <= 0:
+            return JsonResponse({
+                'success': False,
+                'message': 'Vui lòng nhập số TCoin hợp lệ'
+            })
+        
+        # Chuyển đổi sang số nguyên để đảm bảo
+        amount = int(amount)
+        
+        # Kiểm tra người dùng có đủ TCoin không
+        if request.user.tcoin < amount:
+            return JsonResponse({
+                'success': False,
+                'message': f'Bạn chỉ có {request.user.tcoin} TCoin'
+            })
+        
+        # Lấy tổng giỏ hàng hiện tại 
+        cart_items = CartItem.objects.filter(user=request.user)
+        cart_total = sum(item.get_total_price() for item in cart_items)
+        
+        # Kiểm tra số TCoin tối đa có thể sử dụng
+        max_allowed_tcoin = int(cart_total / 100)  # 1 TCoin = 100đ
+        
+        if amount > max_allowed_tcoin:
+            return JsonResponse({
+                'success': False,
+                'message': f'Số TCoin tối đa có thể sử dụng cho đơn hàng này là {max_allowed_tcoin}'
+            })
+        
+        # Tính số tiền giảm
+        discount_amount = amount * 100
+        
+        # Lưu vào session
+        request.session['tcoin_discount'] = discount_amount
+        request.session['used_tcoin'] = amount
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Đã áp dụng {amount} TCoin (giảm {discount_amount}đ)',
+            'discount_amount': discount_amount
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in apply_tcoin: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': 'Có lỗi xảy ra khi áp dụng TCoin'
+        })
+
+@login_required
+@require_POST
+def apply_voucher(request):
+    try:
+        data = json.loads(request.body)
+        code = data.get('code')
+        
+        if not code:
+            return JsonResponse({
+                'success': False,
+                'message': 'Vui lòng nhập mã giảm giá'
+            })
+        
+        # Kiểm tra voucher có tồn tại không
+        try:
+            from accounts.models import Voucher
+            voucher = Voucher.objects.get(code=code, is_active=True)
+            
+            # Kiểm tra voucher còn hạn sử dụng không
+            if voucher.expiry_date and voucher.expiry_date < timezone.now().date():
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Mã giảm giá đã hết hạn'
+                })
+            
+            # Kiểm tra số lần sử dụng
+            if voucher.max_uses and voucher.used_count >= voucher.max_uses:
+                return JsonResponse({
+                    'success': False, 
+                    'message': 'Mã giảm giá đã hết lượt sử dụng'
+                })
+                
+            # Lấy tổng giỏ hàng hiện tại
+            cart_items = CartItem.objects.filter(user=request.user)
+            cart_total = sum(item.get_total_price() for item in cart_items)
+            
+            # Kiểm tra giỏ hàng có đủ giá trị tối thiểu không
+            if voucher.min_purchase and cart_total < voucher.min_purchase:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Giỏ hàng cần tối thiểu {voucher.min_purchase}đ để áp dụng mã này'
+                })
+            
+            # Tính số tiền giảm
+            if voucher.discount_type == 'percentage':
+                discount_amount = int(cart_total * voucher.discount_value / 100)
+                if voucher.max_discount and discount_amount > voucher.max_discount:
+                    discount_amount = voucher.max_discount
+            else:  # fixed
+                discount_amount = voucher.discount_value
+            
+            # Lưu vào session
+            request.session['voucher_code'] = code
+            request.session['voucher_discount'] = discount_amount
+            request.session['voucher_id'] = voucher.id
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Đã áp dụng mã giảm giá {code}',
+                'discount_amount': discount_amount
+            })
+            
+        except Voucher.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'Mã giảm giá không tồn tại hoặc đã hết hạn'
+            })
+            
+    except Exception as e:
+        logger.error(f"Error in apply_voucher: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': 'Có lỗi xảy ra khi áp dụng mã giảm giá'
+        })
+
+@login_required
+@require_POST
+def apply_referral(request):
+    try:
+        data = json.loads(request.body)
+        code = data.get('code')
+        
+        if not code:
+            return JsonResponse({
+                'success': False,
+                'message': 'Vui lòng nhập mã giới thiệu'
+            })
+        
+        # Kiểm tra mã giới thiệu có tồn tại không
+        try:
+            from accounts.models import ReferralCode
+            referral = ReferralCode.objects.get(code=code, is_active=True)
+            
+            # Không thể dùng mã giới thiệu của chính mình
+            if referral.user == request.user:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Bạn không thể sử dụng mã giới thiệu của chính mình'
+                })
+            
+            # Lưu thông tin vào session để xử lý khi thanh toán
+            request.session['referral_code'] = code
+            request.session['referrer_id'] = referral.user.id
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Đã áp dụng mã giới thiệu thành công'
+            })
+            
+        except ReferralCode.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'Mã giới thiệu không tồn tại hoặc không hợp lệ'
+            })
+            
+    except Exception as e:
+        logger.error(f"Error in apply_referral: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': 'Có lỗi xảy ra khi áp dụng mã giới thiệu'
+        })
+
+@login_required
+@require_POST
+def set_gift_recipient(request):
+    try:
+        data = json.loads(request.body)
+        email = data.get('email')
+        
+        if not email:
+            return JsonResponse({
+                'success': False,
+                'message': 'Vui lòng nhập email người nhận'
+            })
+        
+        # Kiểm tra định dạng email
+        from django.core.validators import validate_email
+        from django.core.exceptions import ValidationError
+        
+        try:
+            validate_email(email)
+        except ValidationError:
+            return JsonResponse({
+                'success': False,
+                'message': 'Email không hợp lệ'
+            })
+        
+        # Lưu email người nhận vào session
+        request.session['gift_recipient_email'] = email
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Đã xác nhận email người nhận quà'
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in set_gift_recipient: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': 'Có lỗi xảy ra khi xác nhận email người nhận'
+        })
+
+@login_required
+@require_POST
+def set_gift_message(request):
+    try:
+        data = json.loads(request.body)
+        message = data.get('message', '')
+        
+        # Lưu tin nhắn quà tặng vào session
+        request.session['gift_message'] = message
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Đã lưu lời nhắn quà tặng'
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in set_gift_message: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': 'Có lỗi xảy ra khi lưu lời nhắn'
+        })
+
+def gift_demo(request):
+    """Hiển thị trang demo mẫu thư quà tặng"""
+    
+    # Lấy thông tin người dùng nếu đã đăng nhập
+    username = request.user.username if request.user.is_authenticated else "Người mua hàng"
+    
+    # Lấy thông tin sản phẩm từ giỏ hàng nếu có
+    product_name = "Spotify Premium 1 tháng"
+    
+    # Lấy nội dung lời nhắn từ session
+    gift_message = request.session.get('gift_message', 'Chúc bạn có trải nghiệm tuyệt vời với món quà này!')
+    
+    # Lấy email người nhận từ session
+    recipient_email = request.session.get('gift_recipient_email', 'nguoinhan@example.com')
+    
+    context = {
+        'username': username,
+        'product_name': product_name,
+        'gift_message': gift_message,
+        'recipient_email': recipient_email
+    }
+    
+    return render(request, 'store/gift_demo.html', context)

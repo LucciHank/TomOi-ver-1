@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Thanh toán qua QR ACB{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Thanh toán qua QR ACB</h4>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <h5>Quét mã QR để thanh toán</h5>
+                        <p class="text-muted">Mã QR sẽ hết hạn sau {{ transaction.payment_data.expire_time }}</p>
+                    </div>
+                    
+                    <div class="qr-code-container mb-4">
+                        <img src="{{ transaction.payment_data.qr_code }}" alt="QR Code" class="img-fluid">
+                    </div>
+
+                    <div class="payment-details mb-4">
+                        <p><strong>Số tiền:</strong> {{ transaction.amount|floatformat:0 }} VNĐ</p>
+                        <p><strong>Mã giao dịch:</strong> {{ transaction.id }}</p>
+                        <p><strong>Thời gian tạo:</strong> {{ transaction.created_at|date:"d/m/Y H:i" }}</p>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h6>Hướng dẫn thanh toán:</h6>
+                        <ol class="text-start">
+                            <li>Mở ứng dụng ACB trên điện thoại của bạn</li>
+                            <li>Chọn tính năng quét mã QR</li>
+                            <li>Quét mã QR hiển thị trên màn hình</li>
+                            <li>Kiểm tra thông tin và xác nhận thanh toán</li>
+                            <li>Nhập mật khẩu để hoàn tất giao dịch</li>
+                        </ol>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="{% url 'store:acb_qr_cancel' %}?transactionId={{ transaction.id }}" 
+                           class="btn btn-secondary">Hủy thanh toán</a>
+                        <a href="{% url 'store:order_detail' order_id=transaction.order.id %}" 
+                           class="btn btn-primary">Xem chi tiết đơn hàng</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.qr-code-container {
+    max-width: 300px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.qr-code-container img {
+    width: 100%;
+    height: auto;
+}
+
+.payment-details {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.alert {
+    text-align: left;
+}
+
+.alert ol {
+    margin-bottom: 0;
+}
+</style>
+{% endblock %} 
+ 
+ 

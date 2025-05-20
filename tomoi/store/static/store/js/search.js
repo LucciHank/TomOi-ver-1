@@ -189,10 +189,14 @@ document.querySelectorAll('.category-item').forEach(item => {
 
 // Apply Filters
 function applyFilters() {
-    const category = document.querySelector('.category-item.active').dataset.category;
-    const minPrice = parseInt(rangeInputs[0].value);
-    const maxPrice = parseInt(rangeInputs[1].value);
-    const sort = document.querySelector('input[name="sort"]:checked').value;
+    // Kiểm tra sự tồn tại của các phần tử trước khi truy cập để tránh lỗi
+    const activeCategory = document.querySelector('.category-item.active');
+    const activeSortOption = document.querySelector('input[name="sort"]:checked');
+    
+    const category = activeCategory ? activeCategory.dataset.category : null;
+    const minPrice = parseInt(rangeInputs[0]?.value || 0);
+    const maxPrice = parseInt(rangeInputs[1]?.value || 10000000);
+    const sort = activeSortOption ? activeSortOption.value : 'newest';
     const query = new URLSearchParams(window.location.search).get('q') || '';
     
     const params = new URLSearchParams();

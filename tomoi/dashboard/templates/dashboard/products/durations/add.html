@@ -1,0 +1,109 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">{{ title }}</h1>
+        <a href="{% url 'dashboard:product_durations' %}" class="btn btn-sm btn-secondary">
+            <i class="fas fa-arrow-left mr-1"></i> Quay lại danh sách
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thêm thời hạn sản phẩm mới</h6>
+        </div>
+        <div class="card-body">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" action="{% url 'dashboard:add_product_duration' %}">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="name">Tên thời hạn <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ name|default:'' }}" required>
+                            <small class="form-text text-muted">Tên hiển thị của thời hạn</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="value">Giá trị <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="value" name="value" value="{{ value|default:'' }}" required>
+                            <small class="form-text text-muted">Giá trị duy nhất cho thời hạn (vd: 1_MONTH)</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="days">Số ngày <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="days" name="days" value="{{ days|default:'0' }}" min="1" required>
+                            <small class="form-text text-muted">Thời hạn tính bằng số ngày</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="display_order">Thứ tự hiển thị</label>
+                            <input type="number" class="form-control" id="display_order" name="display_order" value="{{ display_order|default:'0' }}" min="0">
+                            <small class="form-text text-muted">Số nhỏ hơn sẽ hiển thị trước</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Mô tả</label>
+                    <textarea class="form-control" id="description" name="description" rows="3">{{ description|default:'' }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="is_active" name="is_active" {% if is_active|default:True %}checked{% endif %}>
+                        <label class="custom-control-label" for="is_active">Kích hoạt</label>
+                    </div>
+                </div>
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save mr-1"></i> Lưu thời hạn
+                    </button>
+                    <a href="{% url 'dashboard:product_durations' %}" class="btn btn-secondary">
+                        <i class="fas fa-times mr-1"></i> Hủy
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Tự động tạo value từ name
+    $('#name').on('blur', function() {
+        if ($('#value').val() === '') {
+            let value = $(this).val()
+                .toUpperCase()
+                .trim()
+                .replace(/\s+/g, '_')
+                .replace(/[^A-Z0-9_]/g, '');
+            $('#value').val(value);
+        }
+    });
+</script>
+{% endblock %} 
+ 
+ 

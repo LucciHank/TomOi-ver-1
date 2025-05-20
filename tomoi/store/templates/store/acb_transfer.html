@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Thông tin chuyển khoản</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        Vui lòng chuyển khoản theo thông tin dưới đây. Sau khi chuyển khoản xong, hệ thống sẽ tự động cập nhật số dư cho bạn.
+                    </div>
+                    
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Ngân hàng:</th>
+                            <td>{{ bank_info.bank_name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Số tài khoản:</th>
+                            <td>{{ bank_info.account_number }}</td>
+                        </tr>
+                        <tr>
+                            <th>Chủ tài khoản:</th>
+                            <td>{{ bank_info.account_holder }}</td>
+                        </tr>
+                        <tr>
+                            <th>Số tiền:</th>
+                            <td>{{ bank_info.amount|intcomma }} VNĐ</td>
+                        </tr>
+                        <tr>
+                            <th>Nội dung chuyển khoản:</th>
+                            <td>{{ bank_info.content }}</td>
+                        </tr>
+                    </table>
+
+                    <div class="alert alert-warning mt-3">
+                        <strong>Lưu ý:</strong>
+                        <ul class="mb-0">
+                            <li>Vui lòng chuyển khoản đúng số tiền và nội dung như trên</li>
+                            <li>Mã giao dịch của bạn là: #{{ bank_info.transaction_id }}</li>
+                            <li>Thời gian xử lý có thể mất từ 1-5 phút sau khi chuyển khoản thành công</li>
+                        </ul>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="{% url 'store:recharge' %}" class="btn btn-secondary">Quay lại</a>
+                        <a href="{% url 'store:transaction_history' %}" class="btn btn-primary">Xem lịch sử giao dịch</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
+ 
+ 
