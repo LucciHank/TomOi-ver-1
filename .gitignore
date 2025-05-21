@@ -49,10 +49,53 @@ logs/
 *~
 .DS_Store
 
-# Media và static file compilations 
-media/
-static/collected/
+# Media và static files - LOẠI BỎ TẤT CẢ
+# Static files (gồm CSS, JavaScript)
+static/
 staticfiles/
+tomoi/static/
+tomoi/staticfiles/
+*/static/
+*/staticfiles/
+static/collected/
+
+# Tất cả các file media (hình ảnh, video, âm thanh, uploads)
+media/
+tomoi/media/
+*/media/
+uploads/
+*/uploads/
+
+# Tất cả các file hình ảnh, video, âm thanh
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.svg
+*.ico
+*.webp
+*.mp4
+*.mov
+*.avi
+*.wmv
+*.mkv
+*.webm
+*.mp3
+*.wav
+*.ogg
+*.flac
+
+# Các thư mục cụ thể chứa media
+*/images/
+*/img/
+*/pictures/
+*/videos/
+*/audio/
+*/assets/img/
+*/assets/images/
+*/assets/media/
+*/assets/icons/
 
 # Local development settings
 local_settings.py
